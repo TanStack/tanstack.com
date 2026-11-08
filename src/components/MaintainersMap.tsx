@@ -1407,7 +1407,7 @@ export function MaintainersMap({
                 >
                   <div
                     data-globe-portraits
-                    className="pointer-events-auto left-0 top-0 flex w-max items-center -space-x-1 rounded-full border border-border-default bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:-space-x-1.5 sm:p-1.5"
+                    className="pointer-events-auto left-0 top-0 flex w-max items-center -space-x-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:-space-x-1.5 sm:p-1.5"
                   >
                     {group.members.map((member) => (
                       <Tooltip
@@ -1439,7 +1439,7 @@ export function MaintainersMap({
                     onClick={() => focus(group)}
                     aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'} near ${group.members[0]?.location?.name ?? 'this location'}`}
                     aria-expanded={selectedId === group.id}
-                    className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
+                    className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
                     <span aria-hidden="true" className="flex -space-x-0.5">
                       {group.members.map((member) => (
@@ -1458,7 +1458,7 @@ export function MaintainersMap({
             </ClientOnly>
           </div>
         </div>
-        <div className="absolute bottom-0 right-0 z-20 flex flex-col gap-1 rounded-lg border border-border-default bg-background-elevated/95 p-1 text-sm text-text-primary shadow-sm">
+        <div className="absolute bottom-0 right-0 z-20 flex flex-col gap-1 rounded-lg border border-border-default dark:border-white/20 bg-background-elevated/95 p-1 text-sm text-text-primary shadow-sm">
           <button
             type="button"
             aria-label="Zoom in"

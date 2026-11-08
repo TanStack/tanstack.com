@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useId,
   useLayoutEffect,
@@ -7,7 +8,6 @@ import {
   useState,
 } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
-import createGlobe, { type Globe, type Marker } from 'cobe'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
 import {
   MinusIcon,
@@ -20,6 +20,7 @@ import type { Maintainer } from '~/libraries/maintainers'
 import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
+import { createChartsGlobe } from './maintainersChartsGlobe'
 
 const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
 const zoomStep = 1.5
@@ -79,7 +80,7 @@ function markerVector(latitude: number, longitude: number): MarkerVector {
   ]
 }
 
-// Match COBE's marker projection without writing marker CSS to the page root.
+// Match the Charts globe camera to keep the connectors aligned with the pins.
 function projectAnchors(
   groups: MaintainerGroup[],
   { phi, theta, scale }: View,
@@ -671,7 +672,9 @@ export function MaintainersMap({
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const [host, setHost] = useState((): Element | null => null)
   const [surface, setSurface] = useState((): HTMLDivElement | null => null)
-  const [globe, setGlobe] = useState((): Globe | null => null)
+  const [globe, setGlobe] = useState<ReturnType<
+    typeof createChartsGlobe
+  > | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [scale, setScale] = useState(initialView.scale)
   const [selectedId, setSelectedId] = useState('')
@@ -686,6 +689,11 @@ export function MaintainersMap({
   const interacting = useRef(false)
   const pausedRef = useRef(false)
   const dirty = useRef(true)
+  const wakeGlobe = useRef<() => void>(undefined)
+  const invalidate = useCallback(() => {
+    dirty.current = true
+    wakeGlobe.current?.()
+  }, [])
   const hostSize = useRef<GlobeBounds>({
     width: 0,
     height: 0,
@@ -768,42 +776,20 @@ export function MaintainersMap({
         ),
       }
     }
-    const canvas = document.createElement('canvas')
-    canvas.style.cssText = 'display:block;width:100%;height:100%'
-    canvas.setAttribute('aria-hidden', 'true')
-    surface.append(canvas)
     hostSize.current = readBounds()
-    const instance = createGlobe(canvas, {
-      width: hostSize.current.paintWidth,
-      height: hostSize.current.paintHeight,
-      devicePixelRatio: Math.min(window.devicePixelRatio, 2),
-      ...view.current,
-      dark: 1,
-      diffuse: 1.4,
-      mapSamples: 24000,
-      mapBrightness: 6,
-      mapBaseBrightness: 0,
-      baseColor: [0.55, 0.65, 0.72],
-      markerColor: [1, 0.57, 0.37],
-      glowColor: [0.12, 0.17, 0.2],
-      markerElevation,
-    })
+    const instance = createChartsGlobe(surface)
     setGlobe(instance)
     const updateBounds = () => {
       hostSize.current = readBounds()
-      dirty.current = true
+      invalidate()
     }
     const resize = new ResizeObserver(updateBounds)
     resize.observe(host)
     resize.observe(surface)
     const updateTheme = () => {
       const dark = document.documentElement.classList.contains('dark')
-      instance.update({
-        dark: dark ? 1 : 0,
-        baseColor: dark ? [0.55, 0.65, 0.72] : [1, 1, 1],
-        glowColor: dark ? [0.12, 0.17, 0.2] : [0.9, 0.91, 0.92],
-      })
-      dirty.current = true
+      instance.setDark(dark)
+      invalidate()
     }
     updateTheme()
     const theme = new MutationObserver(updateTheme)
@@ -817,7 +803,7 @@ export function MaintainersMap({
       instance.destroy()
       surface.replaceChildren()
     }
-  }, [host, surface])
+  }, [host, surface, invalidate])
 
   useLayoutEffect(() => {
     groupsRef.current = groups
@@ -825,16 +811,15 @@ export function MaintainersMap({
     for (const { line } of profileNodes.current ?? [])
       line.style.visibility = 'hidden'
     profileNodes.current = undefined
-    dirty.current = true
-    if (!globe) return
-    // No marker ids: COBE would otherwise rewrite :root custom properties and
-    // move an anchor element per marker on every frame.
-    const markers: Marker[] = groups.map((group) => ({
-      location: group.location,
-      size: group.members.length > 1 ? 0.035 : 0.022,
-    }))
-    globe.update({ markers })
-  }, [globe, groups])
+    globe?.setMarkers(
+      groups.map(({ id, vector, members }) => ({
+        id,
+        vector,
+        size: members.length > 1 ? 0.035 : 0.022,
+      })),
+    )
+    invalidate()
+  }, [globe, groups, invalidate])
 
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -864,9 +849,14 @@ export function MaintainersMap({
     let viewport: ProfileViewport
     let viewportChanged = true
     let frame = 0
+    let lastFrame = performance.now()
     const requestFrame = () => {
-      if (!frame) frame = requestAnimationFrame(animate)
+      if (frame) return
+      const now = performance.now()
+      if (now - lastFrame > 100) lastFrame = now - frameInterval
+      frame = requestAnimationFrame(animate)
     }
+    wakeGlobe.current = requestFrame
     const visualViewport = window.visualViewport
     let fadeOffset: number | undefined
     const updateViewport = () => {
@@ -924,10 +914,7 @@ export function MaintainersMap({
       passive: true,
     })
     visualViewport?.addEventListener('resize', updateViewport)
-    let visible = false,
-      lastFrame = performance.now()
-    let renderedWidth = 0
-    let renderedHeight = 0
+    let visible = false
     let anchors = new Map<string, Anchor>()
     let wasGlobeVisible = false
     let layoutMoving = true
@@ -952,13 +939,15 @@ export function MaintainersMap({
     const mobile = window.matchMedia(mobileViewport)
     const resetSizes = () => {
       profileNodes.current = undefined
-      dirty.current = true
+      invalidate()
     }
     mobile.addEventListener('change', resetSizes)
+    document.addEventListener('visibilitychange', requestFrame)
     dirty.current = true
     function animate(now: number) {
       frame = 0
       const elapsed = now - lastFrame
+      let keepAnimating = elapsed < frameInterval
       if (elapsed >= frameInterval) {
         lastFrame = now
         const bounds = hostSize.current
@@ -987,13 +976,9 @@ export function MaintainersMap({
             '[data-globe-profile]:hover, [data-globe-profile]:focus-within',
           )
           const idle = !readingProfile && !interacting.current
-          if (
-            entered &&
-            globeVisible &&
-            !reducedMotion &&
-            !pausedRef.current &&
-            idle
-          ) {
+          const autoRotate =
+            globeVisible && !reducedMotion && !pausedRef.current
+          if (entered && autoRotate && idle) {
             target.current.phi += Math.min(elapsed, 100) * 0.00015
           }
           const current = view.current,
@@ -1037,7 +1022,7 @@ export function MaintainersMap({
             viewportChanged = false
           }
           wasIdle = idle
-          // Give COBE a frame to upload its embedded map texture after laying out the rows.
+          // Let the browser paint the hidden surface before revealing the scene.
           const reveal =
             preparing &&
             profileNodes.current !== undefined &&
@@ -1057,32 +1042,13 @@ export function MaintainersMap({
               ? `translateY(${offsetY}px) scale(${entryScale})`
               : ''
           }
-          if ((redraw || reveal || entering) && paintHeight > 0) {
+          if ((redraw || entering) && paintHeight > 0) {
             const paintView = {
               ...current,
               scale:
                 (current.scale * projectionHeight * entryScale) / paintHeight,
             }
-            // COBE applies its offset before scale and uses half the pixel distance.
-            const offset: [number, number] = [
-              0,
-              (2 * offsetY) / paintView.scale,
-            ]
-            if (
-              paintWidth !== renderedWidth ||
-              paintHeight !== renderedHeight
-            ) {
-              instance.update({
-                ...paintView,
-                offset,
-                width: paintWidth,
-                height: paintHeight,
-              })
-              renderedWidth = paintWidth
-              renderedHeight = paintHeight
-            } else {
-              instance.update({ ...paintView, offset })
-            }
+            instance.draw(paintView, paintWidth, paintHeight, offsetY)
           }
           if (progress === 1) entranceStart = undefined
           if (reveal) {
@@ -1092,9 +1058,15 @@ export function MaintainersMap({
             scene?.removeAttribute('inert')
           }
           dirty.current = false
+          keepAnimating =
+            autoRotate ||
+            entranceStart !== undefined ||
+            (preparing && !entered) ||
+            moving ||
+            layoutMoving
         }
       }
-      if (elapsed < frameInterval || visible || wasGlobeVisible) requestFrame()
+      if (keepAnimating) requestFrame()
     }
     return () => {
       observer.disconnect()
@@ -1104,9 +1076,11 @@ export function MaintainersMap({
       visualViewport?.removeEventListener('scroll', updateViewport)
       visualViewport?.removeEventListener('resize', updateViewport)
       mobile.removeEventListener('change', resetSizes)
+      document.removeEventListener('visibilitychange', requestFrame)
       cancelAnimationFrame(frame)
+      wakeGlobe.current = undefined
     }
-  }, [host, globe, surface, reducedMotion, profilePositions])
+  }, [host, globe, surface, reducedMotion, profilePositions, invalidate])
 
   useEffect(() => {
     if (!host) return
@@ -1150,10 +1124,11 @@ export function MaintainersMap({
           setScale(next.k)
         }
         previous = next
-        dirty.current = true
+        invalidate()
       })
       .on('end', () => {
         interacting.current = false
+        wakeGlobe.current?.()
       })
     selection.call(behavior)
     const initialScale = window.matchMedia(mobileViewport).matches
@@ -1164,7 +1139,7 @@ export function MaintainersMap({
     return () => {
       selection.on('.zoom', null)
     }
-  }, [host, behavior])
+  }, [host, behavior, invalidate])
 
   function focus(group: MaintainerGroup) {
     const phi = (-group.location[1] * Math.PI) / 180 - Math.PI / 2
@@ -1176,7 +1151,7 @@ export function MaintainersMap({
       )
     target.current.theta = (group.location[0] * Math.PI) / 180
     setSelectedId(group.id)
-    dirty.current = true
+    invalidate()
   }
 
   // The composite globe needs a focus target for its keyboard rotation controls.
@@ -1236,7 +1211,7 @@ export function MaintainersMap({
               -1.2,
               Math.min(1.2, target.current.theta + direction[1]),
             )
-            dirty.current = true
+            invalidate()
           }}
           className="relative isolate z-10 aspect-square outline-offset-4 [overflow-anchor:none] sm:absolute sm:inset-y-0 sm:left-[calc(50%-50cqw)] sm:z-auto sm:isolation-auto sm:aspect-auto sm:w-[100cqw]"
         >
@@ -1387,6 +1362,7 @@ export function MaintainersMap({
             onClick={() => {
               pausedRef.current = !paused
               setPaused(!paused)
+              wakeGlobe.current?.()
             }}
             className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
           >

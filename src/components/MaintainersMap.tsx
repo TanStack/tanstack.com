@@ -8,8 +8,14 @@ import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 
-const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.5 }
+const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
+// Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
+const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
+const entranceThreshold = 0.25
+const entranceWarmup = 280
+const zoomControls = { width: 46, height: 86 }
+const desktopHeading = { width: 176, height: 52 }
 
 type View = typeof initialView
 
@@ -68,12 +74,15 @@ type ProfilePosition = {
 function placeProfiles(
   host: Element,
   bounds: { width: number; height: number },
-  gap: number,
+  mobile: boolean,
   anchors: Map<string, Anchor>,
   sizes: Map<string, { width: number; height: number }>,
   positions: Map<string, ProfilePosition>,
   elapsed: number,
 ) {
+  const gap = mobile ? 4 : 8
+  const headingRight = mobile ? 0 : desktopHeading.width + gap
+  const headingBottom = mobile ? 0 : desktopHeading.height + gap
   const lines = new Map<string, SVGLineElement>()
   for (const line of host.querySelectorAll('[data-globe-line]'))
     if (line instanceof SVGLineElement && line.dataset.globeLine)
@@ -119,6 +128,14 @@ function placeProfiles(
       card.style.pointerEvents = visible ? 'auto' : 'none'
       card.inert = !visible
       line.style.opacity = visible ? '1' : '0'
+      if (visible) {
+        for (const avatar of card.querySelectorAll(
+          'img[data-globe-src]:not([src])',
+        )) {
+          if (avatar instanceof HTMLImageElement && avatar.dataset.globeSrc)
+            avatar.src = avatar.dataset.globeSrc
+        }
+      }
     }
     const previous = positions.get(id)
     if (!visible) {
@@ -143,9 +160,21 @@ function placeProfiles(
     ]
   })
   type Label = (typeof labels)[number]
-  const constrain = (label: Label) => {
-    label.x = Math.max(10, Math.min(bounds.width - label.width - 10, label.x))
-    label.y = Math.max(10, Math.min(bounds.height - label.height - 66, label.y))
+  const constrain = (
+    position: { x: number; y: number },
+    width: number,
+    height: number,
+  ) => {
+    position.x = Math.max(0, Math.min(bounds.width - width, position.x))
+    const bottomClearance =
+      position.x + width + gap > bounds.width - zoomControls.width
+        ? zoomControls.height + gap
+        : 0
+    const topClearance = position.x < headingRight ? headingBottom : 0
+    position.y = Math.max(
+      topClearance,
+      Math.min(bounds.height - height - bottomClearance, position.y),
+    )
   }
   const overlaps = (a: Label, b: Label) =>
     a.x < b.x + b.width + gap - 0.1 &&
@@ -155,8 +184,10 @@ function placeProfiles(
   function findSpace(label: Label, obstacles: Label[]) {
     const xs = [
       label.x,
-      10,
-      bounds.width - label.width - 10,
+      0,
+      bounds.width - label.width,
+      bounds.width - zoomControls.width - label.width - gap,
+      headingRight,
       ...obstacles.flatMap((other) => [
         other.x - label.width - gap,
         other.x + other.width + gap,
@@ -164,8 +195,10 @@ function placeProfiles(
     ]
     const ys = [
       label.y,
-      10,
-      bounds.height - label.height - 66,
+      0,
+      bounds.height - label.height,
+      bounds.height - zoomControls.height - label.height - gap,
+      headingBottom,
       ...obstacles.flatMap((other) => [
         other.y - label.height - gap,
         other.y + other.height + gap,
@@ -175,7 +208,7 @@ function placeProfiles(
     for (const x of xs)
       for (const y of ys) {
         const candidate = { ...label, x, y }
-        constrain(candidate)
+        constrain(candidate, label.width, label.height)
         if (obstacles.some((other) => overlaps(candidate, other))) continue
         const distance =
           (candidate.x - label.x) ** 2 + (candidate.y - label.y) ** 2
@@ -185,7 +218,7 @@ function placeProfiles(
     label.x = best.x
     label.y = best.y
   }
-  labels.forEach(constrain)
+  for (const label of labels) constrain(label, label.width, label.height)
   const settled = labels.filter((label) => !label.fresh)
   for (const label of labels
     .filter((label) => label.fresh)
@@ -195,11 +228,13 @@ function placeProfiles(
     settled.push(label)
   }
   for (let pass = 0; pass < 8; pass++) {
+    let collision = false
     for (let i = 0; i < labels.length; i++)
       for (let j = i + 1; j < labels.length; j++) {
         const a = labels[i],
           b = labels[j]
         if (!overlaps(a, b)) continue
+        collision = true
         const overlapX =
           Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) + gap
         const overlapY =
@@ -214,9 +249,10 @@ function placeProfiles(
           a.y += direction * overlapY * share
           b.y -= direction * overlapY * (1 - share)
         }
-        constrain(a)
-        constrain(b)
+        constrain(a, a.width, a.height)
+        constrain(b, b.width, b.height)
       }
+    if (!collision) break
   }
   // If the screen edge blocks a local separation, relocate only the smaller
   // blocked row, rather than repacking the whole visible hemisphere.
@@ -255,6 +291,7 @@ function placeProfiles(
     const stepY = (position.vy + frequency * dy) * dt
     position.x = label.x + (dx + stepX) * decay
     position.y = label.y + (dy + stepY) * decay
+    constrain(position, label.width, label.height)
     position.vx = (position.vx - frequency * stepX) * decay
     position.vy = (position.vy - frequency * stepY) * decay
     moving ||=
@@ -439,14 +476,25 @@ export function MaintainersMap({
     if (!host || !globe) return
     const container = host
     const instance = globe
+    const scene = container.querySelector('[data-globe-scene]')
     let visible = false,
       lastFrame = performance.now(),
       frame = 0
     let layoutMoving = true
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting
-      dirty.current = true
-    })
+    let entranceVisible = false
+    let entered = container.hasAttribute('data-globe-entered')
+    let entranceReadyAt: number | undefined
+    if (entered) scene?.removeAttribute('inert')
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting
+        entranceVisible =
+          visible && entry.intersectionRatio >= entranceThreshold
+        if (!entranceVisible) entranceReadyAt = undefined
+        dirty.current = true
+      },
+      { threshold: [0, entranceThreshold] },
+    )
     observer.observe(host)
     const mobile = window.matchMedia('(max-width: 639px)')
     const resetSizes = () => {
@@ -457,13 +505,19 @@ export function MaintainersMap({
     dirty.current = true
     function animate(now: number) {
       const elapsed = now - lastFrame
-      if (elapsed >= 1000 / 30) {
+      if (elapsed >= frameInterval) {
         lastFrame = now
         if (visible && !document.hidden) {
+          const preparing = entranceVisible && !entered
           const readingProfile = container.querySelector(
             '[data-globe-profile]:hover, [data-globe-profile]:focus-within',
           )
-          if (!reducedMotion && !interacting.current && !readingProfile) {
+          if (
+            entered &&
+            !reducedMotion &&
+            !interacting.current &&
+            !readingProfile
+          ) {
             target.current.phi += Math.min(elapsed, 100) * 0.00015
           }
           const current = view.current,
@@ -479,8 +533,8 @@ export function MaintainersMap({
             current.phi += (next.phi - current.phi) * ease
             current.theta += (next.theta - current.theta) * ease
             current.scale += (next.scale - current.scale) * ease
-            instance.update(current)
           }
+          if (redraw || preparing) instance.update(current)
           if (redraw || layoutMoving) {
             const { width, height } = hostSize.current
             const anchors = new Map<string, Anchor>()
@@ -492,12 +546,25 @@ export function MaintainersMap({
             layoutMoving = placeProfiles(
               container,
               hostSize.current,
-              mobile.matches ? 4 : 8,
+              mobile.matches,
               anchors,
               profileSizes,
               profilePositions,
               elapsed,
             )
+          }
+          // Draw the globe and settle the first profile rows before revealing the scene.
+          if (
+            preparing &&
+            (!groupsRef.current.length ||
+              container.querySelector('[data-globe-profile]'))
+          ) {
+            entranceReadyAt ??= now + (reducedMotion ? 0 : entranceWarmup)
+            if (now >= entranceReadyAt) {
+              entered = true
+              container.setAttribute('data-globe-entered', '')
+              scene?.removeAttribute('inert')
+            }
           }
           dirty.current = false
         }
@@ -559,17 +626,9 @@ export function MaintainersMap({
         interacting.current = false
       })
     selection.call(behavior)
-    const mobile = window.matchMedia('(max-width: 639px)')
-    const setStartingZoom = () => {
-      const startingScale = mobile.matches ? 1.2 : initialView.scale
-      selection.call(behavior.transform, zoomIdentity.scale(startingScale))
-      view.current.scale = startingScale
-      dirty.current = true
-    }
-    setStartingZoom()
-    mobile.addEventListener('change', setStartingZoom)
+    selection.call(behavior.transform, zoomIdentity.scale(initialView.scale))
+    view.current.scale = initialView.scale
     return () => {
-      mobile.removeEventListener('change', setStartingZoom)
       selection.on('.zoom', null)
     }
   }, [host, behavior])
@@ -586,28 +645,32 @@ export function MaintainersMap({
     setSelectedId(group.id)
     dirty.current = true
   }
-  function reset() {
-    const startingScale = window.matchMedia('(max-width: 639px)').matches
-      ? 1.2
-      : initialView.scale
-    if (host)
-      select(host).call(behavior.transform, zoomIdentity.scale(startingScale))
-    target.current = { ...initialView, scale: startingScale }
-    setSelectedId('')
-    dirty.current = true
-  }
 
   // The composite globe needs a focus target for its keyboard rotation controls.
   /* oxlint-disable jsx-a11y/no-noninteractive-tabindex */
   return (
-    <section aria-labelledby="maintainers-map-heading" className="space-y-4">
+    <section
+      aria-labelledby="maintainers-map-heading"
+      className="relative space-y-4"
+    >
       <style>{`
         @keyframes maintainer-location-pulse {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }
         }
+        @media (prefers-reduced-motion: no-preference) {
+          [data-globe-scene] { opacity: 0; transform: scale(0.72); }
+          [data-globe-entered] [data-globe-scene] {
+            animation: maintainer-globe-enter 850ms cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
+        }
+        @keyframes maintainer-globe-enter {
+          from { opacity: 0; transform: scale(0.72); }
+          25% { opacity: 1; }
+          to { opacity: 1; transform: none; }
+        }
       `}</style>
-      <div className="flex items-center justify-between gap-4">
+      <div className="sm:pointer-events-none sm:absolute sm:top-0 sm:left-0 sm:z-10">
         <div>
           <h2 id="maintainers-map-heading" className="text-xl font-semibold">
             Around the world
@@ -646,98 +709,118 @@ export function MaintainersMap({
           )
           dirty.current = true
         }}
-        className="relative isolate aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50/50 outline-offset-4 sm:aspect-[3/2] dark:border-gray-800 dark:bg-gray-900/30"
+        className="relative isolate aspect-square overflow-hidden outline-offset-4 sm:aspect-[5/4]"
       >
-        <div
-          ref={setSurface}
-          className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
-        />
-        <svg
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full text-gray-500/60 dark:text-gray-400/50"
-        >
-          {groups.map(({ id }) => (
-            <line
-              key={id}
-              data-globe-line={id}
-              stroke="currentColor"
-              strokeWidth="1"
-              style={{ opacity: 0, transition: 'opacity 280ms ease' }}
-            />
-          ))}
-        </svg>
-        {groups.map((group, index) => (
-          <span
-            key={group.id}
-            data-globe-anchor={group.id}
+        <div data-globe-scene inert className="absolute inset-0">
+          <div
+            ref={setSurface}
+            className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
+          />
+          <svg
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 size-px"
-            style={{ visibility: 'hidden' }}
+            className="pointer-events-none absolute inset-0 h-full w-full text-gray-500/60 dark:text-gray-400/50"
           >
+            {groups.map(({ id }) => (
+              <line
+                key={id}
+                data-globe-line={id}
+                stroke="currentColor"
+                strokeWidth="1"
+                style={{ opacity: 0, transition: 'opacity 280ms ease' }}
+              />
+            ))}
+          </svg>
+          {groups.map((group, index) => (
             <span
-              className="pointer-events-none absolute -left-2 -top-2 size-4 rounded-full border border-[#f79163]/70 bg-[#f79163]/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
-              style={{ animationDelay: `${index * -0.17}s` }}
-            />
-          </span>
-        ))}
-        <ClientOnly>
-          {groups.map((group) => (
-            <div
               key={group.id}
-              data-globe-profile={group.id}
-              className="absolute left-0 top-0 w-max"
-              style={{
-                visibility: 'hidden',
-                opacity: 0,
-                filter: 'blur(6px)',
-                transition:
-                  'opacity 280ms ease, filter 280ms ease, visibility 0s linear 280ms',
-              }}
+              data-globe-anchor={group.id}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-0 top-0 size-px"
+              style={{ visibility: 'hidden' }}
             >
-              <div className="flex items-center -space-x-1 rounded-full border border-white/70 bg-white/95 p-1 shadow-[0_6px_16px_#00000024] sm:-space-x-1.5 sm:p-1.5 dark:border-gray-600 dark:bg-gray-800/95">
-                {group.members.map((member) => (
-                  <Tooltip
-                    key={member.github}
-                    content={
-                      <div className="max-w-64 space-y-1">
-                        <div className="font-semibold">{member.name}</div>
-                        <div className="opacity-70">
-                          {member.location?.name}
-                        </div>
-                      </div>
-                    }
-                  >
-                    <button
-                      type="button"
-                      onClick={() => focus(group)}
-                      aria-label={`Show ${member.name}`}
-                      aria-expanded={selectedId === group.id}
-                      className="relative shrink-0 rounded-full bg-white transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-800"
-                    >
-                      <img
-                        src={member.avatar}
-                        alt={member.name}
-                        width={28}
-                        height={28}
-                        loading="lazy"
-                        decoding="async"
-                        className="size-5 rounded-full bg-gray-200 object-cover sm:size-7"
-                        style={{ border: `2px solid ${group.color}` }}
-                      />
-                    </button>
-                  </Tooltip>
-                ))}
-              </div>
-            </div>
+              <span
+                className="pointer-events-none absolute -left-2 -top-2 size-4 rounded-full border border-[#f79163]/70 bg-[#f79163]/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
+                style={{ animationDelay: `${index * -0.17}s` }}
+              />
+            </span>
           ))}
-        </ClientOnly>
-        <div className="absolute bottom-3 right-3 flex gap-1 rounded-lg border border-gray-200 bg-white/95 p-1 text-sm text-gray-800 shadow-sm dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-100">
+          <ClientOnly>
+            {groups.map((group) => (
+              <div
+                key={group.id}
+                data-globe-profile={group.id}
+                className="absolute left-0 top-0 w-max"
+                style={{
+                  visibility: 'hidden',
+                  opacity: 0,
+                  filter: 'blur(6px)',
+                  transition:
+                    'opacity 280ms ease, filter 280ms ease, visibility 0s linear 280ms',
+                }}
+              >
+                <div className="flex items-center -space-x-1 rounded-full border border-white/70 bg-white/95 p-1 shadow-[0_6px_16px_#00000024] sm:-space-x-1.5 sm:p-1.5 dark:border-gray-600 dark:bg-gray-800/95">
+                  {group.members.map((member) => (
+                    <Tooltip
+                      key={member.github}
+                      content={
+                        <div className="max-w-64 space-y-1">
+                          <div className="font-semibold">{member.name}</div>
+                          <div className="opacity-70">
+                            {member.location?.name}
+                          </div>
+                        </div>
+                      }
+                    >
+                      <button
+                        type="button"
+                        onClick={() => focus(group)}
+                        aria-label={`Show ${member.name}`}
+                        aria-expanded={selectedId === group.id}
+                        className="relative shrink-0 rounded-full bg-white transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-800"
+                      >
+                        <span
+                          data-globe-avatar
+                          className="relative block size-5 overflow-hidden rounded-full sm:size-7"
+                          style={{ border: `2px solid ${group.color}` }}
+                        >
+                          <img
+                            data-globe-src={member.avatar}
+                            alt={member.name}
+                            width={28}
+                            height={28}
+                            loading="lazy"
+                            decoding="async"
+                            onLoad={(event) => {
+                              const image = event.currentTarget
+                              void image.decode().then(
+                                () => {
+                                  image.dataset.loaded = ''
+                                },
+                                () => {},
+                              )
+                            }}
+                            className="peer block size-full object-cover opacity-0 transition-opacity duration-300 data-[loaded]:opacity-100 motion-reduce:transition-none"
+                          />
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-0 bg-gray-200 transition-opacity duration-300 peer-data-[loaded]:opacity-0 motion-reduce:transition-none dark:bg-gray-700"
+                          />
+                        </span>
+                      </button>
+                    </Tooltip>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </ClientOnly>
+        </div>
+        <div className="absolute bottom-0 right-0 flex flex-col gap-1 rounded-lg border border-gray-200 bg-white/95 p-1 text-sm text-gray-800 shadow-sm dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-100">
           <button
             type="button"
             aria-label="Zoom in"
             disabled={scale >= 6}
             onClick={() => host && select(host).call(behavior.scaleBy, 1.5)}
-            className="rounded px-3 py-2 hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
           >
             +
           </button>
@@ -746,35 +829,24 @@ export function MaintainersMap({
             aria-label="Zoom out"
             disabled={scale <= 1}
             onClick={() => host && select(host).call(behavior.scaleBy, 1 / 1.5)}
-            className="rounded px-3 py-2 hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
           >
             −
           </button>
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            Reset
-          </button>
         </div>
-        <a
-          href="https://cobe.vercel.app/"
-          target="_blank"
-          rel="noreferrer"
-          className="absolute bottom-4 left-4 rounded bg-white/70 px-2 py-1 text-xs text-gray-500 dark:bg-gray-900/70 dark:text-gray-400"
-        >
-          Made with COBE ↗
-        </a>
       </div>
       <p
         id="maintainers-globe-help"
-        className="text-xs text-gray-500 dark:text-gray-400"
+        className="min-h-8 text-xs text-gray-500 dark:text-gray-400"
       >
-        Drag to rotate. Use Ctrl or ⌘ and scroll to zoom, or pinch on touch
-        screens. Release to resume auto-rotation. Hover over a profile to pause
-        and read their name; select one to meet the maintainers nearby. Use
-        Shift and arrow keys to rotate.
+        <span className="hidden sm:inline sm:pointer-coarse:hidden">
+          Drag to rotate. Hold Ctrl or ⌘ while scrolling to zoom. Hover over a
+          profile to pause, or select it to see nearby maintainers. Use Shift
+          and arrow keys to rotate.
+        </span>
+        <span className="sm:hidden sm:pointer-coarse:inline">
+          Tap a profile to see nearby maintainers.
+        </span>
       </p>
       {selected && (
         <div

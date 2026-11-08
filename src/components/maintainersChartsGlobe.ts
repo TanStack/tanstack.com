@@ -26,16 +26,16 @@ for (let index = 0; index < land.samples; index++) {
 }
 
 const darkDots = [
-  'var(--color-ds-neutral-300)',
+  'var(--color-ds-neutral-tint-400)',
   'var(--color-ds-neutral-tint-200)',
   'var(--color-ds-neutral-tint-100)',
   'var(--color-text-primary)',
 ]
 const lightDots = [
   'var(--color-ds-neutral-tint-200)',
-  'var(--color-ds-neutral-200)',
-  'var(--color-ds-neutral-300)',
-  'var(--color-ds-neutral-350)',
+  'var(--color-ds-neutral-tint-300)',
+  'var(--color-ds-neutral-tint-400)',
+  'var(--color-ds-neutral-tint-500)',
 ]
 
 function gradients(dark: boolean): ChartGradient[] {

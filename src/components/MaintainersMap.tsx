@@ -24,10 +24,11 @@ import { createChartsGlobe } from './maintainersChartsGlobe'
 
 const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
 const zoomStep = 1.5
-const mobileInitialScale = 1.35
+const mobileInitialScale = zoomStep
 const desktopInitialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
-const mobileFraming = { topInset: 8, sideInset: 6, bottomCrop: 12 }
+const mobileTopInset = 8
+const mobileCornerBleed = 6
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
@@ -35,6 +36,7 @@ const entranceThreshold = 0.25
 const entranceDuration = 850
 const entranceRise = 56
 const entranceScale = 0.72
+const mobileEntranceScale = 0.93
 const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
@@ -772,28 +774,26 @@ export function MaintainersMap({
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
       const paintHeight = surface.clientHeight
-      const mobileDiameter = Math.max(
-        0,
-        Math.min(
-          paintWidth - 2 * mobileFraming.sideInset,
-          (height + paintHeight) / 2 +
-            mobileFraming.bottomCrop -
-            mobileFraming.topInset,
-        ),
-      )
-      const projectionHeight = Math.min(
+      let centerY = height / 2
+      let projectionHeight = Math.min(
         height,
-        mobile.matches
-          ? mobileDiameter / (2 * globeRadius * mobileInitialScale)
-          : paintWidth / (desktopInitialScale * globeGlowDiameter),
+        paintWidth / (desktopInitialScale * globeGlowDiameter),
       )
+      if (mobile.matches) {
+        // Fit a circle through both bottom corners with its top still in view.
+        const bottomDepth = Math.max(
+          1,
+          (height + paintHeight) / 2 - mobileTopInset,
+        )
+        const halfWidth = paintWidth / 2 + mobileCornerBleed
+        const radius = (bottomDepth ** 2 + halfWidth ** 2) / (2 * bottomDepth)
+        projectionHeight = radius / (mobileInitialScale * globeRadius)
+        centerY = mobileTopInset + radius
+      }
       return {
         width,
         height,
-        centerY: mobile.matches
-          ? mobileFraming.topInset +
-            projectionHeight * mobileInitialScale * globeRadius
-          : height / 2,
+        centerY,
         contentInset: (width - contentWidth) / 2,
         paintWidth,
         paintHeight,
@@ -1062,7 +1062,11 @@ export function MaintainersMap({
               ? Number(entered || reducedMotion)
               : Math.min(1, (now - entranceStart) / entranceDuration)
           const remaining = (1 - progress) ** 4
-          const entryScale = 1 - (1 - entranceScale) * remaining
+          // Keep the mobile corners covered even at the start of the entrance.
+          const startScale = mobile.matches
+            ? mobileEntranceScale
+            : entranceScale
+          const entryScale = 1 - (1 - startScale) * remaining
           const offsetY = entranceRise * remaining
           if ((entering || reveal) && scene) {
             // Apply the camera's entrance motion to the interactive overlays.

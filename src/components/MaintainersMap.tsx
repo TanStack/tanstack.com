@@ -38,7 +38,6 @@ const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
 const globeGlowDiameter = 0.92
 const zoomControls = { width: 46, height: 126 }
-const desktopHeading = { width: 176, height: 52 }
 
 type View = typeof initialView
 
@@ -47,7 +46,7 @@ type Anchor = { x: number; y: number; visible: boolean }
 type GlobeBounds = {
   width: number
   height: number
-  headingLeft: number
+  contentInset: number
   paintWidth: number
   paintHeight: number
   projectionHeight: number
@@ -56,6 +55,7 @@ type GlobeBounds = {
 type ProfileViewport = {
   top: number
   bottom: number
+  contentTop: number
   contentBottom: number
   helpTop: number
   helpBottom: number
@@ -189,7 +189,8 @@ function placeProfiles(
   const maxConnectorLength = mobile ? 48 : 72
   const left = mobile ? 0 : viewportGutter
   const right = bounds.width - left
-  const top = Math.max(0, viewport.top)
+  const top = Math.max(viewport.contentTop, viewport.top)
+  const badgeTop = Math.max(0, top)
   const bottom = Math.min(viewport.bottom, viewport.contentBottom)
   const visibleTop = viewport.top - viewportGutter
   const visibleBottom = Math.min(
@@ -199,11 +200,11 @@ function placeProfiles(
   const showOffscreenBadges =
     bounds.height - visibleTop >=
     Math.min(offscreenBadgeMinRemaining, bounds.height / 4)
-  const pinTop = mobile ? Math.max(0, visibleTop) : visibleTop
+  const pinTop = Math.max(viewport.contentTop, visibleTop)
   const pinBottom = mobile
     ? Math.min(bounds.height, visibleBottom)
     : visibleBottom
-  const contentRight = bounds.width - bounds.headingLeft
+  const contentRight = bounds.width - bounds.contentInset
   const ui = [
     {
       left: contentRight - zoomControls.width,
@@ -212,29 +213,21 @@ function placeProfiles(
       bottom: bounds.height,
     },
     {
-      left: bounds.headingLeft,
+      left: bounds.contentInset,
       right: contentRight,
       top: viewport.helpTop,
       bottom: viewport.helpBottom,
     },
+    ...viewport.filters,
   ]
-  if (!mobile) {
-    ui.push(
-      {
-        left: bounds.headingLeft,
-        right: bounds.headingLeft + desktopHeading.width,
-        top: 0,
-        bottom: desktopHeading.height,
-      },
-      ...viewport.filters,
-    )
-  }
   const labels = nodes.flatMap(
     ({ id, card, line, pin, portraits, count, sizes }) => {
       const anchor = anchors.get(id)
       if (!anchor) return []
       const pinVisibility =
-        anchor.visible && anchor.y + viewportGutter <= viewport.contentBottom
+        anchor.visible &&
+        anchor.y >= viewport.contentTop &&
+        anchor.y + viewportGutter <= viewport.contentBottom
           ? 'visible'
           : 'hidden'
       if (pin.style.visibility !== pinVisibility)
@@ -253,7 +246,7 @@ function placeProfiles(
         globeVisible &&
         anchor.visible &&
         (!offscreen || showOffscreenBadges) &&
-        height <= bottom - top
+        height <= bottom - (offscreen ? badgeTop : top)
       if (
         (card.dataset.shown === 'true') !== visible ||
         card.dataset.offscreen !== offscreen
@@ -283,11 +276,11 @@ function placeProfiles(
       }
       const fresh = !previous?.visible || previous.offscreen !== offscreen
       const badgeBottom = mobile
-        ? Math.min(bottom, Math.max(top + height, bounds.height))
+        ? Math.min(bottom, Math.max(badgeTop + height, bounds.height))
         : bottom
       const referenceY =
         offscreen === 'top'
-          ? top + height / 2
+          ? badgeTop + height / 2
           : offscreen === 'bottom'
             ? badgeBottom - height / 2
             : anchorY
@@ -331,12 +324,12 @@ function placeProfiles(
     )
   const constrain = (
     position: { x: number; y: number },
-    width: number,
-    height: number,
+    { width, height, offscreen }: Label,
   ) => {
     position.x = Math.max(left, Math.min(right - width, position.x))
+    const minY = offscreen ? badgeTop : top
     const maxY = bottom - height
-    position.y = Math.max(top, Math.min(maxY, position.y))
+    position.y = Math.max(minY, Math.min(maxY, position.y))
     if (!overlapsUi(position.x, position.y, width, height)) return
 
     // A slot next to one control can still cover another. Check all of them
@@ -347,7 +340,7 @@ function placeProfiles(
       for (const y of [obstacle.top - height - gap, obstacle.bottom + gap]) {
         const distance = Math.abs(y - position.y)
         if (
-          y >= top &&
+          y >= minY &&
           y <= maxY &&
           distance < nearestDistance &&
           !overlapsUi(position.x, y, width, height)
@@ -379,7 +372,7 @@ function placeProfiles(
     ]
     const ys = [
       label.y,
-      top,
+      label.offscreen ? badgeTop : top,
       bottom - label.height,
       ...ui.flatMap((box) => [box.top - label.height - gap, box.bottom + gap]),
       ...obstacles.flatMap((other) => [
@@ -418,7 +411,7 @@ function placeProfiles(
         const x = originX + directionX * distance
         const y = originY + directionY * distance
         const candidate = { ...label, x, y }
-        constrain(candidate, label.width, label.height)
+        constrain(candidate, label)
         if (
           Math.abs(candidate.x - x) > 0.1 ||
           Math.abs(candidate.y - y) > 0.1 ||
@@ -436,7 +429,7 @@ function placeProfiles(
         x: originX + directionX * clearance,
         y: originY + directionY * clearance,
       }
-      constrain(preferred, label.width, label.height)
+      constrain(preferred, label)
       xs[0] = preferred.x
       ys[0] = preferred.y
     }
@@ -448,7 +441,7 @@ function placeProfiles(
     for (const x of xs)
       for (const y of ys) {
         const candidate = { ...label, x, y }
-        constrain(candidate, label.width, label.height)
+        constrain(candidate, label)
         const reachable = withinReach(label, candidate)
         if (!reachable && (onlyReachable || best.reachable)) continue
         if (
@@ -464,7 +457,7 @@ function placeProfiles(
     label.x = best.x
     label.y = best.y
   }
-  for (const label of labels) constrain(label, label.width, label.height)
+  for (const label of labels) constrain(label, label)
   const settled = labels.filter((label) => !label.fresh)
   for (const label of labels
     .filter((label) => label.fresh)
@@ -495,8 +488,8 @@ function placeProfiles(
           a.y += direction * overlapY * share
           b.y -= direction * overlapY * (1 - share)
         }
-        constrain(a, a.width, a.height)
-        constrain(b, b.width, b.height)
+        constrain(a, a)
+        constrain(b, b)
       }
     if (!collision) break
   }
@@ -538,7 +531,7 @@ function placeProfiles(
       const x = label.x - directionX * step
       const y = label.y - directionY * step
       const candidate = { ...label, x, y }
-      constrain(candidate, label.width, label.height)
+      constrain(candidate, label)
       if (
         candidate.x !== x ||
         candidate.y !== y ||
@@ -578,7 +571,7 @@ function placeProfiles(
     const stepY = (position.vy + frequency * dy) * dt
     position.x = label.x + (dx + stepX) * decay
     position.y = label.y + (dy + stepY) * decay
-    constrain(position, label.width, label.height)
+    constrain(position, label)
     position.vx = (position.vx - frequency * stepX) * decay
     position.vy = (position.vy - frequency * stepY) * decay
     moving ||=
@@ -696,7 +689,7 @@ export function MaintainersMap({
   const hostSize = useRef<GlobeBounds>({
     width: 0,
     height: 0,
-    headingLeft: 0,
+    contentInset: 0,
     paintWidth: 0,
     paintHeight: 0,
     projectionHeight: 0,
@@ -749,10 +742,6 @@ export function MaintainersMap({
     return result
   }, [maintainers, selectedLibraries, prefix, scale])
   const selected = groups.find((group) => group.id === selectedId)
-  const locatedCount = groups.reduce(
-    (count, group) => count + group.members.length,
-    0,
-  )
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
 
@@ -769,7 +758,7 @@ export function MaintainersMap({
       return {
         width,
         height,
-        headingLeft: (width - contentWidth) / 2,
+        contentInset: (width - contentWidth) / 2,
         paintWidth,
         paintHeight: surface.clientHeight,
         // Fit the full starting globe, including its glow, on narrower screens.
@@ -863,6 +852,7 @@ export function MaintainersMap({
     const scene = container.querySelector<HTMLElement>('[data-globe-overlay]')
     const section = container.closest('section')
     const help = section?.querySelector('#maintainers-globe-help')
+    const intro = section?.parentElement?.querySelector(':scope > header')
     const filterControls =
       section?.parentElement?.querySelectorAll('[data-globe-filter]') ?? []
     const navbarHeight =
@@ -881,6 +871,8 @@ export function MaintainersMap({
     let fadeOffset: number | undefined
     const updateViewport = () => {
       const { top, left, height } = container.getBoundingClientRect()
+      const contentTop =
+        (intro?.getBoundingClientRect().bottom ?? top) - top + viewportGutter
       const helpBounds = help?.getBoundingClientRect()
       // Keep the zoomed paint and floating profiles clear of the next section.
       const nextContent =
@@ -905,6 +897,7 @@ export function MaintainersMap({
       viewport = {
         top: screenTop + navbarHeight + viewportGutter - top,
         bottom: screenTop + screenHeight - viewportGutter - top,
+        contentTop,
         contentBottom,
         helpTop: (helpBounds?.top ?? 0) - top,
         helpBottom: (helpBounds?.bottom ?? 0) - top,
@@ -924,6 +917,7 @@ export function MaintainersMap({
     updateViewport()
     const sectionResize = new ResizeObserver(updateViewport)
     if (section) sectionResize.observe(section)
+    if (intro) sectionResize.observe(intro)
     window.addEventListener('scroll', updateViewport, { passive: true })
     window.addEventListener('resize', updateViewport)
     visualViewport?.addEventListener('scroll', updateViewport, {
@@ -1188,10 +1182,7 @@ export function MaintainersMap({
   // The composite globe needs a focus target for its keyboard rotation controls.
   /* oxlint-disable jsx-a11y/no-noninteractive-tabindex */
   return (
-    <section
-      aria-labelledby="maintainers-map-heading"
-      className="relative space-y-4"
-    >
+    <section aria-label="Maintainer locations" className="relative space-y-4">
       <style>{`
         [data-globe-surface] {
           mask-image: linear-gradient(
@@ -1217,16 +1208,6 @@ export function MaintainersMap({
           to { opacity: 1; }
         }
       `}</style>
-      <div className="sm:pointer-events-none sm:absolute sm:top-0 sm:left-0 sm:z-20">
-        <div>
-          <h2 id="maintainers-map-heading" className="text-xl font-semibold">
-            Around the world
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {locatedCount} shared location{locatedCount === 1 ? '' : 's'}
-          </p>
-        </div>
-      </div>
       <div className="relative sm:aspect-[5/4]">
         <div
           ref={setHost}
@@ -1278,7 +1259,7 @@ export function MaintainersMap({
             <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing" />
             <svg
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full text-gray-500/60 sm:overflow-visible dark:text-gray-400/50"
+              className="pointer-events-none absolute inset-0 h-full w-full overflow-visible text-gray-500/60 dark:text-gray-400/50"
             >
               {groups.map(({ id }) => (
                 <line
@@ -1292,7 +1273,7 @@ export function MaintainersMap({
             </svg>
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 overflow-hidden sm:overflow-visible"
+              className="pointer-events-none absolute inset-0"
             >
               {groups.map((group, index) => (
                 <span
@@ -1485,7 +1466,7 @@ export function MaintainersMap({
           </div>
         </div>
       )}
-      {!locatedCount && (
+      {!groups.length && (
         <p role="status" className="text-sm text-gray-600 dark:text-gray-400">
           No shared locations for the selected maintainers and contributors.
         </p>

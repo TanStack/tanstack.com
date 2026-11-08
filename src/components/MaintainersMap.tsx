@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
 import {
@@ -179,6 +187,7 @@ function placeProfiles(
   globeVisible: boolean,
 ) {
   const gap = mobile ? 4 : 8
+  const maxConnectorLength = mobile ? 48 : 72
   const left = mobile ? 0 : viewportGutter
   const right = bounds.width - left
   const top = Math.max(0, viewport.top)
@@ -302,6 +311,17 @@ function placeProfiles(
     },
   )
   type Label = (typeof labels)[number]
+  // A rounded row is a horizontal segment with a semicircle at each end.
+  const nearestSpineX = (label: Label, left: number, x: number) =>
+    Math.max(
+      left + label.height / 2,
+      Math.min(x, left + label.width - label.height / 2),
+    )
+  const withinReach = (label: Label, { x, y }: { x: number; y: number }) =>
+    Boolean(label.offscreen) ||
+    (nearestSpineX(label, x, label.anchorX) - label.anchorX) ** 2 +
+      (y + label.height / 2 - label.anchorY) ** 2 <=
+      (maxConnectorLength + label.height / 2) ** 2
   const overlapsUi = (x: number, y: number, width: number, height: number) =>
     ui.some(
       (box) =>
@@ -345,7 +365,9 @@ function placeProfiles(
     a.x + a.width + gap - 0.1 > b.x &&
     a.y < b.y + b.height + gap - 0.1 &&
     a.y + a.height + gap - 0.1 > b.y
-  function findSpace(label: Label, obstacles: Label[]) {
+  function findSpace(label: Label, obstacles: Label[], onlyReachable = false) {
+    const tooFar = !withinReach(label, label)
+    let preferred = { x: label.x, y: label.y }
     const xs = [
       label.x,
       left,
@@ -366,7 +388,7 @@ function placeProfiles(
         other.y + other.height + gap,
       ]),
     ]
-    if (label.fresh && !label.offscreen) {
+    if ((label.fresh || tooFar) && !label.offscreen) {
       const dx = label.anchorX - bounds.width / 2
       const dy = label.anchorY - bounds.height / 2
       const radius = Math.hypot(dx, dy)
@@ -401,6 +423,7 @@ function placeProfiles(
         if (
           Math.abs(candidate.x - x) > 0.1 ||
           Math.abs(candidate.y - y) > 0.1 ||
+          !withinReach(label, candidate) ||
           overlapsUi(candidate.x, candidate.y, label.width, label.height) ||
           obstacles.some((other) => overlaps(candidate, other))
         )
@@ -410,26 +433,34 @@ function placeProfiles(
         bestScore = score
       }
       if (bestScore < Infinity) return
-      label.x = originX + directionX * clearance
-      label.y = originY + directionY * clearance
-      constrain(label, label.width, label.height)
-      xs[0] = label.x
-      ys[0] = label.y
+      preferred = {
+        x: originX + directionX * clearance,
+        y: originY + directionY * clearance,
+      }
+      constrain(preferred, label.width, label.height)
+      xs[0] = preferred.x
+      ys[0] = preferred.y
     }
-    let best = { x: label.x, y: label.y, distance: Infinity }
+    let best = {
+      ...(onlyReachable ? { x: label.x, y: label.y } : preferred),
+      distance: Infinity,
+      reachable: false,
+    }
     for (const x of xs)
       for (const y of ys) {
         const candidate = { ...label, x, y }
         constrain(candidate, label.width, label.height)
+        const reachable = withinReach(label, candidate)
+        if (!reachable && (onlyReachable || best.reachable)) continue
         if (
           overlapsUi(candidate.x, candidate.y, label.width, label.height) ||
           obstacles.some((other) => overlaps(candidate, other))
         )
           continue
         const distance =
-          (candidate.x - label.x) ** 2 + (candidate.y - label.y) ** 2
-        if (distance < best.distance)
-          best = { x: candidate.x, y: candidate.y, distance }
+          (candidate.x - preferred.x) ** 2 + (candidate.y - preferred.y) ** 2
+        if ((reachable && !best.reachable) || distance < best.distance)
+          best = { x: candidate.x, y: candidate.y, distance, reachable }
       }
     label.x = best.x
     label.y = best.y
@@ -474,10 +505,14 @@ function placeProfiles(
   // blocked row, rather than repacking the whole visible hemisphere.
   for (let i = 0; i < labels.length; i++) {
     const label = labels[i]
-    if (labels.some((other) => other !== label && overlaps(label, other))) {
+    const colliding = labels.some(
+      (other) => other !== label && overlaps(label, other),
+    )
+    if (colliding || !withinReach(label, label)) {
       findSpace(
         label,
         labels.filter((other) => other !== label),
+        !colliding,
       )
     }
   }
@@ -554,7 +589,10 @@ function placeProfiles(
         Math.abs(position.vy) >
       0.05
     label.card.style.transform = `translate(${position.x}px, ${position.y}px)`
-    if (label.offscreen) continue
+    // Keep the row accessible if the available slots are all out of range.
+    const connected = !label.offscreen && withinReach(label, position)
+    label.line.style.visibility = connected ? '' : 'hidden'
+    if (!connected) continue
     const centerX = position.x + label.width / 2
     const centerY = position.y + label.height / 2
     const radialX = label.anchorX - bounds.width / 2
@@ -565,16 +603,24 @@ function placeProfiles(
       (radialX * radialX + radialY * radialY || 1)
     const radialEndX = label.anchorX + radialX * alongRadius
     const radialEndY = label.anchorY + radialY * alongRadius
-    // Let the endpoint slide inside the pill as the row follows its marker.
-    const endDx = Math.max(
-      0,
-      Math.abs(radialEndX - centerX) - (label.width - label.height) / 2,
+    const insideProfile = (x: number, y: number) =>
+      (nearestSpineX(label, position.x, x) - x) ** 2 + (y - centerY) ** 2 <
+      (label.height / 2) ** 2
+    const radialDistance = Math.hypot(
+      radialEndX - label.anchorX,
+      radialEndY - label.anchorY,
     )
-    const endDy = radialEndY - centerY
-    const radialFits = endDx ** 2 + endDy ** 2 < (label.height / 2 - 1) ** 2
+    const fraction = Math.min(1, maxConnectorLength / radialDistance)
+    const radialFits =
+      insideProfile(radialEndX, radialEndY) &&
+      insideProfile(
+        label.anchorX + (radialEndX - label.anchorX) * fraction,
+        label.anchorY + (radialEndY - label.anchorY) * fraction,
+      )
+    const closestX = nearestSpineX(label, position.x, label.anchorX)
     label.line.setAttribute('x1', String(label.anchorX))
     label.line.setAttribute('y1', String(label.anchorY))
-    label.line.setAttribute('x2', String(radialFits ? radialEndX : centerX))
+    label.line.setAttribute('x2', String(radialFits ? radialEndX : closestX))
     label.line.setAttribute('y2', String(radialFits ? radialEndY : centerY))
   }
   return moving
@@ -770,9 +816,11 @@ export function MaintainersMap({
     }
   }, [host, surface, invalidate])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     groupsRef.current = groups
-    // Regrouping can replace nodes or change a card's width.
+    // Regrouping can resize a row before the frame loop can update its line.
+    for (const { line } of profileNodes.current ?? [])
+      line.style.visibility = 'hidden'
     profileNodes.current = undefined
     globe?.setMarkers(
       groups.map(({ id, vector, members }) => ({

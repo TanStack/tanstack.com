@@ -694,7 +694,7 @@ function RouteComponent() {
           />
 
           {hasResults ? (
-            <div className="mt-6 md:mt-16">
+            <div>
               {hasFilters && (
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
                   Showing {filteredMaintainers.length} maintainer
@@ -721,7 +721,7 @@ function RouteComponent() {
               ))}
             </div>
           ) : (
-            <div className="mt-6 text-center text-gray-600 md:mt-16 dark:text-gray-400">
+            <div className="text-center text-gray-600 dark:text-gray-400">
               <div>
                 <p className="text-lg mb-4">
                   No maintainers found for the selected filters.

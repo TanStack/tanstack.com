@@ -44,6 +44,7 @@ type GlobeBounds = {
 type ProfileViewport = {
   top: number
   bottom: number
+  contentBottom: number
   helpTop: number
   helpBottom: number
   filters: Array<{ left: number; right: number; top: number; bottom: number }>
@@ -177,9 +178,12 @@ function placeProfiles(
   const left = mobile ? 0 : viewportGutter
   const right = bounds.width - left
   const top = Math.max(0, viewport.top)
-  const bottom = viewport.bottom
+  const bottom = Math.min(viewport.bottom, viewport.contentBottom)
   const visibleTop = viewport.top - viewportGutter
-  const visibleBottom = viewport.bottom + viewportGutter
+  const visibleBottom = Math.min(
+    viewport.bottom + viewportGutter,
+    viewport.contentBottom,
+  )
   const showOffscreenBadges =
     bounds.height - visibleTop >=
     Math.min(offscreenBadgeMinRemaining, bounds.height / 4)
@@ -217,10 +221,13 @@ function placeProfiles(
     ({ id, card, line, pin, portraits, count, sizes }) => {
       const anchor = anchors.get(id)
       if (!anchor) return []
-      const pinVisibility = anchor.visible ? 'visible' : 'hidden'
+      const pinVisibility =
+        anchor.visible && anchor.y + viewportGutter <= viewport.contentBottom
+          ? 'visible'
+          : 'hidden'
       if (pin.style.visibility !== pinVisibility)
         pin.style.visibility = pinVisibility
-      if (anchor.visible)
+      if (pinVisibility === 'visible')
         pin.style.transform = `translate(${anchor.x}px, ${anchor.y}px)`
       const anchorX = anchor.x,
         anchorY = anchor.y
@@ -804,15 +811,34 @@ export function MaintainersMap({
       if (!frame) frame = requestAnimationFrame(animate)
     }
     const visualViewport = window.visualViewport
+    let fadeOffset: number | undefined
     const updateViewport = () => {
-      const { top, left } = container.getBoundingClientRect()
+      const { top, left, height } = container.getBoundingClientRect()
       const helpBounds = help?.getBoundingClientRect()
+      // Keep the zoomed paint and floating profiles clear of the next section.
+      const nextContent =
+        help?.nextElementSibling ?? section?.nextElementSibling
+      const contentBottom =
+        (nextContent?.getBoundingClientRect().top ??
+          helpBounds?.bottom ??
+          top + height) -
+        top -
+        viewportGutter
+      const nextFadeOffset = contentBottom - height / 2
+      if (fadeOffset !== nextFadeOffset) {
+        fadeOffset = nextFadeOffset
+        canvasSurface.style.setProperty(
+          '--globe-fade-offset',
+          `${fadeOffset}px`,
+        )
+      }
       const screenTop = visualViewport?.offsetTop ?? 0
       const screenHeight =
         visualViewport?.height ?? document.documentElement.clientHeight
       viewport = {
         top: screenTop + navbarHeight + viewportGutter - top,
         bottom: screenTop + screenHeight - viewportGutter - top,
+        contentBottom,
         helpTop: (helpBounds?.top ?? 0) - top,
         helpBottom: (helpBounds?.bottom ?? 0) - top,
         filters: Array.from(filterControls, (control) => {
@@ -829,6 +855,8 @@ export function MaintainersMap({
       requestFrame()
     }
     updateViewport()
+    const sectionResize = new ResizeObserver(updateViewport)
+    if (section) sectionResize.observe(section)
     window.addEventListener('scroll', updateViewport, { passive: true })
     window.addEventListener('resize', updateViewport)
     visualViewport?.addEventListener('scroll', updateViewport, {
@@ -877,9 +905,10 @@ export function MaintainersMap({
         const visibleGlobeTop = mobile.matches
           ? Math.max(0, globeTop)
           : globeTop
-        const visibleGlobeBottom = mobile.matches
-          ? Math.min(height, globeBottom)
-          : globeBottom
+        const visibleGlobeBottom = Math.min(
+          mobile.matches ? Math.min(height, globeBottom) : globeBottom,
+          viewport.contentBottom,
+        )
         const globeVisible =
           visibleGlobeBottom > viewport.top - viewportGutter &&
           visibleGlobeTop < viewport.bottom + viewportGutter
@@ -984,6 +1013,7 @@ export function MaintainersMap({
     }
     return () => {
       observer.disconnect()
+      sectionResize.disconnect()
       window.removeEventListener('scroll', updateViewport)
       window.removeEventListener('resize', updateViewport)
       visualViewport?.removeEventListener('scroll', updateViewport)
@@ -1072,12 +1102,21 @@ export function MaintainersMap({
       className="relative space-y-4"
     >
       <style>{`
+        @media (min-width: 640px) {
+          [data-globe-surface] {
+            mask-image: linear-gradient(
+              to bottom,
+              black calc(50% + var(--globe-fade-offset) - 4rem),
+              transparent calc(50% + var(--globe-fade-offset))
+            );
+          }
+        }
         @keyframes maintainer-location-pulse {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }
         }
         @media (prefers-reduced-motion: no-preference) {
-          [data-globe-scene] { opacity: 0; transform: scale(0.72); }
+          [data-globe-scene] { opacity: 0; transform: translateY(2rem) scale(0.72); }
           [data-globe-entered] [data-globe-scene] {
             opacity: 1;
             transform: none;
@@ -1085,7 +1124,7 @@ export function MaintainersMap({
           }
         }
         @keyframes maintainer-globe-enter {
-          from { opacity: 0; transform: scale(0.72); }
+          from { opacity: 0; transform: translateY(2rem) scale(0.72); }
           25% { opacity: 1; }
           to { opacity: 1; transform: none; }
         }
@@ -1138,6 +1177,7 @@ export function MaintainersMap({
           >
             <div
               ref={setSurface}
+              data-globe-surface
               className="absolute inset-x-0 top-1/2 h-full -translate-y-1/2"
             />
           </div>

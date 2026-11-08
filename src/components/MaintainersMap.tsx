@@ -640,7 +640,7 @@ type MaintainersMapProps = {
 
 function Key({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="rounded border border-gray-200 px-1 py-0.5 font-sans text-[0.9em] dark:border-white/10">
+    <kbd className="rounded border border-border-default px-1 py-0.5 font-sans text-[0.9em]">
       {children}
     </kbd>
   )
@@ -681,7 +681,7 @@ function GlobeAvatar({
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gray-200 transition-opacity duration-300 peer-data-[loaded]:opacity-0 motion-reduce:transition-none dark:bg-gray-700"
+        className="pointer-events-none absolute inset-0 bg-background-subtle transition-opacity duration-300 peer-data-[loaded]:opacity-0 motion-reduce:transition-none"
       />
     </span>
   )
@@ -1361,7 +1361,7 @@ export function MaintainersMap({
             <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing" />
             <svg
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full overflow-visible text-gray-500/60 dark:text-gray-400/50"
+              className="pointer-events-none absolute inset-0 h-full w-full overflow-visible text-text-muted/60 dark:text-text-muted/50"
             >
               {groups.map(({ id }) => (
                 <line
@@ -1407,7 +1407,7 @@ export function MaintainersMap({
                 >
                   <div
                     data-globe-portraits
-                    className="pointer-events-auto left-0 top-0 flex w-max items-center -space-x-1 rounded-full border border-white/70 bg-white/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:-space-x-1.5 sm:p-1.5 dark:border-gray-600 dark:bg-gray-800/95"
+                    className="pointer-events-auto left-0 top-0 flex w-max items-center -space-x-1 rounded-full border border-border-default bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:-space-x-1.5 sm:p-1.5"
                   >
                     {group.members.map((member) => (
                       <Tooltip
@@ -1426,7 +1426,7 @@ export function MaintainersMap({
                           onClick={() => focus(group)}
                           aria-label={`Show ${member.name}`}
                           aria-expanded={selectedId === group.id}
-                          className="relative shrink-0 rounded-full bg-white transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-800"
+                          className="relative shrink-0 rounded-full bg-background-elevated transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <GlobeAvatar member={member} color={group.color} />
                         </button>
@@ -1439,7 +1439,7 @@ export function MaintainersMap({
                     onClick={() => focus(group)}
                     aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'} near ${group.members[0]?.location?.name ?? 'this location'}`}
                     aria-expanded={selectedId === group.id}
-                    className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-white/70 bg-white/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static dark:border-gray-600 dark:bg-gray-800/95"
+                    className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
                     <span aria-hidden="true" className="flex -space-x-0.5">
                       {group.members.map((member) => (
@@ -1524,7 +1524,7 @@ export function MaintainersMap({
       </div>
       <p
         id="maintainers-globe-help"
-        className="relative z-20 min-h-8 text-xs text-gray-500 dark:text-gray-400"
+        className="relative z-20 min-h-8 text-xs text-text-muted"
       >
         <span className="hidden sm:inline sm:pointer-coarse:hidden">
           Drag or <Key>Shift</Key>+arrows to rotate. Hold <Key>Ctrl</Key>/
@@ -1540,14 +1540,14 @@ export function MaintainersMap({
         <div
           role="region"
           aria-label="Selected maintainers"
-          className="relative z-20 rounded-xl border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-900/30"
+          className="relative z-20 rounded-xl border border-border-default bg-background-subtle/50 p-4"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h3 className="font-semibold">
                 {`${selected.members.length} maintainer${selected.members.length === 1 ? '' : 's'} nearby`}
               </h3>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs text-text-muted">
                 Select a profile to open their GitHub.
               </p>
             </div>
@@ -1557,7 +1557,7 @@ export function MaintainersMap({
               onClick={() => {
                 setSelectedId('')
               }}
-              className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-800"
+              className="rounded p-1 hover:bg-surface-state-hover"
             >
               <XIcon />
             </button>
@@ -1569,7 +1569,7 @@ export function MaintainersMap({
                 href={`https://github.com/${member.github}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex min-w-0 items-center gap-3 rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="flex min-w-0 items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
               >
                 <img
                   src={member.avatar}
@@ -1580,7 +1580,7 @@ export function MaintainersMap({
                 />
                 <div className="min-w-0">
                   <div className="text-sm font-semibold">{member.name}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-text-muted">
                     {member.location?.name}
                   </div>
                 </div>
@@ -1590,7 +1590,7 @@ export function MaintainersMap({
         </div>
       )}
       {!groups.length && (
-        <p role="status" className="text-sm text-gray-600 dark:text-gray-400">
+        <p role="status" className="text-sm text-text-secondary">
           No shared locations for the selected maintainers and contributors.
         </p>
       )}

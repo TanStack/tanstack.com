@@ -333,7 +333,7 @@ export function MaintainersChartMap({
               direction[1] / transform.k,
             )
           }}
-          className="touch-none rounded-xl bg-gray-50 text-gray-300 dark:bg-gray-900/50 dark:text-gray-700"
+          className="isolate touch-none rounded-xl bg-gray-50 text-gray-300 dark:bg-gray-900/50 dark:text-gray-700"
         >
           <Chart
             definition={definition}

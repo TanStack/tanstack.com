@@ -131,10 +131,10 @@ function MaintainersFilter({
     (sortBy !== 'none' ? 1 : 0)
 
   return (
-    <div>
+    <div className="pointer-events-none relative z-20 [&_button]:pointer-events-auto">
       <div className="relative flex items-center gap-3 flex-wrap">
         {/* View Mode Toggle */}
-        <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div data-globe-filter className="pointer-events-auto flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           {(
             [
               {
@@ -173,7 +173,7 @@ function MaintainersFilter({
         </div>
 
         {/* Filter dropdown trigger */}
-        <div className="sm:relative" data-filter-dropdown>
+        <div className="pointer-events-auto sm:relative" data-filter-dropdown data-globe-filter>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -659,8 +659,8 @@ function RouteComponent() {
         }
       `}</style>
 
-      <div className="flex flex-col max-w-full min-h-screen gap-6 md:gap-12 p-4 md:p-8 pb-0">
-        <div className="flex-1 flex flex-col gap-6 md:gap-16 w-full max-w-4xl mx-auto">
+      <div className="@container isolate flex min-h-screen max-w-full flex-col pt-4 md:pt-8">
+        <div className="mx-auto flex w-[calc(100%-2rem)] max-w-4xl flex-1 flex-col gap-6 md:w-[calc(100%-4rem)] md:gap-16">
           <header className="">
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
             <p className="text-lg mt-3 md:mt-4 text-gray-600 dark:text-gray-400">
@@ -687,7 +687,7 @@ function RouteComponent() {
           />
 
           {hasResults ? (
-            <div>
+            <div className="mt-6 md:mt-16">
               {hasFilters && (
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
                   Showing {filteredMaintainers.length} maintainer
@@ -714,7 +714,7 @@ function RouteComponent() {
               ))}
             </div>
           ) : (
-            <div className="text-center text-gray-600 dark:text-gray-400">
+            <div className="mt-6 text-center text-gray-600 md:mt-16 dark:text-gray-400">
               <div>
                 <p className="text-lg mb-4">
                   No maintainers found for the selected filters.

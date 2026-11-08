@@ -637,6 +637,14 @@ type MaintainersMapProps = {
   selectedLibraries?: LibraryId[]
 }
 
+function Key({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="rounded border border-gray-200 px-1 py-0.5 font-sans text-[0.9em] dark:border-white/10">
+      {children}
+    </kbd>
+  )
+}
+
 function GlobeAvatar({
   member,
   color,
@@ -1497,12 +1505,13 @@ export function MaintainersMap({
         className="relative z-20 min-h-8 text-xs text-gray-500 dark:text-gray-400"
       >
         <span className="hidden sm:inline sm:pointer-coarse:hidden">
-          Drag to rotate. Hold Ctrl or ⌘ while scrolling to zoom. Hover over a
-          profile to pause, or select it to see nearby maintainers. Use Shift
-          and arrow keys to rotate.
+          Drag or <Key>Shift</Key>+arrows to rotate. Hold <Key>Ctrl</Key>/
+          <Key>⌘</Key> and scroll to zoom. Hover or focus a profile to pause,
+          select to see nearby maintainers, <Key>Esc</Key> to close.
         </span>
         <span className="sm:hidden sm:pointer-coarse:inline">
-          Tap a profile to see nearby maintainers.
+          Drag to rotate, pinch to zoom. Tap a profile to see nearby
+          maintainers.
         </span>
       </p>
       {selected && (

@@ -21,7 +21,6 @@ const mobileViewport = '(max-width: 639px)'
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
 const entranceThreshold = 0.25
-const entranceWarmup = 280
 const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
@@ -873,14 +872,14 @@ export function MaintainersMap({
     let wasIdle = true
     let entranceVisible = false
     let entered = container.hasAttribute('data-globe-entered')
-    let entranceReadyAt: number | undefined
+    let entrancePrepared = false
     if (entered) scene?.removeAttribute('inert')
     const observer = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting
         entranceVisible =
           visible && entry.intersectionRatio >= entranceThreshold
-        if (!entranceVisible) entranceReadyAt = undefined
+        if (!entranceVisible) entrancePrepared = false
         updateViewport()
       },
       { threshold: [0, entranceThreshold] },
@@ -973,14 +972,14 @@ export function MaintainersMap({
             viewportChanged = false
           }
           wasIdle = idle
-          // Draw the globe and settle the first profile rows before revealing the scene.
-          if (preparing && profileNodes.current) {
-            entranceReadyAt ??= now + (reducedMotion ? 0 : entranceWarmup)
-          }
+          // Give COBE a frame to upload its embedded map texture after laying out the rows.
           const reveal =
-            preparing && entranceReadyAt !== undefined && now >= entranceReadyAt
+            preparing &&
+            profileNodes.current !== undefined &&
+            (entrancePrepared || reducedMotion)
+          if (preparing && profileNodes.current) entrancePrepared = true
           if (redraw || reveal) {
-            // Paint again just before reveal so COBE can use its loaded texture.
+            // Refresh the hidden canvas before starting the entrance animation.
             // Only the paint layer grows with zoom, preserving page layout.
             const extraHeight = mobile.matches
               ? 0

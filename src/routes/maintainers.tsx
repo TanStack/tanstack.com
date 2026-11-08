@@ -14,7 +14,7 @@ import {
   CompactMaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { MaintainersChartsGlobe } from '~/components/MaintainersChartsGlobe'
+import { createChartsGlobe } from '~/components/maintainersChartsGlobe'
 import { MaintainersMap } from '~/components/MaintainersMap'
 import { seo } from '~/utils/seo'
 import {
@@ -414,8 +414,6 @@ function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const mapView = search.mapView ?? 'map'
-  const MapComponent =
-    mapView === 'globe' ? MaintainersMap : MaintainersChartsGlobe
   const clearFilters = () =>
     navigate({ search: { mapView: search.mapView }, replace: true })
 
@@ -730,7 +728,9 @@ function RouteComponent() {
             onClearAll={clearFilters}
           />
 
-          <MapComponent
+          <MaintainersMap
+            key={mapView}
+            createRenderer={mapView === 'globe' ? undefined : createChartsGlobe}
             maintainers={filteredMaintainers}
             selectedLibraries={search.libraries}
           />

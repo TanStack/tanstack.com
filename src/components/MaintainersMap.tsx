@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
-import createGlobe, { type Globe, type Marker } from 'cobe'
+import createGlobe, { type COBEOptions, type Globe, type Marker } from 'cobe'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
 import {
   MinusIcon,
@@ -29,6 +29,16 @@ const globeRadius = 0.4
 const globeGlowDiameter = 0.92
 const zoomControls = { width: 46, height: 126 }
 const desktopHeading = { width: 176, height: 52 }
+
+type GlobeRenderer = (container: HTMLDivElement, options: COBEOptions) => Globe
+
+function createCobeRenderer(container: HTMLDivElement, options: COBEOptions) {
+  const canvas = document.createElement('canvas')
+  canvas.style.cssText = 'display:block;width:100%;height:100%'
+  canvas.setAttribute('aria-hidden', 'true')
+  container.append(canvas)
+  return createGlobe(canvas, options)
+}
 
 type View = typeof initialView
 
@@ -578,6 +588,7 @@ function placeProfiles(
 type MaintainersMapProps = {
   maintainers: Maintainer[]
   selectedLibraries?: LibraryId[]
+  createRenderer?: GlobeRenderer
 }
 
 function GlobeAvatar({
@@ -624,6 +635,7 @@ function GlobeAvatar({
 export function MaintainersMap({
   maintainers,
   selectedLibraries,
+  createRenderer = createCobeRenderer,
 }: MaintainersMapProps) {
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const [host, setHost] = useState((): Element | null => null)
@@ -714,12 +726,8 @@ export function MaintainersMap({
         headingLeft: (width - contentWidth) / 2,
       }
     }
-    const canvas = document.createElement('canvas')
-    canvas.style.cssText = 'display:block;width:100%;height:100%'
-    canvas.setAttribute('aria-hidden', 'true')
-    surface.append(canvas)
     hostSize.current = readBounds()
-    const instance = createGlobe(canvas, {
+    const instance = createRenderer(surface, {
       width: hostSize.current.width,
       height: hostSize.current.height,
       devicePixelRatio: Math.min(window.devicePixelRatio, 2),
@@ -762,7 +770,7 @@ export function MaintainersMap({
       instance.destroy()
       surface.replaceChildren()
     }
-  }, [host, surface])
+  }, [host, surface, createRenderer])
 
   useEffect(() => {
     groupsRef.current = groups

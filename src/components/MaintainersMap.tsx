@@ -291,6 +291,14 @@ function placeProfiles(
     },
   )
   type Label = (typeof labels)[number]
+  const overlapsUi = (x: number, y: number, width: number, height: number) =>
+    ui.some(
+      (box) =>
+        x < box.right + gap - 0.1 &&
+        x + width + gap > box.left + 0.1 &&
+        y < box.bottom + gap - 0.1 &&
+        y + height + gap > box.top + 0.1,
+    )
   const constrain = (
     position: { x: number; y: number },
     width: number,
@@ -299,24 +307,27 @@ function placeProfiles(
     position.x = Math.max(left, Math.min(right - width, position.x))
     const maxY = bottom - height
     position.y = Math.max(top, Math.min(maxY, position.y))
+    if (!overlapsUi(position.x, position.y, width, height)) return
+
+    // A slot next to one control can still cover another. Check all of them
+    // before moving the row so it settles in one valid position.
+    let nearestY = position.y
+    let nearestDistance = Infinity
     for (const obstacle of ui) {
-      if (
-        position.x >= obstacle.right + gap - 0.1 ||
-        position.x + width + gap <= obstacle.left + 0.1
-      )
-        continue
-      const above = obstacle.top - height - gap
-      const below = obstacle.bottom + gap
-      if (position.y <= above + 0.1 || position.y >= below - 0.1) continue
-      if (
-        above >= top &&
-        (below > maxY || position.y - above <= below - position.y)
-      ) {
-        position.y = above
-      } else if (below <= maxY) {
-        position.y = below
+      for (const y of [obstacle.top - height - gap, obstacle.bottom + gap]) {
+        const distance = Math.abs(y - position.y)
+        if (
+          y >= top &&
+          y <= maxY &&
+          distance < nearestDistance &&
+          !overlapsUi(position.x, y, width, height)
+        ) {
+          nearestY = y
+          nearestDistance = distance
+        }
       }
     }
+    position.y = nearestY
   }
   const overlaps = (a: Label, b: Label) =>
     a.x < b.x + b.width + gap - 0.1 &&
@@ -379,6 +390,7 @@ function placeProfiles(
         if (
           Math.abs(candidate.x - x) > 0.1 ||
           Math.abs(candidate.y - y) > 0.1 ||
+          overlapsUi(candidate.x, candidate.y, label.width, label.height) ||
           obstacles.some((other) => overlaps(candidate, other))
         )
           continue
@@ -398,7 +410,11 @@ function placeProfiles(
       for (const y of ys) {
         const candidate = { ...label, x, y }
         constrain(candidate, label.width, label.height)
-        if (obstacles.some((other) => overlaps(candidate, other))) continue
+        if (
+          overlapsUi(candidate.x, candidate.y, label.width, label.height) ||
+          obstacles.some((other) => overlaps(candidate, other))
+        )
+          continue
         const distance =
           (candidate.x - label.x) ** 2 + (candidate.y - label.y) ** 2
         if (distance < best.distance)
@@ -902,28 +918,6 @@ export function MaintainersMap({
             current.scale += (next.scale - current.scale) * ease
             anchors = projectAnchors(groupsRef.current, current, width, height)
           }
-          if (redraw || preparing) {
-            // Extend only the paint layer. Keep the same projected size and
-            // center so the rest of the page stays put when zooming.
-            const extraHeight = mobile.matches
-              ? 0
-              : Math.max(0, height * (current.scale * globeGlowDiameter - 1))
-            const paintHeight =
-              height +
-              Math.ceil(extraHeight / canvasHeightStep) * canvasHeightStep
-            const paintView = {
-              ...current,
-              scale: (current.scale * height) / paintHeight,
-            }
-            if (width !== renderedWidth || paintHeight !== renderedHeight) {
-              canvasSurface.style.height = `${paintHeight}px`
-              instance.update({ ...paintView, width, height: paintHeight })
-              renderedWidth = width
-              renderedHeight = paintHeight
-            } else {
-              instance.update(paintView)
-            }
-          }
           if (
             redraw ||
             viewportChanged ||
@@ -953,11 +947,35 @@ export function MaintainersMap({
           // Draw the globe and settle the first profile rows before revealing the scene.
           if (preparing && profileNodes.current) {
             entranceReadyAt ??= now + (reducedMotion ? 0 : entranceWarmup)
-            if (now >= entranceReadyAt) {
-              entered = true
-              container.setAttribute('data-globe-entered', '')
-              scene?.removeAttribute('inert')
+          }
+          const reveal =
+            preparing && entranceReadyAt !== undefined && now >= entranceReadyAt
+          if (redraw || reveal) {
+            // Paint again just before reveal so COBE can use its loaded texture.
+            // Only the paint layer grows with zoom, preserving page layout.
+            const extraHeight = mobile.matches
+              ? 0
+              : Math.max(0, height * (current.scale * globeGlowDiameter - 1))
+            const paintHeight =
+              height +
+              Math.ceil(extraHeight / canvasHeightStep) * canvasHeightStep
+            const paintView = {
+              ...current,
+              scale: (current.scale * height) / paintHeight,
             }
+            if (width !== renderedWidth || paintHeight !== renderedHeight) {
+              canvasSurface.style.height = `${paintHeight}px`
+              instance.update({ ...paintView, width, height: paintHeight })
+              renderedWidth = width
+              renderedHeight = paintHeight
+            } else {
+              instance.update(paintView)
+            }
+          }
+          if (reveal) {
+            entered = true
+            container.setAttribute('data-globe-entered', '')
+            scene?.removeAttribute('inert')
           }
           dirty.current = false
         }
@@ -1012,9 +1030,10 @@ export function MaintainersMap({
           )
           view.current.phi = target.current.phi
           view.current.theta = target.current.theta
+        } else {
+          target.current.scale = next.k
+          setScale(next.k)
         }
-        target.current.scale = next.k
-        setScale(next.k)
         previous = next
         dirty.current = true
       })

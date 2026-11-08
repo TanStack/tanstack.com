@@ -123,7 +123,7 @@ function placeProfiles(
       card.dataset.shown = String(visible)
       card.style.visibility = visible ? 'visible' : 'hidden'
       card.style.opacity = visible ? '1' : '0'
-      card.style.filter = visible ? 'blur(0px)' : 'blur(6px)'
+      card.style.filter = visible ? 'none' : 'blur(6px)'
       card.style.transitionDelay = visible ? '0s, 0s, 0s' : '0s, 0s, 280ms'
       card.style.pointerEvents = visible ? 'auto' : 'none'
       card.inert = !visible
@@ -752,7 +752,7 @@ export function MaintainersMap({
               <div
                 key={group.id}
                 data-globe-profile={group.id}
-                className="absolute left-0 top-0 w-max"
+                className="absolute left-0 top-0 w-max will-change-transform"
                 style={{
                   visibility: 'hidden',
                   opacity: 0,

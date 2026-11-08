@@ -25,13 +25,29 @@ for (let index = 0; index < land.samples; index++) {
   ])
 }
 
-const darkDots = ['#557282', '#a4bccb', '#e0eff7', '#f1f9ff']
-const lightDots = ['#c1cbd0', '#889ba5', '#526671', '#263942']
+const darkDots = [
+  'var(--color-ds-neutral-300)',
+  'var(--color-ds-neutral-tint-200)',
+  'var(--color-ds-neutral-tint-100)',
+  'var(--color-text-primary)',
+]
+const lightDots = [
+  'var(--color-ds-neutral-tint-200)',
+  'var(--color-ds-neutral-200)',
+  'var(--color-ds-neutral-300)',
+  'var(--color-ds-neutral-350)',
+]
 
 function gradients(dark: boolean): ChartGradient[] {
-  const ocean = dark ? '#101314' : '#f4f7f8'
-  const rim = dark ? '#18242b' : '#d8e3e9'
-  const light = dark ? '#294350' : '#b3c9d6'
+  const ocean = dark
+    ? 'var(--color-background-default)'
+    : 'var(--color-background-subtle)'
+  const rim = dark
+    ? 'var(--color-background-elevated)'
+    : 'var(--color-ds-neutral-tint-100)'
+  const light = dark
+    ? 'var(--color-border-default)'
+    : 'var(--color-ds-neutral-tint-200)'
   return [
     {
       id: 'ocean',
@@ -156,7 +172,7 @@ export function createChartsGlobe(container: HTMLDivElement) {
           x: centerX + x * pixels,
           y: centerY - y * pixels,
           radius: (size * pixels) / 2,
-          style: { fill: '#ff915e' },
+          style: { fill: 'var(--color-category-data)' },
         })
       }
       return { nodes, points: [] }

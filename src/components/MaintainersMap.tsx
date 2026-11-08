@@ -1376,7 +1376,7 @@ export function MaintainersMap({
                   style={{ visibility: 'hidden' }}
                 >
                   <span
-                    className="absolute -left-2 -top-2 size-4 rounded-full border border-[#f79163]/70 bg-[#f79163]/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
+                    className="absolute -left-2 -top-2 size-4 rounded-full border border-category-data/70 bg-category-data/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
                     style={{ animationDelay: `${index * -0.17}s` }}
                   />
                 </span>

@@ -134,7 +134,10 @@ function MaintainersFilter({
     <div className="pointer-events-none relative z-20 [&_button]:pointer-events-auto">
       <div className="relative flex items-center gap-3 flex-wrap">
         {/* View Mode Toggle */}
-        <div data-globe-filter className="pointer-events-auto flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div
+          data-globe-filter
+          className="pointer-events-auto flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+        >
           {(
             [
               {
@@ -173,7 +176,11 @@ function MaintainersFilter({
         </div>
 
         {/* Filter dropdown trigger */}
-        <div className="pointer-events-auto sm:relative" data-filter-dropdown data-globe-filter>
+        <div
+          className="pointer-events-auto sm:relative"
+          data-filter-dropdown
+          data-globe-filter
+        >
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"

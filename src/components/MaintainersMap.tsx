@@ -10,6 +10,7 @@ import {
 import { ClientOnly } from '@tanstack/react-router'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
 import {
+  ArrowCounterClockwiseIcon,
   MinusIcon,
   PauseIcon,
   PlayIcon,
@@ -43,7 +44,7 @@ const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
 const globeGlowDiameter = 0.92
-const zoomControls = { width: 46, height: 126 }
+const zoomControls = { width: 46, height: 166 }
 
 type View = typeof initialView
 
@@ -1479,6 +1480,26 @@ export function MaintainersMap({
             className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
           >
             <MinusIcon aria-hidden="true" weight="bold" className="size-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Reset zoom"
+            onClick={() =>
+              host &&
+              select(host).call(
+                behavior.scaleTo,
+                window.matchMedia(mobileViewport).matches
+                  ? mobileInitialScale
+                  : desktopInitialScale,
+              )
+            }
+            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+          >
+            <ArrowCounterClockwiseIcon
+              aria-hidden="true"
+              weight="bold"
+              className="size-4"
+            />
           </button>
           <button
             type="button"

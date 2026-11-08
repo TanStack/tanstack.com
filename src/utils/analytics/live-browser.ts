@@ -144,20 +144,28 @@ export function startLivePresence() {
     | undefined
   const sendLeave = () => {
     if (!lastPayload || !wasOnPublicPage) return
-    navigator.sendBeacon(
-      '/_a/live',
-      new Blob(
-        [
-          JSON.stringify({
-            ...lastPayload,
-            sequence: ++sequence,
-            kind: 'leave',
-          }),
-        ],
-        { type: 'application/json' },
-      ),
-    )
+    const body = JSON.stringify({
+      ...lastPayload,
+      sequence: ++sequence,
+      kind: 'leave',
+    })
     wasOnPublicPage = false
+    // Some clients (e.g. Apple Mail webviews, Firefox with beacons disabled)
+    // have no Beacon API, so fall back to a keepalive fetch.
+    if (typeof navigator.sendBeacon === 'function') {
+      navigator.sendBeacon(
+        '/_a/live',
+        new Blob([body], { type: 'application/json' }),
+      )
+      return
+    }
+    void fetch('/_a/live', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: true,
+      cache: 'no-store',
+    }).catch(() => {})
   }
   report = (action) => send('update', action)
   const onVisibility = () => send('update')

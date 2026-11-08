@@ -1115,7 +1115,7 @@ export function MaintainersMap({
           80%, 100% { transform: scale(2); opacity: 0; }
         }
         @media (prefers-reduced-motion: no-preference) {
-          [data-globe-scene] { opacity: 0; transform: translateY(2rem) scale(0.72); }
+          [data-globe-scene] { opacity: 0; transform: translateY(3.5rem) scale(0.72); }
           [data-globe-entered] [data-globe-scene] {
             opacity: 1;
             transform: none;
@@ -1123,7 +1123,7 @@ export function MaintainersMap({
           }
         }
         @keyframes maintainer-globe-enter {
-          from { opacity: 0; transform: translateY(2rem) scale(0.72); }
+          from { opacity: 0; transform: translateY(3.5rem) scale(0.72); }
           25% { opacity: 1; }
           to { opacity: 1; transform: none; }
         }

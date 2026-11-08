@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import createGlobe, { type Globe, type Marker } from 'cobe'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
-import { XIcon } from '@phosphor-icons/react'
+import { PauseIcon, PlayIcon, XIcon } from '@phosphor-icons/react'
 import type { Maintainer } from '~/libraries/maintainers'
 import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
@@ -325,6 +325,7 @@ export function MaintainersMap({
   const [reducedMotion, setReducedMotion] = useState(false)
   const [scale, setScale] = useState(initialView.scale)
   const [selectedId, setSelectedId] = useState('')
+  const [paused, setPaused] = useState(false)
   const [behavior] = useState(() => zoom())
   const [profilePositions] = useState(
     (): Map<string, ProfilePosition> => new Map(),
@@ -335,6 +336,7 @@ export function MaintainersMap({
   const view = useRef({ ...initialView })
   const target = useRef({ ...initialView })
   const interacting = useRef(false)
+  const pausedRef = useRef(false)
   const dirty = useRef(true)
   const hostSize = useRef({ width: 0, height: 0 })
 
@@ -515,6 +517,7 @@ export function MaintainersMap({
           if (
             entered &&
             !reducedMotion &&
+            !pausedRef.current &&
             !interacting.current &&
             !readingProfile
           ) {
@@ -832,6 +835,19 @@ export function MaintainersMap({
             className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
           >
             −
+          </button>
+          <button
+            type="button"
+            aria-label="Pause rotation"
+            aria-pressed={paused}
+            disabled={reducedMotion}
+            onClick={() => {
+              pausedRef.current = !paused
+              setPaused(!paused)
+            }}
+            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+          >
+            {paused ? <PlayIcon weight="fill" /> : <PauseIcon weight="fill" />}
           </button>
         </div>
       </div>

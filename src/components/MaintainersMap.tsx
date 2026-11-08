@@ -1514,12 +1514,10 @@ export function MaintainersMap({
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <h3 className="font-semibold">
-                {selected.members.length === 1
-                  ? 'Meet the maintainer'
-                  : `${selected.members.length} maintainers nearby`}
+                {`${selected.members.length} maintainer${selected.members.length === 1 ? '' : 's'} nearby`}
               </h3>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Shared locations from this cluster.
+                Select a profile to open their GitHub.
               </p>
             </div>
             <button

@@ -586,9 +586,15 @@ html.dark [data-ds-takeover-scrim='glass'] {
   --color-ds-neutral-400: #3e3529;
   --color-ds-neutral-500: #111111;
 
-  /* Cool neutral tints (distinct from the warm neutral ramp above) */
+  /* Cool neutral tints (distinct from the warm neutral ramp above).
+     300–500 match the relative luminance of neutral 200, 300, and 350 so they
+     swap in without changing any contrast ratio.
+     NOTE: not yet in Figma — add them there when syncing. */
   --color-ds-neutral-tint-100: #e8e7e5;
   --color-ds-neutral-tint-200: #c5c3bf;
+  --color-ds-neutral-tint-300: #a9a6a0;
+  --color-ds-neutral-tint-400: #706d66;
+  --color-ds-neutral-tint-500: #54514c;
 
   /* --- Category brand colors ---
      Libraries inherit their category's color as their core brand color. These

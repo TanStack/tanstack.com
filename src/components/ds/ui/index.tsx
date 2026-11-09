@@ -628,6 +628,59 @@ export function Spinner({ className }: { className?: string }) {
   )
 }
 
+/* --------------------------------------------------------------- Skeleton -- */
+
+/**
+ * Placeholder block shown while content loads.
+ *
+ * The tint is an alpha overlay rather than an opaque surface token, so it keeps
+ * the same contrast on the page background and on an elevated card — an opaque
+ * `background-subtle` reads lighter than the page in dark mode but darker than
+ * a card, inverting as it moves between surfaces.
+ *
+ * The pulse is wrapped in `motion-safe:` so it holds still under
+ * `prefers-reduced-motion`.
+ */
+export function Skeleton({
+  className,
+  ...rest
+}: React.ComponentPropsWithoutRef<'div'>) {
+  return (
+    <div
+      aria-hidden="true"
+      className={twMerge(
+        'motion-safe:animate-pulse rounded bg-text-primary/10',
+        className,
+      )}
+      {...rest}
+    />
+  )
+}
+
+/**
+ * Wrapper that announces a loading region to assistive tech. Wrap a group of
+ * `Skeleton` blocks in this so screen readers hear one message instead of
+ * nothing — the blocks themselves are `aria-hidden`.
+ */
+export function SkeletonGroup({
+  label = 'Loading',
+  className,
+  children,
+  ...rest
+}: React.ComponentPropsWithoutRef<'div'> & { label?: string }) {
+  return (
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label={label}
+      className={className}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
+}
+
 /* ----------------------------------------------------------------- Avatar -- */
 
 type AvatarSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'

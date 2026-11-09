@@ -227,6 +227,16 @@ export const dsNav: Array<DsNavSection> = [
         sections: ['Rail', 'Tiers', 'Per-logo scale'],
       },
       {
+        label: 'Skeleton',
+        to: '/ds/skeleton',
+        sections: [
+          'Skeleton',
+          'On any surface',
+          'Grouping and accessibility',
+          'Match the real layout',
+        ],
+      },
+      {
         label: 'Spinner',
         to: '/ds/spinner',
         sections: ['Sizes & color', 'Headbanger'],

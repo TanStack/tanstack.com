@@ -39,6 +39,7 @@ async function browser(
     cookie?: string
     hash?: string
     storage?: Map<string, string>
+    noBeacon?: boolean
   } = {},
 ) {
   const events: Blob[] = []
@@ -96,10 +97,14 @@ async function browser(
     navigator: {
       doNotTrack: options.dnt,
       globalPrivacyControl: options.gpc,
-      sendBeacon(_url: string, body: Blob) {
-        events.push(body)
-        return true
-      },
+      ...(options.noBeacon
+        ? {}
+        : {
+            sendBeacon(_url: string, body: Blob) {
+              events.push(body)
+              return true
+            },
+          }),
     },
     window: {
       addEventListener(name: string, handler: () => void) {
@@ -218,6 +223,19 @@ test('private navigation leaves the last public page and stops updates', async (
   assert.equal(messages.length, 2)
   assert.equal(messages[1].kind, 'leave')
   assert.ok(messages.every((event) => !event.page.includes('account')))
+  visitor.stop()
+})
+
+test('leaving falls back to fetch when sendBeacon is unavailable', async () => {
+  const visitor = await browser({ noBeacon: true })
+  assert.doesNotThrow(() => visitor.handlers.get('pagehide')?.())
+  visitor.handlers.get('pagehide')?.()
+  const messages = await visitor.messages()
+  assert.deepEqual(
+    messages.map((event) => event.kind),
+    ['update', 'leave'],
+  )
+  assert.equal(messages[1].sequence, 2)
   visitor.stop()
 })
 

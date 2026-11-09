@@ -4,7 +4,11 @@ import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { Button, Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
-import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
+import {
+  PartnersGrid,
+  PartnersGridSkeleton,
+  TierBand,
+} from '~/components/PartnersGrid'
 import type { PartnerPlacement } from '~/utils/analytics'
 
 type PartnersSponsorsContentProps = {
@@ -79,28 +83,7 @@ function PartnersSponsorsSkeleton() {
       className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto"
     >
       <Skeleton className="mb-6 h-10 w-40" />
-      <div className="overflow-hidden rounded-2xl border border-border-default">
-        {[2, 3].map((columns, band) => (
-          <div key={`partner-band-${band}`}>
-            <Skeleton className="h-12 rounded-none" />
-            <div
-              className="grid gap-px bg-border-default"
-              style={{
-                gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-              }}
-            >
-              {Array.from({ length: columns * 2 }).map((_, index) => (
-                <Skeleton
-                  key={`partner-skeleton-${band}-${index}`}
-                  className="min-h-[130px] rounded-none"
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-        <Skeleton className="h-12 rounded-none" />
-        <Skeleton className="h-[420px] rounded-none sm:h-[480px] lg:h-[540px]" />
-      </div>
+      <PartnersGridSkeleton />
     </SkeletonGroup>
   )
 }

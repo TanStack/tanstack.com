@@ -5,6 +5,7 @@ import { ArrowRightIcon } from '@phosphor-icons/react'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { Button, Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { PartnersSponsorsContent } from '~/components/PartnersSponsorsSection'
+import { PartnersGridSkeleton } from '~/components/PartnersGrid'
 import type { RecentPost } from '~/utils/blog.functions'
 
 type HomeSocialProofSectionProps = {
@@ -29,28 +30,7 @@ function SocialProofSkeleton() {
     <SkeletonGroup label="Loading partners and posts" className="space-y-24">
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
         <Skeleton className="h-10 w-40 mb-6" />
-        <div className="overflow-hidden rounded-2xl corner-squircle border border-border-default">
-          {[2, 3].map((cols, band) => (
-            <div key={`partner-band-${band}`}>
-              <Skeleton className="h-12 rounded-none" />
-              <div
-                className="grid gap-px bg-border-default"
-                style={{
-                  gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                }}
-              >
-                {Array.from({ length: cols * 2 }).map((_, index) => (
-                  <Skeleton
-                    key={`partner-skeleton-${band}-${index}`}
-                    className="min-h-[130px] rounded-none"
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-          <Skeleton className="h-12 rounded-none" />
-          <Skeleton className="h-[420px] rounded-none sm:h-[480px] lg:h-[540px]" />
-        </div>
+        <PartnersGridSkeleton />
       </div>
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
         <Skeleton className="mb-3 ml-1 h-4 w-48" />

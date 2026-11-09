@@ -5,6 +5,7 @@ import {
   PartnerImage,
   partnerTierBandColor,
   partnerTierLabels,
+  partnerTiers,
   type PartnerTier,
 } from '~/utils/partners'
 import {
@@ -13,6 +14,7 @@ import {
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
+import { Skeleton } from '~/components/ds/ui'
 import {
   trackEvent,
   useTrackedImpression,
@@ -152,6 +154,66 @@ function PartnerGridItem({
         />
       </div>
     </a>
+  )
+}
+
+/**
+ * Loading shape for `PartnersGrid`. It walks the same tier config as the real
+ * grid, so the band heights and cell sizes line up instead of collapsing to a
+ * uniform placeholder.
+ */
+export function PartnersGridSkeleton({
+  partnersList,
+  status = 'active',
+  withSponsorsBand = true,
+}: {
+  partnersList?: PartnersGridProps['partnersList']
+  status?: PartnersGridProps['status']
+  withSponsorsBand?: boolean
+}) {
+  const items = (partnersList ?? allPartners).filter(
+    (partner) => partner.status === status,
+  )
+
+  return (
+    <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
+      {partnerTiers.map((tier) => {
+        const count = items.filter((partner) => partner.tier === tier).length
+        if (count === 0) {
+          return null
+        }
+        const sizing = tierLayout[tier]
+        return (
+          <React.Fragment key={tier}>
+            <div className="h-[60px]" aria-hidden="true">
+              <Skeleton className="h-full rounded-none" />
+            </div>
+            <div className="flex flex-wrap items-stretch -mr-px -mb-px">
+              {Array.from({ length: count }).map((_, index) => (
+                <div
+                  key={`${tier}-${index}`}
+                  className={`${sizing.flexBasis} ${sizing.minHeight} border-r border-b border-gray-200 dark:border-gray-800`}
+                >
+                  <Skeleton className="h-full rounded-none" />
+                </div>
+              ))}
+            </div>
+          </React.Fragment>
+        )
+      })}
+      {withSponsorsBand ? (
+        <>
+          <div className="h-[60px]" aria-hidden="true">
+            <Skeleton className="h-full rounded-none" />
+          </div>
+          <div className="px-4 py-10">
+            <Skeleton className="h-[420px] rounded-lg sm:h-[480px] lg:h-[540px]" />
+            <Skeleton className="mx-auto mt-8 h-12 w-full max-w-(--breakpoint-sm)" />
+            <Skeleton className="mx-auto mt-6 h-10 w-48" />
+          </div>
+        </>
+      ) : null}
+    </div>
   )
 }
 

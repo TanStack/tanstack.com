@@ -1483,16 +1483,18 @@ export function MaintainersMap({
           </button>
           <button
             type="button"
-            aria-label="Reset zoom"
-            onClick={() =>
-              host &&
+            aria-label="Reset zoom and tilt"
+            onClick={() => {
+              if (!host) return
               select(host).call(
                 behavior.scaleTo,
                 window.matchMedia(mobileViewport).matches
                   ? mobileInitialScale
                   : desktopInitialScale,
               )
-            }
+              target.current.theta = initialView.theta
+              wakeGlobe.current?.()
+            }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <ArrowCounterClockwiseIcon

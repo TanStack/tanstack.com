@@ -1446,7 +1446,7 @@ export function MaintainersMap({
                           onClick={() => focus(group)}
                           aria-label={`Show ${member.name}`}
                           aria-expanded={selectedId === group.id}
-                          className="relative shrink-0 rounded-full bg-background-elevated transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
+                          className="relative shrink-0 rounded-full bg-background-elevated hover:z-10 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <GlobeAvatar member={member} color={group.color} />
                         </button>

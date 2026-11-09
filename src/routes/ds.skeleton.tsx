@@ -21,7 +21,6 @@ function SkeletonPage() {
       description="Placeholder blocks shown while content loads. Mirror the shape of what is coming so the layout does not shift when the real content arrives."
     >
       <DsSection
-        id="shapes"
         title="Skeleton"
         description={
           <>
@@ -53,7 +52,6 @@ function SkeletonPage() {
       </DsSection>
 
       <DsSection
-        id="surfaces"
         title="On any surface"
         description="The tint is an alpha overlay, not an opaque color, so it always reads lighter than whatever is behind it in dark mode and darker in light. An opaque surface token cannot do that: in dark mode it is lighter than the page but darker than a raised card, so it inverts as it moves between surfaces."
       >
@@ -74,7 +72,6 @@ function SkeletonPage() {
       </DsSection>
 
       <DsSection
-        id="grouping"
         title="Grouping and accessibility"
         description="Each block is aria-hidden, so a lone skeleton announces nothing. Wrap a loading region in SkeletonGroup to give screen readers one message for the whole area. The pulse is wrapped in motion-safe:, so it holds still under prefers-reduced-motion."
       >
@@ -103,7 +100,6 @@ function SkeletonPage() {
       </DsSection>
 
       <DsSection
-        id="matching"
         title="Match the real layout"
         description="Reuse the same grid, gap, and block heights as the content it stands in for. A skeleton that does not match the loaded UI trades a blank screen for a layout shift."
       >

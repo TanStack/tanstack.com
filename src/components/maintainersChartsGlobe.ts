@@ -2,6 +2,7 @@ import { createChartRuntime, createMark, defineChart } from '@tanstack/charts'
 import type { ChartGradient, SceneNode } from '@tanstack/charts'
 import { createSvgChartRenderer } from '@tanstack/charts/svg/renderer'
 import { geoOrthographic, geoPath, scaleIdentity } from 'd3'
+import borders from '~/data/maintainers-country-borders.json'
 import land from '~/data/maintainers-land.json'
 
 type Vector = [number, number, number]
@@ -11,6 +12,10 @@ const degrees = Math.PI / 180
 const worldLand: { type: 'MultiPolygon'; coordinates: number[][][][] } = {
   type: 'MultiPolygon',
   coordinates: land.coordinates,
+}
+const countryBorders: { type: 'MultiLineString'; coordinates: number[][][] } = {
+  type: 'MultiLineString',
+  coordinates: borders.coordinates,
 }
 
 function gradients(dark: boolean): ChartGradient[] {
@@ -81,6 +86,7 @@ export function createChartsGlobe(container: HTMLDivElement) {
           [chart.width, chart.height],
         ])
       const landPath = geoPath(projection)(worldLand)
+      const bordersPath = geoPath(projection)(countryBorders)
 
       const nodes: SceneNode[] = [
         {
@@ -110,6 +116,22 @@ export function createChartsGlobe(container: HTMLDivElement) {
             fill: dark
               ? 'var(--color-ds-neutral-tint-200)'
               : 'var(--color-ds-neutral-tint-400)',
+          },
+        })
+      }
+      if (bordersPath) {
+        nodes.push({
+          kind: 'polyline',
+          key: 'globe-country-borders',
+          points: [],
+          path: bordersPath,
+          style: {
+            fill: 'none',
+            stroke: 'var(--color-background-default)',
+            strokeOpacity: 0.65,
+            strokeWidth: 0.75,
+            lineJoin: 'round',
+            lineCap: 'round',
           },
         })
       }

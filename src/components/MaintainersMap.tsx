@@ -162,7 +162,19 @@ function readProfileNodes(host: Element) {
       },
       count: { width: count.offsetWidth, height: count.offsetHeight },
     }
-    return [{ id, card, line, pin, portraits, count, sizes }]
+    const pendingImages = {
+      portraits: Array.from(
+        portraits.querySelectorAll<HTMLImageElement>(
+          'img[data-globe-src]:not([src])',
+        ),
+      ),
+      count: Array.from(
+        count.querySelectorAll<HTMLImageElement>(
+          'img[data-globe-src]:not([src])',
+        ),
+      ),
+    }
+    return [{ id, card, line, pin, sizes, pendingImages }]
   })
 }
 
@@ -236,7 +248,7 @@ function placeProfiles(
     ...viewport.filters,
   ]
   const labels = nodes.flatMap(
-    ({ id, card, line, pin, portraits, count, sizes }) => {
+    ({ id, card, line, pin, sizes, pendingImages }) => {
       const anchor = anchors.get(id)
       if (!anchor) return []
       const pinVisibility =
@@ -276,20 +288,17 @@ function placeProfiles(
         card.style.transitionDelay = visible ? '0s, 0s, 0s' : '0s, 0s, 280ms'
         card.inert = !visible
         line.style.opacity = visible && !offscreen ? '1' : '0'
-        if (visible) {
-          const row = offscreen ? count : portraits
-          for (const avatar of row.querySelectorAll<HTMLImageElement>(
-            'img[data-globe-src]:not([src])',
-          )) {
-            if (avatar.dataset.globeSrc) avatar.src = avatar.dataset.globeSrc
-          }
-        }
       }
       const previous = positions.get(id)
       if (!visible) {
         if (previous) previous.visible = false
         return []
       }
+      const images = offscreen ? pendingImages.count : pendingImages.portraits
+      for (const avatar of images) {
+        if (avatar.dataset.globeSrc) avatar.src = avatar.dataset.globeSrc
+      }
+      images.length = 0
       const fresh = !previous?.visible || previous.offscreen !== offscreen
       const badgeBottom = mobile
         ? Math.min(bottom, Math.max(badgeTop + height, bounds.height))
@@ -714,6 +723,10 @@ export function MaintainersMap({
   const target = useRef({ ...startingView })
   const interacting = useRef(false)
   const pausedRef = useRef(false)
+  const pauseRotation = useCallback(() => {
+    pausedRef.current = true
+    setPaused(true)
+  }, [])
   const dirty = useRef(true)
   const wakeGlobe = useRef<() => void>(undefined)
   const invalidate = useCallback(() => {
@@ -1212,8 +1225,9 @@ export function MaintainersMap({
           ) &&
           (event.type !== 'wheel' || event.ctrlKey || event.metaKey),
       )
-      .on('start', () => {
+      .on('start', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         interacting.current = true
+        if (event.sourceEvent) pauseRotation()
       })
       .on('zoom', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         const next = event.transform
@@ -1250,9 +1264,10 @@ export function MaintainersMap({
     return () => {
       selection.on('.zoom', null)
     }
-  }, [host, behavior, invalidate])
+  }, [host, behavior, invalidate, pauseRotation])
 
   function focus(group: MaintainerGroup) {
+    pauseRotation()
     const phi = (-group.location[1] * Math.PI) / 180 - Math.PI / 2
     target.current.phi =
       view.current.phi +
@@ -1341,6 +1356,7 @@ export function MaintainersMap({
             const direction = directions[event.key]
             if (!direction) return
             event.preventDefault()
+            pauseRotation()
             target.current.phi += direction[0]
             target.current.theta = Math.max(
               -1.2,
@@ -1437,7 +1453,7 @@ export function MaintainersMap({
                           onClick={() => focus(group)}
                           aria-label={`Show ${member.name}`}
                           aria-expanded={selectedId === group.id}
-                          className="relative shrink-0 rounded-full bg-background-elevated transition-transform hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
+                          className="relative shrink-0 rounded-full bg-background-elevated hover:z-10 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <GlobeAvatar member={member} color={group.color} />
                         </button>
@@ -1474,9 +1490,10 @@ export function MaintainersMap({
             type="button"
             aria-label="Zoom in"
             disabled={scale >= maxZoom}
-            onClick={() =>
-              host && select(host).call(behavior.scaleBy, zoomStep)
-            }
+            onClick={() => {
+              pauseRotation()
+              if (host) select(host).call(behavior.scaleBy, zoomStep)
+            }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <PlusIcon aria-hidden="true" weight="bold" className="size-4" />
@@ -1485,9 +1502,10 @@ export function MaintainersMap({
             type="button"
             aria-label="Zoom out"
             disabled={scale <= 1}
-            onClick={() =>
-              host && select(host).call(behavior.scaleBy, 1 / zoomStep)
-            }
+            onClick={() => {
+              pauseRotation()
+              if (host) select(host).call(behavior.scaleBy, 1 / zoomStep)
+            }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <MinusIcon aria-hidden="true" weight="bold" className="size-4" />
@@ -1497,6 +1515,7 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
+              pauseRotation()
               select(host).call(
                 behavior.scaleTo,
                 window.matchMedia(mobileViewport).matches

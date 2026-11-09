@@ -1095,6 +1095,9 @@ html.dark {
 /* Safelist for dynamic colors */
 @source inline('{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/{20,30,40,80}');
 @source inline('{hover:{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/40}');
+/* Library `bgStyle` values, tinted via template strings in library chips */
+@source inline('{bg-category-{framework,data,ui,performance,tooling},bg-fuchsia-500,bg-amber-500}/{30,40}');
+@source inline('{hover:{bg-category-{framework,data,ui,performance,tooling},bg-fuchsia-500,bg-amber-500}/40}');
 /* Black/gray-100 theme colors for ranger, config, devtools, mcp */
 @source inline('dark:text-gray-100 dark:bg-gray-100 dark:border-gray-100/50 dark:from-gray-100 dark:via-gray-400/50 text-black bg-black border-black/50 from-black via-gray-600/50 to-gray-600 to-gray-400 dark:text-gray-900');
 /* Accent colors for docs UI (sidebar, TOC, prev/next) */

@@ -306,12 +306,12 @@ function MaintainersFilter({
             const library = availableLibraries.find(
               (lib) => lib.id === libraryId,
             )
-            const bgStyle = library?.bgStyle ?? 'bg-gray-500'
+            const bgStyle = library?.bgStyle ?? 'bg-category-tooling'
 
             return (
               <span
                 key={libraryId}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${bgStyle}/40`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary ${bgStyle}/40`}
               >
                 {library?.name || libraryId}
                 <button

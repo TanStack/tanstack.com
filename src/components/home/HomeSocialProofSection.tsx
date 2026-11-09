@@ -48,6 +48,8 @@ function SocialProofSkeleton() {
               </div>
             </div>
           ))}
+          <Skeleton className="h-12 rounded-none" />
+          <Skeleton className="h-[420px] rounded-none sm:h-[480px] lg:h-[540px]" />
         </div>
       </div>
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">

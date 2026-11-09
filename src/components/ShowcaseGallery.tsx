@@ -6,6 +6,7 @@ import {
   getMyShowcaseVotesQueryOptions,
 } from '~/queries/showcases'
 import { voteShowcase } from '~/utils/showcase.functions'
+import { Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { CommunityProjectCard } from './CommunityProjectCard'
 import { SubmitShowcasePlaceholder } from './ShowcaseSection'
@@ -380,18 +381,29 @@ export function ShowcaseGallery({
       {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {isLoading ? (
-          <div className={gridClassName}>
+          <SkeletonGroup
+            label="Loading projects"
+            className={gridClassName}
+          >
             {Array.from({ length: 6 }).map((_, i) =>
               community ? (
                 <div
                   key={i}
-                  className="h-32 animate-pulse border-b border-gray-200 dark:border-gray-800"
-                />
+                  className="flex items-start gap-3 border-b border-gray-200 py-5 dark:border-gray-800"
+                >
+                  <Skeleton className="size-10 shrink-0 rounded-lg" />
+                  <div className="min-w-0 flex-1">
+                    <Skeleton className="h-6 w-48 max-w-full" />
+                    <Skeleton className="mt-1 h-5 w-full" />
+                    <Skeleton className="mt-1 h-5 w-4/5" />
+                    <Skeleton className="mt-2 h-4 w-32" />
+                  </div>
+                </div>
               ) : (
                 <ShowcaseCardSkeleton key={i} />
               ),
             )}
-          </div>
+          </SkeletonGroup>
         ) : data?.showcases && data.showcases.length > 0 ? (
           <>
             <div className={gridClassName}>

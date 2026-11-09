@@ -381,10 +381,7 @@ export function ShowcaseGallery({
       {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {isLoading ? (
-          <SkeletonGroup
-            label="Loading projects"
-            className={gridClassName}
-          >
+          <SkeletonGroup label="Loading projects" className={gridClassName}>
             {Array.from({ length: 6 }).map((_, i) =>
               community ? (
                 <div

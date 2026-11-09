@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Suspense } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { BlankErrorBoundary } from '~/components/BlankErrorBoundary'
+import { Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import type { Library } from '~/libraries'
@@ -125,19 +126,19 @@ function NPMSummaryContent({ library }: { library: Library }) {
  */
 function NPMSummarySkeleton() {
   return (
-    <div className="mb-6">
-      <div className="h-7 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2" />
-      <div className="h-5 w-96 max-w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
+    <SkeletonGroup label="Loading download stats" className="mb-6">
+      <Skeleton className="h-7 w-64 mb-2" />
+      <Skeleton className="h-5 w-96 max-w-full mb-4" />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="flex flex-col items-center">
-            <div className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mt-2" />
+            <Skeleton className="h-9 w-24" />
+            <Skeleton className="h-4 w-20 mt-2" />
           </div>
         ))}
       </div>
-    </div>
+    </SkeletonGroup>
   )
 }
 

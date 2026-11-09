@@ -26,6 +26,7 @@ import {
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
 import { libraryIdSchema } from '~/utils/schemas'
+import { getVisitorLocation } from '~/utils/visitor-location.functions'
 
 const viewModeSchema = v.picklist(['compact', 'full', 'row'])
 const groupBySchema = v.picklist(['none', 'core', 'library', 'role'])
@@ -39,6 +40,11 @@ const searchSchema = v.object({
 })
 
 export const Route = createFileRoute('/maintainers')({
+  loader: () => getVisitorLocation(),
+  headers: () => ({
+    'Cache-Control': 'private, no-store',
+    'Cloudflare-CDN-Cache-Control': 'no-store',
+  }),
   component: RouteComponent,
   validateSearch: searchSchema,
   staticData: {
@@ -379,6 +385,7 @@ function MaintainerGrid({
 }
 
 function RouteComponent() {
+  const initialLocation = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 
@@ -689,6 +696,7 @@ function RouteComponent() {
           />
 
           <MaintainersMap
+            initialLocation={initialLocation}
             maintainers={filteredMaintainers}
             selectedLibraries={search.libraries}
           />

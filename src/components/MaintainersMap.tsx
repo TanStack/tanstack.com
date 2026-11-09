@@ -22,9 +22,10 @@ import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
+import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
-const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
 const zoomStep = 1.5
+const maxZoom = 128
 const mobileInitialScale = zoomStep
 const desktopInitialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
@@ -636,6 +637,7 @@ function placeProfiles(
 type MaintainersMapProps = {
   maintainers: Maintainer[]
   selectedLibraries?: LibraryId[]
+  initialLocation: Parameters<typeof initialMaintainersView>[0]
 }
 
 function Key({ children }: { children: React.ReactNode }) {
@@ -690,6 +692,7 @@ function GlobeAvatar({
 export function MaintainersMap({
   maintainers,
   selectedLibraries,
+  initialLocation,
 }: MaintainersMapProps) {
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const [host, setHost] = useState((): HTMLDivElement | null => null)
@@ -706,8 +709,9 @@ export function MaintainersMap({
     (): Map<string, ProfilePosition> => new Map(),
   )
   const profileNodes = useRef<ReturnType<typeof readProfileNodes>>(undefined)
-  const view = useRef({ ...initialView })
-  const target = useRef({ ...initialView })
+  const [startingView] = useState(() => initialMaintainersView(initialLocation))
+  const view = useRef({ ...startingView })
+  const target = useRef({ ...startingView })
   const interacting = useRef(false)
   const pausedRef = useRef(false)
   const dirty = useRef(true)
@@ -869,10 +873,11 @@ export function MaintainersMap({
       line.style.visibility = 'hidden'
     profileNodes.current = undefined
     globe?.setMarkers(
-      groups.map(({ id, vector, members }) => ({
+      groups.map(({ id, vector, members, color }) => ({
         id,
         vector,
-        size: members.length > 1 ? 0.035 : 0.022,
+        radius: members.length > 1 ? 10 : 6,
+        color,
       })),
     )
     invalidate()
@@ -1193,7 +1198,7 @@ export function MaintainersMap({
     const selection = select(host)
     let previous = zoomIdentity
     behavior
-      .scaleExtent([1, 6])
+      .scaleExtent([1, maxZoom])
       .extent((): [[number, number], [number, number]] => [
         [0, 0],
         [host.clientWidth, host.clientHeight],
@@ -1263,7 +1268,10 @@ export function MaintainersMap({
   // The composite globe needs a focus target for its keyboard rotation controls.
   /* oxlint-disable jsx-a11y/no-noninteractive-tabindex */
   return (
-    <section aria-label="Maintainer locations" className="relative space-y-4">
+    <section
+      aria-label="Maintainer locations"
+      className="relative space-y-4 [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-border-strong"
+    >
       <style>{`
         [data-globe-surface] {
           mask-image: linear-gradient(
@@ -1385,8 +1393,11 @@ export function MaintainersMap({
                   style={{ visibility: 'hidden' }}
                 >
                   <span
-                    className="absolute -left-2 -top-2 size-4 rounded-full border border-category-data/70 bg-category-data/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
-                    style={{ animationDelay: `${index * -0.17}s` }}
+                    className="absolute -left-2 -top-2 size-4 rounded-full border border-current/70 bg-current/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
+                    style={{
+                      animationDelay: `${index * -0.17}s`,
+                      color: group.color,
+                    }}
                   />
                 </span>
               ))}
@@ -1462,7 +1473,7 @@ export function MaintainersMap({
           <button
             type="button"
             aria-label="Zoom in"
-            disabled={scale >= 6}
+            disabled={scale >= maxZoom}
             onClick={() =>
               host && select(host).call(behavior.scaleBy, zoomStep)
             }
@@ -1524,7 +1535,7 @@ export function MaintainersMap({
       </div>
       <p
         id="maintainers-globe-help"
-        className="relative z-20 min-h-8 text-xs text-text-muted"
+        className="relative z-20 min-h-8 rounded-lg border border-border-default bg-background-elevated px-3 py-2 text-xs leading-relaxed text-text-primary"
       >
         <span className="hidden sm:inline sm:pointer-coarse:hidden">
           Drag or <Key>Shift</Key>+arrows to rotate. Hold <Key>Ctrl</Key>/

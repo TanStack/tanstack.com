@@ -1,42 +1,17 @@
 import { createChartRuntime, createMark, defineChart } from '@tanstack/charts'
 import type { ChartGradient, SceneNode } from '@tanstack/charts'
 import { createSvgChartRenderer } from '@tanstack/charts/svg/renderer'
-import { scaleIdentity } from 'd3'
-import land from '~/data/maintainers-globe-land-mask.json'
+import { geoOrthographic, geoPath, scaleIdentity } from 'd3'
+import land from '~/data/maintainers-land.json'
 
 type Vector = [number, number, number]
 type GlobeView = { phi: number; theta: number; scale: number }
-type GlobeMarker = { id: string; vector: Vector; size: number }
-const goldenFraction = (Math.sqrt(5) - 1) / 2
+type GlobeMarker = { id: string; vector: Vector; radius: number; color: string }
 const degrees = Math.PI / 180
-
-// The mask is sampled from the same Natural Earth land polygons used by the map.
-const landMask = atob(land.landMask)
-const landVectors: Vector[] = []
-for (let index = 0; index < land.samples; index++) {
-  if (!(landMask.charCodeAt(index >> 3) & (1 << (index & 7)))) continue
-  const y = 1 - (2 * index) / land.samples
-  const angle = ((index * goldenFraction) % 1) * 2 * Math.PI
-  const latitudeRadius = Math.sqrt(1 - y * y)
-  landVectors.push([
-    latitudeRadius * Math.cos(angle),
-    y,
-    latitudeRadius * Math.sin(angle),
-  ])
+const worldLand: { type: 'MultiPolygon'; coordinates: number[][][][] } = {
+  type: 'MultiPolygon',
+  coordinates: land.coordinates,
 }
-
-const darkDots = [
-  'var(--color-ds-neutral-tint-400)',
-  'var(--color-ds-neutral-tint-200)',
-  'var(--color-ds-neutral-tint-100)',
-  'var(--color-text-primary)',
-]
-const lightDots = [
-  'var(--color-ds-neutral-tint-200)',
-  'var(--color-ds-neutral-tint-300)',
-  'var(--color-ds-neutral-tint-400)',
-  'var(--color-ds-neutral-tint-500)',
-]
 
 function gradients(dark: boolean): ChartGradient[] {
   const ocean = dark
@@ -73,8 +48,6 @@ function gradients(dark: boolean): ChartGradient[] {
   ]
 }
 
-const round = (value: number) => Math.round(value * 10) / 10
-
 export const globeHaloScale = 1.075
 
 export function createChartsGlobe(container: HTMLDivElement) {
@@ -99,32 +72,15 @@ export function createChartsGlobe(container: HTMLDivElement) {
       const cosTheta = Math.cos(theta)
       const sinTheta = Math.sin(theta)
 
-      // Batch each shade into a single Charts path. Foreshorten each dot at the rim.
-      const paths = ['', '', '', '']
-      const dotRadius = radius * 0.0054
-      const major = round(dotRadius)
-      const right = chart.width + dotRadius
-      const bottom = chart.height + dotRadius
-      for (const [vx, vy, vz] of landVectors) {
-        const horizontalDepth = cosPhi * vz - sinPhi * vx
-        const depth = sinTheta * vy + cosTheta * horizontalDepth
-        if (depth < 0.12) continue
-        const screenX = cosPhi * vx + sinPhi * vz
-        const screenY = cosTheta * vy - sinTheta * horizontalDepth
-        const x = centerX + screenX * radius
-        const y = centerY - screenY * radius
-        if (x < -dotRadius || x > right || y < -dotRadius || y > bottom)
-          continue
-        const radialLength = Math.sqrt(screenX * screenX + screenY * screenY)
-        const radialScale = radialLength ? dotRadius / radialLength : 0
-        const dx = radialLength ? screenY * radialScale : dotRadius
-        const dy = screenX * radialScale
-        const minor = Math.max(0.1, round(dotRadius * depth))
-        const angle = Math.round(Math.atan2(screenX, screenY) / degrees)
-        const shade = Math.min(3, Math.floor(depth * 4))
-        paths[shade] +=
-          `M${round(x + dx)} ${round(y + dy)}a${major} ${minor} ${angle} 1 0 ${round(-2 * dx)} ${round(-2 * dy)}a${major} ${minor} ${angle} 1 0 ${round(2 * dx)} ${round(2 * dy)}z`
-      }
+      const projection = geoOrthographic()
+        .rotate([phi / degrees + 90, -theta / degrees])
+        .scale(radius)
+        .translate([centerX, centerY])
+        .clipExtent([
+          [0, 0],
+          [chart.width, chart.height],
+        ])
+      const landPath = geoPath(projection)(worldLand)
 
       const nodes: SceneNode[] = [
         {
@@ -144,22 +100,25 @@ export function createChartsGlobe(container: HTMLDivElement) {
           style: { fill: 'url(#ocean)' },
         },
       ]
-      const colors = dark ? darkDots : lightDots
-      for (const [shade, path] of paths.entries()) {
-        if (path)
-          nodes.push({
-            kind: 'area',
-            key: `globe-land-${shade}`,
-            points: [],
-            path,
-            style: { fill: colors[shade] },
-          })
+      if (landPath) {
+        nodes.push({
+          kind: 'area',
+          key: 'globe-land',
+          points: [],
+          path: landPath,
+          style: {
+            fill: dark
+              ? 'var(--color-ds-neutral-tint-200)'
+              : 'var(--color-ds-neutral-tint-400)',
+          },
+        })
       }
       // Use the same location vectors as the avatar connectors.
       for (const {
         id,
         vector: [vx, vy, vz],
-        size,
+        radius: markerRadius,
+        color,
       } of markers) {
         const horizontalDepth = cosPhi * vz - sinPhi * vx
         const x = cosPhi * vx + sinPhi * vz
@@ -171,8 +130,8 @@ export function createChartsGlobe(container: HTMLDivElement) {
           key: `globe-pin-${id}`,
           x: centerX + x * pixels,
           y: centerY - y * pixels,
-          radius: (size * pixels) / 2,
-          style: { fill: 'var(--color-category-data)' },
+          radius: markerRadius,
+          style: { fill: color },
         })
       }
       return { nodes, points: [] }

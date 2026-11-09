@@ -135,9 +135,9 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/schiller-manuel.png',
     github: 'schiller-manuel',
     location: {
-      name: 'Germany',
-      latitude: 52.52,
-      longitude: 13.405,
+      name: 'Munich, Germany',
+      latitude: 48.137154,
+      longitude: 11.576124,
     },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],

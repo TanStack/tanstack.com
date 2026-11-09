@@ -675,7 +675,7 @@ function RouteComponent() {
 
       <div className="@container isolate flex min-h-screen max-w-full flex-col pt-4 md:pt-8">
         <div className="mx-auto flex w-[calc(100%-2rem)] max-w-4xl flex-1 flex-col gap-6 md:w-[calc(100%-4rem)] md:gap-16">
-          <header className="">
+          <header className="relative z-20 rounded-lg border border-border-default bg-background-elevated p-4">
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
             <p className="text-lg mt-3 md:mt-4 text-gray-600 dark:text-gray-400">
               Meet the amazing developers who make TanStack possible through

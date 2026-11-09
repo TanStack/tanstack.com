@@ -162,7 +162,19 @@ function readProfileNodes(host: Element) {
       },
       count: { width: count.offsetWidth, height: count.offsetHeight },
     }
-    return [{ id, card, line, pin, portraits, count, sizes }]
+    const pendingImages = {
+      portraits: Array.from(
+        portraits.querySelectorAll<HTMLImageElement>(
+          'img[data-globe-src]:not([src])',
+        ),
+      ),
+      count: Array.from(
+        count.querySelectorAll<HTMLImageElement>(
+          'img[data-globe-src]:not([src])',
+        ),
+      ),
+    }
+    return [{ id, card, line, pin, sizes, pendingImages }]
   })
 }
 
@@ -236,7 +248,7 @@ function placeProfiles(
     ...viewport.filters,
   ]
   const labels = nodes.flatMap(
-    ({ id, card, line, pin, portraits, count, sizes }) => {
+    ({ id, card, line, pin, sizes, pendingImages }) => {
       const anchor = anchors.get(id)
       if (!anchor) return []
       const pinVisibility =
@@ -276,20 +288,17 @@ function placeProfiles(
         card.style.transitionDelay = visible ? '0s, 0s, 0s' : '0s, 0s, 280ms'
         card.inert = !visible
         line.style.opacity = visible && !offscreen ? '1' : '0'
-        if (visible) {
-          const row = offscreen ? count : portraits
-          for (const avatar of row.querySelectorAll<HTMLImageElement>(
-            'img[data-globe-src]:not([src])',
-          )) {
-            if (avatar.dataset.globeSrc) avatar.src = avatar.dataset.globeSrc
-          }
-        }
       }
       const previous = positions.get(id)
       if (!visible) {
         if (previous) previous.visible = false
         return []
       }
+      const images = offscreen ? pendingImages.count : pendingImages.portraits
+      for (const avatar of images) {
+        if (avatar.dataset.globeSrc) avatar.src = avatar.dataset.globeSrc
+      }
+      images.length = 0
       const fresh = !previous?.visible || previous.offscreen !== offscreen
       const badgeBottom = mobile
         ? Math.min(bottom, Math.max(badgeTop + height, bounds.height))

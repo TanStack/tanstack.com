@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
-import { Button, Skeleton } from '~/components/ds/ui'
+import { Button, Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
 import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
 import type { PartnerPlacement } from '~/utils/analytics'
@@ -74,8 +74,8 @@ export function PartnersSponsorsContent({
 
 function PartnersSponsorsSkeleton() {
   return (
-    <div
-      aria-hidden="true"
+    <SkeletonGroup
+      label="Loading partners"
       className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto"
     >
       <Skeleton className="mb-6 h-10 w-40" />
@@ -101,7 +101,7 @@ function PartnersSponsorsSkeleton() {
         <Skeleton className="h-12 rounded-none" />
         <Skeleton className="h-[420px] rounded-none sm:h-[480px] lg:h-[540px]" />
       </div>
-    </div>
+    </SkeletonGroup>
   )
 }
 

@@ -55,7 +55,7 @@ function SkeletonPage() {
       <DsSection
         id="surfaces"
         title="On any surface"
-        description="The tint is an alpha overlay, not an opaque color, so it keeps the same contrast on the page background and on a raised card. An opaque surface token reads lighter than the page in dark mode but darker than a card, inverting as it moves between surfaces."
+        description="The tint is an alpha overlay, not an opaque color, so it always reads lighter than whatever is behind it in dark mode and darker in light. An opaque surface token cannot do that: in dark mode it is lighter than the page but darker than a raised card, so it inverts as it moves between surfaces."
       >
         <ComponentPreview
           code={`<Skeleton className="h-16 w-full" />

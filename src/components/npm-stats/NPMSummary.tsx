@@ -126,15 +126,15 @@ function NPMSummaryContent({ library }: { library: Library }) {
  */
 function NPMSummarySkeleton() {
   return (
-    <SkeletonGroup label="Loading download stats" className="mb-6">
-      <Skeleton className="h-7 w-64 mb-2" />
-      <Skeleton className="h-5 w-96 max-w-full mb-4" />
+    <SkeletonGroup label="Loading download stats" className="my-6">
+      <Skeleton className="h-5 w-full max-w-prose mb-4" />
+      <Skeleton className="h-4 w-80 max-w-full my-3" />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-4 py-6">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="flex flex-col items-center">
-            <Skeleton className="h-9 w-24" />
-            <Skeleton className="h-4 w-20 mt-2" />
+            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-5 w-20 mt-1" />
           </div>
         ))}
       </div>

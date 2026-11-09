@@ -51,8 +51,8 @@ function SocialProofSkeleton() {
         </div>
       </div>
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <Skeleton className="h-10 w-56 mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Skeleton className="mb-3 ml-1 h-4 w-48" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={`post-skeleton-${index}`}

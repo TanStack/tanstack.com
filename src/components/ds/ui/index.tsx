@@ -633,10 +633,11 @@ export function Spinner({ className }: { className?: string }) {
 /**
  * Placeholder block shown while content loads.
  *
- * The tint is an alpha overlay rather than an opaque surface token, so it keeps
- * the same contrast on the page background and on an elevated card — an opaque
- * `background-subtle` reads lighter than the page in dark mode but darker than
- * a card, inverting as it moves between surfaces.
+ * The tint is an alpha overlay rather than an opaque surface token, so it always
+ * reads lighter than whatever sits behind it in dark mode and darker in light.
+ * An opaque `background-subtle` cannot do that: in dark mode it is lighter than
+ * the page but darker than an elevated card, so it inverts as it moves between
+ * surfaces.
  *
  * The pulse is wrapped in `motion-safe:` so it holds still under
  * `prefers-reduced-motion`.

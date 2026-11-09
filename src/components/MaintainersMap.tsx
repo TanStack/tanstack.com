@@ -723,6 +723,10 @@ export function MaintainersMap({
   const target = useRef({ ...startingView })
   const interacting = useRef(false)
   const pausedRef = useRef(false)
+  const pauseRotation = useCallback(() => {
+    pausedRef.current = true
+    setPaused(true)
+  }, [])
   const dirty = useRef(true)
   const wakeGlobe = useRef<() => void>(undefined)
   const invalidate = useCallback(() => {
@@ -1221,8 +1225,9 @@ export function MaintainersMap({
           ) &&
           (event.type !== 'wheel' || event.ctrlKey || event.metaKey),
       )
-      .on('start', () => {
+      .on('start', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         interacting.current = true
+        if (event.sourceEvent) pauseRotation()
       })
       .on('zoom', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         const next = event.transform
@@ -1259,9 +1264,10 @@ export function MaintainersMap({
     return () => {
       selection.on('.zoom', null)
     }
-  }, [host, behavior, invalidate])
+  }, [host, behavior, invalidate, pauseRotation])
 
   function focus(group: MaintainerGroup) {
+    pauseRotation()
     const phi = (-group.location[1] * Math.PI) / 180 - Math.PI / 2
     target.current.phi =
       view.current.phi +
@@ -1350,6 +1356,7 @@ export function MaintainersMap({
             const direction = directions[event.key]
             if (!direction) return
             event.preventDefault()
+            pauseRotation()
             target.current.phi += direction[0]
             target.current.theta = Math.max(
               -1.2,
@@ -1483,9 +1490,10 @@ export function MaintainersMap({
             type="button"
             aria-label="Zoom in"
             disabled={scale >= maxZoom}
-            onClick={() =>
-              host && select(host).call(behavior.scaleBy, zoomStep)
-            }
+            onClick={() => {
+              pauseRotation()
+              if (host) select(host).call(behavior.scaleBy, zoomStep)
+            }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <PlusIcon aria-hidden="true" weight="bold" className="size-4" />
@@ -1494,9 +1502,10 @@ export function MaintainersMap({
             type="button"
             aria-label="Zoom out"
             disabled={scale <= 1}
-            onClick={() =>
-              host && select(host).call(behavior.scaleBy, 1 / zoomStep)
-            }
+            onClick={() => {
+              pauseRotation()
+              if (host) select(host).call(behavior.scaleBy, 1 / zoomStep)
+            }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <MinusIcon aria-hidden="true" weight="bold" className="size-4" />
@@ -1506,6 +1515,7 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
+              pauseRotation()
               select(host).call(
                 behavior.scaleTo,
                 window.matchMedia(mobileViewport).matches

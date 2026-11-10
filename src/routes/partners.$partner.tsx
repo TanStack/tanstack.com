@@ -1,3 +1,8 @@
+import { Breadcrumbs } from '~/components/Breadcrumbs'
+import {
+  getPartnerBreadcrumbItems,
+  getPartnerBreadcrumbJsonLd,
+} from '~/utils/partner-breadcrumbs'
 import * as React from 'react'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import {
@@ -59,7 +64,10 @@ export const Route = createFileRoute('/partners/$partner')({
       scripts: [
         {
           type: 'application/ld+json',
-          children: JSON.stringify(getPartnerJsonLd(partner)),
+          children: JSON.stringify({
+            ...getPartnerJsonLd(partner),
+            breadcrumb: getPartnerBreadcrumbJsonLd(partner),
+          }),
         },
       ],
     }
@@ -94,18 +102,10 @@ function PartnerDetailPage() {
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 px-4 py-8 md:px-8">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <Link
-              to="/partners"
-              className="hover:text-blue-500 transition-colors"
-            >
-              Partners
-            </Link>
-            <span>/</span>
-            <span className="text-gray-900 dark:text-white">
-              {partner.name}
-            </span>
-          </div>
+          <Breadcrumbs
+            section="Partners"
+            items={getPartnerBreadcrumbItems(partner)}
+          />
 
           <Card className="overflow-hidden">
             <div className="grid gap-8 p-6 md:grid-cols-[1.3fr_0.7fr] md:p-8 lg:p-10">

@@ -2,8 +2,9 @@ import {
   markRequestDatabaseUse,
   timeRequestWork,
 } from '../utils/request-timing.server'
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
+import { databaseFailureKind } from './errors'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import {
   getDatabaseConnectionString,
@@ -12,7 +13,7 @@ import {
 } from '~/server/runtime/host.server'
 import * as schema from './schema'
 
-type PostgresClient = ReturnType<typeof postgres>
+type PostgresClient = Pool
 type Database = ReturnType<typeof drizzle<typeof schema>>
 type DatabaseContext = {
   client?: PostgresClient
@@ -27,12 +28,30 @@ let _db: Database | null = null
 const databaseStorage = new AsyncLocalStorage<DatabaseContext>()
 
 function createPostgresClient(connectionString: string) {
-  return postgres(connectionString, {
+  // Drizzle's Postgres.js adapter disables prepared statements, which is not
+  // supported by Hyperdrive. Use its supported node-postgres adapter instead.
+  const client = new Pool({
+    connectionString,
     max: 5,
-    idle_timeout: 20,
-    connect_timeout: 10,
-    fetch_types: !isIsolateRuntime(),
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 10_000,
   })
+  // Idle clients can lose their connection between queries. pg removes them
+  // from the pool; handle the event so it cannot crash the process.
+  client.on('error', (error) => {
+    // Hyperdrive can close the socket before pg finishes its explicit shutdown.
+    // This event is expected only after we have started ending this pool.
+    if (
+      client.ending &&
+      error instanceof TypeError &&
+      error.message === 'This socket has been closed.'
+    )
+      return
+    console.warn('Idle database connection lost', {
+      kind: databaseFailureKind(error),
+    })
+  })
+  return client
 }
 
 function createDatabase(connectionString: string) {
@@ -123,7 +142,7 @@ async function releaseDatabaseContext(context: DatabaseContext) {
   // database schema and connection pool after all of its work has completed.
   context.client = undefined
   context.db = undefined
-  await client?.end({ timeout: 5 })
+  if (client) await timeRequestWork('db_connection_close', () => client.end())
 }
 
 export function retainDatabaseContext<T>(work: Promise<T>): Promise<T> {

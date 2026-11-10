@@ -1,10 +1,18 @@
+import { getHostRuntimeEnv } from '~/server/runtime/host.server'
+import { timingSafeEqual } from 'node:crypto'
 import { db } from '~/db/client'
 import {
   oauthAuthorizationCodes,
   oauthAccessTokens,
   oauthRefreshTokens,
+  oauthAccounts,
 } from '~/db/schema'
-import { eq, and, sql, lt } from 'drizzle-orm'
+import { eq, and, sql, lt, isNull } from 'drizzle-orm'
+import {
+  authorizationGrant,
+  SOURCE_CLIENT,
+  SOURCE_CALLBACK,
+} from './oauth-resources'
 import { sha256Hex } from '~/utils/hash'
 import { envFunctions } from '~/utils/env.functions'
 
@@ -30,6 +38,7 @@ export type OAuthValidationResult =
       tokenId: string
       userId: string
       clientId: string
+      scope: string
     }
   | {
       success: false
@@ -83,8 +92,13 @@ function base64UrlToString(value: string): string | null {
   }
 }
 
-function getOAuthClientSigningSecret() {
-  const secret = envFunctions.SESSION_SECRET
+async function getOAuthClientSigningSecret() {
+  const host = await getHostRuntimeEnv()
+  const runtimeSecret = host?.SESSION_SECRET
+  const secret =
+    typeof runtimeSecret === 'string'
+      ? runtimeSecret
+      : envFunctions.SESSION_SECRET
   if (!secret && process.env.NODE_ENV === 'production') {
     throw new Error('SESSION_SECRET is required for OAuth client registration')
   }
@@ -95,7 +109,7 @@ function getOAuthClientSigningSecret() {
 async function signOAuthClientPayload(payload: string) {
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(getOAuthClientSigningSecret()),
+    new TextEncoder().encode(await getOAuthClientSigningSecret()),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
@@ -110,7 +124,7 @@ async function signOAuthClientPayload(payload: string) {
 
 function parseRegisteredClientPayload(
   value: unknown,
-): { clientName: string; redirectUris: Array<string> } | null {
+): { clientName: string; redirectUris: Array<string>; exact: boolean } | null {
   if (!isRecord(value)) return null
 
   const clientName = value.clientName
@@ -129,7 +143,7 @@ function parseRegisteredClientPayload(
     return null
   }
 
-  return { clientName, redirectUris }
+  return { clientName, redirectUris, exact: value.exact === true }
 }
 
 export async function createRegisteredClientId(params: {
@@ -138,9 +152,8 @@ export async function createRegisteredClientId(params: {
 }) {
   const payload = JSON.stringify({
     clientName: params.clientName,
-    redirectUris: params.redirectUris
-      .map(normalizeRedirectUri)
-      .filter((uri) => uri !== null),
+    exact: true,
+    redirectUris: params.redirectUris,
   })
   const encodedPayload = stringToBase64Url(payload)
   const signature = await signOAuthClientPayload(encodedPayload)
@@ -152,22 +165,27 @@ export async function validateOAuthClientRedirectUri(
   clientId: string,
   redirectUri: string,
 ) {
+  if (clientId === SOURCE_CLIENT) return redirectUri === SOURCE_CALLBACK
   if (!clientId.startsWith(REGISTERED_CLIENT_PREFIX)) {
     return false
   }
 
   const body = clientId.slice(REGISTERED_CLIENT_PREFIX.length)
-  const [encodedPayload, signature] = body.split('.')
+  const [encodedPayload, signature, extra] = body.split('.')
   if (
     !encodedPayload ||
     !signature ||
+    extra !== undefined ||
     encodedPayload.length > MAX_REGISTERED_CLIENT_PAYLOAD_LENGTH
   ) {
     return false
   }
 
   const expectedSignature = await signOAuthClientPayload(encodedPayload)
-  if (expectedSignature !== signature) {
+  if (
+    Buffer.byteLength(expectedSignature) !== Buffer.byteLength(signature) ||
+    !timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(signature))
+  ) {
     return false
   }
 
@@ -188,7 +206,9 @@ export async function validateOAuthClientRedirectUri(
   return (
     !!metadata &&
     !!normalizedRedirectUri &&
-    metadata.redirectUris.includes(normalizedRedirectUri)
+    metadata.redirectUris.includes(
+      metadata.exact ? redirectUri : normalizedRedirectUri,
+    )
   )
 }
 
@@ -215,7 +235,7 @@ export const hashToken = sha256Hex
 export function validateRedirectUri(uri: string): boolean {
   try {
     const url = new URL(uri)
-    if (url.username || url.password) {
+    if (url.username || url.password || url.hash) {
       return false
     }
 
@@ -247,6 +267,7 @@ export async function verifyCodeChallenge(
   codeVerifier: string,
   codeChallenge: string,
 ): Promise<boolean> {
+  if (!/^[A-Za-z0-9._~-]{43,128}$/.test(codeVerifier)) return false
   const encoder = new TextEncoder()
   const data = encoder.encode(codeVerifier)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -291,6 +312,7 @@ export async function createAuthorizationCode(params: {
   codeChallenge: string
   codeChallengeMethod?: string
   scope?: string
+  resource?: string
 }): Promise<string> {
   if (
     !(await validateOAuthClientRedirectUri(params.clientId, params.redirectUri))
@@ -298,6 +320,14 @@ export async function createAuthorizationCode(params: {
     throw new Error('Client is not registered for this redirect URI')
   }
 
+  if (
+    params.codeChallengeMethod !== undefined &&
+    params.codeChallengeMethod !== 'S256'
+  )
+    throw new Error('invalid_request')
+  if (!/^[A-Za-z0-9_-]{43}$/.test(params.codeChallenge))
+    throw new Error('invalid_request')
+  const grant = authorizationGrant(params.resource, params.scope)
   const code = generateToken('')
   const codeHash = await hashToken(code)
   const expiresAt = new Date(Date.now() + AUTH_CODE_TTL_MS)
@@ -309,7 +339,8 @@ export async function createAuthorizationCode(params: {
     redirectUri: params.redirectUri,
     codeChallenge: params.codeChallenge,
     codeChallengeMethod: params.codeChallengeMethod || 'S256',
-    scope: params.scope || 'api',
+    scope: grant.scope,
+    resource: grant.resource,
     expiresAt,
   })
 
@@ -323,6 +354,8 @@ export async function exchangeAuthorizationCode(params: {
   code: string
   codeVerifier: string
   redirectUri: string
+  clientId?: string | null
+  resource?: string | null
 }): Promise<
   | {
       success: true
@@ -353,6 +386,13 @@ export async function exchangeAuthorizationCode(params: {
     return { success: false, error: 'invalid_grant' }
   }
 
+  if (
+    (authCode.resource ?? null) !== (params.resource || null) ||
+    (params.clientId && params.clientId !== authCode.clientId) ||
+    (authCode.resource && !params.clientId)
+  )
+    return { success: false, error: 'invalid_grant' }
+
   // Validate redirect URI matches
   if (authCode.redirectUri !== params.redirectUri) {
     return { success: false, error: 'invalid_grant' }
@@ -376,6 +416,7 @@ export async function exchangeAuthorizationCode(params: {
   const accessExpiresAt = new Date(Date.now() + ACCESS_TOKEN_TTL_MS)
   const refreshExpiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS)
 
+  const grantId = crypto.randomUUID()
   // Insert access token
   const accessTokenResult = await db
     .insert(oauthAccessTokens)
@@ -384,6 +425,8 @@ export async function exchangeAuthorizationCode(params: {
       userId: authCode.userId,
       clientId: authCode.clientId,
       scope: authCode.scope,
+      resource: authCode.resource,
+      grantId,
       expiresAt: accessExpiresAt,
     })
     .returning({ id: oauthAccessTokens.id })
@@ -394,6 +437,9 @@ export async function exchangeAuthorizationCode(params: {
     userId: authCode.userId,
     clientId: authCode.clientId,
     accessTokenId: accessTokenResult[0].id,
+    scope: authCode.scope,
+    resource: authCode.resource,
+    grantId,
     expiresAt: refreshExpiresAt,
   })
 
@@ -409,10 +455,14 @@ export async function exchangeAuthorizationCode(params: {
 /**
  * Refresh an access token
  */
-export async function refreshAccessToken(refreshToken: string): Promise<
+export async function refreshAccessToken(
+  refreshToken: string,
+  binding?: { clientId: string | null; resource: string | null },
+): Promise<
   | {
       success: true
       accessToken: string
+      refreshToken?: string
       expiresIn: number
       scope: string
     }
@@ -432,6 +482,14 @@ export async function refreshAccessToken(refreshToken: string): Promise<
   if (!token) {
     return { success: false, error: 'invalid_grant' }
   }
+
+  if (
+    (token.resource ?? null) !== (binding?.resource || null) ||
+    (binding?.clientId && binding.clientId !== token.clientId) ||
+    (token.resource && !binding?.clientId)
+  )
+    return { success: false, error: 'invalid_grant' }
+  if (token.resource) return rotateResourceToken(tokenHash)
 
   // Check expiration
   if (token.expiresAt < new Date()) {
@@ -478,6 +536,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<
  */
 export async function validateOAuthToken(
   token: string,
+  resource: string | null = null,
 ): Promise<OAuthValidationResult> {
   const tokenHash = await hashToken(token)
 
@@ -488,6 +547,8 @@ export async function validateOAuthToken(
       clientId: oauthAccessTokens.clientId,
       expiresAt: oauthAccessTokens.expiresAt,
       lastUsedAt: oauthAccessTokens.lastUsedAt,
+      resource: oauthAccessTokens.resource,
+      scope: oauthAccessTokens.scope,
     })
     .from(oauthAccessTokens)
     .where(eq(oauthAccessTokens.tokenHash, tokenHash))
@@ -495,7 +556,12 @@ export async function validateOAuthToken(
 
   const accessToken = result[0]
 
-  if (!accessToken) {
+  const audienceMatches =
+    accessToken &&
+    ((accessToken.resource ?? null) === resource ||
+      (resource === null &&
+        accessToken.resource === 'https://tanstack.com/mcp'))
+  if (!accessToken || !audienceMatches) {
     return {
       success: false,
       error: 'Invalid access token',
@@ -527,6 +593,7 @@ export async function validateOAuthToken(
     tokenId: accessToken.id,
     userId: accessToken.userId,
     clientId: accessToken.clientId,
+    scope: accessToken.scope,
   }
 }
 
@@ -537,6 +604,7 @@ export async function validateOAuthToken(
 export async function listConnectedApps(userId: string): Promise<
   Array<{
     clientId: string
+    clientName: string
     createdAt: string
     lastUsedAt: string | null
   }>
@@ -553,6 +621,7 @@ export async function listConnectedApps(userId: string): Promise<
 
   return result.map((r) => ({
     clientId: r.clientId,
+    clientName: oauthClientName(r.clientId),
     createdAt: r.createdAt,
     lastUsedAt: null,
   }))
@@ -565,25 +634,40 @@ export async function revokeTokensForClient(
   userId: string,
   clientId: string,
 ): Promise<void> {
-  // Delete refresh tokens first (they reference access tokens)
-  await db
-    .delete(oauthRefreshTokens)
-    .where(
-      and(
-        eq(oauthRefreshTokens.userId, userId),
-        eq(oauthRefreshTokens.clientId, clientId),
-      ),
-    )
-
-  // Delete access tokens
-  await db
-    .delete(oauthAccessTokens)
-    .where(
-      and(
-        eq(oauthAccessTokens.userId, userId),
-        eq(oauthAccessTokens.clientId, clientId),
-      ),
-    )
+  await db.transaction(async (tx) => {
+    const grants = await tx
+      .select({ grantId: oauthRefreshTokens.grantId })
+      .from(oauthRefreshTokens)
+      .where(
+        and(
+          eq(oauthRefreshTokens.userId, userId),
+          eq(oauthRefreshTokens.clientId, clientId),
+        ),
+      )
+    for (const grantId of [
+      ...new Set(grants.map((g) => g.grantId).filter((g) => g !== null)),
+    ].sort()) {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${grantId}, 0))`,
+      )
+    }
+    await tx
+      .delete(oauthRefreshTokens)
+      .where(
+        and(
+          eq(oauthRefreshTokens.userId, userId),
+          eq(oauthRefreshTokens.clientId, clientId),
+        ),
+      )
+    await tx
+      .delete(oauthAccessTokens)
+      .where(
+        and(
+          eq(oauthAccessTokens.userId, userId),
+          eq(oauthAccessTokens.clientId, clientId),
+        ),
+      )
+  })
 }
 
 /**
@@ -604,4 +688,195 @@ export async function cleanupExpiredTokens(): Promise<void> {
 
   // Delete expired access tokens
   await db.delete(oauthAccessTokens).where(lt(oauthAccessTokens.expiresAt, now))
+}
+
+// Row locking ensures a refresh token can only be consumed once, even by concurrent requests.
+async function rotateResourceToken(tokenHash: string): Promise<
+  | {
+      success: true
+      accessToken: string
+      refreshToken: string
+      scope: string
+      expiresIn: number
+    }
+  | { success: false; error: string }
+> {
+  return db.transaction(async (tx) => {
+    const [candidate] = await tx
+      .select({ grantId: oauthRefreshTokens.grantId })
+      .from(oauthRefreshTokens)
+      .where(eq(oauthRefreshTokens.tokenHash, tokenHash))
+      .limit(1)
+    if (!candidate?.grantId) return { success: false, error: 'invalid_grant' }
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${candidate.grantId}, 0))`,
+    )
+    const [token] = await tx
+      .select()
+      .from(oauthRefreshTokens)
+      .where(eq(oauthRefreshTokens.tokenHash, tokenHash))
+      .for('update')
+    if (!token || !token.grantId)
+      return { success: false, error: 'invalid_grant' }
+    if (token.consumedAt || token.expiresAt <= new Date()) {
+      await tx
+        .delete(oauthAccessTokens)
+        .where(eq(oauthAccessTokens.grantId, token.grantId))
+      await tx
+        .delete(oauthRefreshTokens)
+        .where(eq(oauthRefreshTokens.grantId, token.grantId))
+      return { success: false, error: 'invalid_grant' }
+    }
+    const accessToken = generateToken(ACCESS_TOKEN_PREFIX)
+    const refreshToken = generateToken(REFRESH_TOKEN_PREFIX)
+    await tx
+      .update(oauthRefreshTokens)
+      .set({ consumedAt: new Date() })
+      .where(
+        and(
+          eq(oauthRefreshTokens.id, token.id),
+          isNull(oauthRefreshTokens.consumedAt),
+        ),
+      )
+    const [access] = await tx
+      .insert(oauthAccessTokens)
+      .values({
+        tokenHash: await hashToken(accessToken),
+        userId: token.userId,
+        clientId: token.clientId,
+        resource: token.resource,
+        scope: token.scope,
+        grantId: token.grantId,
+        expiresAt: new Date(Date.now() + ACCESS_TOKEN_TTL_MS),
+      })
+      .returning({ id: oauthAccessTokens.id })
+    await tx.insert(oauthRefreshTokens).values({
+      tokenHash: await hashToken(refreshToken),
+      userId: token.userId,
+      clientId: token.clientId,
+      resource: token.resource,
+      scope: token.scope,
+      grantId: token.grantId,
+      accessTokenId: access.id,
+      expiresAt: token.expiresAt,
+    })
+    return {
+      success: true,
+      accessToken,
+      refreshToken,
+      scope: token.scope,
+      expiresIn: ACCESS_TOKEN_TTL_MS / 1000,
+    }
+  })
+}
+
+export async function introspectSourceToken(token: string) {
+  const [row] = await db
+    .select({
+      sub: oauthAccessTokens.userId,
+      aud: oauthAccessTokens.resource,
+      scope: oauthAccessTokens.scope,
+      exp: oauthAccessTokens.expiresAt,
+      client_id: oauthAccessTokens.clientId,
+    })
+    .from(oauthAccessTokens)
+    .where(eq(oauthAccessTokens.tokenHash, await hashToken(token)))
+    .limit(1)
+  if (
+    !row ||
+    row.aud !== 'https://source.tanstack.com/mcp' ||
+    row.exp <= new Date() ||
+    row.scope !== 'source'
+  )
+    return { active: false }
+  return {
+    ...row,
+    github_id: await verifiedGitHubIdentity(row.sub),
+    active: true,
+    iss: 'https://tanstack.com',
+    exp: Math.floor(row.exp.getTime() / 1000),
+  }
+}
+
+export async function revokeOAuthGrant(token: string, clientId: string) {
+  const hash = await hashToken(token)
+  const [access] = await db
+    .select()
+    .from(oauthAccessTokens)
+    .where(
+      and(
+        eq(oauthAccessTokens.tokenHash, hash),
+        eq(oauthAccessTokens.clientId, clientId),
+      ),
+    )
+    .limit(1)
+  const [refresh] = await db
+    .select()
+    .from(oauthRefreshTokens)
+    .where(
+      and(
+        eq(oauthRefreshTokens.tokenHash, hash),
+        eq(oauthRefreshTokens.clientId, clientId),
+      ),
+    )
+    .limit(1)
+  const grantId = access?.grantId ?? refresh?.grantId
+  if (!grantId) return
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${grantId}, 0))`,
+    )
+    await tx
+      .delete(oauthAccessTokens)
+      .where(eq(oauthAccessTokens.grantId, grantId))
+    await tx
+      .delete(oauthRefreshTokens)
+      .where(eq(oauthRefreshTokens.grantId, grantId))
+  })
+}
+
+export async function authorizationClientName(
+  clientId: string,
+  redirectUri: string,
+) {
+  if (!(await validateOAuthClientRedirectUri(clientId, redirectUri)))
+    throw new Error('invalid_client')
+  if (clientId === SOURCE_CLIENT) return 'TanStack Source'
+  const payload = base64UrlToString(
+    clientId.slice(REGISTERED_CLIENT_PREFIX.length).split('.')[0],
+  )
+  const metadata = payload
+    ? parseRegisteredClientPayload(JSON.parse(payload))
+    : null
+  return metadata?.clientName ?? 'OAuth client'
+}
+
+function oauthClientName(clientId: string) {
+  if (clientId === SOURCE_CLIENT) return 'TanStack Source'
+  try {
+    const payload = base64UrlToString(
+      clientId.slice(REGISTERED_CLIENT_PREFIX.length).split('.')[0],
+    )
+    const metadata = payload
+      ? parseRegisteredClientPayload(JSON.parse(payload))
+      : null
+    return metadata?.clientName ?? clientId
+  } catch {
+    return clientId
+  }
+}
+
+/** Only an unambiguous GitHub identity can automatically resolve an account in another product. */
+export async function verifiedGitHubIdentity(userId: string) {
+  const accounts = await db
+    .select({ id: oauthAccounts.providerAccountId })
+    .from(oauthAccounts)
+    .where(
+      and(
+        eq(oauthAccounts.userId, userId),
+        eq(oauthAccounts.provider, 'github'),
+      ),
+    )
+    .limit(2)
+  return accounts.length === 1 ? accounts[0].id : null
 }

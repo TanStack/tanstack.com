@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source not '../components/visitor-chat';
 @import 'tw-fade';
 
 @plugin "@tailwindcss/typography";
@@ -7,6 +8,13 @@
 @custom-variant light (&:is(.light, .light *));
 @custom-variant auto (&:is(.auto, .auto *));
 @custom-variant aria-current (&[aria-current="location"]);
+
+@supports not (animation-timeline: scroll()) {
+  .fade-y {
+    --tw-fade-t: 0 !important;
+    --tw-fade-b: 0 !important;
+  }
+}
 
 html.theme-switching,
 html.theme-switching *,
@@ -578,9 +586,15 @@ html.dark [data-ds-takeover-scrim='glass'] {
   --color-ds-neutral-400: #3e3529;
   --color-ds-neutral-500: #111111;
 
-  /* Cool neutral tints (distinct from the warm neutral ramp above) */
+  /* Cool neutral tints (distinct from the warm neutral ramp above).
+     300–500 match the relative luminance of neutral 200, 300, and 350 so they
+     swap in without changing any contrast ratio.
+     NOTE: not yet in Figma — add them there when syncing. */
   --color-ds-neutral-tint-100: #e8e7e5;
   --color-ds-neutral-tint-200: #c5c3bf;
+  --color-ds-neutral-tint-300: #a9a6a0;
+  --color-ds-neutral-tint-400: #706d66;
+  --color-ds-neutral-tint-500: #54514c;
 
   /* --- Category brand colors ---
      Libraries inherit their category's color as their core brand color. These
@@ -1081,6 +1095,9 @@ html.dark {
 /* Safelist for dynamic colors */
 @source inline('{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/{20,30,40,80}');
 @source inline('{hover:{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/40}');
+/* Library `bgStyle` values, tinted via template strings in library chips */
+@source inline('{bg-category-{framework,data,ui,performance,tooling},bg-fuchsia-500,bg-amber-500}/{30,40}');
+@source inline('{hover:{bg-category-{framework,data,ui,performance,tooling},bg-fuchsia-500,bg-amber-500}/40}');
 /* Black/gray-100 theme colors for ranger, config, devtools, mcp */
 @source inline('dark:text-gray-100 dark:bg-gray-100 dark:border-gray-100/50 dark:from-gray-100 dark:via-gray-400/50 text-black bg-black border-black/50 from-black via-gray-600/50 to-gray-600 to-gray-400 dark:text-gray-900');
 /* Accent colors for docs UI (sidebar, TOC, prev/next) */

@@ -116,13 +116,15 @@ async function snapshot(
   userId: string,
   fingerprint: string,
 ) {
-  const [row] = await db.execute<{
-    account_fingerprint: string
-    metadata: string
-    fetched_at: number
-  }>(
-    sql`SELECT account_fingerprint,metadata,fetched_at::double precision AS fetched_at FROM chat_kody_account_reference_catalog WHERE user_id=${userId}::uuid`,
-  )
+  const [row] = (
+    await db.execute<{
+      account_fingerprint: string
+      metadata: string
+      fetched_at: number
+    }>(
+      sql`SELECT account_fingerprint,metadata,fetched_at::double precision AS fetched_at FROM chat_kody_account_reference_catalog WHERE user_id=${userId}::uuid`,
+    )
+  ).rows
   if (
     !row ||
     row.account_fingerprint !== fingerprint ||
@@ -191,9 +193,11 @@ export async function refreshKodyAccountReferences(
   if (!before.enabled) throw new Error('Kody account objects are unavailable.')
   if (signal.aborted)
     throw new Error('Kody account object refresh was stopped.')
-  const [reservation] = await db.execute<{ revision: number }>(
-    sql`INSERT INTO chat_kody_account_reference_catalog(user_id,account_fingerprint,metadata,fetched_at,revision) VALUES(${scope.userId}::uuid,${before.fingerprint},'[]',0,1) ON CONFLICT(user_id) DO UPDATE SET revision=chat_kody_account_reference_catalog.revision+1 RETURNING revision::double precision AS revision`,
-  )
+  const [reservation] = (
+    await db.execute<{ revision: number }>(
+      sql`INSERT INTO chat_kody_account_reference_catalog(user_id,account_fingerprint,metadata,fetched_at,revision) VALUES(${scope.userId}::uuid,${before.fingerprint},'[]',0,1) ON CONFLICT(user_id) DO UPDATE SET revision=chat_kody_account_reference_catalog.revision+1 RETURNING revision::double precision AS revision`,
+    )
+  ).rows
   if (!reservation)
     throw new Error('Kody account object refresh could not start.')
   const account = await read(
@@ -212,10 +216,11 @@ export async function refreshKodyAccountReferences(
     options,
     before,
   )
-  const result =
+  const result = (
     await db.execute(sql`UPDATE chat_kody_account_reference_catalog SET account_fingerprint=${after.fingerprint},metadata=${JSON.stringify({ items, limited: account.jobs.limited || account.workflows.limited || account.runs.status !== 'ready' || account.runs.more })},fetched_at=${Date.now()} WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision}
     AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId}::uuid AND w.policy=${after.policyText}::jsonb)
     AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}::uuid) IS NOT DISTINCT FROM ${after.subject}::text RETURNING user_id`)
+  ).rows
   if (!result.length)
     throw new Error(
       'Kody connection changed or a newer object refresh finished.',

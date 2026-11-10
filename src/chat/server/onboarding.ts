@@ -34,12 +34,14 @@ export async function readOnboarding(
   userId: string,
   reader: Reader = db,
 ): Promise<Onboarding> {
-  const [row] = await reader.execute<
-    Row & Record<string, unknown>
-  >(sql`SELECT w.id AS workspace_id,w.name AS workspace_name,w.owner_id,m.role,o.revision::float8 AS revision,o.status,o.use_case,o.completed_at::float8 AS completed_at
+  const [row] = (
+    await reader.execute<
+      Row & Record<string, unknown>
+    >(sql`SELECT w.id AS workspace_id,w.name AS workspace_name,w.owner_id,m.role,o.revision::float8 AS revision,o.status,o.use_case,o.completed_at::float8 AS completed_at
  FROM users u LEFT JOIN chat_workspaces w ON w.id='personal:'||u.id::text
  LEFT JOIN chat_memberships m ON m.workspace_id=w.id AND m.user_id=u.id
  LEFT JOIN chat_account_onboarding o ON o.user_id=u.id WHERE u.id=${userId}`)
+  ).rows
   if (!row) throw new OnboardingError('Account not found.', 404)
   if (!row.workspace_id)
     throw new OnboardingError('Personal workspace not found.', 404)
@@ -57,9 +59,11 @@ export async function readOnboarding(
   })
 }
 async function readReceipt(reader: Reader, userId: string, commandId: string) {
-  const [row] = await reader.execute<Receipt & Record<string, unknown>>(
-    sql`SELECT request_digest,result_json FROM chat_account_onboarding_commands WHERE user_id=${userId} AND command_id=${commandId}`,
-  )
+  const [row] = (
+    await reader.execute<Receipt & Record<string, unknown>>(
+      sql`SELECT request_digest,result_json FROM chat_account_onboarding_commands WHERE user_id=${userId} AND command_id=${commandId}`,
+    )
+  ).rows
   return row
 }
 function replay(receipt: Receipt, digest: string) {

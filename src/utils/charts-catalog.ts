@@ -60,12 +60,12 @@ export function getChartsCatalogSitemapEntries(index: ChartsCatalogIndex) {
   )
 
   return [
-    { path: chartsCatalogBasePath },
+    { path: chartsCatalogBasePath.replace(/\/$/, '') },
     ...collections.map((collection) => ({
-      path: `${chartsCatalogBasePath}collections/${collection.id}/`,
+      path: `${chartsCatalogBasePath}collections/${collection.id}`,
     })),
     ...index.cases.map((catalogCase) => ({
-      path: `${chartsCatalogBasePath}charts/${catalogCase.id}/`,
+      path: `${chartsCatalogBasePath}charts/${catalogCase.id}`,
     })),
   ]
 }

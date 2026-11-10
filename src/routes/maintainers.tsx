@@ -14,6 +14,7 @@ import {
   CompactMaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
+import { MaintainersMap } from '~/components/MaintainersMap'
 import { seo } from '~/utils/seo'
 import {
   allMaintainers,
@@ -25,6 +26,7 @@ import {
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
 import { libraryIdSchema } from '~/utils/schemas'
+import { getVisitorLocation } from '~/utils/visitor-location.functions'
 
 const viewModeSchema = v.picklist(['compact', 'full', 'row'])
 const groupBySchema = v.picklist(['none', 'core', 'library', 'role'])
@@ -38,6 +40,11 @@ const searchSchema = v.object({
 })
 
 export const Route = createFileRoute('/maintainers')({
+  loader: () => getVisitorLocation(),
+  headers: () => ({
+    'Cache-Control': 'private, no-store',
+    'Cloudflare-CDN-Cache-Control': 'no-store',
+  }),
   component: RouteComponent,
   validateSearch: searchSchema,
   staticData: {
@@ -130,10 +137,13 @@ function MaintainersFilter({
     (sortBy !== 'none' ? 1 : 0)
 
   return (
-    <div>
-      <div className="flex items-center gap-3 flex-wrap">
+    <div className="pointer-events-none relative z-20 [&_button]:pointer-events-auto">
+      <div className="relative flex items-center gap-3 flex-wrap">
         {/* View Mode Toggle */}
-        <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div
+          data-globe-filter
+          className="pointer-events-auto flex items-center bg-background-elevated border border-border-default dark:border-white/20 rounded-lg"
+        >
           {(
             [
               {
@@ -172,10 +182,14 @@ function MaintainersFilter({
         </div>
 
         {/* Filter dropdown trigger */}
-        <div className="relative" data-filter-dropdown>
+        <div
+          className="pointer-events-auto sm:relative"
+          data-filter-dropdown
+          data-globe-filter
+        >
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-background-elevated border border-border-default dark:border-white/20 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <FunnelIcon className="w-4 h-4" />
             Filter & Sort
@@ -188,16 +202,16 @@ function MaintainersFilter({
 
           {/* Dropdown menu */}
           {isOpen && (
-            <div className="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+            <div className="absolute top-full left-0 mt-2 w-full max-w-96 sm:w-96 bg-background-elevated border border-border-default dark:border-white/20 rounded-lg shadow-lg z-50">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-medium text-text-primary">
                     Filter & Sort Options
                   </span>
                   {hasFilters && (
                     <button
                       onClick={clearFilters}
-                      className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                      className="text-xs text-text-muted hover:text-text-primary transition-colors"
                     >
                       Clear All
                     </button>
@@ -208,7 +222,7 @@ function MaintainersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="groupBy"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    className="block text-xs font-medium text-text-secondary mb-2"
                   >
                     Group By
                   </label>
@@ -217,7 +231,7 @@ function MaintainersFilter({
                     onChange={(e) =>
                       onGroupByChange(e.target.value as typeof groupBy)
                     }
-                    className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 text-sm bg-background-surface border border-border-default rounded-md text-text-primary"
                   >
                     <option value="none">No Grouping</option>
                     <option value="core">
@@ -232,7 +246,7 @@ function MaintainersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="sortBy"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    className="block text-xs font-medium text-text-secondary mb-2"
                   >
                     Sort By
                   </label>
@@ -241,7 +255,7 @@ function MaintainersFilter({
                     onChange={(e) =>
                       onSortByChange(e.target.value as typeof sortBy)
                     }
-                    className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 text-sm bg-background-surface border border-border-default rounded-md text-text-primary"
                   >
                     <option value="none">No Sorting</option>
                     <option value="name">Name</option>
@@ -254,7 +268,7 @@ function MaintainersFilter({
                 <div>
                   <label
                     htmlFor="libraryFilter"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    className="block text-xs font-medium text-text-secondary mb-2"
                   >
                     Filter by Libraries
                   </label>
@@ -263,7 +277,7 @@ function MaintainersFilter({
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false
 
-                      const bgStyle = library.bgStyle ?? 'bg-gray-500'
+                      const bgStyle = library.bgStyle ?? 'bg-category-tooling'
 
                       return (
                         <button
@@ -272,7 +286,7 @@ function MaintainersFilter({
                           className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             isSelected
                               ? `${bgStyle} text-white`
-                              : `${bgStyle}/30 text-green-900 dark:text-green-200 hover:${bgStyle}/40`
+                              : `${bgStyle}/30 text-text-primary hover:${bgStyle}/40`
                           }`}
                         >
                           {library.name}
@@ -292,12 +306,12 @@ function MaintainersFilter({
             const library = availableLibraries.find(
               (lib) => lib.id === libraryId,
             )
-            const bgStyle = library?.bgStyle ?? 'bg-gray-500'
+            const bgStyle = library?.bgStyle ?? 'bg-category-tooling'
 
             return (
               <span
                 key={libraryId}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${bgStyle}/40`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary ${bgStyle}/40`}
               >
                 {library?.name || libraryId}
                 <button
@@ -371,6 +385,7 @@ function MaintainerGrid({
 }
 
 function RouteComponent() {
+  const initialLocation = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 
@@ -658,9 +673,9 @@ function RouteComponent() {
         }
       `}</style>
 
-      <div className="flex flex-col max-w-full min-h-screen gap-6 md:gap-12 p-4 md:p-8 pb-0">
-        <div className="flex-1 flex flex-col gap-6 md:gap-16 w-full max-w-4xl mx-auto">
-          <header className="">
+      <div className="@container isolate flex min-h-screen max-w-full flex-col pt-4 md:pt-8">
+        <div className="mx-auto flex w-[calc(100%-2rem)] max-w-4xl flex-1 flex-col gap-6 md:w-[calc(100%-4rem)] md:gap-16">
+          <header className="relative z-20 rounded-lg border border-border-default bg-background-elevated p-4">
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
             <p className="text-lg mt-3 md:mt-4 text-gray-600 dark:text-gray-400">
               Meet the amazing developers who make TanStack possible through
@@ -678,6 +693,12 @@ function RouteComponent() {
             onGroupByChange={(groupBy) => updateFilters({ groupBy })}
             onSortByChange={(sortBy) => updateFilters({ sortBy })}
             onClearAll={() => navigate({ search: {}, replace: true })}
+          />
+
+          <MaintainersMap
+            initialLocation={initialLocation}
+            maintainers={filteredMaintainers}
+            selectedLibraries={search.libraries}
           />
 
           {hasResults ? (

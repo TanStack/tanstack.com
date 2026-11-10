@@ -91,14 +91,14 @@ function SpecialtyChip({ specialty }: { specialty: string }) {
 }
 
 function LibraryBadge({ library }: { library: Library }) {
-  const bgClass = `${library.bgStyle ?? 'bg-gray-500'}/40`
+  const bgClass = `${library.bgStyle ?? 'bg-category-tooling'}/40`
   if (library.to) {
     return (
       <Link
         to="/$libraryId/$version/docs/contributors"
         params={{ libraryId: library.id, version: 'latest' }}
         className={twMerge(
-          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
+          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
           bgClass,
         )}
         aria-label={`View contributors for ${library.name}`}
@@ -113,7 +113,7 @@ function LibraryBadge({ library }: { library: Library }) {
   return (
     <span
       className={twMerge(
-        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize`,
+        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary capitalize`,
         bgClass,
       )}
       aria-label={`View contributors for ${library.name}`}

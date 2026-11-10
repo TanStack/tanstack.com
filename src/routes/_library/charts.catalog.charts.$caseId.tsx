@@ -1,14 +1,17 @@
+import { getChartBreadcrumbJsonLd } from '~/utils/chart-breadcrumbs'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import {
   ChartsCatalogDetail,
   ChartsCatalogDetailPending,
 } from '~/components/charts/ChartsCatalogPages'
+import { isChartsCatalogCaseId } from '~/utils/charts-catalog'
 import { getChartsCatalogCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
   {
     loader: async ({ params }) => {
+      if (!isChartsCatalogCaseId(params.caseId)) throw notFound()
       const data = await getChartsCatalogCase({
         data: {
           caseId: params.caseId,
@@ -21,6 +24,16 @@ export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
     pendingMs: 250,
     component: ChartsCatalogCaseRoute,
     head: ({ loaderData }) => ({
+      scripts: loaderData
+        ? [
+            {
+              type: 'application/ld+json',
+              children: JSON.stringify(
+                getChartBreadcrumbJsonLd(loaderData.case),
+              ).replaceAll('<', '\\u003c'),
+            },
+          ]
+        : [],
       meta: seo({
         title: loaderData
           ? `${loaderData.case.title} | TanStack Charts`

@@ -13,9 +13,11 @@ const lifecycleGeneration = z
 export async function readScheduleLifecycleGeneration(
   botId: string,
 ): Promise<number> {
-  const [row] = await db.execute<{ generation: number }>(
-    pg`SELECT generation::double precision AS generation FROM chat_bot_schedule_suspensions WHERE bot_id=${botId}`,
-  )
+  const [row] = (
+    await db.execute<{ generation: number }>(
+      pg`SELECT generation::double precision AS generation FROM chat_bot_schedule_suspensions WHERE bot_id=${botId}`,
+    )
+  ).rows
   return lifecycleGeneration.parse(row?.generation ?? 0)
 }
 
@@ -51,9 +53,11 @@ export function applyScheduleLifecycleGeneration(
 export async function readThreadScheduleLifecycleGeneration(
   conversationId: string,
 ): Promise<number> {
-  const [row] = await db.execute<{ generation: number }>(
-    pg`SELECT generation::double precision AS generation FROM chat_thread_schedule_suspensions WHERE conversation_id=${conversationId}`,
-  )
+  const [row] = (
+    await db.execute<{ generation: number }>(
+      pg`SELECT generation::double precision AS generation FROM chat_thread_schedule_suspensions WHERE conversation_id=${conversationId}`,
+    )
+  ).rows
   return lifecycleGeneration.parse(row?.generation ?? 0)
 }
 

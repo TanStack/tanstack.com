@@ -17,13 +17,15 @@ export async function syncKodySkills(
   call: typeof kodyCall,
 ) {
   const startedAt = Date.now()
-  const [reservation] = await db.execute<{ revision: number }>(sql`
+  const [reservation] = (
+    await db.execute<{ revision: number }>(sql`
     INSERT INTO chat_kody_skill_sync(user_id,account_fingerprint,fetched_at,revision,lease_until)
     VALUES(${scope.userId},${before.fingerprint},0,1,${startedAt + leaseDuration})
     ON CONFLICT(user_id) DO UPDATE SET revision=chat_kody_skill_sync.revision+1,lease_until=excluded.lease_until
     WHERE chat_kody_skill_sync.account_fingerprint<>excluded.account_fingerprint
       OR (chat_kody_skill_sync.lease_until<=${startedAt} AND (chat_kody_skill_sync.fetched_at<=0 OR chat_kody_skill_sync.fetched_at<=${startedAt - freshness}))
     RETURNING revision`)
+  ).rows
   if (!reservation) return false
   let committed = false
   try {
@@ -105,18 +107,22 @@ export async function syncKodySkills(
       if (chunkBytes >= stageChunkBytes) await writeChunk()
     }
     await writeChunk()
-    const [staged] = await db.execute<{ count: number }>(
-      sql`SELECT count(*)::integer AS count FROM chat_kody_skill_sync_stage WHERE user_id=${scope.userId} AND revision=${reservation.revision}`,
-    )
+    const [staged] = (
+      await db.execute<{ count: number }>(
+        sql`SELECT count(*)::integer AS count FROM chat_kody_skill_sync_stage WHERE user_id=${scope.userId} AND revision=${reservation.revision}`,
+      )
+    ).rows
     if (staged?.count !== rows.length)
       throw new SkillError('Kody changed during skill sync. Try again.', 409)
     const afterStage = await kodySkillAccount(env, scope)
     if (!afterStage || afterStage.fingerprint !== before.fingerprint)
       throw new SkillError('Kody connection or access changed. Try again.', 409)
     await db.transaction(async (tx) => {
-      const [owner] = await tx.execute(
-        sql`SELECT revision FROM chat_kody_skill_sync WHERE user_id=${scope.userId} AND revision=${reservation.revision} FOR UPDATE`,
-      )
+      const [owner] = (
+        await tx.execute(
+          sql`SELECT revision FROM chat_kody_skill_sync WHERE user_id=${scope.userId} AND revision=${reservation.revision} FOR UPDATE`,
+        )
+      ).rows
       if (!owner)
         throw new SkillError('Kody changed during skill sync. Try again.', 409)
       await tx.execute(

@@ -1,3 +1,4 @@
+import { trackLiveAction } from './analytics/live-browser'
 import * as React from 'react'
 import { googleAnalyticsProvider } from './analytics/providers/google'
 import { scarfAnalyticsProvider } from './analytics/scarf'
@@ -139,6 +140,7 @@ export function trackEvent<TName extends AnalyticsEventName>(
   name: TName,
   props: AnalyticsEventProps<TName>,
 ): void {
+  trackLiveAction(name)
   const payload = buildEventPayload(props)
 
   for (const provider of analyticsProviders) {

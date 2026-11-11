@@ -1,5 +1,7 @@
-import { Link } from '@tanstack/react-router'
+import * as React from 'react'
+import { Link, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import * as v from 'valibot'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
@@ -7,6 +9,11 @@ import { Button } from '~/components/ds/ui'
 import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
 import { getOssSponsors } from '~/utils/sponsors.functions'
 import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
+import {
+  partnersVariantIds,
+  partnersVariants,
+  type PartnersVariant,
+} from '~/components/partners-variants'
 import type { PartnerPlacement } from '~/utils/analytics'
 
 type PartnersSponsorsContentProps = {
@@ -18,7 +25,7 @@ type PartnersSponsorsSectionProps = {
   className?: string
 }
 
-function OssSponsorsBand() {
+function OssSponsorsBand({ quiet = false }: { quiet?: boolean }) {
   // Same query OssSponsorsWithQuery runs (deduped by key). With no sponsors to
   // draw, skip the fixed-height canvas so the band doesn't hold empty space.
   const { data: sponsors } = useQuery({
@@ -30,7 +37,17 @@ function OssSponsorsBand() {
 
   return (
     <div id="sponsors" className="scroll-mt-24">
-      <TierBand label="OSS Sponsors" colorClassName="bg-ds-green-400" />
+      {quiet ? (
+        <div className="flex items-center gap-4">
+          <span aria-hidden className="h-px flex-1 bg-border-default" />
+          <h4 className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
+            OSS Sponsors
+          </h4>
+          <span aria-hidden className="h-px flex-1 bg-border-default" />
+        </div>
+      ) : (
+        <TierBand label="OSS Sponsors" colorClassName="bg-ds-green-400" />
+      )}
       <div className="px-4 py-10">
         {hasNoSponsors ? null : (
           <div className="relative mx-auto mb-8 h-[420px] w-full overflow-hidden sm:h-[480px] lg:h-[540px] [&>div]:h-full [&>div]:w-full">
@@ -59,6 +76,16 @@ function OssSponsorsBand() {
 export function PartnersSponsorsContent({
   analyticsPlacement,
 }: PartnersSponsorsContentProps) {
+  // Exploratory layouts: `?partners=1…7` on any page with this section opens a
+  // variant and shows a switcher to flip between them in place. Without the
+  // parameter nothing changes.
+  const search = useSearch({ strict: false })
+  const fromUrl = v.safeParse(v.picklist(partnersVariantIds), search.partners)
+  const [variant, setVariant] = React.useState<PartnersVariant | undefined>(
+    fromUrl.success ? fromUrl.output : undefined,
+  )
+  const Variant = variant ? partnersVariants[variant] : undefined
+
   return (
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
       <h2
@@ -72,10 +99,37 @@ export function PartnersSponsorsContent({
           Partners
         </a>
       </h2>
-      <PartnersGrid
-        analyticsPlacement={analyticsPlacement}
-        trailingBand={<OssSponsorsBand />}
-      />
+      {fromUrl.success && (
+        <div className="mb-6 flex flex-wrap items-center gap-1 font-ds-mono text-ds-mono-xs text-text-muted">
+          <span className="mr-2 uppercase tracking-wider">Layout</span>
+          {([undefined, ...partnersVariantIds] as const).map((id) => (
+            <button
+              key={id ?? 'current'}
+              type="button"
+              aria-pressed={variant === id}
+              onClick={() => setVariant(id)}
+              className={`rounded-md corner-squircle px-2.5 py-1.5 transition-colors duration-150 ease-out hover:bg-surface-state-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus ${
+                variant === id ? 'bg-surface-state-hover text-text-primary' : ''
+              }`}
+            >
+              {id ?? 'Current'}
+            </button>
+          ))}
+        </div>
+      )}
+      {Variant ? (
+        <>
+          <Variant analyticsPlacement={analyticsPlacement} />
+          <div className="mt-16">
+            <OssSponsorsBand quiet />
+          </div>
+        </>
+      ) : (
+        <PartnersGrid
+          analyticsPlacement={analyticsPlacement}
+          trailingBand={<OssSponsorsBand />}
+        />
+      )}
       <div className="mt-6 flex justify-center">
         <Link to="/partners" search={{ status: 'inactive' }}>
           <Button as="span" variant="subtle-link" color="gray">

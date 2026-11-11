@@ -20,9 +20,16 @@ import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
+import { partnersVariantIds } from '~/components/partners-variants'
+import * as v from 'valibot'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
+  // `?partners=1…7` previews an exploratory partner-section layout; anything
+  // else falls back to the default grid.
+  validateSearch: v.object({
+    partners: v.fallback(v.optional(v.picklist(partnersVariantIds)), undefined),
+  }),
   loader: async ({ context: { queryClient } }) => {
     const [, , recentPosts] = await Promise.all([
       queryClient.ensureQueryData(ossStatsQuery()),

@@ -37,16 +37,19 @@ function CommunitySkeleton() {
 
 function HomeCommunityContent() {
   return (
-    <div className="space-y-24">
+    <div>
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <h3 id="maintainers" className="text-3xl font-bold mb-6 scroll-mt-24">
+        <h2
+          id="maintainers"
+          className="mb-6 scroll-mt-24 font-ds-display text-ds-heading-1 text-text-primary"
+        >
           <a
             href="#maintainers"
-            className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            className="decoration-border-strong hover:underline"
           >
             Core Maintainers
           </a>
-        </h3>
+        </h2>
         <div className="grid grid-cols-2 gap-6 [&>*]:max-w-none sm:grid-cols-3 lg:grid-cols-5">
           {coreMaintainers.map((maintainer) => (
             <MaintainerCard key={maintainer.github} maintainer={maintainer} />

@@ -32,7 +32,7 @@ function SocialProofSkeleton() {
         <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
           {[2, 3].map((cols, band) => (
             <div key={`partner-band-${band}`}>
-              <div className="h-12 bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
+              <div className="h-10 bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
               <div
                 className="grid gap-px bg-gray-200/70 dark:bg-gray-800/70"
                 style={{
@@ -42,7 +42,7 @@ function SocialProofSkeleton() {
                 {Array.from({ length: cols * 2 }).map((_, index) => (
                   <div
                     key={`partner-skeleton-${band}-${index}`}
-                    className="min-h-[130px] bg-white/70 dark:bg-gray-950/60 animate-pulse"
+                    className="min-h-[104px] bg-white/70 dark:bg-gray-950/60 animate-pulse"
                   />
                 ))}
               </div>
@@ -77,22 +77,22 @@ function SocialProofSkeleton() {
 
 function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
   return (
-    <div className="space-y-24">
+    <div className="space-y-16 md:space-y-24">
       <PartnersSponsorsContent analyticsPlacement="home_grid" />
 
       {recentPosts.length > 0 && (
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3
+          <h2
             id="blog"
-            className="mb-3 scroll-mt-24 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted"
+            className="mb-6 scroll-mt-24 font-ds-display text-ds-heading-1 text-text-primary"
           >
             <a
               href="#blog"
-              className="transition-colors hover:text-text-primary"
+              className="decoration-border-strong hover:underline"
             >
               Blog &amp; Release Notes
             </a>
-          </h3>
+          </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {recentPosts.map((post) => (
               <BlogPostCard key={post.slug} post={post} />

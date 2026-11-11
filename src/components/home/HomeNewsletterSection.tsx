@@ -8,7 +8,7 @@ export function HomeNewsletterSection() {
         aria-labelledby="newsletter"
         className="mx-auto w-full max-w-[96rem] px-6 md:px-10"
       >
-        <div className="corner-squircle grid overflow-hidden rounded-2xl border border-border-subtle bg-background-surface px-6 py-8 sm:p-10 lg:mt-[19px] lg:px-[76px] lg:py-[59px]">
+        <div className="corner-squircle grid overflow-hidden rounded-2xl border border-border-subtle bg-background-surface px-6 py-8 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16 lg:p-16">
           <div className="flex items-start gap-4 sm:gap-5">
             <div className="corner-squircle flex size-12 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-background-subtle text-text-secondary sm:size-14">
               <EnvelopeSimpleIcon className="size-6 sm:size-7" weight="light" />
@@ -19,7 +19,7 @@ export function HomeNewsletterSection() {
               </p>
               <h2
                 id="newsletter"
-                className="mt-2 scroll-mt-24 font-ds-display text-ds-heading-2 font-semibold text-text-primary"
+                className="mt-2 scroll-mt-24 font-ds-display text-ds-heading-2 text-text-primary"
               >
                 Subscribe to TanStack News
               </h2>
@@ -30,9 +30,9 @@ export function HomeNewsletterSection() {
           </div>
 
           <NewsletterSignup
-            className="mt-8 w-full max-w-[23rem]"
+            className="mt-8 w-full max-w-[23rem] lg:mt-0 lg:w-[23rem]"
             buttonClassName="min-h-11 corner-squircle rounded-xl border-background-inverse bg-background-inverse px-5 font-ds-display text-ds-body-sm font-semibold text-text-inverse shadow-none hover:bg-background-inverse/90"
-            noteClassName="font-ds-mono text-[11px] tracking-wide text-text-muted"
+            noteClassName="font-ds-mono text-ds-mono-xs text-text-muted"
             successClassName="text-ds-body-sm text-text-success"
           />
         </div>

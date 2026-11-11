@@ -2627,6 +2627,93 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   filter: none !important;
 }
 
+/* Muted outlines: panel and card borders in the library colour sit at a lower
+   strength so the pointer glow, not the outline, carries the colour. Hover and
+   focus keep whatever border the element defines for those states. */
+.library-landing .library-landing-graphic {
+  border-color: rgb(var(--landing-glow) / 0.24);
+}
+
+.library-landing
+  :is(
+    [class*='border-[var(--landing-accent)]'],
+    [class*='border-(--landing-accent)'],
+    [class*='border-[rgb(var(--landing-glow)']
+  ):not(.library-landing-graphic, :hover, :focus-visible) {
+  border-color: rgb(var(--landing-glow) / 0.32);
+}
+
+/* Pointer glow: one spot of the library colour on the inner edge of a panel
+   and of the cards inside it, centred on the pointer (set per element from
+   LibraryLandingShell).
+
+   The glow is an inset box-shadow on a pseudo-element that inherits the
+   element's own border-radius, so its shape always matches the outline and it
+   cannot spill outside it. A radial mask centred on the pointer reveals only
+   the part of that ring near the cursor, and fades it with distance. */
+/* Which elements glow: the panel, any rounded element inside a panel, and any
+   larger rounded card elsewhere on the page. Squircle-cornered blocks (the
+   partner grid) are left out: their corner shape is not a plain radius. */
+@layer base {
+  .library-landing-graphic,
+  .library-landing-graphic [class*='rounded-md'],
+  .library-landing
+    :is(
+      [class*='rounded-lg'],
+      [class*='rounded-xl'],
+      [class*='rounded-2xl'],
+      [class*='rounded-3xl']
+    ):not([class*='corner-squircle']) {
+    position: relative;
+  }
+}
+
+.dark .library-landing-graphic::after,
+.dark .library-landing-graphic [class*='rounded-md']::after,
+.dark
+  .library-landing
+  :is(
+    [class*='rounded-lg'],
+    [class*='rounded-xl'],
+    [class*='rounded-2xl'],
+    [class*='rounded-3xl']
+  ):not([class*='corner-squircle'])::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /* Cards: tighter than a panel, and no resting glow, so a page full of cards
+     is quiet until the pointer arrives. */
+  --glow-band: 24px;
+  --glow-reach: 200px;
+  --glow-rest: -999px;
+  /* Three stacked shadows: a bright rim, then two wider, fainter layers, so
+     the light falls off gradually into the element instead of reading as a
+     thicker stroke. */
+  box-shadow:
+    inset 0 0 calc(var(--glow-band) * 0.25) rgb(var(--landing-glow) / 0.55),
+    inset 0 0 var(--glow-band) rgb(var(--landing-glow) / 0.32),
+    inset 0 0 calc(var(--glow-band) * 2.25) rgb(var(--landing-glow) / 0.2);
+  mask-image: radial-gradient(
+    circle var(--glow-reach) at var(--glow-x, var(--glow-rest))
+      var(--glow-y, var(--glow-rest)),
+    #000,
+    rgb(0 0 0 / 0.5) 28%,
+    rgb(0 0 0 / 0.18) 55%,
+    rgb(0 0 0 / 0.04) 78%,
+    transparent
+  );
+}
+
+/* Panels: a wider, softer band, resting in the bottom-right corner. The
+   doubled class outranks the card rule above, which also matches panels. */
+.dark .library-landing .library-landing-graphic.library-landing-graphic::after {
+  --glow-band: 36px;
+  --glow-reach: 360px;
+  --glow-rest: 100%;
+}
+
 /* Staggered grid reveal for the /libraries waypoint cards. The transform rests
    at its identity value (fill: both), so per-card hover transforms are unaffected. */
 @keyframes library-card-reveal {
@@ -2734,21 +2821,115 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   pointer-events: none;
 }
 
-.home-adapter-graph-flow {
-  display: block;
-  width: 1.25rem;
-  height: 3px;
+/* Homepage atmosphere (trial): one continuous gradient running the length of
+   the page, so colour drifts across section boundaries instead of resetting at
+   each one, with a single film-grain layer over it and under the content. */
+.home-grain {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+.home-grain::before,
+.home-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   pointer-events: none;
-  border-radius: 9999px;
-  background: linear-gradient(
-    90deg,
-    rgb(34 211 238 / 0),
-    rgb(165 243 252 / 0.98),
-    rgb(34 211 238 / 0.98),
-    rgb(59 130 246 / 0)
-  );
-  box-shadow: 0 0 10px rgb(34 211 238 / 0.7);
-  transition: opacity 120ms linear;
+}
+
+.home-grain::before {
+  z-index: -2;
+  background:
+    radial-gradient(
+      ellipse 70% 26% at var(--wash-1-at, 0% 30%),
+      color-mix(
+        in oklab,
+        var(--wash-1, var(--color-ds-blue-400)) 16%,
+        transparent
+      ),
+      color-mix(
+          in oklab,
+          var(--wash-1, var(--color-ds-blue-400)) 5%,
+          transparent
+        )
+        40%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 26% at var(--wash-2-at, 100% 55%),
+      color-mix(
+        in oklab,
+        var(--wash-2, var(--color-ds-purple-400)) 14%,
+        transparent
+      ),
+      color-mix(
+          in oklab,
+          var(--wash-2, var(--color-ds-purple-400)) 4%,
+          transparent
+        )
+        40%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 26% at var(--wash-3-at, 0% 82%),
+      color-mix(
+        in oklab,
+        var(--wash-3, var(--color-ds-amber-300)) 14%,
+        transparent
+      ),
+      color-mix(
+          in oklab,
+          var(--wash-3, var(--color-ds-amber-300)) 4%,
+          transparent
+        )
+        40%,
+      transparent 70%
+    );
+}
+
+/* The grain is masked to the same three shapes, so it fades out with the
+   colour and the page background stays untouched between washes. */
+.home-grain::after {
+  z-index: -1;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 1.4 0 0 0 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image:
+    radial-gradient(
+      ellipse 70% 26% at var(--wash-1-at, 0% 30%),
+      #000,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 26% at var(--wash-2-at, 100% 55%),
+      #000,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 26% at var(--wash-3-at, 0% 82%),
+      #000,
+      transparent 70%
+    );
+}
+
+/* Library landing pages use the same motif in the library's own hue. It is the
+   only background treatment on the page: the hero's own glow is switched off
+   and every section fill is transparent, so one gradient runs through all of
+   them instead of each section drawing its own. */
+.library-landing.home-grain {
+  --wash-1: rgb(var(--landing-glow));
+  --wash-2: rgb(var(--landing-glow));
+  --wash-3: rgb(var(--landing-glow));
+  --wash-1-at: 100% 12%;
+  --wash-2-at: 0% 45%;
+  --wash-3-at: 100% 78%;
+  --landing-hero-glow: 0;
+  --landing-hero-wash: 0;
+}
+
+.library-landing.home-grain > section,
+.library-landing.home-grain > div {
+  background-color: transparent;
 }
 
 @keyframes home-open-source-gradient-shift {
@@ -2791,10 +2972,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
 @media (prefers-reduced-motion: reduce) {
   .home-open-source-gradient {
     animation: none;
-  }
-
-  .home-adapter-graph-flow {
-    display: none;
   }
 }
 

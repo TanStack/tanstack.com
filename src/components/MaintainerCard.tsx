@@ -210,7 +210,7 @@ function MaintainerSocialLinks({
         onClick={(e) => e.stopPropagation()}
         className={
           variant === 'card'
-            ? 'inline-flex size-4 items-center justify-center text-icon-muted transition-colors duration-200 hover:text-icon-default focus-visible:rounded-sm focus-visible:corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none [&_svg]:size-4'
+            ? "relative inline-flex size-4 items-center justify-center text-icon-muted after:absolute after:-inset-x-2 after:-inset-y-3.5 after:content-[''] transition-colors duration-200 hover:text-icon-default focus-visible:rounded-sm focus-visible:corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none [&_svg]:size-4"
             : 'p-2 -mb-2 -ml-2 transition-colors hover:scale-110 hover:text-gray-700 hover:grayscale-0 dark:hover:text-gray-200'
         }
       >

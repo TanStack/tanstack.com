@@ -240,9 +240,49 @@ export function LibraryLandingShell({
     '--landing-light-gradient-start': colors.lightGradientStart,
   }
 
+  // Each graphic panel and each card on the page has one glow spot on its
+  // inner edge that sits at the pointer's position relative to that element, so it brightens as the pointer
+  // approaches and fades as it leaves. Without a hovering pointer (or with
+  // reduced motion) the CSS default keeps a resting glow in the corner.
+  const mainRef = React.useRef<HTMLElement>(null)
+  React.useEffect(() => {
+    const main = mainRef.current
+    if (
+      !main ||
+      !window.matchMedia(
+        '(hover: hover) and (prefers-reduced-motion: no-preference)',
+      ).matches
+    )
+      return
+
+    let frame = 0
+    const onPointerMove = (event: PointerEvent) => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        for (const element of main.querySelectorAll<HTMLElement>(
+          ".library-landing-graphic, .library-landing-graphic [class*='rounded-md'], :is([class*='rounded-lg'], [class*='rounded-xl'], [class*='rounded-2xl'], [class*='rounded-3xl']):not([class*='corner-squircle'])",
+        )) {
+          const rect = element.getBoundingClientRect()
+          element.style.setProperty(
+            '--glow-x',
+            `${event.clientX - rect.left}px`,
+          )
+          element.style.setProperty('--glow-y', `${event.clientY - rect.top}px`)
+        }
+      })
+    }
+
+    main.addEventListener('pointermove', onPointerMove)
+    return () => {
+      main.removeEventListener('pointermove', onPointerMove)
+      cancelAnimationFrame(frame)
+    }
+  }, [])
+
   return (
     <main
-      className="library-landing w-full min-w-0 overflow-x-hidden bg-background-default font-sans text-text-primary [--landing-accent-bright:var(--landing-accent-light)] [--landing-accent-muted:var(--landing-accent-light)] [--landing-cta-end:var(--landing-light-gradient-end)] [--landing-cta-start:var(--landing-light-gradient-start)] [--landing-headline-end:var(--landing-light-gradient-end)] [--landing-headline-start:var(--landing-light-gradient-start)] [--landing-hero-glow:0] [--landing-hero-wash:0] dark:[--landing-accent-bright:var(--landing-accent-dark)] dark:[--landing-accent-muted:var(--landing-accent-muted-dark)] dark:[--landing-cta-end:var(--landing-accent-dark)] dark:[--landing-cta-start:var(--landing-accent)] dark:[--landing-headline-end:var(--landing-accent)] dark:[--landing-headline-start:var(--landing-accent-bright)] dark:[--landing-hero-glow:0.5] dark:[--landing-hero-wash:0.08]"
+      ref={mainRef}
+      className="library-landing home-grain w-full min-w-0 overflow-x-hidden bg-background-default font-sans text-text-primary [--landing-accent-bright:var(--landing-accent-light)] [--landing-accent-muted:var(--landing-accent-light)] [--landing-cta-end:var(--landing-light-gradient-end)] [--landing-cta-start:var(--landing-light-gradient-start)] [--landing-headline-end:var(--landing-light-gradient-end)] [--landing-headline-start:var(--landing-light-gradient-start)] [--landing-hero-glow:0] [--landing-hero-wash:0] dark:[--landing-accent-bright:var(--landing-accent-dark)] dark:[--landing-accent-muted:var(--landing-accent-muted-dark)] dark:[--landing-cta-end:var(--landing-accent-dark)] dark:[--landing-cta-start:var(--landing-accent)] dark:[--landing-headline-end:var(--landing-accent)] dark:[--landing-headline-start:var(--landing-accent-bright)] dark:[--landing-hero-glow:0.5] dark:[--landing-hero-wash:0.08]"
       style={landingStyle}
     >
       <section className="relative overflow-hidden border-b border-border-subtle">
@@ -475,7 +515,7 @@ export function LandingWindow({
 }) {
   return (
     <div
-      className={`library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
+      className={`library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
     >
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
@@ -502,7 +542,7 @@ function LandingWorkbench({
   const activeItem = config.items[activeIndex]
 
   return (
-    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
+    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[0_24px_70px_rgb(0_0_0/0.18)]">
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />

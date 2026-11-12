@@ -1522,10 +1522,6 @@ export function MaintainersMap({
                   : desktopInitialScale,
               )
               target.current.theta = startingView.theta
-              if (!selectedId) {
-                pausedRef.current = false
-                setPaused(false)
-              }
               wakeGlobe.current?.()
             }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"

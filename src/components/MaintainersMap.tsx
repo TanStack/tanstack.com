@@ -1515,7 +1515,6 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
-              pauseRotation()
               select(host).call(
                 behavior.scaleTo,
                 window.matchMedia(mobileViewport).matches

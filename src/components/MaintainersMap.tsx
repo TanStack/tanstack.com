@@ -1515,14 +1515,13 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
-              pauseRotation()
               select(host).call(
                 behavior.scaleTo,
                 window.matchMedia(mobileViewport).matches
                   ? mobileInitialScale
                   : desktopInitialScale,
               )
-              target.current.theta = initialView.theta
+              target.current.theta = startingView.theta
               wakeGlobe.current?.()
             }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"

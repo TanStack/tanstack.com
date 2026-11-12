@@ -17,6 +17,7 @@ export interface RunModelChoice {
   providerLabel: string
   attachments: Array<'image' | 'pdf'>
   reasoning: Array<{ value: string; label: string }>
+  retiring?: boolean
   unavailableReason?: string
 }
 export interface RunModelCatalog {

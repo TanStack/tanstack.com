@@ -79,9 +79,29 @@ const maxCatalogModels = 2048
 const isNative = (provider: Provider, model: string) =>
   nativeModels[provider]?.includes(model) === true
 
+// https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations
+// Hide these from new picker choices, but preserve configured and pinned selections.
+const retiringOpenaiModels = new Set([
+  'gpt-5',
+  'gpt-5-2025-08-07',
+  'gpt-5-mini',
+  'gpt-5-mini-2025-08-07',
+  'gpt-5-nano',
+  'gpt-5-nano-2025-08-07',
+  'gpt-5-pro',
+  'gpt-5-pro-2025-10-06',
+  'o3',
+  'o3-2025-04-16',
+  'o3-pro',
+  'o3-pro-2025-06-10',
+])
+
 /** Exact reviewed model IDs only. An adapter update does not enable new controls. */
 const openaiEfforts: Record<string, readonly string[]> = {
   'gpt-6-astra': ['low', 'medium', 'high'],
+  'gpt-5.6-sol': ['none', 'low', 'medium', 'high', 'xhigh', 'max'],
+  'gpt-5.6-terra': ['none', 'low', 'medium', 'high', 'xhigh', 'max'],
+  'gpt-5.6-luna': ['none', 'low', 'medium', 'high', 'xhigh', 'max'],
   'gpt-5.5': ['none', 'low', 'medium', 'high'],
   'gpt-5.2': ['none', 'low', 'medium', 'high'],
   'gpt-5.1': ['none', 'low', 'medium', 'high'],
@@ -331,6 +351,11 @@ export async function getRunModelCatalog(
         503,
       )
     for (const model of models) {
+      const retiring =
+        (provider === 'openai' && retiringOpenaiModels.has(model)) ||
+        ((provider === 'openrouter' || provider === 'vercel') &&
+          model.startsWith('openai/') &&
+          retiringOpenaiModels.has(model.slice('openai/'.length)))
       const selected = { ...connection, model }
       const support = modelAttachmentSupport(selected, env.INCLUDED_MODEL)
       const unavailableReason = availability(scope.policy, selected)?.message
@@ -339,7 +364,9 @@ export async function getRunModelCatalog(
         label:
           scope.fixture && provider === 'included'
             ? 'Local preview'
-            : (modelLabels[model] ?? model),
+            : retiring
+              ? `${model} (retires December 11, 2026)`
+              : (modelLabels[model] ?? model),
         providerLabel: providerLabels[provider],
         attachments: [
           ...(support.imageTypes.length ? ['image' as const] : []),
@@ -348,6 +375,7 @@ export async function getRunModelCatalog(
         reasoning: ['default', ...reasoningValues(provider, model)].map(
           (value) => ({ value, label: reasoningLabels[value] ?? value }),
         ),
+        ...(retiring ? { retiring: true } : {}),
         ...(unavailableReason ? { unavailableReason } : {}),
       })
     }

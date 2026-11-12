@@ -190,14 +190,14 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.62.5",
+    "@cloudflare/vite-plugin": "^1.65.0",
     "@cloudflare/workers-types": "^5.20260930.2",
     "@content-collections/core": "^0.14.3",
     "@content-collections/vite": "^0.2.9",
     "@tanstack/devtools-vite": "^0.7.0",
     "@tanstack/react-devtools": "^0.10.5",
     "@tanstack/react-query-devtools": "^5.102.8",
-    "@tanstack/redact": "0.1.4",
+    "@tanstack/redact": "0.2.5",
     "@types/d3-interpolate": "3.0.4",
     "@types/d3-scale": "4.0.9",
     "@types/d3-shape": "3.1.8",
@@ -228,7 +228,7 @@
     "typescript": "^6.0.2",
     "vite": "^8.0.16",
     "vitest": "^4.1.11",
-    "wrangler": "^4.147.0"
+    "wrangler": "^4.152.0"
   },
   "engines": {
     "node": ">=22.12.0"

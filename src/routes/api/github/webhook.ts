@@ -168,6 +168,11 @@ export const Route = createFileRoute("/api/github/webhook")({
             .map((library) => `docs:${library.id}:branch:${gitRef}`),
         ];
 
+        const affectedLibraries = libraries.filter(
+          (library) =>
+            library.repo === repo && library.latestBranch === gitRef,
+        );
+
         const invalidate = async () => {
           const [staleContentCount, staleArtifactCount] =
             await measureBlobStorageOperations("github-webhook-invalidation", () =>
@@ -181,6 +186,27 @@ export const Route = createFileRoute("/api/github/webhook")({
           return { purge, staleArtifactCount, staleContentCount };
         };
 
+        const warmCaches = async () => {
+          const { warmDocsArtifacts } = await import(
+            '~/utils/docs-warm.server'
+          );
+
+          await Promise.all(
+            affectedLibraries.map((library) =>
+              warmDocsArtifacts({
+                repo: library.repo,
+                branch: gitRef,
+                docsRoot: library.docsRoot ?? 'docs',
+              }).catch((error) => {
+                console.warn(
+                  `[GitHub webhook] docs cache warm-up failed for ${library.repo}@${gitRef}`,
+                  error,
+                );
+              }),
+            ),
+          );
+        };
+
         if (
           scheduleHostRuntimeTask(async () => {
             try {
@@ -192,6 +218,10 @@ export const Route = createFileRoute("/api/github/webhook")({
                 repo,
               });
             }
+
+            // Proactively rebuild manifests so the next user request is
+            // served from cache rather than triggering an N+1 build.
+            await warmCaches();
           })
         ) {
           return jsonResponse({
@@ -204,6 +234,9 @@ export const Route = createFileRoute("/api/github/webhook")({
 
         const { purge, staleArtifactCount, staleContentCount } =
           await invalidate();
+
+        // Warm caches inline when background scheduling is unavailable.
+        await warmCaches();
 
         return jsonResponse({
           ok: true,

@@ -279,7 +279,7 @@ export async function collectRedirectEntriesForFile(
   return entries
 }
 
-async function buildDocsManifest({
+export async function buildDocsManifest({
   repo,
   branch,
   docsRoot,
@@ -343,7 +343,7 @@ export async function collectDocsManifest(
   }
 }
 
-async function buildDocsPathManifest({
+export async function buildDocsPathManifest({
   repo,
   branch,
   docsRoot,

@@ -189,3 +189,67 @@ test('unavailable GA getters release queued events as unknown without manufactur
   timeout()
   assert.deepEqual(emitted, ['unknown', 'unknown'])
 })
+
+for (const sessionNumber of [2, undefined]) {
+  test(`ten distinct partner clicks persist across reloads with session number ${sessionNumber}`, () => {
+    const storage = new Map<string, string>()
+    let session = 100
+    const emitted: string[] = []
+    function open() {
+      const context = vm.createContext({
+        URL,
+        Blob,
+        setTimeout,
+        clearTimeout,
+        location: { href: input.url },
+        document: { referrer: 'https://google.com/' },
+        navigator: { userAgent: windows, sendBeacon: () => true },
+        localStorage: {
+          getItem: (key: string) => storage.get(key) || null,
+          setItem: (key: string, value: string) => storage.set(key, value),
+        },
+        window: {
+          gtag: (command: string, ...args: any[]) => {
+            if (command === 'get')
+              args[2](
+                args[1] === 'session_number'
+                  ? sessionNumber
+                  : args[1] === 'session_id'
+                    ? session
+                    : 'client',
+              )
+            if (command === 'event') emitted.push(args[1].traffic_quality)
+          },
+        },
+      })
+      vm.runInContext(TRAFFIC_QUALITY_BOOTSTRAP, context)
+      return (id: string) =>
+        vm.runInContext(
+          `window.gtag('event','partner_clicked',{partner_id:${JSON.stringify(id)}})`,
+          context,
+        )
+    }
+    let click = open()
+    for (let i = 0; i < 5; i++) click(`partner-${i}`)
+    click = open()
+    for (let i = 5; i < 9; i++) click(`partner-${i}`)
+    click('partner-5')
+    assert.ok(
+      emitted.every(
+        (quality) =>
+          quality === (sessionNumber === undefined ? 'unknown' : 'unflagged'),
+      ),
+    )
+    click('partner-9')
+    assert.equal(emitted.at(-1), 'automated')
+    click = open()
+    click('partner-0')
+    assert.equal(emitted.at(-1), 'automated')
+    session++
+    click('partner-0')
+    assert.equal(
+      emitted.at(-1),
+      sessionNumber === undefined ? 'unknown' : 'unflagged',
+    )
+  })
+}

@@ -8,6 +8,7 @@ import {
 } from '~/utils/application-starter'
 import {
   getApplicationStarterCompatiblePartnerIds,
+  getApplicationStarterSelectedPartnerIds,
   getInferredApplicationStarterPartnerIdsFromUserInput,
 } from '~/utils/partners'
 
@@ -50,7 +51,12 @@ function buildDeterministicApplicationStarterAnalysis({
   return {
     inferredLibraryIds: getInferredApplicationStarterLibraryIds(request.input),
     inferredPartnerIds: getApplicationStarterCompatiblePartnerIds(
-      getInferredApplicationStarterPartnerIdsFromUserInput(request.input, []),
+      getInferredApplicationStarterPartnerIdsFromUserInput(
+        request.input,
+        getApplicationStarterCompatiblePartnerIds(
+          getApplicationStarterSelectedPartnerIds(request.input),
+        ),
+      ),
     ),
     rationale: deterministicResult.rationale,
     recipe: deterministicResult.recipe,

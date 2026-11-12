@@ -1521,7 +1521,7 @@ export function MaintainersMap({
                   ? mobileInitialScale
                   : desktopInitialScale,
               )
-              target.current.theta = initialView.theta
+              target.current.theta = startingView.theta
               wakeGlobe.current?.()
             }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"

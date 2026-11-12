@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   collectDocsManifest,
+  MissingDocsTreeError,
   collectRedirectEntriesForFile,
   isDocsManifest,
   mapWithConcurrency,
@@ -59,23 +60,27 @@ test('mapWithConcurrency runs in a bounded number of batches, not one call per i
 
 console.log('docs manifest concurrency tests passed')
 
-test('collectRedirectEntriesForFile returns no entries (not a rejection) when the file fetch throws a recoverable GitHub error', async () => {
-  const node: DocsTreeNode = { path: 'docs/guide/old-page.md' }
+test('a failed file read rejects without publishing its canonical path', async () => {
   const paths: Array<string> = []
-
-  const entries = await collectRedirectEntriesForFile(node, {
-    docsRoot: 'docs',
-    fetchFile: async () => {
-      throw new GitHubContentError(
-        'rate-limit',
-        'GitHub rate limited this file',
-      )
-    },
-    onCanonicalPath: (path) => paths.push(path),
-  })
-
-  assert.deepEqual(entries, [])
-  assert.deepEqual(paths, ['guide/old-page'])
+  const error = new GitHubContentError(
+    'rate-limit',
+    'GitHub rate limited this file',
+  )
+  await assert.rejects(
+    () =>
+      collectRedirectEntriesForFile(
+        { path: 'docs/guide/a.md' },
+        {
+          docsRoot: 'docs',
+          fetchFile: async () => {
+            throw error
+          },
+          onCanonicalPath: (path) => paths.push(path),
+        },
+      ),
+    (actual) => actual === error,
+  )
+  assert.deepEqual(paths, [])
 })
 
 test('collectRedirectEntriesForFile rethrows non-recoverable errors instead of silently swallowing them', async () => {
@@ -94,44 +99,45 @@ test('collectRedirectEntriesForFile rethrows non-recoverable errors instead of s
   )
 })
 
-test('a mix of one failing file and several succeeding files still produces every succeeding redirect', async () => {
-  const nodes: Array<DocsTreeNode> = [
-    { path: 'docs/guide/a.md' },
-    { path: 'docs/guide/flaky.md' },
-    { path: 'docs/guide/b.md' },
+test('one failed file rejects the whole manifest instead of returning partial metadata', async () => {
+  const nodes = [
+    { path: 'docs/a.md' },
+    { path: 'docs/flaky.md' },
+    { path: 'docs/b.md' },
   ]
-
-  const fileContents: Record<string, string> = {
-    'docs/guide/a.md': '---\nredirect_from:\n  - guide/old-a\n---\n# A',
-    'docs/guide/b.md': '---\nredirect_from:\n  - guide/old-b\n---\n# B',
-  }
-
-  const paths: Array<string> = []
-
-  const results = await mapWithConcurrency(nodes, 3, (node) =>
-    collectRedirectEntriesForFile(node, {
-      docsRoot: 'docs',
-      fetchFile: async (filePath) => {
-        if (filePath === 'docs/guide/flaky.md') {
-          throw new GitHubContentError('server', 'GitHub 5xx for this file')
-        }
-
-        return fileContents[filePath] ?? null
-      },
-      onCanonicalPath: (path) => paths.push(path),
-    }),
+  const error = new GitHubContentError('server', 'GitHub 5xx')
+  await assert.rejects(
+    () =>
+      collectDocsManifest(nodes, 'docs', async (path) => {
+        if (path === 'docs/flaky.md') throw error
+        return '---\nupdated: "2026-09-01"\n---\n# Healthy'
+      }),
+    (actual) => actual === error,
   )
-
-  // The whole build did not reject just because one file was flaky.
-  assert.deepEqual(
-    results.flat().map((entry) => entry.from),
-    ['guide/old-a', 'guide/old-b'],
-  )
-  // All three files' paths were still recorded, including the flaky one.
-  assert.deepEqual(paths.sort(), ['guide/a', 'guide/b', 'guide/flaky'])
 })
 
-console.log('buildDocsManifest per-file fault tolerance tests passed')
+test('missing trees and files fail, while an empty directory remains authoritative', async () => {
+  await assert.rejects(
+    () => collectDocsManifest(null, 'docs', async () => null),
+    /Missing docs tree/,
+  )
+  assert.deepEqual(await collectDocsManifest([], 'docs', async () => null), {
+    paths: [],
+    redirects: {},
+    lastModifiedByPath: {},
+  })
+  for (const file of [null, '']) {
+    await assert.rejects(
+      () =>
+        collectDocsManifest(
+          [{ path: 'docs/missing.md' }],
+          'docs',
+          async () => file,
+        ),
+      /Missing docs file/,
+    )
+  }
+})
 
 test('manifest dates belong to individual canonical pages and preserve undated pages', async () => {
   const dates: Record<string, string> = {}
@@ -184,6 +190,20 @@ test('manifest cache accepts older records and rejects invalid date maps', () =>
   }
 })
 
+test('manifest rejects malformed frontmatter instead of caching incomplete metadata', async () => {
+  await assert.rejects(
+    collectRedirectEntriesForFile(
+      { path: 'docs/invalid.md' },
+      {
+        docsRoot: 'docs',
+        fetchFile: async () => '---\ntitle: [invalid YAML\n---\nBody',
+        onCanonicalPath: () => {},
+      },
+    ),
+    /Invalid docs frontmatter: docs\/invalid.md/,
+  )
+})
+
 test('manifest dates use the served sibling even when the index finishes last', async () => {
   for (const sibling of ['---\nupdated: "2026-09-01"\n---\n# A', '# A']) {
     const contents: Record<string, string> = {
@@ -206,5 +226,24 @@ test('manifest dates use the served sibling even when the index finishes last', 
     )
     assert.equal(manifest.lastModifiedByPath?.['guide/b'], '2026-09-03')
     assert.deepEqual(manifest.paths.sort(), ['guide/a', 'guide/b'])
+  }
+})
+
+test('only an absent docs tree is classified as missing during redirect lookup', async () => {
+  await assert.rejects(
+    () => collectDocsManifest(null, 'docs', async () => null),
+    MissingDocsTreeError,
+  )
+  for (const content of [null, '---\ntitle: [invalid\n---\n']) {
+    await assert.rejects(
+      () =>
+        collectDocsManifest(
+          [{ path: 'docs/a.md' }],
+          'docs',
+          async () => content,
+        ),
+      (error) =>
+        error instanceof Error && !(error instanceof MissingDocsTreeError),
+    )
   }
 })

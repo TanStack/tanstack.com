@@ -4,7 +4,6 @@ import { sentry } from '@c15t/integrations/sentry'
 import { getClient, setUser } from '@sentry/tanstackstart-react'
 import { flushPendingGoogleAnalyticsEvents } from '~/utils/analytics/providers/google'
 import { scarf } from '~/utils/analytics/scarf'
-import { TRAFFIC_QUALITY_BOOTSTRAP } from '~/utils/analytics/traffic-quality'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 // src/server.ts proxies gtag.js and its collect endpoint through /_a.
@@ -15,15 +14,16 @@ const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
 const googleTag = gtag({
   id: GOOGLE_ANALYTICS_ID,
   category: 'measurement',
+  // No request to Google, and no cookieless pings, until Analytics is allowed.
+  loadMode: 'after-consent',
   config: {
     send_page_view: false,
-    transport_url:
-      typeof window === 'undefined'
-        ? undefined
-        : `${window.location.origin}${GOOGLE_ANALYTICS_PROXY_PREFIX}`,
+    // A fixed origin, because a returning visitor's config runs from the server
+    // HTML, where there is no window. Analytics only loads on tanstack.com.
+    transport_url: `https://tanstack.com${GOOGLE_ANALYTICS_PROXY_PREFIX}`,
   },
-  // The helper has no loader URL option yet, and the proxy is what keeps
-  // gtag.js loading behind ad blockers.
+  // The helper has no loader URL option, only this deprecated override. The
+  // proxy is what keeps gtag.js loading behind ad blockers.
   script: { src: `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js` },
 })
 
@@ -34,18 +34,10 @@ export const consentScripts: NonNullable<ConsentRootProps['scripts']> =
     ? [
         {
           ...googleTag,
-          // Consent is per category only. Without vendor details the dialog
-          // doesn't give Google Tag its own switch under Analytics.
-          vendorDetails: undefined,
-          onBeforeLoad(info) {
-            // The helper defines gtag and queues consent defaults and config
-            // here, so page views held since hydration can go out after them.
-            googleTag.onBeforeLoad?.(info)
-            // Wraps gtag so every event carries traffic_quality. It must run
-            // before the held events go out.
-            new Function(TRAFFIC_QUALITY_BOOTSTRAP)()
-            flushPendingGoogleAnalyticsEvents()
-          },
+          // Keep onBeforeLoad as the helper's own: c15t only starts a helper
+          // from the server HTML when it is unchanged. The first page view
+          // also flushes held events, so this covers a visitor who sends none.
+          onLoad: flushPendingGoogleAnalyticsEvents,
         },
         {
           id: 'namethathost',

@@ -1,18 +1,27 @@
+import { TRAFFIC_QUALITY_BOOTSTRAP } from '../traffic-quality'
 import type { AnalyticsProvider, EventPayload } from '../types'
 
 // Matches the declaration in @c15t/integrations/google-tag, which defines
-// gtag when its script loads.
+// gtag once Analytics is allowed.
 declare global {
   interface Window {
     gtag: (...args: unknown[]) => void
   }
 }
 
-// c15t's script loader defines gtag after hydration, so the first page view
-// can arrive before gtag exists. Hold events until the loader flushes them.
+// Page views can arrive before c15t defines gtag: before the visitor chooses,
+// or before hydration starts the loader. Hold them until gtag exists.
 const pendingEvents: Array<[string, EventPayload]> = []
+let trafficQualityInstalled = false
 
+// c15t defines gtag either from the server HTML or from its script loader.
+// Either way, wrap it so every event carries traffic_quality, then send the
+// held events in order.
 export function flushPendingGoogleAnalyticsEvents() {
+  if (!trafficQualityInstalled) {
+    trafficQualityInstalled = true
+    new Function(TRAFFIC_QUALITY_BOOTSTRAP)()
+  }
   for (const [event, properties] of pendingEvents.splice(0)) {
     window.gtag('event', event, properties)
   }
@@ -31,6 +40,7 @@ export const googleAnalyticsProvider: AnalyticsProvider = {
       return
     }
 
+    flushPendingGoogleAnalyticsEvents()
     window.gtag('event', event, properties)
   },
 }

@@ -26,7 +26,7 @@ export function HomeSocialProofSection({
 
 function SocialProofSkeleton() {
   return (
-    <div className="space-y-24">
+    <div className="space-y-24 md:space-y-32 lg:space-y-40">
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
         <div className="h-10 w-40 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse mb-6" />
         <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
@@ -77,7 +77,7 @@ function SocialProofSkeleton() {
 
 function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
   return (
-    <div className="space-y-16 md:space-y-24">
+    <div className="space-y-24 md:space-y-32 lg:space-y-40">
       <PartnersSponsorsContent analyticsPlacement="home_grid" />
 
       {recentPosts.length > 0 && (

@@ -1,4 +1,3 @@
-import { EnvelopeSimpleIcon } from '@phosphor-icons/react'
 import { NewsletterSignup } from '~/components/NewsletterSignup'
 
 export function HomeNewsletterSection() {
@@ -8,36 +7,48 @@ export function HomeNewsletterSection() {
         aria-labelledby="newsletter"
         className="mx-auto w-full max-w-[96rem] px-6 md:px-10"
       >
-        <div className="corner-squircle grid overflow-hidden rounded-2xl border border-border-subtle bg-background-surface px-6 py-8 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16 lg:p-16">
-          <div className="flex items-start gap-4 sm:gap-5">
-            <div className="corner-squircle flex size-12 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-background-subtle text-text-secondary sm:size-14">
-              <EnvelopeSimpleIcon className="size-6 sm:size-7" weight="light" />
-            </div>
+        <div className="corner-squircle relative isolate overflow-hidden rounded-2xl border border-border-subtle px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+          {/* Barely-there surface, a soft light from the top-left corner, and a
+              hairline that catches it along the top edge. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 bg-background-surface/40"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-48 -left-32 -z-10 size-[34rem] rounded-full bg-[radial-gradient(closest-side,currentColor,transparent)] text-text-primary opacity-[0.045]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-linear-to-r from-border-strong/70 via-border-default/40 to-transparent"
+          />
+
+          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16">
             <div className="min-w-0">
-              <p className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
-                Newsletter
-              </p>
               <h2
                 id="newsletter"
-                className="mt-2 scroll-mt-24 font-ds-display text-ds-heading-2 text-text-primary"
+                className="scroll-mt-24 text-balance font-ds-display text-ds-heading-2 text-text-primary"
               >
                 Subscribe to TanStack News
               </h2>
-              <p className="mt-2 max-w-xl text-ds-body-md text-text-secondary">
+              <p className="mt-3 max-w-xl text-pretty font-ds-mono text-ds-mono-sm text-text-secondary">
                 New posts, releases, and ecosystem updates from TanStack.
               </p>
             </div>
-          </div>
 
-          <NewsletterSignup
-            className="mt-8 w-full max-w-[23rem] lg:mt-0 lg:w-[23rem]"
-            buttonClassName="min-h-11 corner-squircle rounded-xl border-background-inverse bg-background-inverse px-5 font-ds-display text-ds-body-sm font-semibold text-text-inverse shadow-none hover:bg-background-inverse/90"
-            noteClassName="font-ds-mono text-ds-mono-xs text-text-muted"
-            successClassName="text-ds-body-sm text-text-success"
-          />
+            <NewsletterSignup
+              appearance="ds"
+              label="Subscribe"
+              showIcon={false}
+              showNote={false}
+              className="w-full sm:w-auto"
+              buttonClassName="sm:w-auto"
+              successClassName="text-ds-body-sm text-text-success"
+            />
+          </div>
         </div>
       </section>
-      <div className="h-16 sm:h-20" />
+      <div className="h-24 md:h-32" />
     </>
   )
 }

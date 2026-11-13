@@ -20,16 +20,9 @@ import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
-import { partnersVariantIds } from '~/components/partners-variants'
-import * as v from 'valibot'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
-  // `?partners=1…7` previews an exploratory partner-section layout; anything
-  // else falls back to the default grid.
-  validateSearch: v.object({
-    partners: v.fallback(v.optional(v.picklist(partnersVariantIds)), undefined),
-  }),
   loader: async ({ context: { queryClient } }) => {
     const [, , recentPosts] = await Promise.all([
       queryClient.ensureQueryData(ossStatsQuery()),
@@ -75,7 +68,7 @@ function Index() {
   return (
     <>
       <Scarf id={homepageScarfPixel} path="/" />
-      <main className="home-grain max-w-full z-10 space-y-16 md:space-y-24">
+      <main className="home-grain max-w-full z-10 space-y-24 md:space-y-32 lg:space-y-40">
         {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
@@ -99,7 +92,7 @@ function Index() {
               <br className="hidden md:block" /> for the web
             </h1>
             <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-              <p className="max-w-[15rem] text-ds-body-md text-ds-neutral-500 md:max-w-none md:text-ds-body-lg xl:text-ds-body-xl">
+              <p className="max-w-[15rem] text-balance text-ds-body-md text-ds-neutral-500 md:max-w-none xl:text-ds-body-lg">
                 Headless, type-safe, composable tools for building modern web
                 applications that work naturally for developers and reliably for
                 agents
@@ -166,48 +159,86 @@ function Index() {
 type PrincipleProof = 'adapters' | 'types' | 'adoption' | 'portable'
 
 type WhyTanStackPrinciple = {
-  label: string
   phrase: string
   title: string
   body: string
-  // Hover/open tint for the phrase. Literal classes so Tailwind emits them.
-  tintClassName: string
+  // Literal classes so Tailwind emits them.
+  // The phrase's resting color, reused for its detail heading.
+  colorClassName: string
+  // The filled block with black type, shown on hover or while open.
+  fillClassName: string
+  // Photo printed into the fill while the phrase is hovered or open.
+  pattern: FillPattern
   proof: PrincipleProof
+}
+
+type FillPattern = Pick<
+  React.CSSProperties,
+  | 'backgroundImage'
+  | 'backgroundSize'
+  | 'backgroundPosition'
+  | 'backgroundBlendMode'
+>
+
+/**
+ * A grayscale photo blended into a phrase's filled block, so it reads as a
+ * one-color print in the phrase's own color.
+ *
+ * `screen` (the default) can only lighten the fill, so the black type is never
+ * less readable than on the flat color. `multiply` is for fills already too
+ * pale for a lighter print to show; its image must be high-key (no dark tones).
+ */
+function photoFill(
+  src: string,
+  blend: 'screen' | 'multiply' = 'screen',
+): FillPattern {
+  return {
+    backgroundImage: `url(${src})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundBlendMode: blend,
+  }
 }
 
 const whyTanStackPrinciples = [
   {
-    label: 'Portable core',
     phrase: 'framework agnostic',
     title: 'One core, every framework.',
     body: 'The logic lives in a framework-free core. Thin adapters bring it to React, Vue, Solid, Svelte, Angular, or plain JavaScript, so switching frameworks does not mean relearning your tools.',
-    tintClassName: 'hover:bg-ds-blue-400/12 aria-expanded:bg-ds-blue-400/12',
+    fillClassName:
+      'bg-ds-blue-400 text-black dark:bg-ds-blue-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-water.webp'),
+    colorClassName: 'text-ds-blue-400 dark:text-ds-blue-300',
     proof: 'adapters',
   },
   {
-    label: 'Compile-time contracts',
     phrase: 'type-safe',
     title: 'Types that follow your data.',
     body: 'Written in TypeScript from the first line. Route params, query results, and form fields arrive already typed, so your editor catches the mistake before you run the code.',
-    tintClassName: 'hover:bg-ds-green-400/12 aria-expanded:bg-ds-green-400/12',
+    fillClassName:
+      'bg-ds-green-400 text-black dark:bg-ds-green-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-palm.webp'),
+    colorClassName: 'text-ds-green-400 dark:text-ds-green-300',
     proof: 'types',
   },
   {
-    label: 'Real workloads',
     phrase: 'production-grade',
     title: 'Built for real workloads.',
     body: 'Caching, concurrency, and keeping state in sync are the hard parts of an app. The libraries handle them for you, so growing does not force a rewrite.',
-    tintClassName:
-      'hover:bg-ds-terracotta-400/12 aria-expanded:bg-ds-terracotta-400/12',
+    fillClassName:
+      'bg-ds-terracotta-400 text-black dark:bg-ds-terracotta-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-sun.webp'),
+    colorClassName: 'text-ds-terracotta-400 dark:text-ds-terracotta-300',
     proof: 'adoption',
   },
   {
-    label: 'Independent tools',
     phrase: 'yours to keep',
     title: 'Yours to keep.',
     body: 'Open source and independent. No cloud provider or framework team sets the roadmap, and you can host what you build anywhere.',
-    tintClassName:
-      'hover:bg-ds-purple-400/12 aria-expanded:bg-ds-purple-400/12',
+    fillClassName:
+      'bg-ds-amber-400 text-black dark:bg-ds-amber-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-sand.webp', 'multiply'),
+    colorClassName: 'text-ds-amber-400 dark:text-ds-amber-300',
     proof: 'portable',
   },
 ] satisfies ReadonlyArray<WhyTanStackPrinciple>
@@ -336,40 +367,84 @@ function WhyTanStackSection() {
   // `shown` keeps the last principle mounted while the panel collapses.
   const [isOpen, setIsOpen] = React.useState(false)
   const [shown, setShown] = React.useState(0)
+  // Only one block is ever filled: the phrase under the pointer, or failing
+  // that the open one. Hovering another phrase takes the fill from the open one.
+  const [hovered, setHovered] = React.useState<number | null>(null)
+  // Leaving a phrase clears the hover a beat late. Crossing the gap to the next
+  // phrase would otherwise report "nothing hovered" for a frame or two, and the
+  // open phrase's fill would flash on and off in between.
+  const clearHoverTimer = React.useRef<number | undefined>(undefined)
+  const hoverPhrase = (index: number) => {
+    window.clearTimeout(clearHoverTimer.current)
+    setHovered(index)
+  }
+  const leavePhrase = () => {
+    window.clearTimeout(clearHoverTimer.current)
+    clearHoverTimer.current = window.setTimeout(() => setHovered(null), 120)
+  }
+  React.useEffect(() => () => window.clearTimeout(clearHoverTimer.current), [])
   const principle = whyTanStackPrinciples[shown]
 
   return (
-    <section className="px-4 md:mx-auto lg:max-w-(--breakpoint-lg)">
+    <section className="px-4 py-8 md:mx-auto md:py-16 lg:max-w-(--breakpoint-lg) lg:py-24">
       <Eyebrow>Why TanStack?</Eyebrow>
-      <h2 className="mt-4 font-ds-display text-ds-heading-1 text-text-primary sm:text-ds-display-sm lg:text-ds-display-md">
-        TanStack is{' '}
-        {whyTanStackPrinciples.map((item, index) => {
-          const isLast = index === whyTanStackPrinciples.length - 1
-          const isActive = isOpen && shown === index
+      {/* From `sm` up the sentence is set as two fixed lines and sized off the
+          container, so the longer first line spans the content width (it
+          measures about 19.3em, hence 5.1cqw). */}
+      <div className="@container mt-8">
+        <h2 className="text-balance font-ds-display text-ds-heading-2 leading-[1.15] text-text-primary sm:whitespace-nowrap sm:text-[length:5.1cqw]">
+          TanStack is{' '}
+          {whyTanStackPrinciples.map((item, index) => {
+            const isLast = index === whyTanStackPrinciples.length - 1
+            const isActive = isOpen && shown === index
+            const isFilled = hovered === index || (isActive && hovered === null)
 
-          return (
-            <React.Fragment key={item.phrase}>
-              {isLast ? 'and ' : null}
-              <button
-                type="button"
-                aria-expanded={isActive}
-                aria-controls="why-tanstack-detail"
-                onClick={() => {
-                  setShown(index)
-                  setIsOpen(!isActive)
-                }}
-                className={twMerge(
-                  '-mx-1 cursor-pointer rounded-md px-1 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none',
-                  item.tintClassName,
+            return (
+              <React.Fragment key={item.phrase}>
+                {isLast ? 'and ' : null}
+                {/* Keeps the trailing comma/period on the phrase's line. */}
+                <span className="whitespace-nowrap">
+                  <button
+                    type="button"
+                    aria-expanded={isActive}
+                    aria-controls="why-tanstack-detail"
+                    onClick={() => {
+                      setShown(index)
+                      setIsOpen(!isActive)
+                    }}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === 'mouse') hoverPhrase(index)
+                    }}
+                    onPointerLeave={leavePhrase}
+                    style={isFilled ? item.pattern : undefined}
+                    className={twMerge(
+                      // The block's leading is tighter than the sentence's so
+                      // blocks on adjacent lines never touch.
+                      '-mx-1 cursor-pointer rounded-md px-1 leading-[1.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
+                      // No transition on purpose. The type and the fill swap
+                      // contrast (colored-on-dark to black-on-color), so any fade
+                      // passes through a frame where the two match and the phrase
+                      // blinks. An instant swap is the only flicker-free option.
+                      isFilled ? item.fillClassName : item.colorClassName,
+                    )}
+                  >
+                    {item.phrase}
+                  </button>
+                  {isLast ? '.' : ','}
+                </span>
+                {isLast ? null : index === 1 ? (
+                  <>
+                    {' '}
+                    <br className="hidden sm:block" />
+                  </>
+                ) : (
+                  ' '
                 )}
-              >
-                {item.phrase}
-              </button>
-              {isLast ? '.' : ', '}
-            </React.Fragment>
-          )
-        })}
-      </h2>
+              </React.Fragment>
+            )
+          })}
+        </h2>
+      </div>
 
       <div
         id="why-tanstack-detail"
@@ -384,8 +459,11 @@ function WhyTanStackSection() {
             className="ds-enter-rise mt-8 flex flex-col gap-8 border-t border-border-default pt-8 lg:flex-row lg:items-center lg:gap-16"
           >
             <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <Eyebrow>{principle.label}</Eyebrow>
-              <h3 className="font-ds-display text-ds-heading-3 text-text-primary">
+              {/* Template string, not twMerge: it reads the type-scale and
+                  color utilities as one conflicting `text-*` group. */}
+              <h3
+                className={`font-ds-display text-ds-heading-2 ${principle.colorClassName}`}
+              >
                 {principle.title}
               </h3>
               <p className="max-w-[44ch] pt-2 text-ds-body-md text-text-secondary">
@@ -399,12 +477,7 @@ function WhyTanStackSection() {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-        <p className="font-ds-mono text-ds-mono-caps uppercase text-text-muted">
-          {isOpen
-            ? 'Select another to compare'
-            : 'Select a phrase for the proof'}
-        </p>
+      <div className="mt-14 flex">
         <Link
           to="/tenets"
           className="group inline-flex items-center gap-1.5 rounded-md py-1 font-ds-mono text-ds-mono-caps uppercase text-text-muted transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"

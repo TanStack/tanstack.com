@@ -11,3 +11,9 @@
 
 /.well-known/security.txt
   Content-Type: text/plain; charset=utf-8
+
+# Self-hosted fonts aren't fingerprinted. Without a long cache every page load
+# revalidates them before text can switch from the fallback font. Give a font
+# a new filename if its contents change.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

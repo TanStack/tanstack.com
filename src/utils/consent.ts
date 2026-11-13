@@ -4,6 +4,7 @@ import { sentry } from '@c15t/integrations/sentry'
 import { getClient, setUser } from '@sentry/tanstackstart-react'
 import { flushPendingGoogleAnalyticsEvents } from '~/utils/analytics/providers/google'
 import { scarf } from '~/utils/analytics/scarf'
+import { TRAFFIC_QUALITY_BOOTSTRAP } from '~/utils/analytics/traffic-quality'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 // src/server.ts proxies gtag.js and its collect endpoint through /_a.
@@ -40,6 +41,9 @@ export const consentScripts: NonNullable<ConsentRootProps['scripts']> =
             // The helper defines gtag and queues consent defaults and config
             // here, so page views held since hydration can go out after them.
             googleTag.onBeforeLoad?.(info)
+            // Wraps gtag so every event carries traffic_quality. It must run
+            // before the held events go out.
+            new Function(TRAFFIC_QUALITY_BOOTSTRAP)()
             flushPendingGoogleAnalyticsEvents()
           },
         },

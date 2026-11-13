@@ -37,6 +37,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.8.0
         version: 1.8.0(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@c15t/core':
+        specifier: 3.0.0-alpha.11
+        version: 3.0.0-alpha.11(typescript@6.0.2)
       '@c15t/integrations':
         specifier: 3.0.0-alpha.11
         version: 3.0.0-alpha.11(typescript@6.0.2)

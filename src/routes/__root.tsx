@@ -21,6 +21,7 @@ import {
   ConsentDialog,
   ConsentRoot,
   type ConsentRootProps,
+  useConsent,
 } from '@c15t/tanstack-start'
 import { consentLoaderOptions } from '@c15t/tanstack-start/server'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
@@ -550,6 +551,7 @@ function PageViewTracker() {
   const live = Route.useLoaderData()?.live
   const presenceEnabled = live?.presenceEnabled === true
   const chatEnabled = live?.chatEnabled === true
+  const measurementAllowed = useConsent('measurement')
   const pagePath = useRouterState({
     select: (s) => {
       if (!s.resolvedLocation) {
@@ -567,21 +569,26 @@ function PageViewTracker() {
   React.useEffect(() => {
     if (import.meta.env.MODE === 'staging') return
     if (chatEnabled) void resumeVisitorChat().catch(() => {})
-    const stopLivePresence = presenceEnabled ? startLivePresence() : () => {}
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)
     document.addEventListener('copy', trackScarfClipboardEvent, true)
     document.addEventListener('paste', trackScarfClipboardEvent, true)
     return () => {
-      stopLivePresence()
       stopTrackingHoverIntent()
       document.removeEventListener('click', trackScarfExternalLinkClick, true)
       document.removeEventListener('click', trackScarfDownloadClick, true)
       document.removeEventListener('copy', trackScarfClipboardEvent, true)
       document.removeEventListener('paste', trackScarfClipboardEvent, true)
     }
-  }, [presenceEnabled, chatEnabled])
+  }, [chatEnabled])
+
+  // Presence sets the tanstack_live cookie, so it waits for Analytics consent
+  // and stops (sending a leave) if the visitor withdraws it.
+  React.useEffect(() => {
+    if (!presenceEnabled || !measurementAllowed) return
+    return startLivePresence()
+  }, [presenceEnabled, measurementAllowed])
 
   React.useEffect(() => {
     // Skip until the router has resolved a location, and never send the same

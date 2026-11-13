@@ -67,6 +67,7 @@
     "@babel/parser": "7.29.9",
     "@babel/types": "7.29.8",
     "@base-ui/react": "^1.8.0",
+    "@c15t/core": "3.0.0-alpha.11",
     "@c15t/integrations": "3.0.0-alpha.11",
     "@c15t/react": "3.0.0-alpha.12",
     "@c15t/tanstack-start": "3.0.0-alpha.12",

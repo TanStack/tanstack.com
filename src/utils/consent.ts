@@ -48,6 +48,11 @@ export const consentScripts: NonNullable<ConsentRootProps['scripts']> =
             'data-site': 'b7d91d66-ccee-480a-9d33-f7a9f109edc4',
             referrerpolicy: 'no-referrer',
           },
+          // c15t only starts entries with serverStart from the server HTML.
+          // The tracker needs no setup, so this inserts the tag at first paint
+          // for a visitor who allowed Analytics, instead of after hydration.
+          // serverStart is marked internal in c15t 3.2.2.
+          serverStart: () => ({ code: '' }),
         },
         // Sentry starts in src/router.tsx so it catches hydration errors and
         // traces navigations. Error reports keep flowing for everyone; c15t

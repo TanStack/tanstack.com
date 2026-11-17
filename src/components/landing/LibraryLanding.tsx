@@ -210,6 +210,46 @@ export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
   )
 }
 
+// Advance widths of the library-name face's capitals, in em. The name is one
+// unbreakable word, so the hero sizes it to its column from this estimate
+// instead of letting a long name run into the graphic beside it.
+const LIBRARY_NAME_GLYPH_EM: Record<string, number> = {
+  A: 0.728,
+  B: 0.677,
+  C: 0.607,
+  D: 0.691,
+  E: 0.577,
+  F: 0.581,
+  G: 0.699,
+  H: 0.723,
+  I: 0.283,
+  J: 0.478,
+  K: 0.653,
+  L: 0.558,
+  M: 0.91,
+  N: 0.731,
+  O: 0.796,
+  P: 0.656,
+  Q: 0.788,
+  R: 0.673,
+  S: 0.602,
+  T: 0.628,
+  U: 0.68,
+  V: 0.695,
+  W: 1.051,
+  X: 0.664,
+  Y: 0.669,
+  Z: 0.619,
+}
+
+function libraryNameWidthEm(name: string) {
+  let width = 0.15
+  for (const glyph of name.toUpperCase()) {
+    width += LIBRARY_NAME_GLYPH_EM[glyph] ?? 0.75
+  }
+  return Number(width.toFixed(3))
+}
+
 export function LibraryLandingShell({
   children,
   description,
@@ -227,6 +267,7 @@ export function LibraryLandingShell({
   const library = getLibrary(libraryId)
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
+  const displayName = library.name.replace(/^TanStack\s+/i, '')
   const category = libraryCategories[libraryId] ?? 'tooling'
   const colors = libraryLandingCategoryThemes[category]
   const landingStyle: LibraryLandingStyle = {
@@ -308,7 +349,7 @@ export function LibraryLandingShell({
             }
           >
             <div
-              className={`${stackHero ? 'w-full min-w-0' : 'max-w-140'} ${heroBackground ? 'pointer-events-auto' : ''}`}
+              className={`@container ${stackHero ? 'w-full min-w-0' : 'max-w-140'} ${heroBackground ? 'pointer-events-auto' : ''}`}
             >
               {heroBackground ? (
                 <svg
@@ -363,9 +404,14 @@ export function LibraryLandingShell({
                         aria-hidden="true"
                         className="hidden h-[18px] w-auto dark:block"
                       />
-                      <h1 className="mt-1">
-                        <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-library-name text-ds-display-sm font-normal uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] min-[400px]:text-ds-display-lg sm:text-ds-display-xl 2xl:text-ds-display-2xl">
-                          {library.name.replace(/^TanStack\s+/i, '')}
+                      <h1 className="mt-1 text-ds-display-sm min-[400px]:text-ds-display-lg sm:text-ds-display-xl 2xl:text-ds-display-2xl">
+                        <span
+                          className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-library-name leading-[1.05] font-normal uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))]"
+                          style={{
+                            fontSize: `min(1em, calc(100cqw / ${libraryNameWidthEm(displayName)}))`,
+                          }}
+                        >
+                          {displayName}
                         </span>
                       </h1>
                     </div>
@@ -409,7 +455,7 @@ export function LibraryLandingShell({
                     libraryId,
                     version: resolvedVersion,
                   }}
-                  className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-(--landing-accent-ink) shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
+                  className="inline-flex h-12 items-center gap-3 rounded-xl px-5 text-ds-label-lg text-(--landing-accent-ink) shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
                   style={{
                     backgroundImage:
                       'linear-gradient(105deg, var(--landing-cta-start), var(--landing-cta-end))',
@@ -420,7 +466,7 @@ export function LibraryLandingShell({
                 </Link>
                 {prompt ? (
                   <LandingCopyPromptButton
-                    className={`rounded-xl border-(--landing-accent) px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) sm:w-auto ${heroBackground ? 'bg-white/35 backdrop-blur-xl shadow-[inset_0_1px_0_rgb(255_255_255/0.5),0_4px_16px_rgb(0_0_0/0.06)] hover:bg-white/50 dark:bg-black/30 dark:hover:bg-black/45' : 'bg-transparent hover:bg-[rgb(var(--landing-glow)/0.1)]'}`}
+                    className={`h-12 rounded-xl border-(--landing-accent) px-5 py-0 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) sm:w-auto ${heroBackground ? 'bg-white/35 backdrop-blur-xl shadow-[inset_0_1px_0_rgb(255_255_255/0.5),0_4px_16px_rgb(0_0_0/0.06)] hover:bg-white/50 dark:bg-black/30 dark:hover:bg-black/45' : 'bg-transparent hover:bg-[rgb(var(--landing-glow)/0.1)]'}`}
                     label={promptLabel ?? 'Copy prompt'}
                     prompt={prompt}
                   />
@@ -439,7 +485,7 @@ export function LibraryLandingShell({
 
       {children}
 
-      <PartnersSponsorsSection className="border-b border-border-subtle bg-background-default py-20 lg:py-24" />
+      <PartnersSponsorsSection className="border-b border-border-subtle bg-background-default py-24 lg:py-28" />
 
       <div aria-hidden="true" className="h-24 bg-background-default" />
     </main>
@@ -466,7 +512,7 @@ export function LandingSection({
   return (
     <section
       id={id}
-      className={`border-b px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20 ${toneClassName} ${className}`}
+      className={`border-b px-5 py-20 md:px-10 lg:px-12 lg:py-28 2xl:px-20 ${toneClassName} ${className}`}
     >
       <div className="mx-auto w-full max-w-360">{children}</div>
     </section>
@@ -740,7 +786,7 @@ function FeatureSection({
   }
 
   return (
-    <section className="border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+    <section className="border-b border-border-subtle bg-background-default px-5 py-20 md:px-10 lg:px-12 lg:py-28 2xl:px-20">
       <div className="mx-auto w-full max-w-384">
         <LandingEyebrow
           icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
@@ -829,7 +875,7 @@ function LifecycleSection({
   lifecycle: LibraryLandingConfig['lifecycle']
 }) {
   return (
-    <section className="border-b border-border-subtle bg-background-subtle px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+    <section className="border-b border-border-subtle bg-background-subtle px-5 py-20 md:px-10 lg:px-12 lg:py-28 2xl:px-20">
       <div className="mx-auto grid w-full max-w-360 items-center gap-14 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(32rem,1.1fr)] lg:gap-16">
         <div className="max-w-144">
           <LandingEyebrow
@@ -877,7 +923,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
   const branchStep = flow.steps[3]
 
   return (
-    <section className="min-h-150 border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+    <section className="min-h-150 border-b border-border-subtle bg-background-default px-5 py-20 md:px-10 lg:px-12 lg:py-28 2xl:px-20">
       <div className="mx-auto flex w-full max-w-280 flex-col items-center text-center">
         <LandingEyebrow icon={<SwapIcon aria-hidden="true" size={16} />}>
           {flow.label}

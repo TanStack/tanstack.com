@@ -346,7 +346,7 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/sukvvon.png',
     github: 'sukvvon',
     location: {
-      name: 'Seoul, South Korea',
+      name: 'Seoul, Republic of Korea',
       latitude: 37.5665,
       longitude: 126.978,
     },
@@ -461,7 +461,7 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/manudeli.png',
     github: 'manudeli',
     location: {
-      name: 'Seoul, South Korea',
+      name: 'Seoul, Republic of Korea',
       latitude: 37.5665,
       longitude: 126.978,
     },

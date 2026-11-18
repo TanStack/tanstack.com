@@ -8,6 +8,7 @@ import {
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
+import { MaintainerAvatarImage } from './MaintainerAvatarImage'
 
 function RoleBadge({
   maintainer,
@@ -265,12 +266,10 @@ export function CompactMaintainerCard({
       className="group relative aspect-square block rounded-lg corner-squircle shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
       tabIndex={0}
     >
-      <img
+      <MaintainerAvatarImage
         alt={`Avatar of ${maintainer.name}`}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0"
         src={maintainer.avatar}
-        loading="lazy"
-        decoding="async"
       />
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
       <div className="absolute inset-0 p-3 flex flex-col justify-end">
@@ -308,12 +307,10 @@ export function MaintainerRowCard({
           tabIndex={0}
         >
           <div className="relative w-16 h-16 rounded-lg corner-squircle overflow-hidden">
-            <img
+            <MaintainerAvatarImage
               alt={`Avatar of ${maintainer.name}`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="transition-[opacity,scale] duration-500 group-hover:scale-110"
               src={maintainer.avatar}
-              loading="lazy"
-              decoding="async"
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
@@ -403,15 +400,12 @@ export function MaintainerCard({ maintainer }: MaintainerCardProps) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View ${maintainer.name}'s GitHub profile`}
-        className="block aspect-square w-full overflow-hidden rounded-[17px] corner-squircle bg-[#d9d9d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:rounded-[22px]"
+        className="relative block aspect-square w-full overflow-hidden rounded-[17px] corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:rounded-[22px]"
         tabIndex={0}
       >
-        <img
+        <MaintainerAvatarImage
           alt={`Avatar of ${maintainer.name}`}
-          className="h-full w-full object-cover"
           src={maintainer.avatar}
-          loading="lazy"
-          decoding="async"
         />
       </a>
       <div className="flex w-full flex-col items-start gap-2 pb-[18px] pt-4 sm:pb-[27px] sm:pt-5">

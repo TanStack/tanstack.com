@@ -21,6 +21,7 @@ import type { Maintainer } from '~/libraries/maintainers'
 import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
+import { MaintainerAvatarImage } from './MaintainerAvatarImage'
 import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
 import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
@@ -672,27 +673,12 @@ function GlobeAvatar({
       className={`relative block shrink-0 overflow-hidden rounded-full ${compact ? 'size-3 border' : 'size-5 border-2 sm:size-8'}`}
       style={{ borderColor: color }}
     >
-      <img
-        data-globe-src={member.avatar}
+      <MaintainerAvatarImage
+        src={member.avatar}
         alt={compact ? '' : member.name}
         width={compact ? 12 : 28}
         height={compact ? 12 : 28}
-        loading="lazy"
-        decoding="async"
-        onLoad={(event) => {
-          const image = event.currentTarget
-          void image.decode().then(
-            () => {
-              image.dataset.loaded = ''
-            },
-            () => {},
-          )
-        }}
-        className="peer block size-full object-cover opacity-0 transition-opacity duration-300 data-[loaded]:opacity-100 motion-reduce:transition-none"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-background-subtle transition-opacity duration-300 peer-data-[loaded]:opacity-0 motion-reduce:transition-none"
+        defer
       />
     </span>
   )
@@ -1515,14 +1501,13 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
-              pauseRotation()
               select(host).call(
                 behavior.scaleTo,
                 window.matchMedia(mobileViewport).matches
                   ? mobileInitialScale
                   : desktopInitialScale,
               )
-              target.current.theta = initialView.theta
+              target.current.theta = startingView.theta
               wakeGlobe.current?.()
             }}
             className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
@@ -1603,13 +1588,14 @@ export function MaintainersMap({
                 rel="noreferrer"
                 className="flex min-w-0 items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
               >
-                <img
-                  src={member.avatar}
-                  alt=""
-                  width={36}
-                  height={36}
-                  className="size-9 shrink-0 rounded-full"
-                />
+                <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
+                  <MaintainerAvatarImage
+                    src={member.avatar}
+                    alt=""
+                    width={36}
+                    height={36}
+                  />
+                </span>
                 <div className="min-w-0">
                   <div className="text-sm font-semibold">{member.name}</div>
                   <div className="text-xs text-text-muted">

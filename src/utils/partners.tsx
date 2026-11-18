@@ -1683,7 +1683,7 @@ const scarf = ((): Partner => {
 const kody: Partner = {
   name: 'Kody',
   id: 'kody',
-  href: 'https://kody.codes/?utm_source=tanstack',
+  href: 'https://kody.codes/?utm_source=tanstack&utm_medium=partner-page&utm_campaign=tanstack-partnership-2026-11&utm_content=partners-logo',
   canonicalHref: 'https://kody.codes/',
   resources: [
     {
@@ -1694,7 +1694,7 @@ const kody: Partner = {
     {
       kind: 'documentation',
       label: 'Connect your agent to Kody',
-      href: 'https://kody.codes/docs/connect-your-agent',
+      href: 'https://kody.codes/docs/connect-your-agent?utm_source=tanstack&utm_medium=partner-page&utm_campaign=tanstack-partnership-2026-11&utm_content=connect-first-agent',
     },
   ],
   status: 'active',

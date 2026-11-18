@@ -12,6 +12,7 @@ import type { Icon } from '@phosphor-icons/react'
 
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { getLibrary } from '~/libraries'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import type { LibraryId } from '~/libraries'
 import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
@@ -286,13 +287,13 @@ export function LibraryLandingShell({
   // approaches and fades as it leaves. Without a hovering pointer (or with
   // reduced motion) the CSS default keeps a resting glow in the corner.
   const mainRef = React.useRef<HTMLElement>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
   React.useEffect(() => {
     const main = mainRef.current
     if (
       !main ||
-      !window.matchMedia(
-        '(hover: hover) and (prefers-reduced-motion: no-preference)',
-      ).matches
+      prefersReducedMotion !== false ||
+      !window.matchMedia('(hover: hover)').matches
     )
       return
 
@@ -317,8 +318,14 @@ export function LibraryLandingShell({
     return () => {
       main.removeEventListener('pointermove', onPointerMove)
       cancelAnimationFrame(frame)
+      for (const element of main.querySelectorAll<HTMLElement>(
+        '[style*="--glow-x"]',
+      )) {
+        element.style.removeProperty('--glow-x')
+        element.style.removeProperty('--glow-y')
+      }
     }
-  }, [])
+  }, [prefersReducedMotion])
 
   return (
     <main

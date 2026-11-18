@@ -208,7 +208,7 @@ const whyTanStackPrinciples = [
     fillClassName:
       'bg-ds-blue-400 text-black dark:bg-ds-blue-300 dark:text-black',
     pattern: photoFill('/images/home/why-fill-water.webp'),
-    colorClassName: 'text-ds-blue-400 dark:text-ds-blue-300',
+    colorClassName: 'text-ds-blue-500 dark:text-ds-blue-300',
     proof: 'adapters',
   },
   {
@@ -218,7 +218,7 @@ const whyTanStackPrinciples = [
     fillClassName:
       'bg-ds-green-400 text-black dark:bg-ds-green-300 dark:text-black',
     pattern: photoFill('/images/home/why-fill-palm.webp'),
-    colorClassName: 'text-ds-green-400 dark:text-ds-green-300',
+    colorClassName: 'text-ds-green-500 dark:text-ds-green-300',
     proof: 'types',
   },
   {
@@ -238,7 +238,7 @@ const whyTanStackPrinciples = [
     fillClassName:
       'bg-ds-amber-400 text-black dark:bg-ds-amber-300 dark:text-black',
     pattern: photoFill('/images/home/why-fill-sand.webp', 'multiply'),
-    colorClassName: 'text-ds-amber-400 dark:text-ds-amber-300',
+    colorClassName: 'text-ds-amber-500 dark:text-ds-amber-300',
     proof: 'portable',
   },
 ] satisfies ReadonlyArray<WhyTanStackPrinciple>

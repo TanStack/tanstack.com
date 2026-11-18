@@ -45,6 +45,8 @@ import renderBlackSvg from '~/images/render-black.svg'
 import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import kodyOutlinedSvg from '~/images/kody-outlined.svg'
+import kodyWhiteSvg from '~/images/kody-white.svg'
 import scarfSvg from '~/images/scarf.svg'
 import {
   getPartnerPlacementContext,
@@ -1678,6 +1680,45 @@ const scarf = ((): Partner => {
   }
 })()
 
+const kody: Partner = {
+  name: 'Kody',
+  id: 'kody',
+  href: 'https://kody.codes/?utm_source=tanstack',
+  canonicalHref: 'https://kody.codes/',
+  resources: [
+    {
+      kind: 'announcement',
+      label: 'TanStack + Kody partnership',
+      href: '/blog/kody-partnership',
+    },
+    {
+      kind: 'documentation',
+      label: 'Connect your agent to Kody',
+      href: 'https://kody.codes/docs/connect-your-agent',
+    },
+  ],
+  status: 'active',
+  lastReviewedAt: '2026-11-17',
+  tier: 'bronze',
+  category: 'ai',
+  tagline: 'Cloud tools for AI agents',
+  image: { light: kodyOutlinedSvg, dark: kodyWhiteSvg },
+  llmDescription:
+    'Kody gives AI agents access to shared memory, credentials, and reusable packages across sessions.',
+  applicationStarterPromptInstructions: [
+    'For projects that need persistent agent workflows, use the Kody documentation to connect the chosen agent.',
+  ],
+  content: (
+    <>
+      <div className="text-xs">
+        Give your agent tools it can use again. Kody stores the packages,
+        credentials, and context your agent needs between sessions.
+      </div>
+      <LearnMoreButton />
+    </>
+  ),
+}
+
 export const partners = [
   codeRabbit,
   cloudflare,
@@ -1703,6 +1744,7 @@ export const partners = [
   nozzle,
   speakeasy,
   scarf,
+  kody,
 ] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([

@@ -43,6 +43,12 @@ const partnerGuidance: Record<
   string,
   { whyGreat: string; whyTanStack: string }
 > = {
+  kody: {
+    whyGreat:
+      'Save a workflow as a Kody package and your agent can call it again with the same credentials and context.',
+    whyTanStack:
+      'A team maintaining a TanStack app can use Kody to share release or issue-triage workflows across its coding agents.',
+  },
   scarf: {
     whyGreat:
       'Scarf connects software downloads, documentation visits, and product telemetry with the companies adopting an open source project.',

@@ -176,6 +176,7 @@ import { Route as ApiChatWorkspaceRouteImport } from './routes/api/chat/workspac
 import { Route as ApiChatWorkspaceHistoryRouteImport } from './routes/api/chat/workspace-history'
 import { Route as ApiChatWorkspaceIndexRouteImport } from './routes/api/chat/workspace-index'
 import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
+import { Route as ApiDataNpmDownloadsRouteImport } from './routes/api/data/npm-downloads'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
@@ -1178,6 +1179,11 @@ const ApiChatWorkspaceIndexRoute = ApiChatWorkspaceIndexRouteImport.update({
 const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
   id: '/api/data/libraries',
   path: '/api/data/libraries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDataNpmDownloadsRoute = ApiDataNpmDownloadsRouteImport.update({
+  id: '/api/data/npm-downloads',
+  path: '/api/data/npm-downloads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDataPartnersRoute = ApiDataPartnersRouteImport.update({
@@ -2211,6 +2217,7 @@ export interface FileRoutesByFullPath {
   '/api/chat/workspace-history': typeof ApiChatWorkspaceHistoryRoute
   '/api/chat/workspace-index': typeof ApiChatWorkspaceIndexRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/npm-downloads': typeof ApiDataNpmDownloadsRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
@@ -2523,6 +2530,7 @@ export interface FileRoutesByTo {
   '/api/chat/workspace-history': typeof ApiChatWorkspaceHistoryRoute
   '/api/chat/workspace-index': typeof ApiChatWorkspaceIndexRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/npm-downloads': typeof ApiDataNpmDownloadsRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
@@ -2846,6 +2854,7 @@ export interface FileRoutesById {
   '/api/chat/workspace-history': typeof ApiChatWorkspaceHistoryRoute
   '/api/chat/workspace-index': typeof ApiChatWorkspaceIndexRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/npm-downloads': typeof ApiDataNpmDownloadsRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
@@ -3171,6 +3180,7 @@ export interface FileRouteTypes {
     | '/api/chat/workspace-history'
     | '/api/chat/workspace-index'
     | '/api/data/libraries'
+    | '/api/data/npm-downloads'
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
@@ -3483,6 +3493,7 @@ export interface FileRouteTypes {
     | '/api/chat/workspace-history'
     | '/api/chat/workspace-index'
     | '/api/data/libraries'
+    | '/api/data/npm-downloads'
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
@@ -3805,6 +3816,7 @@ export interface FileRouteTypes {
     | '/api/chat/workspace-history'
     | '/api/chat/workspace-index'
     | '/api/data/libraries'
+    | '/api/data/npm-downloads'
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
@@ -4062,6 +4074,7 @@ export interface RootRouteChildren {
   ApiChatWorkspaceHistoryRoute: typeof ApiChatWorkspaceHistoryRoute
   ApiChatWorkspaceIndexRoute: typeof ApiChatWorkspaceIndexRouteWithChildren
   ApiDataLibrariesRoute: typeof ApiDataLibrariesRoute
+  ApiDataNpmDownloadsRoute: typeof ApiDataNpmDownloadsRoute
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
@@ -5291,6 +5304,13 @@ declare module '@tanstack/react-router' {
       path: '/api/data/libraries'
       fullPath: '/api/data/libraries'
       preLoaderRoute: typeof ApiDataLibrariesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/data/npm-downloads': {
+      id: '/api/data/npm-downloads'
+      path: '/api/data/npm-downloads'
+      fullPath: '/api/data/npm-downloads'
+      preLoaderRoute: typeof ApiDataNpmDownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/data/partners': {
@@ -7322,6 +7342,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatWorkspaceHistoryRoute: ApiChatWorkspaceHistoryRoute,
   ApiChatWorkspaceIndexRoute: ApiChatWorkspaceIndexRouteWithChildren,
   ApiDataLibrariesRoute: ApiDataLibrariesRoute,
+  ApiDataNpmDownloadsRoute: ApiDataNpmDownloadsRoute,
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiExampleDeployRoute: ApiExampleDeployRoute,

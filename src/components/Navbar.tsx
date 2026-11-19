@@ -30,6 +30,7 @@ import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
 import { BriefcaseIcon } from '@phosphor-icons/react/Briefcase'
+import { ChatCircleIcon } from '@phosphor-icons/react/ChatCircle'
 import { CodeIcon } from '@phosphor-icons/react/Code'
 import { GridFourIcon } from '@phosphor-icons/react/GridFour'
 import { HammerIcon } from '@phosphor-icons/react/Hammer'
@@ -146,7 +147,6 @@ const LogoSection = () => {
 type IconComponent = React.ComponentType<{ className?: string }>
 
 type NavMenuKey =
-  | 'chat'
   | 'libraries'
   | 'learn'
   | 'community'
@@ -159,6 +159,7 @@ type NavMenuItem = {
   label: string
   to: string
   hash?: string
+  preload?: false
   description?: string
   badge?: string
   icon?: IconComponent
@@ -270,7 +271,6 @@ const NAV_GROUPS = [
       },
     ],
   },
-  { key: 'chat', label: 'TanChat', to: '/chat', sections: [] },
   {
     key: 'tools',
     label: 'Tools',
@@ -278,6 +278,12 @@ const NAV_GROUPS = [
       {
         label: 'Tools',
         items: [
+          {
+            label: 'TanChat',
+            to: '/chat',
+            preload: false,
+            icon: ChatCircleIcon,
+          },
           {
             label: 'Application Starter',
             to: '/application-starter',
@@ -805,14 +811,9 @@ function DesktopNavTrigger({
           data-menu-key={group.key}
           className={triggerClassName}
           onClick={onDismiss}
-          preload={group.key === 'chat' ? false : 'intent'}
+          preload="intent"
         >
           <span>{group.label}</span>
-          {group.key === 'chat' && (
-            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
-              NEW
-            </span>
-          )}
         </Link>
       ) : (
         <button
@@ -824,11 +825,6 @@ function DesktopNavTrigger({
           }}
         >
           <span>{group.label}</span>
-          {group.key === 'chat' && (
-            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
-              NEW
-            </span>
-          )}
         </button>
       )}
       {(group.sections.length > 0 || group.key === 'libraries') && (
@@ -951,11 +947,6 @@ function MobileNavigation({
                 }`}
               >
                 <span className="min-w-0 flex-1">{group.label}</span>
-                {group.key === 'chat' && (
-                  <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
-                    NEW
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -1553,6 +1544,7 @@ function MenuItemLink({
       description={item.description}
       to={item.to}
       hash={item.hash}
+      preload={item.preload}
       badge={item.badge}
       onSelect={item.onSelect}
       onNavigate={() => {

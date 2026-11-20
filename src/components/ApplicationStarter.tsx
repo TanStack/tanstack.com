@@ -144,6 +144,11 @@ function buildCursorStartUrl(prompt: string) {
   return `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(prompt)}`
 }
 
+// The home prompt box: an outline with no fill. Hover firms the line, press
+// sinks the fill, and focus holds a soft, warmer line with a faint fill.
+const homePromptBoxClassName =
+  'corner-squircle relative overflow-visible rounded-2xl border border-border-default bg-transparent transition-[background-color,border-color,transform] duration-150 ease-out not-focus-within:hover:border-border-strong/35 hover:bg-background-surface/40 active:scale-[0.997] active:bg-background-surface/80 focus-within:border-border-strong/60 focus-within:bg-background-surface/40 motion-reduce:transition-none'
+
 export function ApplicationStarter({
   applicationStarterIntegration,
   className,
@@ -967,45 +972,16 @@ export function ApplicationStarter({
                 </p>
               ) : null}
               <div
-                className={twMerge(
-                  'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
-                  // Home: 36px full-squircle corners. `overflow-visible` lets the
-                  // focus glow (an absolute child at -z-10) bleed out from behind
-                  // the card; the inner wrapper below re-clips the card content.
-                  isHomeStarter &&
-                    'overflow-visible rounded-[36px] [corner-shape:squircle] transition-colors dark:border-transparent dark:bg-[#171717]',
-                  // Light: a subtle recessed fill at rest that brightens to white
-                  // on focus (no shadow). Dark keeps its #171717 fill.
-                  isHomeStarter &&
-                    (isPromptFocused ? 'bg-white' : 'bg-gray-50'),
-                )}
+                className={
+                  isHomeStarter
+                    ? homePromptBoxClassName
+                    : 'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950'
+                }
               >
-                {/* Home: a warm terracotta glow that grows in from behind the card
-                  while the prompt is focused, drifting in a slow wave. Sits at
-                  -z-10 so the opaque card hides all but the bottom bleed. */}
-                {isHomeStarter ? (
-                  <div
-                    aria-hidden
-                    className={twMerge(
-                      'pointer-events-none absolute inset-x-24 -bottom-2 -z-10 h-20 origin-bottom transition-[opacity,transform] duration-700 ease-out',
-                      isPromptFocused
-                        ? 'opacity-100 scale-100'
-                        : 'opacity-0 scale-75',
-                      reducedMotion && 'transition-none',
-                    )}
-                  >
-                    <div
-                      className={twMerge(
-                        'h-full w-full rounded-[100%] bg-ds-terracotta-300/50 blur-2xl',
-                        !reducedMotion && isPromptFocused && 'prompt-glow-flow',
-                      )}
-                    />
-                  </div>
-                ) : null}
                 <div
                   className={
                     isHomeStarter
-                      ? 'overflow-hidden rounded-[36px] [corner-shape:squircle]'
+                      ? 'corner-squircle overflow-hidden rounded-2xl'
                       : undefined
                   }
                 >

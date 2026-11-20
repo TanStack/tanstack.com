@@ -6,6 +6,7 @@ import { useToast } from '~/components/ToastProvider'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { currentUserQueryOptions, useCurrentUser } from '~/hooks/useCurrentUser'
 import { Button } from '~/ui'
+import { Button as DsButton } from '~/components/ds/ui'
 import { addUserSignupSource } from '~/utils/users.functions'
 
 type NewsletterSignupProps = {
@@ -14,6 +15,11 @@ type NewsletterSignupProps = {
   noteClassName?: string
   successClassName?: string
   showNote?: boolean
+  /** Overrides the button label in both the logged-in and logged-out states. */
+  label?: string
+  showIcon?: boolean
+  /** `ds` renders the design-system Button; `legacy` keeps the docs-era one. */
+  appearance?: 'legacy' | 'ds'
 }
 
 export function NewsletterSignup({
@@ -22,6 +28,9 @@ export function NewsletterSignup({
   noteClassName,
   successClassName,
   showNote = true,
+  label,
+  showIcon = true,
+  appearance = 'legacy',
 }: NewsletterSignupProps) {
   const user = useCurrentUser()
   const queryClient = useQueryClient()
@@ -86,25 +95,26 @@ export function NewsletterSignup({
     )
   }
 
+  const ButtonComponent = appearance === 'ds' ? DsButton : Button
+
   return (
     <div className={twMerge('grid gap-2', className)}>
-      <Button
+      <ButtonComponent
         type="button"
         onClick={handleSubscribe}
         disabled={isPending}
         className={twMerge('w-full', buttonClassName)}
       >
-        {user ? (
+        {!showIcon ? null : user ? (
           <EnvelopeIcon className="h-4 w-4" />
         ) : (
           <SignInIcon className="h-4 w-4" />
         )}
         {isPending
           ? 'Subscribing...'
-          : user
-            ? 'Subscribe with my login'
-            : 'Log in to subscribe'}
-      </Button>
+          : (label ??
+            (user ? 'Subscribe with my login' : 'Log in to subscribe'))}
+      </ButtonComponent>
       {showNote ? (
         <p
           className={twMerge(

@@ -70,7 +70,7 @@ export function HeroPalmMedia() {
             height={1058}
             loading="eager"
             fetchPriority="high"
-            className={`relative z-10 h-full w-full object-cover object-center ${isVideoReady ? 'opacity-0 motion-reduce:opacity-100' : ''}`}
+            className={`relative z-10 h-full w-full object-cover object-[37%_center] md:object-center ${isVideoReady ? 'opacity-0 motion-reduce:opacity-100' : ''}`}
           />
         </picture>
         <video
@@ -83,7 +83,7 @@ export function HeroPalmMedia() {
           onPlay={() => setIsPlaying(true)}
           onCanPlay={() => setIsVideoReady(true)}
           onError={() => setIsVideoReady(false)}
-          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+          className="absolute inset-0 h-full w-full object-cover object-[37%_center] md:object-center motion-reduce:hidden"
         >
           <source
             src="/images/hero-palm-motion.mp4"
@@ -96,7 +96,7 @@ export function HeroPalmMedia() {
         type="button"
         onClick={togglePlayback}
         aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
-        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
+        className="absolute right-4 top-4 z-20 grid size-8 place-items-center after:absolute after:-inset-1.5 after:content-[''] rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
       >
         {isPlaying ? (
           <PauseIcon className="size-4" weight="fill" />

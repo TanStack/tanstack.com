@@ -4,14 +4,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { twMerge } from 'tailwind-merge'
 
-import {
-  ArrowRightIcon,
-  CodeIcon,
-  StackIcon,
-  ShieldIcon,
-  LightningIcon,
-  type Icon,
-} from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
@@ -26,7 +19,6 @@ import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
-import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { seo } from '~/utils/seo'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
@@ -76,82 +68,80 @@ function Index() {
   return (
     <>
       <Scarf id={homepageScarfPixel} path="/" />
-      <main className="max-w-full z-10 space-y-24">
-        <div className="space-y-8">
-          {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
+      <main className="home-grain max-w-full z-10 space-y-24 md:space-y-32 lg:space-y-40">
+        {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
-            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
+        <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
+          {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
                 the URL bar mid-scroll, visibly stretching the hero. */}
-            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
-              {/* The parent supplies the 4px frame shared by the hero and stats.
+          <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
+            {/* The parent supplies the 4px frame shared by the hero and stats.
                   This wrapper clips the image to the inner radius so the <img>
                   fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
                   the Cloudflare transform resolves against the production origin,
                   so a newly-added asset 404s until deployed. */}
-              <HeroPalmMedia />
-              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
-                The{' '}
-                <span className="underline decoration-from-font underline-offset-[6px]">
-                  open source
-                </span>
-                <br className="hidden md:block" /> application stack
-                <br className="hidden md:block" /> for the web
-              </h1>
-              <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-                <p className="hidden text-ds-body-md text-ds-neutral-500 md:block md:text-ds-body-lg xl:text-ds-body-xl">
-                  Headless, type-safe, composable tools for building modern web
-                  applications that work naturally for developers and reliably
-                  for agents
-                </p>
-                {/* The photo is always light, so scope the CTAs to the DS
+            <HeroPalmMedia />
+            <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
+              The{' '}
+              <span className="underline decoration-from-font underline-offset-[6px]">
+                open source
+              </span>
+              <br className="hidden md:block" /> application stack
+              <br className="hidden md:block" /> for the web
+            </h1>
+            <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
+              <p className="max-w-[15rem] text-balance text-ds-body-md text-ds-neutral-500 md:max-w-none xl:text-ds-body-lg">
+                Headless, type-safe, composable tools for building modern web
+                applications that work naturally for developers and reliably for
+                agents
+              </p>
+              {/* The photo is always light, so scope the CTAs to the DS
                     light mode — the Buttons then render as their standard DS
                     light-mode selves (no per-button color overrides). */}
-                <div className="ds-mode-light flex flex-wrap items-center gap-2">
-                  <Button
-                    as="a"
-                    href="/libraries"
-                    onClick={(event) => {
-                      if (
-                        event.button !== 0 ||
-                        event.metaKey ||
-                        event.ctrlKey ||
-                        event.shiftKey ||
-                        event.altKey
-                      )
-                        return
-                      event.preventDefault()
-                      openLibraries()
-                    }}
-                    variant="primary"
-                    size="md"
-                  >
-                    Browse the Stack
-                  </Button>
-                  <Button
-                    as="a"
-                    href="#start-with-a-prompt"
-                    onClick={startWithPrompt}
-                    variant="link"
-                    size="md"
-                  >
-                    Start with a prompt <ArrowRightIcon className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div className="ds-mode-light flex flex-wrap items-center gap-2">
+                <Button
+                  as="a"
+                  href="/libraries"
+                  onClick={(event) => {
+                    if (
+                      event.button !== 0 ||
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey
+                    )
+                      return
+                    event.preventDefault()
+                    openLibraries()
+                  }}
+                  variant="primary"
+                  size="md"
+                >
+                  Browse the Stack
+                </Button>
+                <Button
+                  as="a"
+                  href="#start-with-a-prompt"
+                  onClick={startWithPrompt}
+                  variant="link"
+                  size="md"
+                >
+                  Start with a prompt <ArrowRightIcon className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center justify-center px-2.5 py-6">
-              <HomeStatsSection />
-            </div>
           </div>
-          <div
-            id="start-with-a-prompt"
-            className="mx-auto mt-16 w-full max-w-[1021px] scroll-mt-24 px-4 sm:px-6 md:mt-20"
-          >
-            <HomeApplicationStarter />
+          <div className="flex items-center justify-center px-2.5 py-6">
+            <HomeStatsSection />
           </div>
+        </div>
+        <div
+          id="start-with-a-prompt"
+          className="w-full scroll-mt-24 px-4 md:mx-auto lg:max-w-(--breakpoint-lg)"
+        >
+          <HomeApplicationStarter />
         </div>
 
         <WhyTanStackSection />
@@ -160,7 +150,6 @@ function Index() {
 
         <HomeCommunitySection />
 
-        <div className="h-4" />
         <HomeNewsletterSection />
       </main>
     </>
@@ -170,15 +159,89 @@ function Index() {
 type PrincipleProof = 'adapters' | 'types' | 'adoption' | 'portable'
 
 type WhyTanStackPrinciple = {
-  label: string
+  phrase: string
   title: string
   body: string
-  Icon: Icon
-  accentClassName: string
-  eyebrowClassName: string
-  iconClassName: string
+  // Literal classes so Tailwind emits them.
+  // The phrase's resting color, reused for its detail heading.
+  colorClassName: string
+  // The filled block with black type, shown on hover or while open.
+  fillClassName: string
+  // Photo printed into the fill while the phrase is hovered or open.
+  pattern: FillPattern
   proof: PrincipleProof
 }
+
+type FillPattern = Pick<
+  React.CSSProperties,
+  | 'backgroundImage'
+  | 'backgroundSize'
+  | 'backgroundPosition'
+  | 'backgroundBlendMode'
+>
+
+/**
+ * A grayscale photo blended into a phrase's filled block, so it reads as a
+ * one-color print in the phrase's own color.
+ *
+ * `screen` (the default) can only lighten the fill, so the black type is never
+ * less readable than on the flat color. `multiply` is for fills already too
+ * pale for a lighter print to show; its image must be high-key (no dark tones).
+ */
+function photoFill(
+  src: string,
+  blend: 'screen' | 'multiply' = 'screen',
+): FillPattern {
+  return {
+    backgroundImage: `url(${src})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundBlendMode: blend,
+  }
+}
+
+const whyTanStackPrinciples = [
+  {
+    phrase: 'framework agnostic',
+    title: 'One core, every framework.',
+    body: 'The logic lives in a framework-free core. Thin adapters bring it to React, Vue, Solid, Svelte, Angular, or plain JavaScript, so switching frameworks does not mean relearning your tools.',
+    fillClassName:
+      'bg-ds-blue-400 text-black dark:bg-ds-blue-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-water.webp'),
+    colorClassName: 'text-ds-blue-500 dark:text-ds-blue-300',
+    proof: 'adapters',
+  },
+  {
+    phrase: 'type-safe',
+    title: 'Types that follow your data.',
+    body: 'Written in TypeScript from the first line. Route params, query results, and form fields arrive already typed, so your editor catches the mistake before you run the code.',
+    fillClassName:
+      'bg-ds-green-400 text-black dark:bg-ds-green-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-palm.webp'),
+    colorClassName: 'text-ds-green-500 dark:text-ds-green-300',
+    proof: 'types',
+  },
+  {
+    phrase: 'production-grade',
+    title: 'Built for real workloads.',
+    body: 'Caching, concurrency, and keeping state in sync are the hard parts of an app. The libraries handle them for you, so growing does not force a rewrite.',
+    fillClassName:
+      'bg-ds-terracotta-400 text-black dark:bg-ds-terracotta-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-sun.webp'),
+    colorClassName: 'text-ds-terracotta-400 dark:text-ds-terracotta-300',
+    proof: 'adoption',
+  },
+  {
+    phrase: 'yours to keep',
+    title: 'Yours to keep.',
+    body: 'Open source and independent. No cloud provider or framework team sets the roadmap, and you can host what you build anywhere.',
+    fillClassName:
+      'bg-ds-amber-400 text-black dark:bg-ds-amber-300 dark:text-black',
+    pattern: photoFill('/images/home/why-fill-sand.webp', 'multiply'),
+    colorClassName: 'text-ds-amber-500 dark:text-ds-amber-300',
+    proof: 'portable',
+  },
+] satisfies ReadonlyArray<WhyTanStackPrinciple>
 
 type AdapterGraphNode = {
   height: number
@@ -198,57 +261,6 @@ type AdapterGraphCurve = {
   control2: AdapterGraphPoint
   path: string
 }
-
-// Accent hues come from the DS palette (--color-ds-*), not the library
-// `category-*` tokens: these are product principles, not library categories.
-// Figma specifies near-neighbours of these values (e.g. #d3481b vs the DS
-// terracotta-400 #c3502b); the DS token wins per the design-system-first rule.
-const whyTanStackPrinciples = [
-  {
-    label: 'Portable core',
-    title: 'Framework Agnostic',
-    body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
-    Icon: StackIcon,
-    accentClassName: 'from-blue-500 to-cyan-500',
-    eyebrowClassName: 'text-category-ui',
-    iconClassName:
-      'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
-    proof: 'adapters',
-  },
-  {
-    label: 'Compile-time contracts',
-    title: 'Type-Safe by Design',
-    body: 'Built with TypeScript from the ground up, providing incredible autocomplete and safety across your entire data-fetching and state management stack.',
-    Icon: CodeIcon,
-    accentClassName: 'from-emerald-500 to-teal-500',
-    eyebrowClassName: 'text-ds-green-400',
-    iconClassName:
-      'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
-    proof: 'types',
-  },
-  {
-    label: 'Real workloads',
-    title: 'Production-Grade',
-    body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
-    Icon: LightningIcon,
-    accentClassName: 'from-orange-500 to-red-500',
-    eyebrowClassName: 'text-ds-terracotta-400',
-    iconClassName:
-      'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
-    proof: 'adoption',
-  },
-  {
-    label: 'Independent tools',
-    title: 'No Vendor Lock-in',
-    body: "Open source and independent. We aren't beholden to any single cloud provider or framework team, ensuring the best tools for the community.",
-    Icon: ShieldIcon,
-    accentClassName: 'from-purple-500 to-pink-500',
-    eyebrowClassName: 'text-ds-purple-400',
-    iconClassName:
-      'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300',
-    proof: 'portable',
-  },
-] satisfies ReadonlyArray<WhyTanStackPrinciple>
 
 const adapterGraphWidth = 320
 const adapterGraphHeight = 128
@@ -274,14 +286,7 @@ const frameworkAdapterConnections = frameworkAdapterNodes.map((node) => {
   const end = edgeAnchor(node, frameworkAdapterCore)
   const curve = curveBetween(start, end, 0.5)
 
-  return {
-    control1: curve.control1,
-    control2: curve.control2,
-    end,
-    label: node.label,
-    path: curve.path,
-    start,
-  }
+  return { label: node.label, path: curve.path }
 })
 
 function centerPoint(node: AdapterGraphNode): AdapterGraphPoint {
@@ -353,197 +358,145 @@ function adapterGraphStyle(node: AdapterGraphNode): React.CSSProperties {
   }
 }
 
-function adapterGraphPointStyle(point: AdapterGraphPoint): React.CSSProperties {
-  return {
-    left: `${(point.x / adapterGraphWidth) * 100}%`,
-    top: `${(point.y / adapterGraphHeight) * 100}%`,
-  }
-}
-
-function cubicPoint(
-  start: AdapterGraphPoint,
-  control1: AdapterGraphPoint,
-  control2: AdapterGraphPoint,
-  end: AdapterGraphPoint,
-  progress: number,
-): AdapterGraphPoint {
-  const inverse = 1 - progress
-
-  return {
-    x:
-      inverse ** 3 * start.x +
-      3 * inverse ** 2 * progress * control1.x +
-      3 * inverse * progress ** 2 * control2.x +
-      progress ** 3 * end.x,
-    y:
-      inverse ** 3 * start.y +
-      3 * inverse ** 2 * progress * control1.y +
-      3 * inverse * progress ** 2 * control2.y +
-      progress ** 3 * end.y,
-  }
-}
-
-function cubicAngle(
-  start: AdapterGraphPoint,
-  control1: AdapterGraphPoint,
-  control2: AdapterGraphPoint,
-  end: AdapterGraphPoint,
-  progress: number,
-): number {
-  const inverse = 1 - progress
-  const deltaX =
-    3 * inverse ** 2 * (control1.x - start.x) +
-    6 * inverse * progress * (control2.x - control1.x) +
-    3 * progress ** 2 * (end.x - control2.x)
-  const deltaY =
-    3 * inverse ** 2 * (control1.y - start.y) +
-    6 * inverse * progress * (control2.y - control1.y) +
-    3 * progress ** 2 * (end.y - control2.y)
-
-  return (Math.atan2(deltaY, deltaX) * 180) / Math.PI
-}
-
 /**
- * The "Why TanStack?" principles stack — Figma 478:1734.
- *
- * Geometry follows the design frame: a 960px column, each feature card 313px
- * tall (233px of content inside 40px padding), with the copy column and the
- * proof panel separated by a 48px gutter. The description sits bottom-right of
- * its column, which is what produces the stepped rhythm down the stack.
+ * "Why TanStack?" as one sentence. Each claim in the sentence is a control:
+ * hovering tints it, selecting it opens that principle's explanation and proof
+ * underneath. Nothing but the sentence shows until the reader asks.
  */
 function WhyTanStackSection() {
+  // `shown` keeps the last principle mounted while the panel collapses.
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [shown, setShown] = React.useState(0)
+  // Only one block is ever filled: the phrase under the pointer, or failing
+  // that the open one. Hovering another phrase takes the fill from the open one.
+  const [hovered, setHovered] = React.useState<number | null>(null)
+  // Leaving a phrase clears the hover a beat late. Crossing the gap to the next
+  // phrase would otherwise report "nothing hovered" for a frame or two, and the
+  // open phrase's fill would flash on and off in between.
+  const clearHoverTimer = React.useRef<number | undefined>(undefined)
+  const hoverPhrase = (index: number) => {
+    window.clearTimeout(clearHoverTimer.current)
+    setHovered(index)
+  }
+  const leavePhrase = () => {
+    window.clearTimeout(clearHoverTimer.current)
+    clearHoverTimer.current = window.setTimeout(() => setHovered(null), 120)
+  }
+  React.useEffect(() => () => window.clearTimeout(clearHoverTimer.current), [])
+  const principle = whyTanStackPrinciples[shown]
+
   return (
-    <section className="px-4 md:mx-auto">
-      <div className="mx-auto max-w-[960px] py-16 lg:py-20">
-        {/* section-header — 478:1737 */}
-        <div className="flex flex-col items-center gap-12 text-center">
-          <Eyebrow tone="warning">Principles</Eyebrow>
-          <div className="flex flex-col items-center gap-4">
-            <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
-              Why TanStack?
-            </h3>
-            <p className="max-w-[376px] text-base leading-[1.45] text-gray-600 dark:text-gray-400">
-              Our libraries are built around real products and the developers
-              shipping them.
-            </p>
+    <section className="px-4 py-8 md:mx-auto md:py-16 lg:max-w-(--breakpoint-lg) lg:py-24">
+      <Eyebrow>Why TanStack?</Eyebrow>
+      {/* From `sm` up the sentence is set as two fixed lines and sized off the
+          container, so the longer first line spans the content width (it
+          measures about 19.3em, hence 5.1cqw). */}
+      <div className="@container mt-8">
+        <h2 className="text-balance font-ds-display text-ds-heading-2 leading-[1.15] text-text-primary sm:whitespace-nowrap sm:text-[length:5.1cqw]">
+          TanStack is{' '}
+          {whyTanStackPrinciples.map((item, index) => {
+            const isLast = index === whyTanStackPrinciples.length - 1
+            const isActive = isOpen && shown === index
+            const isFilled = hovered === index || (isActive && hovered === null)
+
+            return (
+              <React.Fragment key={item.phrase}>
+                {isLast ? 'and ' : null}
+                {/* Keeps the trailing comma/period on the phrase's line. */}
+                <span className="whitespace-nowrap">
+                  <button
+                    type="button"
+                    aria-expanded={isActive}
+                    aria-controls="why-tanstack-detail"
+                    onClick={() => {
+                      setShown(index)
+                      setIsOpen(!isActive)
+                    }}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === 'mouse') hoverPhrase(index)
+                    }}
+                    onPointerLeave={leavePhrase}
+                    style={isFilled ? item.pattern : undefined}
+                    className={twMerge(
+                      // The block's leading is tighter than the sentence's so
+                      // blocks on adjacent lines never touch.
+                      '-mx-1 cursor-pointer rounded-md px-1 leading-[1.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
+                      // No transition on purpose. The type and the fill swap
+                      // contrast (colored-on-dark to black-on-color), so any fade
+                      // passes through a frame where the two match and the phrase
+                      // blinks. An instant swap is the only flicker-free option.
+                      isFilled ? item.fillClassName : item.colorClassName,
+                    )}
+                  >
+                    {item.phrase}
+                  </button>
+                  {isLast ? '.' : ','}
+                </span>
+                {isLast ? null : index === 1 ? (
+                  <>
+                    {' '}
+                    <br className="hidden sm:block" />
+                  </>
+                ) : (
+                  ' '
+                )}
+              </React.Fragment>
+            )
+          })}
+        </h2>
+      </div>
+
+      <div
+        id="why-tanstack-detail"
+        className={twMerge(
+          'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden" inert={!isOpen}>
+          <div
+            key={principle.phrase}
+            className="ds-enter-rise mt-8 flex flex-col gap-8 border-t border-border-default pt-8 lg:flex-row lg:items-center lg:gap-16"
+          >
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              {/* Template string, not twMerge: it reads the type-scale and
+                  color utilities as one conflicting `text-*` group. */}
+              <h3
+                className={`font-ds-display text-ds-heading-2 ${principle.colorClassName}`}
+              >
+                {principle.title}
+              </h3>
+              <p className="max-w-[44ch] pt-2 text-ds-body-md text-text-secondary">
+                {principle.body}
+              </p>
+            </div>
+            <div className="flex w-full shrink-0 items-center justify-center lg:min-h-[200px] lg:w-[460px]">
+              <PrincipleProof proof={principle.proof} />
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* features-stack — 478:1742 */}
-        <ol className="mt-2 rounded-[20px]">
-          {whyTanStackPrinciples.map((principle, index) => (
-            <li
-              key={principle.title}
-              className={twMerge(
-                'flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
-                index < whyTanStackPrinciples.length - 1 &&
-                  'border-b border-gray-200 dark:border-gray-800',
-              )}
-            >
-              {/* copy column — 478:1745. Everything is left-aligned to the
-                  card edge; at desktop sizes the title and description stay
-                  grouped at the center of the 233px proof panel. */}
-              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
-                <div className="flex w-full flex-col gap-2">
-                  <Eyebrow className={principle.eyebrowClassName}>
-                    {principle.label}
-                  </Eyebrow>
-                  <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
-                    {principle.title}
-                  </h4>
-                </div>
-                <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">
-                  {principle.body}
-                </p>
-              </div>
-
-              {/* proof panel — 478:1744 */}
-              <PrinciplePanel>
-                <PrincipleProof
-                  proof={principle.proof}
-                  accentClassName={principle.accentClassName}
-                />
-              </PrinciplePanel>
-            </li>
-          ))}
-        </ol>
-
-        {/* Quiet corner CTA — hugs the bottom-right of the section. Muted at
-            rest so it doesn't compete with the stack; on hover the label
-            brightens and the arrow slides to afford that it goes somewhere. */}
-        <div className="mt-4 flex justify-end">
-          <Link
-            to="/tenets"
-            className="group inline-flex items-center gap-1.5 rounded-md py-1 font-mono text-xs font-semibold uppercase tracking-[1px] text-gray-400 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus dark:text-gray-500 dark:hover:text-gray-100"
-          >
-            Read our product tenets
-            <ArrowRightIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-          </Link>
-        </div>
+      <div className="mt-14 flex">
+        <Link
+          to="/tenets"
+          className="group inline-flex items-center gap-1.5 rounded-md py-1 font-ds-mono text-ds-mono-caps uppercase text-text-muted transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+        >
+          Read our product tenets
+          <ArrowRightIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+        </Link>
       </div>
     </section>
   )
 }
 
-/**
- * The 460×233 proof slot from Figma (478:1744 et al).
- *
- * Deliberately chrome-less: no border, no fill. The design draws a surface
- * here, but the proofs read better floating directly on the card — the row
- * dividers and the 70px gutter already separate them from the copy, so a
- * second frame around each one was redundant weight.
- */
-function PrinciplePanel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px]">
-      {children}
-    </div>
-  )
-}
-
-function FrameworkAdapterGraph({
-  accentClassName,
-}: {
-  accentClassName: string
-}) {
-  const [activeAdapterIndex, setActiveAdapterIndex] = React.useState(0)
-  const [flowProgress, setFlowProgress] = React.useState(0)
+function FrameworkAdapterGraph() {
   const rootRef = React.useRef<HTMLDivElement>(null)
-  const isVisible = useInView(rootRef)
-  const prefersReducedMotion = usePrefersReducedMotion()
-
-  React.useEffect(() => {
-    if (!isVisible || prefersReducedMotion !== false) return
-
-    const intervalId = window.setInterval(() => {
-      setActiveAdapterIndex(
-        (currentIndex) => (currentIndex + 1) % frameworkAdapterNodes.length,
-      )
-    }, 1150)
-
-    return () => window.clearInterval(intervalId)
-  }, [isVisible, prefersReducedMotion])
-
-  React.useEffect(() => {
-    if (!isVisible || prefersReducedMotion !== false) return
-
-    let frameId = 0
-    let lastUpdate = 0
-    const duration = 1500
-
-    const update = (timestamp: number) => {
-      if (timestamp - lastUpdate > 33) {
-        setFlowProgress((timestamp % duration) / duration)
-        lastUpdate = timestamp
-      }
-
-      frameId = window.requestAnimationFrame(update)
-    }
-
-    frameId = window.requestAnimationFrame(update)
-
-    return () => window.cancelAnimationFrame(frameId)
-  }, [isVisible, prefersReducedMotion])
+  const isVisible = useInView(rootRef, { threshold: 0.6 })
+  // Draw the connectors once, the first time the graph scrolls into view,
+  // then leave it at rest.
+  const [hasEntered, setHasEntered] = React.useState(false)
+  if (isVisible && !hasEntered) setHasEntered(true)
 
   return (
     // The node positions below are hard-coded against a 320×128 grid
@@ -559,168 +512,88 @@ function FrameworkAdapterGraph({
         style={{
           transform: 'scale(clamp(0.75, calc(100cqw / 320px), 1.35))',
         }}
-        className="relative h-32 w-[320px] shrink-0 origin-center font-mono text-[10px] font-bold"
+        className="relative h-32 w-[320px] shrink-0 origin-center font-ds-mono text-[10px] font-medium"
       >
-        <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
-          {frameworkAdapterNodes.map((adapter, adapterIndex) => {
-            const isActive = activeAdapterIndex === adapterIndex
+        <div className="absolute inset-x-0 top-1 h-[7.5rem]">
+          <svg
+            viewBox={`0 0 ${adapterGraphWidth} ${adapterGraphHeight}`}
+            preserveAspectRatio="none"
+            className="absolute inset-0 h-full w-full fill-none stroke-border-strong"
+          >
+            {frameworkAdapterConnections.map((connection, index) => (
+              <path
+                key={connection.label}
+                d={connection.path}
+                pathLength={1}
+                strokeDasharray={1}
+                strokeDashoffset={hasEntered ? 0 : 1}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                style={{ transitionDelay: `${index * 60}ms` }}
+                className="transition-[stroke-dashoffset] duration-500 ease-out motion-reduce:transition-none"
+              />
+            ))}
+          </svg>
 
-            return (
-              <span
-                key={adapter.label}
-                data-adapter-label={adapter.label}
-                style={adapterGraphStyle(adapter)}
-                className={twMerge(
-                  'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
-                  isActive
-                    ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
-                    : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
-                )}
-              >
-                {adapter.label}
-              </span>
-            )
-          })}
+          {frameworkAdapterNodes.map((adapter) => (
+            <span
+              key={adapter.label}
+              style={adapterGraphStyle(adapter)}
+              className="absolute flex items-center justify-center rounded-md border border-border-default bg-background-surface px-2 text-center text-text-secondary"
+            >
+              {adapter.label}
+            </span>
+          ))}
 
           <span
-            data-adapter-label={frameworkAdapterCore.label}
             style={adapterGraphStyle(frameworkAdapterCore)}
-            className={twMerge(
-              'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
-              accentClassName,
-            )}
+            className="absolute flex items-center justify-center rounded-md bg-background-inverse text-center text-text-inverse"
           >
             core
           </span>
-
-          {frameworkAdapterConnections.map((connection, connectionIndex) => {
-            const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
-            const point = cubicPoint(
-              connection.start,
-              connection.control1,
-              connection.control2,
-              connection.end,
-              progress,
-            )
-            const angle = cubicAngle(
-              connection.start,
-              connection.control1,
-              connection.control2,
-              connection.end,
-              progress,
-            )
-
-            return (
-              <span
-                key={`flow-${connection.label}`}
-                data-connection-flow={connection.label}
-                style={{
-                  ...adapterGraphPointStyle(point),
-                  transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-                }}
-                className={twMerge(
-                  'home-adapter-graph-flow absolute z-50',
-                  progress < 0.08 || progress > 0.92
-                    ? 'opacity-0'
-                    : 'opacity-100',
-                )}
-              />
-            )
-          })}
-
-          {frameworkAdapterConnections.map((connection, connectionIndex) => {
-            const isActive = activeAdapterIndex === connectionIndex
-
-            return (
-              <React.Fragment key={`ports-${connection.label}`}>
-                <span
-                  data-connection-port={`${connection.label}-core`}
-                  style={adapterGraphPointStyle(connection.start)}
-                  className={twMerge(
-                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                    isActive ? 'opacity-100' : 'opacity-55',
-                  )}
-                />
-                <span
-                  data-connection-port={`${connection.label}-adapter`}
-                  style={adapterGraphPointStyle(connection.end)}
-                  className={twMerge(
-                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                    isActive ? 'opacity-100' : 'opacity-55',
-                  )}
-                />
-              </React.Fragment>
-            )
-          })}
         </div>
       </div>
     </div>
   )
 }
 
-function PrincipleProof({
-  proof,
-  accentClassName,
-}: {
-  proof: PrincipleProof
-  accentClassName: string
-}) {
+function PrincipleProof({ proof }: { proof: PrincipleProof }) {
   if (proof === 'adapters') {
-    return <FrameworkAdapterGraph accentClassName={accentClassName} />
+    return <FrameworkAdapterGraph />
   }
 
   if (proof === 'types') {
     return (
-      <div className="w-full font-mono text-base leading-7">
-        <div className="flex flex-col gap-3 text-left text-gray-600 dark:text-gray-400">
-          {[
-            ['params.postId', 'string'],
-            ['query.data', 'Project[]'],
-            ['form.email', 'Field<string>'],
-          ].map(([name, value]) => (
-            <div
-              key={name}
-              className="flex items-baseline justify-between gap-4"
-            >
-              <span>{name}</span>
-              <span
-                className={twMerge(
-                  'bg-gradient-to-r bg-clip-text font-black text-transparent',
-                  accentClassName,
-                )}
-              >
-                {value}
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className="flex w-full flex-col gap-3 font-ds-mono text-ds-mono-md">
+        {[
+          ['params.postId', 'string'],
+          ['query.data', 'Project[]'],
+          ['form.email', 'Field<string>'],
+        ].map(([name, value]) => (
+          <div key={name} className="flex items-baseline justify-between gap-4">
+            <span className="text-text-secondary">{name}</span>
+            <span className="font-medium text-text-primary">{value}</span>
+          </div>
+        ))}
       </div>
     )
   }
 
   if (proof === 'adoption') {
-    return <AdoptionProof accentClassName={accentClassName} />
+    return <AdoptionProof />
   }
 
-  return <IndependenceProof accentClassName={accentClassName} />
+  return <IndependenceProof />
 }
 
 /**
  * Production-Grade proof: the live npm download odometer already prefetched by
- * the route loader, plus weekly volume and stars. Real numbers rather than
- * adjectives — the point of the principle is scale.
+ * the route loader. One real number rather than adjectives — the hero strip
+ * carries the compact totals, so this panel shows only the full ticking count.
  */
-function AdoptionProof({ accentClassName }: { accentClassName: string }) {
+function AdoptionProof() {
   const { data: summary } = useQuery(homepageNpmStatsSummaryQuery())
-  const { data: stats } = useQuery(ossStatsQuery())
-
   const totalDownloads = summary?.totalDownloads ?? 0
-  const weeklyDownloads = summary?.weeklyDownloads ?? 0
-  const starCount = stats?.github?.starCount ?? 0
-
-  // npm can be slow, rate-limited, or down — showing a literal 0 would claim
-  // this library has no users. Fall back to a placeholder instead.
-  const format = (value: number) => (value > 0 ? value.toLocaleString() : '—')
 
   const counterRef = useNpmDownloadCounter({
     totalDownloads,
@@ -728,49 +601,30 @@ function AdoptionProof({ accentClassName }: { accentClassName: string }) {
   })
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
-          npm downloads
-        </span>
-        <span
-          // The odometer writes into this node directly; only hand it over
-          // once there is a real number for it to count from.
-          ref={totalDownloads > 0 ? counterRef : undefined}
-          className={twMerge(
-            'bg-linear-to-r bg-clip-text font-mono text-3xl font-black tabular-nums text-transparent sm:text-4xl',
-            accentClassName,
-          )}
-        >
-          {format(totalDownloads)}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-6 font-mono">
-        {[
-          ['per week', weeklyDownloads],
-          ['github stars', starCount],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="flex flex-col gap-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
-              {label}
-            </span>
-            <span className="text-xl font-black tabular-nums text-gray-700 dark:text-gray-300">
-              {format(Number(value))}
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="flex w-full flex-col gap-2 font-ds-mono">
+      <span className="text-ds-mono-caps uppercase text-text-muted">
+        npm downloads, and counting
+      </span>
+      <span
+        // The odometer writes into this node directly; only hand it over
+        // once there is a real number for it to count from. npm can be slow,
+        // rate-limited, or down — a literal 0 would claim no users.
+        ref={totalDownloads > 0 ? counterRef : undefined}
+        className="text-3xl font-medium tabular-nums text-text-primary sm:text-ds-heading-1"
+      >
+        {totalDownloads > 0 ? totalDownloads.toLocaleString() : '—'}
+      </span>
     </div>
   )
 }
 
 /**
- * No Vendor Lock-in proof: the same four claims the chip list made, but as a
- * checked ledger so the panel reads as substantiated rather than decorative.
+ * No Vendor Lock-in proof: four claims as a ledger so the panel reads as
+ * substantiated rather than decorative.
  */
-function IndependenceProof({ accentClassName }: { accentClassName: string }) {
+function IndependenceProof() {
   return (
-    <dl className="flex w-full flex-col font-mono text-sm">
+    <dl className="flex w-full flex-col font-ds-mono">
       {[
         ['license', 'MIT'],
         ['hosting', 'self-host anywhere'],
@@ -781,18 +635,13 @@ function IndependenceProof({ accentClassName }: { accentClassName: string }) {
           key={term}
           className={twMerge(
             'flex items-baseline justify-between gap-4 py-3',
-            index > 0 && 'border-t border-gray-200/70 dark:border-gray-800/70',
+            index > 0 && 'border-t border-border-default',
           )}
         >
-          <dt className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+          <dt className="text-ds-mono-caps uppercase text-text-muted">
             {term}
           </dt>
-          <dd
-            className={twMerge(
-              'bg-linear-to-r bg-clip-text font-black text-transparent',
-              accentClassName,
-            )}
-          >
+          <dd className="text-ds-mono-sm font-medium text-text-primary">
             {value}
           </dd>
         </div>

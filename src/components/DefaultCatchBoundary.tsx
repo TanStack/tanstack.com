@@ -2,6 +2,8 @@ import {
   ErrorComponent,
   ErrorComponentProps,
   Link,
+  isNotFound,
+  isRedirect,
   rootRouteId,
   useMatch,
   useRouter,
@@ -24,6 +26,7 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
 
   useEffect(() => {
     if (reloadOnStaleAppError(error)) return
+    if (isNotFound(error) || isRedirect(error)) return
     Sentry.captureException(error)
   }, [error])
 

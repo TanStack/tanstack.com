@@ -19,14 +19,6 @@ export function HeroPalmMedia() {
   const imageRef = React.useRef<HTMLImageElement>(null)
   const [paused, setPaused] = React.useState(false)
   const [ready, setReady] = React.useState(false)
-  const [webpOnly, setWebpOnly] = React.useState(false)
-
-  const handleImageError = React.useCallback((image: HTMLImageElement) => {
-    setReady(false)
-    if (image.currentSrc.endsWith('.avif')) setWebpOnly(true)
-    else if (playerRef.current) playerRef.current.open = false
-  }, [])
-
   React.useEffect(() => {
     const player = playerRef.current
     if (!player) return
@@ -40,11 +32,11 @@ export function HeroPalmMedia() {
     const image = imageRef.current
     if (image?.complete && image.currentSrc) {
       if (image.naturalWidth > 0) setReady(!image.currentSrc.endsWith(still))
-      else handleImageError(image)
+      else player.open = false
     }
     preference.addEventListener('change', stopIfReduced)
     return () => preference.removeEventListener('change', stopIfReduced)
-  }, [handleImageError])
+  }, [])
 
   return (
     <>
@@ -72,13 +64,6 @@ export function HeroPalmMedia() {
         <div aria-hidden className={`${frame} -z-10`}>
           <div className={scene}>
             <picture className={cutout}>
-              {!paused && !webpOnly && (
-                <source
-                  type="image/avif"
-                  media="(prefers-reduced-motion: no-preference)"
-                  srcSet="/images/hero-palm-cutout.avif"
-                />
-              )}
               {!paused && (
                 <source
                   type="image/webp"
@@ -86,10 +71,9 @@ export function HeroPalmMedia() {
                   srcSet="/images/hero-palm-cutout.webp"
                 />
               )}
-              <source type="image/webp" srcSet={still} />
               <img
                 ref={imageRef}
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+                src={still}
                 alt=""
                 width={260}
                 height={348}
@@ -97,7 +81,9 @@ export function HeroPalmMedia() {
                 onLoad={(event) =>
                   setReady(!event.currentTarget.currentSrc.endsWith(still))
                 }
-                onError={(event) => handleImageError(event.currentTarget)}
+                onError={() => {
+                  if (playerRef.current) playerRef.current.open = false
+                }}
                 style={{ visibility: ready ? 'visible' : 'hidden' }}
                 className="block h-auto w-full"
               />

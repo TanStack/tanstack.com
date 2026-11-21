@@ -12,8 +12,7 @@ import sharp from 'sharp'
 import { HeroPalmMedia } from '../src/components/home/HeroPalmMedia'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
-const motion = '/images/hero-palm-cutout.avif'
-const webp = '/images/hero-palm-cutout.webp'
+const motion = '/images/hero-palm-cutout.webp'
 const still = '/images/hero-palm-cutout-still.webp'
 const serverMarkup = renderToString(createElement(HeroPalmMedia))
 const chromePath = [
@@ -26,7 +25,9 @@ const chromePath = [
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
 test('the WebP loop preserves the source timing and matches its still', async () => {
-  const animation = await sharp(path.join(repoRoot, 'public', webp)).metadata()
+  const animation = await sharp(
+    path.join(repoRoot, 'public', motion),
+  ).metadata()
   const poster = await sharp(path.join(repoRoot, 'public', still)).metadata()
   // The source MP4 has 121 frames at 24 fps. WebP stores whole milliseconds.
   const delays = Array.from(
@@ -44,7 +45,6 @@ test('server render preloads only the still at high priority', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4/)
   assert.match(serverMarkup, /<picture\b/)
   assert.ok(serverMarkup.includes(motion))
-  assert.ok(serverMarkup.includes(webp))
   assert.ok(serverMarkup.includes(still))
   assert.match(serverMarkup, /loading="eager"/)
   const preloads = serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
@@ -170,17 +170,11 @@ test(
     await reduced.waitForImage(still)
     await reduced.page.close()
 
-    const fallback = await openHero(1512, false, new Set([motion]))
-    await fallback.hydrate()
-    await fallback.waitForImage(webp)
-    assert.deepEqual(new Set(fallback.requests), new Set([motion, webp, still]))
-    await fallback.page.close()
-
-    const failed = await openHero(1512, false, new Set([motion, webp]))
+    const failed = await openHero(1512, false, new Set([motion]))
     await failed.hydrate()
     await failed.waitForImage(still)
     await failed.page.locator('summary').click()
-    await failed.waitForImage(webp)
+    await failed.waitForImage(motion)
     await failed.page.close()
   },
 )

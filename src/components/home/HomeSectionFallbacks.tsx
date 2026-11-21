@@ -1,4 +1,4 @@
-import { Card } from '~/components/ds/ui'
+import { Card, Skeleton, SkeletonGroup } from '~/components/ds/ui'
 
 function SectionTitle({ id, title }: { id: string; title: string }) {
   return (
@@ -88,35 +88,35 @@ export function HomeNewsletterFallback() {
 
 export function HomeApplicationStarterFallback() {
   return (
-    <div
-      aria-hidden="true"
-      className="min-h-[320px] overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 md:min-h-[360px]"
+    <SkeletonGroup
+      label="Loading the app starter"
+      className="relative min-h-[320px] overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 md:min-h-[360px]"
     >
       <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
-        <div className="h-7 w-64 max-w-full rounded bg-gray-200 dark:bg-gray-800" />
+        <Skeleton className="h-7 w-64 max-w-full" />
         <div className="mt-4 flex flex-wrap gap-2">
-          <div className="h-9 w-28 rounded-lg bg-gray-200 dark:bg-gray-800" />
-          <div className="h-9 w-32 rounded-lg bg-gray-200 dark:bg-gray-800" />
-          <div className="h-9 w-24 rounded-lg bg-gray-200 dark:bg-gray-800" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
+          <Skeleton className="h-9 w-32 rounded-lg" />
+          <Skeleton className="h-9 w-24 rounded-lg" />
         </div>
       </div>
 
       <div className="relative border-b border-gray-200 dark:border-gray-800">
         <div className="px-5 pt-4">
-          <div className="h-3 w-12 rounded bg-gray-200 dark:bg-gray-800" />
+          <Skeleton className="h-3 w-12" />
         </div>
         <div className="px-5 pb-4 pt-3">
-          <div className="h-28 rounded-xl bg-gray-100 dark:bg-gray-900" />
+          <Skeleton className="h-28 rounded-xl" />
         </div>
 
         <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
           <div className="flex flex-wrap gap-3">
-            <div className="h-10 w-28 rounded-lg bg-gray-200 dark:bg-gray-800" />
-            <div className="h-10 w-36 rounded-lg bg-gray-200 dark:bg-gray-800" />
+            <Skeleton className="h-10 w-28 rounded-lg" />
+            <Skeleton className="h-10 w-36 rounded-lg" />
           </div>
         </div>
       </div>
-    </div>
+    </SkeletonGroup>
   )
 }
 

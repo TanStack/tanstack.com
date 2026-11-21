@@ -2,9 +2,13 @@ import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
-import { Button } from '~/components/ds/ui'
+import { Button, Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
-import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
+import {
+  PartnersGrid,
+  PartnersGridSkeleton,
+  TierBand,
+} from '~/components/PartnersGrid'
 import type { PartnerPlacement } from '~/utils/analytics'
 
 type PartnersSponsorsContentProps = {
@@ -74,34 +78,13 @@ export function PartnersSponsorsContent({
 
 function PartnersSponsorsSkeleton() {
   return (
-    <div
-      aria-hidden="true"
+    <SkeletonGroup
+      label="Loading partners"
       className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto"
     >
-      <div className="mb-6 h-10 w-40 animate-pulse rounded bg-gray-200/70 dark:bg-gray-800/70" />
-      <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
-        {[2, 3].map((columns, band) => (
-          <div key={`partner-band-${band}`}>
-            <div className="h-12 animate-pulse bg-gray-200/70 dark:bg-gray-800/70" />
-            <div
-              className="grid gap-px bg-gray-200/70 dark:bg-gray-800/70"
-              style={{
-                gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-              }}
-            >
-              {Array.from({ length: columns * 2 }).map((_, index) => (
-                <div
-                  key={`partner-skeleton-${band}-${index}`}
-                  className="min-h-[130px] animate-pulse bg-white/70 dark:bg-gray-950/60"
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-        <div className="h-12 animate-pulse bg-gray-200/70 dark:bg-gray-800/70" />
-        <div className="h-[420px] animate-pulse bg-white/70 sm:h-[480px] lg:h-[540px] dark:bg-gray-950/60" />
-      </div>
-    </div>
+      <Skeleton className="mb-6 h-10 w-40" />
+      <PartnersGridSkeleton />
+    </SkeletonGroup>
   )
 }
 

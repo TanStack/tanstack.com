@@ -4,7 +4,7 @@ import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
-import { Button } from '~/components/ds/ui'
+import { Button, Skeleton, SkeletonGroup } from '~/components/ds/ui'
 
 export function HomeCommunitySection() {
   return (
@@ -19,19 +19,19 @@ export function HomeCommunitySection() {
 
 function CommunitySkeleton() {
   return (
-    <div className="space-y-24">
+    <SkeletonGroup label="Loading maintainers" className="space-y-24">
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <div className="mb-6 h-10 w-52 animate-pulse rounded corner-squircle bg-gray-200/70 dark:bg-gray-800/70" />
+        <Skeleton className="mb-6 h-10 w-52 corner-squircle" />
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
           {Array.from({ length: 10 }).map((_, index) => (
-            <div
+            <Skeleton
               key={`maintainer-skeleton-${index}`}
-              className="h-52 animate-pulse rounded-lg corner-squircle bg-gray-100/70 dark:bg-gray-900/60"
+              className="h-52 rounded-lg corner-squircle"
             />
           ))}
         </div>
       </div>
-    </div>
+    </SkeletonGroup>
   )
 }
 

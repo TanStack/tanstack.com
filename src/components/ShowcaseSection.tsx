@@ -7,6 +7,7 @@ import {
   getMyShowcaseVotesQueryOptions,
 } from '~/queries/showcases'
 import { voteShowcase } from '~/utils/showcase.functions'
+import { SkeletonGroup } from '~/components/ds/ui'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { Button } from '~/ui'
 import { ArrowRightIcon, PlusIcon } from '@phosphor-icons/react'
@@ -205,11 +206,14 @@ export function ShowcaseSection({
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <SkeletonGroup
+          label="Loading showcases"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {Array.from({ length: Math.max(limit, minItems) }).map((_, i) => (
             <ShowcaseCardSkeleton key={i} />
           ))}
-        </div>
+        </SkeletonGroup>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {showcases.map(({ showcase, user }) => (

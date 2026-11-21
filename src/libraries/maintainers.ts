@@ -470,8 +470,8 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['TypeScript', 'Backport', 'Test'],
     social: {
       twitter: 'https://x.com/manudeli_',
-      website: 'https://manudeli.kr',
       linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
+      website: 'https://manudeli.kr',
     },
   },
   {

@@ -41,24 +41,23 @@ test('the WebP loop preserves the source timing and matches its still', async ()
   assert.equal(animation.height, poster.height)
 })
 
-test('server render preloads only the still at high priority', () => {
-  assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4/)
-  assert.match(serverMarkup, /<picture\b/)
-  assert.ok(serverMarkup.includes(motion))
-  assert.ok(serverMarkup.includes(still))
-  assert.match(serverMarkup, /loading="eager"/)
+test('the two high-priority hints match opposite motion preferences', () => {
+  assert.doesNotMatch(serverMarkup, /<video\b|<summary\b|<button\b/)
   const preloads = serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
-  assert.equal(preloads.length, 1)
-  assert.ok(preloads[0].includes(`href="${still}"`))
-  assert.match(preloads[0], /fetchPriority="high"/i)
-  assert.doesNotMatch(
-    serverMarkup.match(/<picture[\s\S]+?<\/picture>/)?.[0] ?? '',
-    /fetchPriority="high"/i,
-  )
+  assert.equal(preloads.length, 2)
+  for (const [file, preference] of [
+    [motion, 'no-preference'],
+    [still, 'reduce'],
+  ]) {
+    const hint = preloads.find((tag) => tag.includes(`href="${file}"`))
+    assert.ok(hint)
+    assert.ok(hint.includes(`media="(prefers-reduced-motion: ${preference})"`))
+    assert.match(hint, /fetchPriority="high"/i)
+  }
 })
 
 test(
-  'responsive hero animation, reduced motion, pause and recovery',
+  'responsive hero motion preference and image recovery',
   { skip: chromePath ? false : 'Chrome is not installed', timeout: 60_000 },
   async (t) => {
     const bundle = await build({
@@ -132,39 +131,18 @@ test(
     for (const width of [390, 844, 1024, 1512]) {
       const hero = await openHero(width)
       await hero.waitForImage(motion)
-      assert.deepEqual(new Set(hero.requests), new Set([motion, still]))
-      const image = hero.page.locator('picture img')
-      assert.equal(await image.isVisible(), false)
+      assert.deepEqual(hero.requests, [motion])
+      assert.equal(await hero.page.locator('picture img').isVisible(), true)
       await hero.hydrate()
-      await image.waitFor({ state: 'visible' })
-      await hero.page.close()
-    }
-
-    // Pause from the server HTML while the application has no event handlers.
-    for (const width of [390, 1512]) {
-      const hero = await openHero(width)
-      const control = hero.page.locator('summary')
-      await control.press('Enter')
-      assert.equal(await hero.page.locator('details[open]').count(), 0)
-      await hero.hydrate()
-      await hero.waitForImage(still)
-      assert.equal(await hero.page.locator('details[open]').count(), 0)
-      await control.press('Space')
-      await hero.waitForImage(motion)
+      assert.deepEqual(hero.requests, [motion])
       await hero.page.close()
     }
 
     const reduced = await openHero(390, true)
     await reduced.waitForImage(still)
     await reduced.hydrate()
+    assert.deepEqual(reduced.requests, [still])
     await reduced.page.emulateMedia({ reducedMotion: 'no-preference' })
-    await reduced.waitForImage(still)
-    assert.equal(reduced.requests.includes(motion), false)
-    await reduced.page.locator('summary').press('Enter')
-    await reduced.waitForImage(motion)
-    await reduced.page.locator('summary').press('Enter')
-    await reduced.waitForImage(still)
-    await reduced.page.locator('summary').click()
     await reduced.waitForImage(motion)
     await reduced.page.emulateMedia({ reducedMotion: 'reduce' })
     await reduced.waitForImage(still)
@@ -173,8 +151,7 @@ test(
     const failed = await openHero(1512, false, new Set([motion]))
     await failed.hydrate()
     await failed.waitForImage(still)
-    await failed.page.locator('summary').click()
-    await failed.waitForImage(motion)
+    assert.ok(failed.requests.includes(motion))
     await failed.page.close()
   },
 )

@@ -8,6 +8,7 @@ import { createElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { chromium } from 'playwright-core'
 import { build } from 'esbuild'
+import sharp from 'sharp'
 import { HeroPalmMedia } from '../src/components/home/HeroPalmMedia'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
@@ -22,6 +23,21 @@ const chromePath = [
   '/usr/bin/chromium',
   chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate))
+
+test('both WebPs keep the frame timing of the original palm loop', async () => {
+  // The source MP4 contains 121 frames at 24 fps. WebP stores durations in whole milliseconds.
+  const delays = Array.from(
+    { length: 121 },
+    (_, i) => Math.round(((i + 1) * 1000) / 24) - Math.round((i * 1000) / 24),
+  )
+  for (const file of [mobileMotion, desktopMotion]) {
+    const { delay, loop } = await sharp(
+      path.join(repoRoot, 'public', file),
+    ).metadata()
+    assert.deepEqual(delay, delays)
+    assert.equal(loop, 0)
+  }
+})
 
 test('server render lets the browser select a single eager hero image', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4|rel="preload"/)

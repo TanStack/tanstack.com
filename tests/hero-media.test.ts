@@ -117,7 +117,7 @@ test(
     }
 
     const reduced = await openHero(390, true)
-    await reduced.waitForImage('-gradient-')
+    await reduced.waitForImage('/hero-palm-gradient-1600.webp')
     await reduced.hydrate()
     await reduced.page.emulateMedia({ reducedMotion: 'no-preference' })
     await reduced.waitForImage('-gradient-')

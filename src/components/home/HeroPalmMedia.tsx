@@ -41,10 +41,12 @@ export function HeroPalmMedia() {
               />
             </>
           )}
+          {/* A 720px-tall, center-cropped hero displays about 1600px of source
+              width even on a narrow phone. Size the still for that crop. */}
           <source
             type="image/webp"
-            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-            sizes="100vw"
+            srcSet="/images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
+            sizes="max(100vw, 1600px)"
           />
           <img
             ref={imageRef}

@@ -27,8 +27,10 @@ export function HeroPalmMedia() {
           {!motionFailed && (
             <source type="image/webp" media={allowMotion} srcSet={motion} />
           )}
+          <source type="image/webp" srcSet={still} />
           <img
-            src={still}
+            // The HTML preloader can fetch a network src while parsing streamed markup.
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
             alt=""
             width={260}
             height={348}

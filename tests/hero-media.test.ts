@@ -43,6 +43,7 @@ test('the WebP loop preserves the source timing and matches its still', async ()
 
 test('the two high-priority hints match opposite motion preferences', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|<summary\b|<button\b/)
+  assert.doesNotMatch(serverMarkup, /<img[^>]*src="\/images\//)
   const preloads = serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
   assert.equal(preloads.length, 2)
   for (const [file, preference] of [

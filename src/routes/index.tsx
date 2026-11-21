@@ -1,6 +1,6 @@
 import { homepageScarfPixel } from '~/utils/analytics/scarf-pixels'
 import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Await, Link, createFileRoute } from '@tanstack/react-router'
 
 import { twMerge } from 'tailwind-merge'
 
@@ -12,11 +12,18 @@ import {
   LightningIcon,
   type Icon,
 } from '@phosphor-icons/react'
+import { Hydrate } from '@tanstack/react-start'
+import { visible } from '@tanstack/react-start/hydration'
 import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
+import {
+  HomeStatsFallback,
+  HomeSocialProofFallback,
+  HomeNewsletterFallback,
+} from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
@@ -31,15 +38,13 @@ import { seo } from '~/utils/seo'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
-  loader: async ({ context: { queryClient } }) => {
-    const [, , recentPosts] = await Promise.all([
-      queryClient.ensureQueryData(ossStatsQuery()),
-      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
-      fetchRecentPosts(),
-    ])
-
-    return { recentPosts }
-  },
+  loader: ({ context: { queryClient } }) => ({
+    stats: Promise.all([
+      queryClient.prefetchQuery(ossStatsQuery()),
+      queryClient.prefetchQuery(homepageNpmStatsSummaryQuery()),
+    ]),
+    recentPosts: fetchRecentPosts(),
+  }),
   head: () => ({
     meta: seo({
       title: 'TanStack | The open-source application stack for the web.',
@@ -57,7 +62,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const { recentPosts } = Route.useLoaderData()
+  const { recentPosts, stats } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
   const startWithPrompt = (e: React.MouseEvent) => {
@@ -138,7 +143,9 @@ function Index() {
               </div>
             </div>
             <div className="flex items-center justify-center px-2.5 py-6">
-              <HomeStatsSection />
+              <Await promise={stats} fallback={<HomeStatsFallback />}>
+                {() => <HomeStatsSection />}
+              </Await>
             </div>
           </div>
           <div
@@ -151,12 +158,19 @@ function Index() {
 
         <WhyTanStackSection />
 
-        <HomeSocialProofSection recentPosts={recentPosts} />
+        <Await promise={recentPosts} fallback={<HomeSocialProofFallback />}>
+          {(posts) => <HomeSocialProofSection recentPosts={posts} />}
+        </Await>
 
         <HomeCommunitySection />
 
         <div className="h-4" />
-        <HomeNewsletterSection />
+        <Hydrate
+          when={visible({ rootMargin: '200px' })}
+          fallback={<HomeNewsletterFallback />}
+        >
+          <HomeNewsletterSection />
+        </Hydrate>
       </main>
     </>
   )
@@ -454,10 +468,12 @@ function WhyTanStackSection() {
 
               {/* proof panel — 478:1744 */}
               <PrinciplePanel>
-                <PrincipleProof
-                  proof={principle.proof}
-                  accentClassName={principle.accentClassName}
-                />
+                <Hydrate when={visible({ rootMargin: '200px' })}>
+                  <PrincipleProof
+                    proof={principle.proof}
+                    accentClassName={principle.accentClassName}
+                  />
+                </Hydrate>
               </PrinciplePanel>
             </li>
           ))}
@@ -490,7 +506,7 @@ function WhyTanStackSection() {
  */
 function PrinciplePanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px]">
+    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px] [&>div]:w-full">
       {children}
     </div>
   )
@@ -701,8 +717,8 @@ function PrincipleProof({
 }
 
 /**
- * Production-Grade proof: the live npm download odometer already prefetched by
- * the route loader, plus weekly volume and stars. Real numbers rather than
+ * Production-Grade proof: the live npm download odometer shared with
+ * the hero stats, plus weekly volume and stars. Real numbers rather than
  * adjectives — the point of the principle is scale.
  */
 function AdoptionProof({ accentClassName }: { accentClassName: string }) {

@@ -1,10 +1,13 @@
 import * as React from 'react'
+import { preload } from 'react-dom'
 import { PauseIcon, PlayIcon } from '@phosphor-icons/react'
 import { Squircle } from '~/components/Squircle'
 
 const still = '/images/hero-palm-cutout-still.webp'
 
 export function HeroPalmMedia() {
+  preload(still, { as: 'image', fetchPriority: 'high' })
+
   const imageRef = React.useRef<HTMLImageElement>(null)
   const [paused, setPaused] = React.useState(false)
 
@@ -69,7 +72,6 @@ export function HeroPalmMedia() {
               width={260}
               height={348}
               loading="eager"
-              fetchPriority="high"
               onLoad={() => setReady(true)}
               onError={(event) => handleImageError(event.currentTarget)}
               // Keep the poster visible until the browser has the complete animation.

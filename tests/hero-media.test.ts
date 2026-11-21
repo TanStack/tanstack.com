@@ -40,14 +40,18 @@ test('the WebP loop preserves the source timing and matches its still', async ()
   assert.equal(animation.height, poster.height)
 })
 
-test('server render exposes the poster and eager animation sources', () => {
-  assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4|rel="preload"/)
+test('server render preloads only the still at high priority', () => {
+  assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4/)
   assert.match(serverMarkup, /<picture\b/)
   assert.ok(serverMarkup.includes(motion))
   assert.ok(serverMarkup.includes(webp))
   assert.ok(serverMarkup.includes(still))
   assert.match(serverMarkup, /loading="eager"/)
-  assert.match(serverMarkup, /fetchPriority="high"/)
+  const preloads = serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
+  assert.equal(preloads.length, 1)
+  assert.ok(preloads[0].includes(`href="${still}"`))
+  assert.match(preloads[0], /fetchPriority="high"/i)
+  assert.doesNotMatch(serverMarkup, /<img[^>]+fetchPriority="high"/i)
 })
 
 test(

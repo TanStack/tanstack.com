@@ -53,6 +53,12 @@ export function RunModelPicker({
   >()
   for (const choice of model.catalog?.choices ?? []) {
     if (
+      choice.retiring &&
+      (choice.selection.provider !== selection?.provider ||
+        choice.selection.model !== selection.model)
+    )
+      continue
+    if (
       !`${choice.label} ${choice.providerLabel} ${choice.selection.model}`
         .toLowerCase()
         .includes(search.toLowerCase().trim())

@@ -96,6 +96,44 @@ beforeEach(() => {
   store.reads = 0
 })
 describe('model attachment boundary', () => {
+  it.each(['gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'])(
+    'prepares images and PDFs for %s while preserving gateway and custom endpoint limits',
+    async (model) => {
+      const image = await file('png bytes', 'image/png')
+      const pdf = await file('%PDF-1.7 synthetic', 'application/pdf')
+      const projected = await prepareAttachmentMessages(
+        [message([image, pdf])],
+        { env, scope, connection: connection('openai', model) },
+      )
+      expect(
+        projected[0].parts.filter((part) => part.type !== 'text'),
+      ).toMatchObject([
+        { type: 'image', source: { type: 'data', mimeType: 'image/png' } },
+        {
+          type: 'document',
+          source: { type: 'data', mimeType: 'application/pdf' },
+        },
+      ])
+      for (const selected of [
+        connection('openrouter', `openai/${model}`),
+        connection('vercel', `openai/${model}`),
+      ]) {
+        expect(modelAttachmentSupport(selected)).toMatchObject({
+          imageTypes: ['image/png', 'image/jpeg'],
+          pdf: false,
+        })
+        expect(() =>
+          validateModelAttachments([pdf], { connection: selected }),
+        ).toThrow(/verified support/)
+      }
+      expect(modelAttachmentSupport(connection('compatible', model))).toEqual({
+        model,
+        imageTypes: [],
+        pdf: false,
+      })
+    },
+  )
+
   it('reads exact same-bot, other-bot and legacy sources independently of the receiving conversation scope', async () => {
     const sameBot = await file('Same bot source')
     sameBot.conversationId = 'current:source-thread'

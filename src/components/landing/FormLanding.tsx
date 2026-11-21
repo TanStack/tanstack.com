@@ -229,6 +229,10 @@ function FormCockpit() {
               aria-describedby="form-demo-email-feedback"
               aria-invalid={!isEmailValid}
               aria-label="Profile email"
+              autoComplete="off"
+              data-1p-ignore
+              data-bwignore
+              data-lpignore="true"
               className="w-full rounded-md border border-border-default bg-background-subtle px-3 py-2 font-ds-mono text-ds-mono-xs text-text-primary outline-none focus:border-[var(--landing-accent-bright)]"
               onChange={(event) => setEmail(event.target.value)}
               value={email}
@@ -275,6 +279,10 @@ function FormCockpit() {
               aria-describedby="form-demo-role-feedback"
               aria-invalid={!isRolePending && !isRoleValid}
               aria-label="Member role"
+              autoComplete="off"
+              data-1p-ignore
+              data-bwignore
+              data-lpignore="true"
               className="w-full rounded-md border border-border-default bg-background-subtle px-3 py-2 font-ds-mono text-ds-mono-xs text-text-primary outline-none focus:border-[var(--landing-accent-bright)]"
               onChange={(event) => setRole(event.target.value)}
               value={role}

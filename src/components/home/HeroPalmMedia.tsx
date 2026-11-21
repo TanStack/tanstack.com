@@ -28,13 +28,7 @@ export function HeroPalmMedia() {
       >
         {/* Cover the hero with the original 944 × 416 composition. The palm
             occupies x=360..620 and y=68..416 within that frame. */}
-        <div
-          className="relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]"
-          style={{
-            backgroundImage:
-              'linear-gradient(#8fd7fe, #b0dbff 25%, #d3e0ff 50%, #e7dffb 75%, #f5d9f2)',
-          }}
-        >
+        <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
           <picture className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
             {!paused && (
               <source

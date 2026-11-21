@@ -470,7 +470,7 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['TypeScript', 'Backport', 'Test'],
     social: {
       twitter: 'https://x.com/manudeli_',
-      bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
+      website: 'https://manudeli.kr',
       linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
     },
   },

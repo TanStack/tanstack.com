@@ -24,42 +24,42 @@ export function HeroPalmMedia() {
     <>
       <Squircle
         aria-hidden
-        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
+        className="absolute inset-0 -z-10 grid place-content-center overflow-hidden rounded-xl [container-type:size] [corner-shape:squircle]"
       >
-        <picture className="contents">
-          {!paused && (
-            <>
+        {/* Cover the hero with the original 944 × 416 composition. The palm
+            occupies x=360..620 and y=68..416 within that frame. */}
+        <div
+          className="relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]"
+          style={{
+            backgroundImage:
+              'linear-gradient(#8fd7fe, #b0dbff 25%, #d3e0ff 50%, #e7dffb 75%, #f5d9f2)',
+          }}
+        >
+          <picture className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
+            {!paused && (
               <source
-                type="image/webp"
-                media="(prefers-reduced-motion: no-preference) and (width < 1024px)"
-                srcSet="/images/hero-palm-motion-mobile.webp"
-              />
-              <source
-                type="image/webp"
                 media="(prefers-reduced-motion: no-preference)"
-                srcSet="/images/hero-palm-motion.webp"
+                srcSet="/images/hero-palm-cutout.webp"
               />
-            </>
-          )}
-          {/* A 720px-tall, center-cropped hero displays about 1600px of source
-              width even on a narrow phone. Size the still for that crop. */}
-          <source
-            type="image/webp"
-            srcSet="/images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-            sizes="max(100vw, 1600px)"
-          />
-          <img
-            ref={imageRef}
-            src="/images/hero-palm-gradient.jpg"
-            alt=""
-            width={2400}
-            height={1058}
-            loading="eager"
-            fetchPriority="high"
-            onError={() => setPaused(true)}
-            className="h-full w-full object-cover object-center"
-          />
-        </picture>
+            )}
+            <source
+              type="image/webp"
+              srcSet="/images/hero-palm-cutout-still.webp"
+            />
+            {/* Browsers can fetch the fallback during hydration. Keep it inline. */}
+            <img
+              ref={imageRef}
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+              alt=""
+              width={260}
+              height={348}
+              loading="eager"
+              fetchPriority="high"
+              onError={() => setPaused(true)}
+              className="block h-auto w-full"
+            />
+          </picture>
+        </div>
       </Squircle>
       <button
         type="button"

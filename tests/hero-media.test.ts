@@ -12,8 +12,8 @@ import sharp from 'sharp'
 import { HeroPalmMedia } from '../src/components/home/HeroPalmMedia'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
-const mobileMotion = '/images/hero-palm-motion-mobile.webp'
-const desktopMotion = '/images/hero-palm-motion.webp'
+const motion = '/images/hero-palm-cutout.webp'
+const still = '/images/hero-palm-cutout-still.webp'
 const serverMarkup = renderToString(createElement(HeroPalmMedia))
 const chromePath = [
   process.env.CHROME_BIN,
@@ -24,27 +24,28 @@ const chromePath = [
   chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
-test('both WebPs keep the frame timing of the original palm loop', async () => {
-  // The source MP4 contains 121 frames at 24 fps. WebP stores durations in whole milliseconds.
+test('the transparent palm loop preserves the source timing and matches its still', async () => {
+  const animation = await sharp(
+    path.join(repoRoot, 'public', motion),
+  ).metadata()
+  const poster = await sharp(path.join(repoRoot, 'public', still)).metadata()
+  // The source MP4 has 121 frames at 24 fps. WebP stores whole milliseconds.
   const delays = Array.from(
     { length: 121 },
     (_, i) => Math.round(((i + 1) * 1000) / 24) - Math.round((i * 1000) / 24),
   )
-  for (const file of [mobileMotion, desktopMotion]) {
-    const { delay, loop } = await sharp(
-      path.join(repoRoot, 'public', file),
-    ).metadata()
-    assert.deepEqual(delay, delays)
-    assert.equal(loop, 0)
-  }
+  assert.deepEqual(animation.delay, delays)
+  assert.equal(animation.loop, 0)
+  assert.ok(animation.hasAlpha && poster.hasAlpha)
+  assert.equal(animation.width, poster.width)
+  assert.equal(animation.height, poster.height)
 })
 
 test('server render lets the browser select a single eager hero image', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4|rel="preload"/)
   assert.match(serverMarkup, /<picture\b/)
-  assert.ok(serverMarkup.includes(mobileMotion))
-  assert.ok(serverMarkup.includes(desktopMotion))
-  assert.match(serverMarkup, /srcSet="\/images\/hero-palm-gradient-/)
+  assert.ok(serverMarkup.includes(motion))
+  assert.ok(serverMarkup.includes(still))
   assert.match(serverMarkup, /loading="eager"/)
   assert.match(serverMarkup, /fetchPriority="high"/)
 })
@@ -96,7 +97,7 @@ test(
           })
         }
         requests.push(url.pathname)
-        if (failMotion && url.pathname.includes('-motion')) {
+        if (failMotion && url.pathname === motion) {
           failMotion = false
           return route.abort()
         }
@@ -125,45 +126,41 @@ test(
     }
 
     for (const width of [390, 844, 1024, 1512]) {
-      const file = width < 1024 ? mobileMotion : desktopMotion
       const hero = await openHero(width)
-      await hero.waitForImage(file)
-      assert.deepEqual(hero.requests, [file])
+      await hero.waitForImage(motion)
+      assert.deepEqual(hero.requests, [motion])
       await hero.page.close()
     }
 
     const reduced = await openHero(390, true)
-    await reduced.waitForImage('/hero-palm-gradient-1600.webp')
+    await reduced.waitForImage(still)
     await reduced.hydrate()
     await reduced.page.emulateMedia({ reducedMotion: 'no-preference' })
-    await reduced.waitForImage('-gradient-')
-    assert.equal(
-      reduced.requests.some((url) => url.includes('-motion')),
-      false,
-    )
+    await reduced.waitForImage(still)
+    assert.equal(reduced.requests.includes(motion), false)
     await reduced.page
       .getByRole('button', { name: 'Play hero animation' })
       .press('Enter')
-    await reduced.waitForImage(mobileMotion)
+    await reduced.waitForImage(motion)
     await reduced.page
       .getByRole('button', { name: 'Pause hero animation' })
       .press('Enter')
-    await reduced.waitForImage('-gradient-')
+    await reduced.waitForImage(still)
     await reduced.page
       .getByRole('button', { name: 'Play hero animation' })
       .click()
-    await reduced.waitForImage(mobileMotion)
+    await reduced.waitForImage(motion)
     await reduced.page.emulateMedia({ reducedMotion: 'reduce' })
-    await reduced.waitForImage('-gradient-')
+    await reduced.waitForImage(still)
     await reduced.page.close()
 
     const failed = await openHero(1512, false, true)
     await failed.hydrate()
-    await failed.waitForImage('-gradient-')
+    await failed.waitForImage(still)
     await failed.page
       .getByRole('button', { name: 'Play hero animation' })
       .click()
-    await failed.waitForImage(desktopMotion)
+    await failed.waitForImage(motion)
     await failed.page.close()
   },
 )

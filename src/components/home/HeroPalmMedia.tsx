@@ -6,6 +6,12 @@ export function HeroPalmMedia() {
   const imageRef = React.useRef<HTMLImageElement>(null)
   const [paused, setPaused] = React.useState(false)
 
+  const [webpOnly, setWebpOnly] = React.useState(false)
+  const handleImageError = React.useCallback((image: HTMLImageElement) => {
+    if (image.currentSrc.endsWith('.avif')) setWebpOnly(true)
+    else setPaused(true)
+  }, [])
+
   React.useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
     const stopIfReduced = () => {
@@ -14,11 +20,11 @@ export function HeroPalmMedia() {
     stopIfReduced()
     // The browser can finish loading (or fail) before hydration.
     const image = imageRef.current
-    if (image?.complete && image.naturalWidth === 0) setPaused(true)
+    if (image?.complete && image.naturalWidth === 0) handleImageError(image)
 
     preference.addEventListener('change', stopIfReduced)
     return () => preference.removeEventListener('change', stopIfReduced)
-  }, [])
+  }, [handleImageError])
 
   return (
     <>
@@ -30,8 +36,16 @@ export function HeroPalmMedia() {
             occupies x=360..620 and y=68..416 within that frame. */}
         <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
           <picture className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
+            {!paused && !webpOnly && (
+              <source
+                type="image/avif"
+                media="(prefers-reduced-motion: no-preference)"
+                srcSet="/images/hero-palm-cutout.avif"
+              />
+            )}
             {!paused && (
               <source
+                type="image/webp"
                 media="(prefers-reduced-motion: no-preference)"
                 srcSet="/images/hero-palm-cutout.webp"
               />
@@ -49,7 +63,7 @@ export function HeroPalmMedia() {
               height={348}
               loading="eager"
               fetchPriority="high"
-              onError={() => setPaused(true)}
+              onError={(event) => handleImageError(event.currentTarget)}
               className="block h-auto w-full"
             />
           </picture>

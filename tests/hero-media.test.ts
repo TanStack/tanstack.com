@@ -12,7 +12,8 @@ import sharp from 'sharp'
 import { HeroPalmMedia } from '../src/components/home/HeroPalmMedia'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
-const motion = '/images/hero-palm-cutout.webp'
+const motion = '/images/hero-palm-cutout.avif'
+const webp = '/images/hero-palm-cutout.webp'
 const still = '/images/hero-palm-cutout-still.webp'
 const serverMarkup = renderToString(createElement(HeroPalmMedia))
 const chromePath = [
@@ -24,10 +25,8 @@ const chromePath = [
   chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
-test('the transparent palm loop preserves the source timing and matches its still', async () => {
-  const animation = await sharp(
-    path.join(repoRoot, 'public', motion),
-  ).metadata()
+test('the WebP loop preserves the source timing and matches its still', async () => {
+  const animation = await sharp(path.join(repoRoot, 'public', webp)).metadata()
   const poster = await sharp(path.join(repoRoot, 'public', still)).metadata()
   // The source MP4 has 121 frames at 24 fps. WebP stores whole milliseconds.
   const delays = Array.from(
@@ -45,6 +44,7 @@ test('server render lets the browser select a single eager hero image', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4|rel="preload"/)
   assert.match(serverMarkup, /<picture\b/)
   assert.ok(serverMarkup.includes(motion))
+  assert.ok(serverMarkup.includes(webp))
   assert.ok(serverMarkup.includes(still))
   assert.match(serverMarkup, /loading="eager"/)
   assert.match(serverMarkup, /fetchPriority="high"/)
@@ -81,7 +81,7 @@ test(
     async function openHero(
       width: number,
       reduced = false,
-      failMotion = false,
+      failOnce = new Set<string>(),
     ) {
       const page = await browser.newPage({
         viewport: { width, height: 844 },
@@ -97,10 +97,7 @@ test(
           })
         }
         requests.push(url.pathname)
-        if (failMotion && url.pathname === motion) {
-          failMotion = false
-          return route.abort()
-        }
+        if (failOnce.delete(url.pathname)) return route.abort()
         return route.fulfill({
           path: path.join(repoRoot, 'public', url.pathname),
         })
@@ -154,13 +151,19 @@ test(
     await reduced.waitForImage(still)
     await reduced.page.close()
 
-    const failed = await openHero(1512, false, true)
+    const fallback = await openHero(1512, false, new Set([motion]))
+    await fallback.hydrate()
+    await fallback.waitForImage(webp)
+    assert.deepEqual(fallback.requests, [motion, webp])
+    await fallback.page.close()
+
+    const failed = await openHero(1512, false, new Set([motion, webp]))
     await failed.hydrate()
     await failed.waitForImage(still)
     await failed.page
       .getByRole('button', { name: 'Play hero animation' })
       .click()
-    await failed.waitForImage(motion)
+    await failed.waitForImage(webp)
     await failed.page.close()
   },
 )

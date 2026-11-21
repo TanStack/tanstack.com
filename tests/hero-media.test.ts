@@ -51,7 +51,10 @@ test('server render preloads only the still at high priority', () => {
   assert.equal(preloads.length, 1)
   assert.ok(preloads[0].includes(`href="${still}"`))
   assert.match(preloads[0], /fetchPriority="high"/i)
-  assert.doesNotMatch(serverMarkup, /<img[^>]+fetchPriority="high"/i)
+  assert.doesNotMatch(
+    serverMarkup.match(/<picture[\s\S]+?<\/picture>/)?.[0] ?? '',
+    /fetchPriority="high"/i,
+  )
 })
 
 test(
@@ -137,23 +140,31 @@ test(
       await hero.page.close()
     }
 
+    // Pause from the server HTML while the application has no event handlers.
+    for (const width of [390, 1512]) {
+      const hero = await openHero(width)
+      const control = hero.page.locator('summary')
+      await control.press('Enter')
+      assert.equal(await hero.page.locator('details[open]').count(), 0)
+      await hero.hydrate()
+      await hero.waitForImage(still)
+      assert.equal(await hero.page.locator('details[open]').count(), 0)
+      await control.press('Space')
+      await hero.waitForImage(motion)
+      await hero.page.close()
+    }
+
     const reduced = await openHero(390, true)
     await reduced.waitForImage(still)
     await reduced.hydrate()
     await reduced.page.emulateMedia({ reducedMotion: 'no-preference' })
     await reduced.waitForImage(still)
     assert.equal(reduced.requests.includes(motion), false)
-    await reduced.page
-      .getByRole('button', { name: 'Play hero animation' })
-      .press('Enter')
+    await reduced.page.locator('summary').press('Enter')
     await reduced.waitForImage(motion)
-    await reduced.page
-      .getByRole('button', { name: 'Pause hero animation' })
-      .press('Enter')
+    await reduced.page.locator('summary').press('Enter')
     await reduced.waitForImage(still)
-    await reduced.page
-      .getByRole('button', { name: 'Play hero animation' })
-      .click()
+    await reduced.page.locator('summary').click()
     await reduced.waitForImage(motion)
     await reduced.page.emulateMedia({ reducedMotion: 'reduce' })
     await reduced.waitForImage(still)
@@ -168,9 +179,7 @@ test(
     const failed = await openHero(1512, false, new Set([motion, webp]))
     await failed.hydrate()
     await failed.waitForImage(still)
-    await failed.page
-      .getByRole('button', { name: 'Play hero animation' })
-      .click()
+    await failed.page.locator('summary').click()
     await failed.waitForImage(webp)
     await failed.page.close()
   },

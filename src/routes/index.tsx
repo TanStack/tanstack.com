@@ -1,6 +1,6 @@
 import { homepageScarfPixel } from '~/utils/analytics/scarf-pixels'
 import * as React from 'react'
-import { Await, Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { twMerge } from 'tailwind-merge'
 
@@ -19,11 +19,7 @@ import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
-import {
-  HomeStatsFallback,
-  HomeSocialProofFallback,
-  HomeNewsletterFallback,
-} from '~/components/home/HomeSectionFallbacks'
+import { HomeStatsFallback } from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
@@ -38,13 +34,7 @@ import { seo } from '~/utils/seo'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
-  loader: ({ context: { queryClient } }) => ({
-    stats: Promise.all([
-      queryClient.prefetchQuery(ossStatsQuery()),
-      queryClient.prefetchQuery(homepageNpmStatsSummaryQuery()),
-    ]),
-    recentPosts: fetchRecentPosts(),
-  }),
+  loader: () => fetchRecentPosts(),
   head: () => ({
     meta: seo({
       title: 'TanStack | The open-source application stack for the web.',
@@ -62,7 +52,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const { recentPosts, stats } = Route.useLoaderData()
+  const recentPosts = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
   const startWithPrompt = (e: React.MouseEvent) => {
@@ -143,9 +133,12 @@ function Index() {
               </div>
             </div>
             <div className="flex items-center justify-center px-2.5 py-6">
-              <Await promise={stats} fallback={<HomeStatsFallback />}>
-                {() => <HomeStatsSection />}
-              </Await>
+              <Hydrate
+                when={visible({ rootMargin: '0px' })}
+                fallback={<HomeStatsFallback />}
+              >
+                <HomeStatsSection />
+              </Hydrate>
             </div>
           </div>
           <div
@@ -158,19 +151,12 @@ function Index() {
 
         <WhyTanStackSection />
 
-        <Await promise={recentPosts} fallback={<HomeSocialProofFallback />}>
-          {(posts) => <HomeSocialProofSection recentPosts={posts} />}
-        </Await>
+        <HomeSocialProofSection recentPosts={recentPosts} />
 
         <HomeCommunitySection />
 
         <div className="h-4" />
-        <Hydrate
-          when={visible({ rootMargin: '200px' })}
-          fallback={<HomeNewsletterFallback />}
-        >
-          <HomeNewsletterSection />
-        </Hydrate>
+        <HomeNewsletterSection />
       </main>
     </>
   )

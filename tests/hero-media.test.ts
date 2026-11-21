@@ -40,7 +40,7 @@ test('the WebP loop preserves the source timing and matches its still', async ()
   assert.equal(animation.height, poster.height)
 })
 
-test('server render lets the browser select a single eager hero image', () => {
+test('server render exposes the poster and eager animation sources', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|\.m3u8|\.mp4|rel="preload"/)
   assert.match(serverMarkup, /<picture\b/)
   assert.ok(serverMarkup.includes(motion))
@@ -125,7 +125,11 @@ test(
     for (const width of [390, 844, 1024, 1512]) {
       const hero = await openHero(width)
       await hero.waitForImage(motion)
-      assert.deepEqual(hero.requests, [motion])
+      assert.deepEqual(new Set(hero.requests), new Set([motion, still]))
+      const image = hero.page.locator('picture img')
+      assert.equal(await image.isVisible(), false)
+      await hero.hydrate()
+      await image.waitFor({ state: 'visible' })
       await hero.page.close()
     }
 
@@ -154,7 +158,7 @@ test(
     const fallback = await openHero(1512, false, new Set([motion]))
     await fallback.hydrate()
     await fallback.waitForImage(webp)
-    assert.deepEqual(fallback.requests, [motion, webp])
+    assert.deepEqual(new Set(fallback.requests), new Set([motion, webp, still]))
     await fallback.page.close()
 
     const failed = await openHero(1512, false, new Set([motion, webp]))

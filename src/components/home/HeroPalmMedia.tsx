@@ -2,12 +2,16 @@ import * as React from 'react'
 import { PauseIcon, PlayIcon } from '@phosphor-icons/react'
 import { Squircle } from '~/components/Squircle'
 
+const still = '/images/hero-palm-cutout-still.webp'
+
 export function HeroPalmMedia() {
   const imageRef = React.useRef<HTMLImageElement>(null)
   const [paused, setPaused] = React.useState(false)
 
+  const [ready, setReady] = React.useState(false)
   const [webpOnly, setWebpOnly] = React.useState(false)
   const handleImageError = React.useCallback((image: HTMLImageElement) => {
+    setReady(false)
     if (image.currentSrc.endsWith('.avif')) setWebpOnly(true)
     else setPaused(true)
   }, [])
@@ -20,7 +24,10 @@ export function HeroPalmMedia() {
     stopIfReduced()
     // The browser can finish loading (or fail) before hydration.
     const image = imageRef.current
-    if (image?.complete && image.naturalWidth === 0) handleImageError(image)
+    if (image?.complete) {
+      if (image.naturalWidth > 0) setReady(true)
+      else handleImageError(image)
+    }
 
     preference.addEventListener('change', stopIfReduced)
     return () => preference.removeEventListener('change', stopIfReduced)
@@ -35,7 +42,10 @@ export function HeroPalmMedia() {
         {/* Cover the hero with the original 944 × 416 composition. The palm
             occupies x=360..620 and y=68..416 within that frame. */}
         <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
-          <picture className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
+          <picture
+            className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)] bg-cover"
+            style={ready ? undefined : { backgroundImage: `url(${still})` }}
+          >
             {!paused && !webpOnly && (
               <source
                 type="image/avif"
@@ -50,10 +60,7 @@ export function HeroPalmMedia() {
                 srcSet="/images/hero-palm-cutout.webp"
               />
             )}
-            <source
-              type="image/webp"
-              srcSet="/images/hero-palm-cutout-still.webp"
-            />
+            <source type="image/webp" srcSet={still} />
             {/* Browsers can fetch the fallback during hydration. Keep it inline. */}
             <img
               ref={imageRef}
@@ -63,7 +70,10 @@ export function HeroPalmMedia() {
               height={348}
               loading="eager"
               fetchPriority="high"
+              onLoad={() => setReady(true)}
               onError={(event) => handleImageError(event.currentTarget)}
+              // Keep the poster visible until the browser has the complete animation.
+              style={{ visibility: ready ? 'visible' : 'hidden' }}
               className="block h-auto w-full"
             />
           </picture>
@@ -71,7 +81,10 @@ export function HeroPalmMedia() {
       </Squircle>
       <button
         type="button"
-        onClick={() => setPaused(!paused)}
+        onClick={() => {
+          if (paused) setReady(false)
+          setPaused(!paused)
+        }}
         aria-label={paused ? 'Play hero animation' : 'Pause hero animation'}
         className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 pointer-coarse:opacity-100 motion-reduce:hidden"
       >

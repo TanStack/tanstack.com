@@ -8,7 +8,7 @@ export function PartnerList({
 }) {
   return (
     <div className="not-prose my-8">
-      <PartnersGrid status={status} />
+      <PartnersGrid analyticsPlacement="blog_grid" status={status} />
     </div>
   )
 }

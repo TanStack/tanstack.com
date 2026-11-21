@@ -12,6 +12,7 @@ export const googleAnalyticsProvider: AnalyticsProvider = {
     if (
       import.meta.env.MODE === 'staging' ||
       typeof window === 'undefined' ||
+      window.location.hostname !== 'tanstack.com' ||
       !window.gtag
     ) {
       return

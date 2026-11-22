@@ -408,7 +408,7 @@ function WhyTanStackSection() {
             <li
               key={principle.title}
               className={twMerge(
-                'flex flex-col gap-8 py-4 sm:py-6 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
+                'flex flex-col gap-4 py-4 sm:gap-8 sm:py-6 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
                 index < whyTanStackPrinciples.length - 1 &&
                   'border-b border-gray-200 dark:border-gray-800',
               )}
@@ -416,7 +416,7 @@ function WhyTanStackSection() {
               {/* copy column — 478:1745. Everything is left-aligned to the
                   card edge; at desktop sizes the title and description stay
                   grouped at the center of the 233px proof panel. */}
-              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
+              <div className="flex min-w-0 flex-1 flex-col gap-2 sm:gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
                 <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
                   {principle.title}
                 </h4>
@@ -465,7 +465,7 @@ function WhyTanStackSection() {
  */
 function PrinciplePanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px] [&>div]:w-full">
+    <div className="flex w-full shrink-0 items-center justify-center sm:h-[233px] lg:w-[460px] [&>div]:w-full">
       {children}
     </div>
   )
@@ -522,7 +522,7 @@ function FrameworkAdapterGraph({
     // width, so the graph fills whatever slot it lands in without restating the
     // ancestors' padding. The 1.35 cap is the ratio the fixed 460px `lg` slot
     // was designed around.
-    <div className="@container flex w-full justify-center">
+    <div className="@container flex w-full justify-center py-4 sm:py-0">
       <div
         ref={rootRef}
         aria-hidden="true"

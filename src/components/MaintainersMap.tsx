@@ -783,10 +783,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       const height = host.clientHeight
       const paintHeight = surface.clientHeight
       const limit = mobile.matches ? mobileMaxZoom : desktopMaxZoom
-      // Keep the desktop starting diameter. On mobile, fit to the smaller edge.
+      // At the mobile default, crop 3% of the viewport width from each side.
       const projectionHeight = mobile.matches
-        ? (Math.min(paintWidth, paintHeight) - 2 * viewportGutter) /
-          (globeAtmosphereDiameter * mobileMaxZoom)
+        ? (paintWidth * 1.06) / (2 * globeRadius * mobileMaxZoom)
         : paintHeight / (desktopInitialScale * desktopProjectionDiameter)
       hostSize.current = {
         width,
@@ -1177,7 +1176,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             )
             invalidate()
           }}
-          className="absolute inset-y-0 left-1/2 w-(--globe-width) -translate-x-1/2 outline-offset-4"
+          className="absolute inset-y-0 left-1/2 w-(--globe-width) -translate-x-1/2 outline-offset-4 max-sm:overflow-x-clip"
         >
           <div
             ref={setSurface}

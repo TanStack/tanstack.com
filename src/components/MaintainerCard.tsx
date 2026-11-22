@@ -1,13 +1,12 @@
-import { Library, Framework } from '~/libraries'
+import type { Framework, Library, LibrarySlim } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
+import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import {
   getRoleInLibrary,
   Maintainer,
   getPersonsMaintainerOf,
 } from '~/libraries/maintainers'
-import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { twMerge } from 'tailwind-merge'
 import { MaintainerAvatarImage } from './MaintainerAvatarImage'
 
 function RoleBadge({
@@ -54,19 +53,15 @@ function RoleBadge({
 function FrameworkChip({ framework }: { framework: Framework }) {
   const frameworkOption = frameworkOptions.find((f) => f.value === framework)
   const bgColor = frameworkOption?.color || 'bg-gray-500'
+  const textColor =
+    framework === 'solid' || framework === 'alpine'
+      ? 'text-white'
+      : 'text-black'
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor}/80 text-white gap-1`}
+      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor} ${textColor}`}
       aria-label={`Framework: ${frameworkOption?.label || framework}`}
     >
-      <svg
-        aria-hidden="true"
-        className="w-3 h-3"
-        fill="currentColor"
-        viewBox="0 0 16 16"
-      >
-        <circle cx="8" cy="8" r="8" />
-      </svg>
       {frameworkOption?.label || framework}
     </span>
   )
@@ -75,52 +70,50 @@ function FrameworkChip({ framework }: { framework: Framework }) {
 function SpecialtyChip({ specialty }: { specialty: string }) {
   return (
     <span
-      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-800 gap-1 dark:bg-gray-700 dark:text-gray-200"
+      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
       aria-label={`Specialty: ${specialty}`}
     >
-      <svg
-        aria-hidden="true"
-        className="w-3 h-3"
-        fill="currentColor"
-        viewBox="0 0 16 16"
-      >
-        <rect x="2" y="2" width="12" height="12" rx="1" />
-      </svg>
       {specialty}
     </span>
   )
 }
 
-function LibraryBadge({ library }: { library: Library }) {
-  const bgClass = `${library.bgStyle ?? 'bg-category-tooling'}/40`
+function LibraryBadge({ library }: { library: LibrarySlim }) {
+  const Icon = libraryIcons[library.id] ?? fallbackLibraryIcon
+  const textColor =
+    library.bgStyle === 'bg-category-tooling'
+      ? 'text-white dark:text-black'
+      : 'text-black'
+  const badgeClass = `inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${library.bgStyle} ${textColor}`
+  const label = (
+    <>
+      <Icon aria-hidden="true" className="size-3 shrink-0" />
+      {library.name.replace(/^TanStack\s+/, '')}
+    </>
+  )
+
   if (library.to) {
     return (
       <Link
         to="/$libraryId/$version/docs/contributors"
         params={{ libraryId: library.id, version: 'latest' }}
-        className={twMerge(
-          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
-          bgClass,
-        )}
+        className={`${badgeClass} hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`}
         aria-label={`View contributors for ${library.name}`}
         tabIndex={0}
         onClick={(e) => e.stopPropagation()}
         title={`View all contributors for ${library.name}`}
       >
-        {library.name.replace('TanStack', '🌴')}
+        {label}
       </Link>
     )
   }
   return (
     <span
-      className={twMerge(
-        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary capitalize`,
-        bgClass,
-      )}
+      className={badgeClass}
       aria-label={`View contributors for ${library.name}`}
       title={`View all contributors for ${library.name}`}
     >
-      {library.name.replace('TanStack', '🌴')}
+      {label}
     </span>
   )
 }
@@ -289,7 +282,6 @@ export function MaintainerRowCard({
   libraryId,
 }: MaintainerRowCardProps) {
   const libraries = getPersonsMaintainerOf(maintainer)
-  const [showAllLibraries, setShowAllLibraries] = useState(false)
 
   return (
     <div
@@ -358,29 +350,9 @@ export function MaintainerRowCard({
 
               {/* Library badges */}
               {!libraryId &&
-                libraries.length > 0 &&
-                libraries
-                  .slice(0, showAllLibraries ? undefined : 2)
-                  .map((library) => (
-                    <LibraryBadge key={library.id} library={library} />
-                  ))}
-
-              {/* Show more button */}
-              {!libraryId && !showAllLibraries && libraries.length > 2 && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setShowAllLibraries(true)
-                  }}
-                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  aria-label={`Show ${libraries.length - 2} more libraries`}
-                  tabIndex={0}
-                  type="button"
-                >
-                  +{libraries.length - 2} more
-                </button>
-              )}
+                libraries.map((library) => (
+                  <LibraryBadge key={library.id} library={library} />
+                ))}
             </div>
           )}
         </div>

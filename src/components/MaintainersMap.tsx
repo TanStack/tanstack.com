@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { Popover } from '@base-ui/react/popover'
 import { ClientOnly } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
@@ -61,8 +62,6 @@ type ProfileViewport = {
   bottom: number
   contentTop: number
   contentBottom: number
-  helpTop: number
-  helpBottom: number
 }
 
 type ProfileSize = { width: number; height: number }
@@ -231,12 +230,6 @@ function placeProfiles(
       right: contentRight,
       top: bounds.height - zoomControls.height,
       bottom: bounds.height,
-    },
-    {
-      left: bounds.contentInset,
-      right: contentRight,
-      top: viewport.helpTop,
-      bottom: viewport.helpBottom,
     },
   ]
   const labels = nodes.flatMap(
@@ -639,10 +632,6 @@ type MaintainersMapProps = {
   maintainers: Maintainer[]
 }
 
-function Key({ children }: { children: React.ReactNode }) {
-  return <kbd className="font-sans font-medium">{children}</kbd>
-}
-
 function GlobeAvatar({
   member,
   color,
@@ -687,13 +676,14 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   > | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [scale, setScale] = useState(initialView.scale)
-  const [selectedId, setSelectedId] = useState('')
+  const [profilePopover] = useState(() => Popover.createHandle<string>())
   const [paused, setPaused] = useState(false)
   const [behavior] = useState(() => zoom<HTMLDivElement, unknown>())
   const [profilePositions] = useState(
     (): Map<string, ProfilePosition> => new Map(),
   )
   const profileNodes = useRef<ReturnType<typeof readProfileNodes>>(undefined)
+  const openProfileTrigger = useRef<Element>(undefined)
   const [startingView] = useState(() => initialMaintainersView(initialLocation))
   const view = useRef({ ...startingView })
   const target = useRef({ ...startingView })
@@ -762,7 +752,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     }
     return result
   }, [maintainers, prefix, scale])
-  const selected = groups.find((group) => group.id === selectedId)
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
 
@@ -850,7 +839,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     const instance = globe
     const canvasSurface = surface
     const section = container.closest('section')
-    const help = section?.querySelector('#maintainers-globe-help')
     const intro = section?.parentElement?.querySelector(':scope > header')
     const navbarHeight =
       Number.parseFloat(
@@ -877,14 +865,10 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       const { top, height } = container.getBoundingClientRect()
       const contentTop =
         (intro?.getBoundingClientRect().bottom ?? top) - top + viewportGutter
-      const helpBounds = help?.getBoundingClientRect()
       // Keep the zoomed paint and floating profiles clear of the next section.
-      const nextContent =
-        help?.nextElementSibling ?? section?.nextElementSibling
+      const nextContent = section?.nextElementSibling
       const contentBottom =
-        (nextContent?.getBoundingClientRect().top ??
-          helpBounds?.bottom ??
-          top + height) -
+        (nextContent?.getBoundingClientRect().top ?? top + height) -
         top -
         viewportGutter
       const nextFadeOffset = contentBottom - height / 2
@@ -903,8 +887,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         bottom: screenTop + screenHeight - viewportGutter - top,
         contentTop,
         contentBottom,
-        helpTop: (helpBounds?.top ?? 0) - top,
-        helpBottom: (helpBounds?.bottom ?? 0) - top,
       }
       viewportChanged = true
       requestFrame()
@@ -973,9 +955,15 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           const readingProfile = container.querySelector(
             '[data-globe-profile]:hover, [data-globe-profile]:focus-within',
           )
-          const idle = !readingProfile && !interacting.current
+          const idle =
+            !readingProfile &&
+            !openProfileTrigger.current &&
+            !interacting.current
           const autoRotate =
-            globeVisible && !reducedMotion && !pausedRef.current
+            globeVisible &&
+            !reducedMotion &&
+            !pausedRef.current &&
+            !openProfileTrigger.current
           if (autoRotate && idle) {
             target.current.phi += Math.min(elapsed, 100) * 0.00015
           }
@@ -1017,6 +1005,18 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                 viewport,
                 globeVisible,
               ) || !profileNodes.current
+            const trigger = openProfileTrigger.current
+            if (trigger) {
+              const profile = trigger.closest('[data-globe-profile]')
+              if (
+                !trigger.isConnected ||
+                profile?.getAttribute('data-shown') !== 'true' ||
+                profile.hasAttribute('data-offscreen') !==
+                  trigger.hasAttribute('data-globe-count')
+              ) {
+                profilePopover.close()
+              }
+            }
             viewportChanged = false
           }
           wasIdle = idle
@@ -1068,7 +1068,15 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       cancelAnimationFrame(frame)
       wakeGlobe.current = undefined
     }
-  }, [host, globe, surface, reducedMotion, profilePositions, invalidate])
+  }, [
+    host,
+    globe,
+    surface,
+    reducedMotion,
+    profilePositions,
+    invalidate,
+    profilePopover,
+  ])
 
   useEffect(() => {
     if (!host) return
@@ -1127,20 +1135,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     }
   }, [host, behavior, invalidate, pauseRotation])
 
-  function focus(group: MaintainerGroup) {
-    pauseRotation()
-    const phi = (-group.location[1] * Math.PI) / 180 - Math.PI / 2
-    target.current.phi =
-      view.current.phi +
-      Math.atan2(
-        Math.sin(phi - view.current.phi),
-        Math.cos(phi - view.current.phi),
-      )
-    target.current.theta = (group.location[0] * Math.PI) / 180
-    setSelectedId(group.id)
-    invalidate()
-  }
-
   // The composite globe needs a focus target for its keyboard rotation controls.
   /* oxlint-disable jsx-a11y/no-noninteractive-tabindex */
   return (
@@ -1190,10 +1184,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           aria-describedby="maintainers-globe-help"
           tabIndex={0}
           onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setSelectedId('')
-              return
-            }
             if (event.target !== event.currentTarget || !event.shiftKey) return
             const directions: Record<string, [number, number]> = {
               ArrowLeft: [-0.15, 0],
@@ -1272,7 +1262,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                 >
                   <div
                     data-globe-portraits
-                    className="pointer-events-auto left-0 top-0 flex w-max items-center -space-x-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:-space-x-1.5 sm:p-1.5"
+                    className="pointer-events-auto left-0 top-0 flex w-max items-center rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:p-1.5 [&>button~button]:-ms-1 sm:[&>button~button]:-ms-1.5"
                   >
                     {group.members.map((member) => (
                       <Tooltip
@@ -1286,24 +1276,24 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                           </div>
                         }
                       >
-                        <button
+                        <Popover.Trigger
                           type="button"
-                          onClick={() => focus(group)}
+                          handle={profilePopover}
+                          payload={group.id}
                           aria-label={`Show ${member.name}`}
-                          aria-expanded={selectedId === group.id}
                           className="relative shrink-0 rounded-full bg-background-elevated hover:z-10 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <GlobeAvatar member={member} color={group.color} />
-                        </button>
+                        </Popover.Trigger>
                       </Tooltip>
                     ))}
                   </div>
-                  <button
+                  <Popover.Trigger
                     type="button"
                     data-globe-count
-                    onClick={() => focus(group)}
+                    handle={profilePopover}
+                    payload={group.id}
                     aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'} near ${group.members[0]?.location?.name ?? 'this location'}`}
-                    aria-expanded={selectedId === group.id}
                     className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
                     <span aria-hidden="true" className="flex -space-x-0.5">
@@ -1317,7 +1307,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                       ))}
                     </span>
                     {group.members.length}
-                  </button>
+                  </Popover.Trigger>
                 </div>
               ))}
             </ClientOnly>
@@ -1386,71 +1376,78 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           </button>
         </div>
       </div>
-      <p
-        id="maintainers-globe-help"
-        className="relative z-20 text-center text-xs leading-relaxed text-text-muted opacity-80"
+      <Popover.Root
+        handle={profilePopover}
+        onOpenChange={(open, { trigger }) => {
+          openProfileTrigger.current = open ? trigger : undefined
+          wakeGlobe.current?.()
+        }}
       >
-        <span className="hidden sm:inline sm:pointer-coarse:hidden">
-          Select to see nearby maintainers, <Key>Esc</Key> to close.
-        </span>
-        <span className="sm:hidden sm:pointer-coarse:inline">
-          Tap a profile to see nearby maintainers.
-        </span>
-      </p>
-      {selected && (
-        <div
-          role="region"
-          aria-label="Selected maintainers"
-          className="relative z-20 rounded-xl border border-border-default bg-background-subtle/50 p-4 dark:border-white/20"
-        >
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
-              <h3 className="font-semibold">
-                {`${selected.members.length} maintainer${selected.members.length === 1 ? '' : 's'} nearby`}
-              </h3>
-              <p className="mt-1 text-xs text-text-muted">
-                Select a profile to open their GitHub.
-              </p>
-            </div>
-            <button
-              type="button"
-              aria-label="Close selected cluster"
-              onClick={() => {
-                setSelectedId('')
-              }}
-              className="rounded p-1 hover:bg-surface-state-hover"
-            >
-              <XIcon />
-            </button>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {selected.members.map((member) => (
-              <a
-                key={member.github}
-                href={`https://github.com/${member.github}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex min-w-0 items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
+        {({ payload }) => {
+          const selected = groups.find((group) => group.id === payload)
+          if (!selected) return null
+          return (
+            <Popover.Portal>
+              <Popover.Positioner
+                positionMethod="fixed"
+                sideOffset={8}
+                collisionPadding={12}
+                collisionAvoidance={{ align: 'shift' }}
+                className="z-[var(--z-overlay)] data-[anchor-hidden]:invisible"
               >
-                <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
-                  <MaintainerAvatarImage
-                    src={member.avatar}
-                    alt=""
-                    width={36}
-                    height={36}
-                  />
-                </span>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold">{member.name}</div>
-                  <div className="text-xs text-text-muted">
-                    {member.location?.name}
+                <Popover.Popup className="flex max-h-(--available-height) w-72 max-w-(--available-width) flex-col rounded-xl border border-border-default bg-background-elevated p-2 shadow-lg outline-none [&_:focus-visible]:outline-2 [&_:focus-visible]:-outline-offset-2 [&_:focus-visible]:outline-border-strong dark:border-white/20">
+                  <div className="flex shrink-0 items-start justify-between gap-2 px-2 py-1">
+                    <div>
+                      <Popover.Title className="text-sm font-semibold">
+                        {selected.members.length === 1
+                          ? '1 maintainer nearby'
+                          : `${selected.members.length} maintainers nearby`}
+                      </Popover.Title>
+                      <Popover.Description className="mt-1 text-xs text-text-muted">
+                        Select a profile to open their GitHub.
+                      </Popover.Description>
+                    </div>
+                    <Popover.Close
+                      aria-label="Close maintainer profiles"
+                      className="grid size-7 shrink-0 place-items-center rounded-md hover:bg-surface-state-hover"
+                    >
+                      <XIcon aria-hidden="true" className="size-4" />
+                    </Popover.Close>
                   </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+                  <div className="min-h-0 overflow-y-auto overscroll-contain">
+                    {selected.members.map((member) => (
+                      <a
+                        key={member.github}
+                        href={`https://github.com/${member.github}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
+                      >
+                        <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
+                          <MaintainerAvatarImage
+                            src={member.avatar}
+                            alt=""
+                            width={36}
+                            height={36}
+                          />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold">
+                            {member.name}
+                          </div>
+                          <div className="text-xs text-text-muted">
+                            {member.location?.name}
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          )
+        }}
+      </Popover.Root>
       {!groups.length && (
         <p role="status" className="text-sm text-text-secondary">
           No shared locations for the selected maintainers and contributors.

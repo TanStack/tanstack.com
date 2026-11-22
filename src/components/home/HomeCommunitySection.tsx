@@ -12,13 +12,7 @@ const MaintainersMap = lazy(() =>
   })),
 )
 
-// Reserve the map, its help text line, and the gap between them.
-const globeFallback = (
-  <div
-    aria-hidden="true"
-    className="box-content h-(--globe-height) pb-[calc(1rem+1lh)] text-xs leading-relaxed"
-  />
-)
+const globeFallback = <div aria-hidden="true" className="h-(--globe-height)" />
 
 export function HomeCommunitySection() {
   return (
@@ -38,6 +32,18 @@ export function HomeCommunitySection() {
             Who builds TanStack?
           </a>
         </h2>
+        <p
+          id="maintainers-globe-help"
+          className="mt-3 text-center text-xs leading-relaxed text-text-muted opacity-80"
+        >
+          <span className="hidden sm:inline sm:pointer-coarse:hidden">
+            Select to see nearby maintainers,{' '}
+            <kbd className="font-sans font-semibold">Esc</kbd> to close.
+          </span>
+          <span className="sm:hidden sm:pointer-coarse:inline">
+            Tap a profile to see nearby maintainers.
+          </span>
+        </p>
       </header>
       <ClientOnly fallback={globeFallback}>
         <Suspense fallback={globeFallback}>

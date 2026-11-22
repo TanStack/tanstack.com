@@ -32,7 +32,6 @@
         "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",
         "src/components/LandingPageGad.tsx",
-        "src/components/LibraryStatsSection.tsx",
         "src/components/Logo.tsx",
         "src/components/LogoColor.tsx",
         "src/components/LogoQueryGG.tsx",

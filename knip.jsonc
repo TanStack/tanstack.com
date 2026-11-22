@@ -43,7 +43,6 @@
         "src/components/application-starter/FeaturePicker.tsx",
         "src/components/application-starter/index.ts",
         "src/components/game/engine/entities/index.ts",
-        "src/components/game/ui/DiscoveryProgress.tsx",
         "src/components/icons/BaseballCapIcon.tsx",
         "src/components/icons/YinYangIcon.tsx",
         "src/components/landing/LandingCodeExampleCard.tsx",

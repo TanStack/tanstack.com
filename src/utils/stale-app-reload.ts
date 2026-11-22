@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/tanstackstart-react'
 import {
   getSessionStorageItem,
   setSessionStorageItem,
@@ -77,6 +78,10 @@ export function reloadOnStaleAppError(error: unknown) {
     writeLastReloadAt(now)
     window.location.reload()
     markReloadedErrors(error)
+    if (Sentry.isEnabled()) {
+      Sentry.metrics.count('app.stale_reload', 1)
+      void Sentry.flush(2_000)
+    }
     return true
   }
 

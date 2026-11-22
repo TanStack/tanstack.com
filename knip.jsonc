@@ -29,7 +29,6 @@
         "src/chat/server/semantic-history.ts",
         "src/chat/skill-identifiers.ts",
         "src/components/BlogAuthorFilter.tsx",
-        "src/components/BottomCTA.tsx",
         "src/components/DocFeedbackContext.tsx",
         "src/components/FrameworkIconTabs.tsx",
         "src/components/Gam.tsx",

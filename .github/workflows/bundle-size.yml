@@ -39,25 +39,78 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
-          import { extname, join } from 'node:path'
+          import { extname, join, relative, resolve } from 'node:path'
+          import { pathToFileURL } from 'node:url'
           import { gzipSync } from 'node:zlib'
 
-          const sizes = { js: 0, jsGzip: 0, css: 0, cssGzip: 0 }
-          const entries = readdirSync('dist/client/assets', {
+          const client = 'dist/client'
+          const totals = { js: 0, jsGzip: 0, css: 0, cssGzip: 0 }
+          const gzipByHref = new Map()
+          const entries = readdirSync(join(client, 'assets'), {
             recursive: true,
             withFileTypes: true,
           })
           for (const entry of entries) {
             const extension = extname(entry.name).slice(1)
             if (!entry.isFile() || (extension !== 'js' && extension !== 'css')) continue
-            const bytes = readFileSync(join(entry.parentPath, entry.name))
-            sizes[extension] += bytes.length
-            sizes[`${extension}Gzip`] += gzipSync(bytes).length
+            const file = join(entry.parentPath, entry.name)
+            const bytes = readFileSync(file)
+            const gzip = gzipSync(bytes).length
+            totals[extension] += bytes.length
+            totals[`${extension}Gzip`] += gzip
+            gzipByHref.set(`/${relative(client, file)}`, gzip)
           }
-          if (sizes.js === 0 || sizes.css === 0) {
+          if (totals.js === 0 || totals.css === 0) {
             throw new Error('Expected built JS and CSS in dist/client/assets')
           }
-          writeFileSync(process.env.REPORT_FILE, JSON.stringify(sizes))
+
+          const serverAssets = 'dist/server/assets'
+          const manifestFile = readdirSync(serverAssets).find((file) =>
+            file.startsWith('_tanstack-start-manifest_'),
+          )
+          if (!manifestFile) throw new Error('TanStack Start build manifest is missing')
+          const { tsrStartManifest } = await import(pathToFileURL(resolve(serverAssets, manifestFile)))
+          const { routes } = tsrStartManifest()
+          const parents = new Map()
+          for (const [id, route] of Object.entries(routes)) {
+            for (const child of route.children ?? []) parents.set(child, id)
+          }
+
+          const pageRoutes = {
+            '/': '/',
+            '/libraries': '/libraries',
+            '/start/latest': '/_library/start/$version/',
+            '/router/latest': '/_library/router/$version/',
+            '/query/latest': '/_library/query/$version/',
+            '/table/latest': '/_library/table/$version/',
+            '/charts/latest': '/_library/charts/$version/',
+            '/ai/latest': '/_library/ai/$version/',
+            'Docs article': '/_library/$libraryId/$version/docs/$',
+            'Framework docs article': '/_library/$libraryId/$version/docs/framework/$framework/$',
+            '/blog': '/blog/',
+            '/maintainers': '/maintainers',
+            '/showcase': '/showcase/',
+            '/chat': '/chat/',
+            '/chat/c/:conversationId': '/chat/c/$conversationId',
+          }
+          const pages = {}
+          for (const [page, id] of Object.entries(pageRoutes)) {
+            if (!routes[id]) continue
+            const matchedRoutes = new Set(['__root__'])
+            for (let current = id; current; current = parents.get(current)) {
+              matchedRoutes.add(current)
+            }
+            const hrefs = new Set()
+            for (const matched of matchedRoutes) {
+              const route = routes[matched]
+              for (const link of [...(route.preloads ?? []), ...(route.css ?? [])]) {
+                hrefs.add(typeof link === 'string' ? link : link.href)
+              }
+              for (const script of route.scripts ?? []) hrefs.add(script.attrs?.src)
+            }
+            pages[page] = [...hrefs].reduce((bytes, href) => bytes + (gzipByHref.get(href) ?? 0), 0)
+          }
+          writeFileSync(process.env.REPORT_FILE, JSON.stringify({ totals, pages }))
           NODE
       - name: Upload bundle sizes
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -98,11 +151,16 @@ jobs:
             ]
             function readSizes(build) {
               const file = join(process.env.RUNNER_TEMP, 'bundle-size', `bundle-size-${build}.json`)
-              const sizes = JSON.parse(readFileSync(file, 'utf8'))
-              if (metrics.some(([, key]) => !Number.isSafeInteger(sizes?.[key]) || sizes[key] < 1)) {
+              const report = JSON.parse(readFileSync(file, 'utf8'))
+              const validSize = (bytes) => Number.isSafeInteger(bytes) && bytes > 0
+              if (
+                metrics.some(([, key]) => !validSize(report.totals?.[key])) ||
+                !validSize(report.pages?.['/']) ||
+                Object.values(report.pages).some((bytes) => !validSize(bytes))
+              ) {
                 throw new Error(`Invalid bundle sizes in ${file}`)
               }
-              return sizes
+              return report
             }
 
             const original = context.payload.pull_request
@@ -111,24 +169,32 @@ jobs:
 
             const main = readSizes('main')
             const candidate = readSizes('pr')
-            const kib = (bytes) => `${(bytes / 1024).toFixed(2)} KiB`
-            const rows = metrics.map(([label, key]) => {
-              const before = main[key]
-              const after = candidate[key]
-              const delta = after - before
-              const sign = delta > 0 ? '+' : ''
-              const change = `${sign}${kib(delta)} (${sign}${(100 * delta / before).toFixed(2)}%)`
+            const kib = (bytes) => bytes === undefined ? '—' : `${(bytes / 1024).toFixed(2)} KiB`
+            const sizeRow = (label, before, after) => {
+              let change = 'Added'
+              if (after === undefined) change = 'Removed'
+              else if (before !== undefined) {
+                const delta = after - before
+                const sign = delta > 0 ? '+' : ''
+                change = `${sign}${kib(delta)} (${sign}${(100 * delta / before).toFixed(2)}%)`
+              }
               return `| ${label} | ${kib(before)} | ${kib(after)} | ${change} |`
-            })
+            }
+            const pages = new Set([...Object.keys(main.pages), ...Object.keys(candidate.pages)])
             const marker = /^<!-- bundle-size-report:(\d+) -->/
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             const body = [
               `<!-- bundle-size-report:${context.runNumber} -->`,
-              '### Client bundle size',
               '',
               '| Asset | Main | PR merge build | Change |',
               '| --- | ---: | ---: | ---: |',
-              ...rows,
+              ...metrics.map(([label, key]) => sizeRow(label, main.totals[key], candidate.totals[key])),
+              '',
+              '| Page | Main (gzip) | PR merge build (gzip) | Change |',
+              '| --- | ---: | ---: | ---: |',
+              ...Array.from(pages, (page) => sizeRow(page, main.pages[page], candidate.pages[page])),
+              '',
+              'Page sizes sum the JS and CSS in the TanStack Start manifest for each route and its layouts. Shared files count once per page.',
               '',
               `Compared with main at \`${original.base.sha.slice(0, 7)}\`. Gzip sizes are summed per file. [Build run](${runUrl})`,
             ].join('\n')

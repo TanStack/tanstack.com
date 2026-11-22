@@ -42,12 +42,15 @@ function HomeCommunityContent() {
       className="@container isolate mx-auto w-full max-w-(--breakpoint-lg) space-y-4 px-4"
     >
       <header>
-        <h2 id="maintainers" className="scroll-mt-24 text-3xl font-bold">
+        <h2
+          id="maintainers"
+          className="scroll-mt-24 text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]"
+        >
           <a
             href="#maintainers"
             className="decoration-gray-400 hover:underline dark:decoration-gray-600"
           >
-            TanStack Everywhere
+            We are everywhere!
           </a>
         </h2>
       </header>
@@ -58,7 +61,7 @@ function HomeCommunityContent() {
       </ClientOnly>
       <div className="relative z-20 flex justify-center">
         <ButtonLink as="a" to="/maintainers" variant="subtle-link" color="gray">
-          View Maintainer Directory
+          View Maintainers
           <ArrowRightIcon />
         </ButtonLink>
       </div>

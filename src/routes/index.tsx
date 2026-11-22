@@ -132,7 +132,7 @@ function Index() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-center px-2.5 py-6">
+            <div className="flex flex-col px-2.5 py-6 md:flex-row md:items-center md:justify-center">
               <Hydrate
                 when={visible({ rootMargin: '0px' })}
                 fallback={<HomeStatsFallback />}

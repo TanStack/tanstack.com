@@ -57,7 +57,7 @@ function HomeCommunityContent() {
       </ClientOnly>
       <div className="relative z-20 flex justify-end">
         <ButtonLink as="a" to="/maintainers" variant="subtle-link" color="gray">
-          View Maintainers
+          View Maintainers &amp; Contributors
           <ArrowRightIcon />
         </ButtonLink>
       </div>

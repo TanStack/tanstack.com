@@ -24,17 +24,24 @@ const chromePath = [
   chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
-test('the WebP loop preserves the source timing and matches its still', async () => {
+test('the palm loop stays at 24 fps, matches its still, and fits the media budget', async () => {
   const animation = await sharp(
     path.join(repoRoot, 'public', motion),
   ).metadata()
   const poster = await sharp(path.join(repoRoot, 'public', still)).metadata()
-  // The source MP4 has 121 frames at 24 fps. WebP stores whole milliseconds.
+  // The excerpt plays at the source rate of 24 fps. WebP stores whole milliseconds.
   const delays = Array.from(
-    { length: 121 },
+    { length: 70 },
     (_, i) => Math.round(((i + 1) * 1000) / 24) - Math.round((i * 1000) / 24),
   )
   assert.deepEqual(animation.delay, delays)
+  const assetSize = (file: string) =>
+    fs.statSync(path.join(repoRoot, 'public', file)).size
+  assert.ok(
+    assetSize(motion) + assetSize(still) <
+      assetSize('/images/hero-palm-motion.mp4'),
+    'both palm images together should be smaller than the original MP4',
+  )
   assert.equal(animation.loop, 0)
   assert.ok(animation.hasAlpha && poster.hasAlpha)
   assert.equal(animation.width, poster.width)

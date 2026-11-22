@@ -392,7 +392,7 @@ function cubicAngle(
  * The "Why TanStack?" principles stack — Figma 478:1734.
  *
  * On desktop, the stack is 960px wide. Each card has 233px of content with
- * 40px of padding above and below and a 70px gap between the two columns.
+ * 24px of padding above and below and a 70px gap between the two columns.
  */
 function WhyTanStackSection() {
   return (
@@ -408,7 +408,7 @@ function WhyTanStackSection() {
             <li
               key={principle.title}
               className={twMerge(
-                'flex flex-col gap-8 py-6 sm:py-10 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
+                'flex flex-col gap-8 py-4 sm:py-6 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
                 index < whyTanStackPrinciples.length - 1 &&
                   'border-b border-gray-200 dark:border-gray-800',
               )}

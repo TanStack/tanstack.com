@@ -1479,8 +1479,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           select to see nearby maintainers, <Key>Esc</Key> to close.
         </span>
         <span className="sm:hidden sm:pointer-coarse:inline">
-          Drag sideways to rotate, pinch to zoom. Tap a profile to see nearby
-          maintainers.
+          Tap a profile to see nearby maintainers.
         </span>
       </p>
       {selected && (

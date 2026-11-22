@@ -1,13 +1,12 @@
-import { useCreateStore, useSelector } from '@tanstack/react-store'
+import { useSelector } from '@tanstack/react-store'
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
+import { useMachine } from '@xstate/react'
 import {
-  initialProgressionState,
-  transition,
+  progressionMachine,
   getPhaseFromState,
   getBattlePhase,
   BADGE_INFO,
   type BadgeTier,
-  type ProgressionEvent,
 } from './progressionMachine'
 import { gameStore } from '../hooks/useGameStore'
 
@@ -48,15 +47,7 @@ interface ProgressionContextValue {
 const ProgressionContext = createContext<ProgressionContextValue | null>(null)
 
 export function GameMachineProvider({ children }: { children: ReactNode }) {
-  const progressionStore = useCreateStore(
-    initialProgressionState,
-    ({ setState }) => ({
-      send: (event: ProgressionEvent) =>
-        setState((state) => transition(state, event)),
-    }),
-  )
-  const state = useSelector(progressionStore)
-  const { send } = progressionStore.actions
+  const [state, send] = useMachine(progressionMachine)
 
   // Get island counts from the game store
   const islands = useSelector(gameStore, (s) => s.islands)

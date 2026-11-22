@@ -2751,7 +2751,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   transition: opacity 120ms linear;
 }
 
-/* A single grain layer keeps the sky texture continuous around the moving fronds. */
 .home-palm-sky {
   background: linear-gradient(
     #8fd7fe,
@@ -2760,14 +2759,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
     #e7dffb 75%,
     #f5d9f2
   );
-}
-
-.home-palm-sky::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('./hero-sky-grain.png?inline');
-  mix-blend-mode: soft-light;
 }
 
 @keyframes home-open-source-gradient-shift {

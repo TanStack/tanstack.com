@@ -40,7 +40,6 @@
         "src/components/QueryGGBanner.tsx",
         "src/components/StackBlitzEmbed.tsx",
         "src/components/UserFeedbackSection.tsx",
-        "src/components/application-starter/CustomAddonDialog.tsx",
         "src/components/application-starter/CustomTemplateDialog.tsx",
         "src/components/application-starter/FeaturePicker.tsx",
         "src/components/application-starter/TemplatePicker.tsx",

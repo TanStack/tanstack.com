@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
-import { CompactMaintainerCard } from '~/components/MaintainerCard'
+import { MaintainerCard } from '~/components/MaintainerCard'
 import {
   MaintainersDirectoryFilters,
   maintainersDirectorySearchSchema,
@@ -43,7 +43,7 @@ function MaintainerGrid({
   return (
     <div>
       {title && <h3 className="mb-4 text-2xl font-semibold">{title}</h3>}
-      <div className="grid grid-cols-3 gap-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 [&>*>*]:max-w-none">
         {maintainers.map((maintainer, index) => (
           <div
             key={maintainer.github}
@@ -53,7 +53,7 @@ function MaintainerGrid({
               animation: 'fadeInUp 0.5s ease-out forwards',
             }}
           >
-            <CompactMaintainerCard maintainer={maintainer} />
+            <MaintainerCard maintainer={maintainer} />
           </div>
         ))}
       </div>

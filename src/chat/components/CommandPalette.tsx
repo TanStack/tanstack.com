@@ -13,29 +13,29 @@ import { Dialog } from '@base-ui/react/dialog'
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import { useHotkey, formatForDisplay } from '@tanstack/react-hotkeys'
 import {
-  Archive,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  ChevronRight,
-  Copy,
-  CornerDownLeft,
-  File,
-  GitFork,
-  LayoutList,
-  MessageCircle,
-  MessagesSquare,
-  MoreHorizontal,
-  Pencil,
-  Pin,
-  Plus,
-  Search,
-  Settings,
-  Sparkles,
-  Square,
-  Sun,
-  X,
-} from 'lucide-react'
+  ArchiveIcon,
+  ArrowElbowDownLeftIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CaretRightIcon,
+  ChatCircleIcon,
+  ChatsIcon,
+  CheckIcon,
+  CopyIcon,
+  DotsThreeIcon,
+  FileIcon,
+  GearIcon,
+  GitForkIcon,
+  ListDashesIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  PushPinIcon,
+  SparkleIcon,
+  SquareIcon,
+  SunIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import {
   parsePaletteVisits,
   rankPalette,
@@ -64,23 +64,23 @@ const kindNames: Record<PaletteKind, string> = {
   setting: 'Setting',
 }
 const icons = {
-  search: Search,
-  chat: MessageCircle,
-  thread: MessagesSquare,
-  file: File,
-  settings: Settings,
-  arrow: ArrowRight,
-  model: Sparkles,
-  stop: Square,
-  copy: Copy,
-  fork: GitFork,
-  pin: Pin,
-  archive: Archive,
-  rename: Pencil,
-  move: ArrowRight,
-  plus: Plus,
-  sun: Sun,
-  layout: LayoutList,
+  search: MagnifyingGlassIcon,
+  chat: ChatCircleIcon,
+  thread: ChatsIcon,
+  file: FileIcon,
+  settings: GearIcon,
+  arrow: ArrowRightIcon,
+  model: SparkleIcon,
+  stop: SquareIcon,
+  copy: CopyIcon,
+  fork: GitForkIcon,
+  pin: PushPinIcon,
+  archive: ArchiveIcon,
+  rename: PencilSimpleIcon,
+  move: ArrowRightIcon,
+  plus: PlusIcon,
+  sun: SunIcon,
+  layout: ListDashesIcon,
 }
 
 export function CommandPaletteTrigger() {
@@ -92,7 +92,7 @@ export function CommandPaletteTrigger() {
       tooltip={`Search and commands (${formatForDisplay('Mod+K')})`}
       onClick={commands.open}
     >
-      <Search size={17} aria-hidden />
+      <MagnifyingGlassIcon size={17} aria-hidden />
     </IconButton>
   )
 }
@@ -458,10 +458,10 @@ export function CommandPaletteProvider({
                   <div className="command-input-row">
                     {page ? (
                       <IconButton label="Back" onClick={back} disabled={busy}>
-                        <ArrowLeft size={18} />
+                        <ArrowLeftIcon size={18} />
                       </IconButton>
                     ) : (
-                      <Search size={19} aria-hidden />
+                      <MagnifyingGlassIcon size={19} aria-hidden />
                     )}
                     <Autocomplete.Input
                       ref={input}
@@ -481,7 +481,7 @@ export function CommandPaletteProvider({
                     <Dialog.Close
                       render={
                         <IconButton label="Close search" disabled={busy}>
-                          <X size={17} />
+                          <XIcon size={17} />
                         </IconButton>
                       }
                     />
@@ -574,7 +574,7 @@ export function CommandPaletteProvider({
                             )}
                           </span>
                           {item.actions && (
-                            <ChevronRight size={14} aria-hidden />
+                            <CaretRightIcon size={14} aria-hidden />
                           )}
                         </Autocomplete.Item>
                       )
@@ -589,7 +589,7 @@ export function CommandPaletteProvider({
                   )}
                   <div className="command-footer">
                     <span>
-                      <CornerDownLeft size={13} aria-hidden />{' '}
+                      <ArrowElbowDownLeftIcon size={13} aria-hidden />{' '}
                       {busy ? 'Working…' : 'Open or run'}
                     </span>
                     {highlighted?.actions && (
@@ -598,7 +598,7 @@ export function CommandPaletteProvider({
                         disabled={busy}
                         onClick={() => void run(highlighted, true)}
                       >
-                        <MoreHorizontal size={16} aria-hidden /> Actions{' '}
+                        <DotsThreeIcon size={16} aria-hidden /> Actions{' '}
                         <kbd>{formatForDisplay('Mod+Enter')}</kbd>
                       </button>
                     )}
@@ -648,13 +648,13 @@ function PaletteInput({
     >
       <div className="command-input-row">
         <IconButton label="Back" onClick={onBack} disabled={busy}>
-          <ArrowLeft size={18} />
+          <ArrowLeftIcon size={18} />
         </IconButton>
         <Dialog.Title>{page.title}</Dialog.Title>
         <Dialog.Close
           render={
             <IconButton label="Close search" disabled={busy}>
-              <X size={17} />
+              <XIcon size={17} />
             </IconButton>
           }
         />
@@ -672,7 +672,7 @@ function PaletteInput({
       </label>
       <div className="command-form-actions">
         <button className="primary" disabled={busy || !value.trim()}>
-          <Check size={15} aria-hidden />
+          <CheckIcon size={15} aria-hidden />
           {busy ? 'Saving…' : page.submitLabel}
         </button>
       </div>

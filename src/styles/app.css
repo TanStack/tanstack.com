@@ -2984,14 +2984,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   outline-color: rgba(59, 130, 246, 0.3);
 }
 
-/* Icons */
-
-.lucide {
-  stroke-width: 2.25;
-  width: 1em;
-  height: 1em;
-}
-
 [data-tab] .codeblock + .codeblock {
   @apply mt-0 border-t-0 rounded-t-none;
 }

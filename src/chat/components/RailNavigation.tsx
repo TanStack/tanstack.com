@@ -1,5 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
-import { Home } from 'lucide-react'
+import { HouseIcon } from '@phosphor-icons/react'
 import { DragDropProvider } from '@dnd-kit/react'
 import { useSortable, isSortable } from '@dnd-kit/react/sortable'
 import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom'
@@ -57,7 +57,7 @@ function Shortcut({
     },
     [ref, handleRef],
   )
-  const Icon = id === 'chat' ? Home : homeResources[id].icon
+  const Icon = id === 'chat' ? HouseIcon : homeResources[id].icon
   return (
     <IconButton
       ref={attach}

@@ -1,4 +1,10 @@
-import { Home, Search, Settings, PanelLeft, Plus } from 'lucide-react'
+import {
+  GearIcon,
+  HouseIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  SidebarSimpleIcon,
+} from '@phosphor-icons/react'
 
 export function WorkspaceSkeleton() {
   return (
@@ -12,17 +18,17 @@ export function WorkspaceSkeleton() {
           disabled
           aria-label="Sidebar"
         >
-          <PanelLeft size={20} />
+          <SidebarSimpleIcon size={20} />
         </button>
         <button className="workspace-loading-icon" disabled aria-label="Home">
-          <Home size={20} />
+          <HouseIcon size={20} />
         </button>
         <button
           className="workspace-loading-icon workspace-rail-settings"
           disabled
           aria-label="Settings"
         >
-          <Settings size={20} />
+          <GearIcon size={20} />
         </button>
       </aside>
       <div className="workspace-content">
@@ -38,7 +44,7 @@ export function WorkspaceSkeleton() {
                 disabled
                 aria-label="Search"
               >
-                <Search size={17} />
+                <MagnifyingGlassIcon size={17} />
               </button>
             </div>
           </div>
@@ -52,7 +58,7 @@ export function WorkspaceSkeleton() {
             <div className="workspace-skeleton" style={{ width: 40 }} />
           </div>
           <button className="workspace-loading-new" disabled>
-            <Plus size={16} /> New Chat
+            <PlusIcon size={16} /> New Chat
           </button>
           <div className="workspace-skeleton-list" aria-hidden="true">
             {[72, 90, 58, 80, 65].map((width, index) => (

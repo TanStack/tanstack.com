@@ -2,7 +2,11 @@ import { LoadingState } from './ui/LoadingState'
 import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Popover } from '@base-ui/react/popover'
-import { List, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  ListBulletsIcon,
+} from '@phosphor-icons/react'
 import type { ConversationDestination } from '../core/conversation-destination'
 import type { ConversationNavigationItem } from '../core/message-navigation'
 import type { TranscriptNavigationPage } from '../core/transcript-navigation'
@@ -41,7 +45,7 @@ export function ConversationMinimap({
                 label="Conversation minimap"
                 className="message-navigation-button"
               >
-                <List size={15} aria-hidden />
+                <ListBulletsIcon size={15} aria-hidden />
               </IconButton>
             }
           />
@@ -204,14 +208,14 @@ function MinimapPage({
               }
             }}
           >
-            <ChevronLeft size={16} aria-hidden />
+            <CaretLeftIcon size={16} aria-hidden />
           </IconButton>
           <IconButton
             label="Newer messages"
             disabled={loading || firstPage}
             onClick={() => setCursors((old) => old.slice(0, -1))}
           >
-            <ChevronRight size={16} aria-hidden />
+            <CaretRightIcon size={16} aria-hidden />
           </IconButton>
         </div>
       )}

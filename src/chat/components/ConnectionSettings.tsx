@@ -3,7 +3,13 @@ import { Button } from './ui/Button'
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Menu } from '@base-ui/react/menu'
-import { ArrowLeft, MoreHorizontal, Pause, Play, RefreshCw } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  ArrowsClockwiseIcon,
+  DotsThreeIcon,
+  PauseIcon,
+  PlayIcon,
+} from '@phosphor-icons/react'
 import { z } from 'zod'
 import {
   mcpAccountCommandSchema,
@@ -668,7 +674,7 @@ function PrivateConnectionSettings({
                         disabled={!!kodyServerBusy || !!kodyJobBusy || disabled}
                         onClick={() => void checkKodyServer(item)}
                       >
-                        <RefreshCw size={16} aria-hidden />
+                        <ArrowsClockwiseIcon size={16} aria-hidden />
                       </IconButton>
                     ))}
                   {developer && (
@@ -678,9 +684,9 @@ function PrivateConnectionSettings({
                       onClick={() => void toggleKodyServer(item)}
                     >
                       {item.enabled ? (
-                        <Pause size={16} aria-hidden />
+                        <PauseIcon size={16} aria-hidden />
                       ) : (
-                        <Play size={16} aria-hidden />
+                        <PlayIcon size={16} aria-hidden />
                       )}
                     </IconButton>
                   )}
@@ -747,9 +753,9 @@ function PrivateConnectionSettings({
                             }
                           >
                             {item.enabled ? (
-                              <Pause size={16} aria-hidden />
+                              <PauseIcon size={16} aria-hidden />
                             ) : (
-                              <Play size={16} aria-hidden />
+                              <PlayIcon size={16} aria-hidden />
                             )}
                           </IconButton>
                         )}
@@ -837,7 +843,7 @@ function PrivateConnectionSettings({
               disabled={disabled}
               onClick={back}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
             <strong>{editing ? 'Edit connection' : 'Custom connection'}</strong>
           </div>
@@ -941,7 +947,7 @@ function PrivateConnectionSettings({
               disabled={disabled}
               onClick={back}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
             <strong>{selected?.label ?? 'Connection'}</strong>
           </div>
@@ -1005,7 +1011,7 @@ function PrivateConnectionSettings({
                     disabled={mutationDisabled || !selected.enabled}
                     onClick={() => void check(selected)}
                   >
-                    <RefreshCw size={16} aria-hidden />
+                    <ArrowsClockwiseIcon size={16} aria-hidden />
                   </IconButton>
                   <Button
                     variant="secondary"
@@ -1129,7 +1135,7 @@ function PrivateConnectionSettings({
                           label={`Manage ${account.label}`}
                           disabled={disabled}
                         >
-                          <MoreHorizontal size={17} aria-hidden />
+                          <DotsThreeIcon size={17} aria-hidden />
                         </IconButton>
                       }
                     />
@@ -1478,7 +1484,7 @@ function ConnectionSetup({
           disabled={busy || !!pendingBind}
           onClick={onBack}
         >
-          <ArrowLeft size={16} aria-hidden />
+          <ArrowLeftIcon size={16} aria-hidden />
         </IconButton>
         <strong>{setup?.label ?? 'Connection setup'}</strong>
       </div>

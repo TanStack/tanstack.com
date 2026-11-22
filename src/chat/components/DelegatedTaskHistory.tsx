@@ -1,7 +1,7 @@
 import { LoadingState } from './ui/LoadingState'
 import { useState } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
+import { ArrowsClockwiseIcon } from '@phosphor-icons/react'
 import type { ConversationDestination } from '../core/conversation-destination'
 import type { ThreadListItem } from '../core/conversation-threads'
 import {
@@ -68,7 +68,7 @@ export function DelegatedTaskHistory({
               disabled={query.isFetching}
               onClick={() => void query.refetch()}
             >
-              <RefreshCw size={14} aria-hidden />
+              <ArrowsClockwiseIcon size={14} aria-hidden />
             </IconButton>
           </div>
           {query.isError ? (

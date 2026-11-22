@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil } from 'lucide-react'
+import { PencilSimpleIcon } from '@phosphor-icons/react'
 import type { WorkspaceBot } from '../core/bot-workspace'
 import { workspaceApi } from './WorkspaceApi'
 import { BotAvatar } from './BotAvatar'
@@ -47,7 +47,7 @@ export function PersonalAssistant({
         </span>
       </button>
       <IconButton label="Edit Assistant" onClick={() => setEditing(true)}>
-        <Pencil size={15} aria-hidden />
+        <PencilSimpleIcon size={15} aria-hidden />
       </IconButton>
       {editing && (
         <Modal

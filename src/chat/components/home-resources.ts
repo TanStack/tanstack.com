@@ -1,118 +1,118 @@
 import {
-  Activity,
-  Bell,
-  BookOpen,
-  Boxes,
-  Brain,
-  CalendarClock,
-  Mail,
-  MessageCircle,
-  Plug,
-  Server,
-  Waypoints,
-  Gauge,
-  type LucideIcon,
-} from 'lucide-react'
+  BellIcon,
+  BookOpenIcon,
+  BrainIcon,
+  CalendarDotsIcon,
+  ChatCircleIcon,
+  CubeFocusIcon,
+  EnvelopeSimpleIcon,
+  FlowArrowIcon,
+  GaugeIcon,
+  HardDrivesIcon,
+  PlugIcon,
+  PulseIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 import type { HomeSection } from '../core/home-navigation'
 
 export const homeResources: Record<
   HomeSection,
-  { label: string; icon: LucideIcon; description: string }
+  { label: string; icon: Icon; description: string }
 > = {
   shared: {
     label: 'Shared packages',
-    icon: Boxes,
+    icon: CubeFocusIcon,
     description: 'Packages shared with you and by you.',
   },
   account: {
     label: 'Kody account',
-    icon: Server,
+    icon: HardDrivesIcon,
     description: 'Profile, security, connected agents, and billing.',
   },
   subscriptions: {
     label: 'Subscriptions',
-    icon: Bell,
+    icon: BellIcon,
     description: 'Package event handlers.',
   },
   webhooks: {
     label: 'Webhooks',
-    icon: Waypoints,
+    icon: FlowArrowIcon,
     description: 'Incoming events from other services.',
   },
   secrets: {
     label: 'Secrets',
-    icon: Server,
+    icon: HardDrivesIcon,
     description: 'Credential names, scopes, and allowed hosts.',
   },
   'secret-providers': {
     label: 'Secret providers',
-    icon: Plug,
+    icon: PlugIcon,
     description: 'External credential providers.',
   },
   conversations: {
     label: 'Conversations',
-    icon: MessageCircle,
+    icon: ChatCircleIcon,
     description: 'Pick up where you left off.',
   },
   attention: {
     label: 'Needs attention',
-    icon: Bell,
+    icon: BellIcon,
     description: 'Approvals, errors, and unfinished setup.',
   },
   packages: {
     label: 'Packages',
-    icon: Boxes,
+    icon: CubeFocusIcon,
     description: 'Saved software, its tools, and the work it runs.',
   },
   skills: {
     label: 'Skills',
-    icon: BookOpen,
+    icon: BookOpenIcon,
     description: 'Instructions your assistant can use.',
   },
   routines: {
     label: 'Scheduled jobs',
-    icon: CalendarClock,
+    icon: CalendarDotsIcon,
     description: 'Scheduled work and its next run.',
   },
   workflows: {
     label: 'Workflow runs',
-    icon: Waypoints,
+    icon: FlowArrowIcon,
     description: 'Recorded multi-step executions.',
   },
   activity: {
     label: 'Activity',
-    icon: Activity,
+    icon: PulseIcon,
     description: 'Execution history, results, and errors.',
   },
   integrations: {
     label: 'Integrations',
-    icon: Plug,
+    icon: PlugIcon,
     description: 'Accounts and services available to Kody.',
   },
   servers: {
     label: 'MCP servers',
-    icon: Server,
+    icon: HardDrivesIcon,
     description: 'Connected servers and their tools.',
   },
   memories: {
     label: 'Memories',
-    icon: Brain,
+    icon: BrainIcon,
     description: 'Facts and preferences shared across your agents.',
   },
   mail: {
     label: 'Mail',
-    icon: Mail,
+    icon: EnvelopeSimpleIcon,
     description:
       'Incoming email can start work; notifications tell you what finished.',
   },
   usage: {
     label: 'Kody usage',
-    icon: Gauge,
+    icon: GaugeIcon,
     description: 'Kody plan and resource limits.',
   },
   community: {
     label: 'Plugins',
-    icon: Plug,
+    icon: PlugIcon,
     description: 'Find plugins from connected sources.',
   },
 }

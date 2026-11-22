@@ -10,7 +10,7 @@ import {
 } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { createPortal } from 'react-dom'
-import { ArrowDown } from 'lucide-react'
+import { ArrowDownIcon } from '@phosphor-icons/react'
 import { ConversationMinimap, type MinimapArchive } from './ConversationMinimap'
 import { IconButton } from './IconButton'
 import {
@@ -223,7 +223,7 @@ export function VirtualMessages({
                 onJumpToBottom?.()
               }}
             >
-              <ArrowDown size={14} aria-hidden />
+              <ArrowDownIcon size={14} aria-hidden />
             </IconButton>
             <span className="message-sr-only" role="status">
               {hasNewMessages ? 'New messages' : ''}

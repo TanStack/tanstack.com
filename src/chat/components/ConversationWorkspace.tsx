@@ -12,7 +12,13 @@ import {
 import { Menu } from '@base-ui/react/menu'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { Tabs } from '@base-ui/react/tabs'
-import { Maximize2, Minimize2, Plus, RotateCcw, X } from 'lucide-react'
+import {
+  ArrowCounterClockwiseIcon,
+  ArrowsInSimpleIcon,
+  ArrowsOutSimpleIcon,
+  PlusIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { IconButton } from './IconButton'
 import { usePanelMotion } from './usePanelMotion'
 import {
@@ -378,7 +384,7 @@ export function ConversationWorkspace({
                       label={`Close ${name(id)} tab`}
                       onClick={() => close(id)}
                     >
-                      <X size={12} aria-hidden />
+                      <XIcon size={12} aria-hidden />
                     </IconButton>
                   </div>
                 ))}
@@ -388,7 +394,7 @@ export function ConversationWorkspace({
                   <Menu.Trigger
                     render={
                       <IconButton label="Open side panel tab">
-                        <Plus size={16} aria-hidden />
+                        <PlusIcon size={16} aria-hidden />
                       </IconButton>
                     }
                   />
@@ -424,7 +430,10 @@ export function ConversationWorkspace({
                               className="bw-menu-item"
                               onClick={() => open(reopen)}
                             >
-                              <RotateCcw size={14} aria-hidden />
+                              <ArrowCounterClockwiseIcon
+                                size={14}
+                                aria-hidden
+                              />
                               <span
                                 style={{
                                   minWidth: 0,
@@ -453,9 +462,9 @@ export function ConversationWorkspace({
                     onClick={onFullscreen}
                   >
                     {paneState.fullscreen ? (
-                      <Minimize2 size={15} aria-hidden />
+                      <ArrowsInSimpleIcon size={15} aria-hidden />
                     ) : (
-                      <Maximize2 size={15} aria-hidden />
+                      <ArrowsOutSimpleIcon size={15} aria-hidden />
                     )}
                   </IconButton>
                 )}
@@ -467,7 +476,7 @@ export function ConversationWorkspace({
                   }
                   onClick={closePane}
                 >
-                  <X size={16} aria-hidden />
+                  <XIcon size={16} aria-hidden />
                 </IconButton>
               </div>
             </div>

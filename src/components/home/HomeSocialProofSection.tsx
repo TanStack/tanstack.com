@@ -78,7 +78,10 @@ function SocialProofSkeleton() {
 function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
   return (
     <div className="space-y-24">
-      <PartnersSponsorsContent analyticsPlacement="home_grid" />
+      <PartnersSponsorsContent
+        analyticsPlacement="home_grid"
+        previousLinkAlign="end"
+      />
 
       {recentPosts.length > 0 && (
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -98,7 +101,7 @@ function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
               <BlogPostCard key={post.slug} post={post} />
             ))}
           </div>
-          <div className="flex justify-center mt-6">
+          <div className="mt-6 flex justify-end">
             <Button as={Link} to="/blog" variant="subtle-link" color="gray">
               View All Posts
               <ArrowRightIcon />

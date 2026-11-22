@@ -41,7 +41,7 @@ function HomeCommunityContent() {
       aria-labelledby="maintainers"
       className="@container isolate mx-auto w-full max-w-(--breakpoint-lg) space-y-4 px-4"
     >
-      <header>
+      <header className="lg:-translate-y-4">
         <h2
           id="maintainers"
           className="scroll-mt-24 text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]"
@@ -50,7 +50,7 @@ function HomeCommunityContent() {
             href="#maintainers"
             className="decoration-gray-400 hover:underline dark:decoration-gray-600"
           >
-            We are everywhere!
+            We&apos;re Everywhere!
           </a>
         </h2>
       </header>
@@ -59,7 +59,7 @@ function HomeCommunityContent() {
           <MaintainersMap maintainers={allMaintainers} />
         </Suspense>
       </ClientOnly>
-      <div className="relative z-20 flex justify-center">
+      <div className="relative z-20 flex justify-end">
         <ButtonLink as="a" to="/maintainers" variant="subtle-link" color="gray">
           View Maintainers
           <ArrowRightIcon />

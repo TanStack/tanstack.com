@@ -1471,12 +1471,10 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       </div>
       <p
         id="maintainers-globe-help"
-        className="relative z-20 text-xs leading-relaxed text-text-muted"
+        className="relative z-20 text-center text-xs leading-relaxed text-text-muted opacity-80"
       >
         <span className="hidden sm:inline sm:pointer-coarse:hidden">
-          Drag or <Key>Shift</Key>+arrows to rotate. Hold <Key>Ctrl</Key>/
-          <Key>⌘</Key> and scroll to zoom. Hover or focus a profile to pause,
-          select to see nearby maintainers, <Key>Esc</Key> to close.
+          Select to see nearby maintainers, <Key>Esc</Key> to close.
         </span>
         <span className="sm:hidden sm:pointer-coarse:inline">
           Tap a profile to see nearby maintainers.

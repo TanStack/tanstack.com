@@ -417,7 +417,7 @@ function WhyTanStackSection() {
                   card edge; at desktop sizes the title and description stay
                   grouped at the center of the 233px proof panel. */}
               <div className="flex min-w-0 flex-1 flex-col gap-2 sm:gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
-                <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
+                <h4 className="mt-3 text-2xl font-black leading-tight text-gray-950 sm:mt-0 dark:text-white">
                   {principle.title}
                 </h4>
                 <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">

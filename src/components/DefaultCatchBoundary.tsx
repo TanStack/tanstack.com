@@ -9,7 +9,10 @@ import {
 import * as Sentry from '@sentry/tanstackstart-react'
 
 import { Button } from '~/ui'
-import { reloadOnStaleAppError } from '~/utils/stale-app-reload'
+import {
+  isStaleAppError,
+  reloadOnStaleAppError,
+} from '~/utils/stale-app-reload'
 import { useEffect } from 'react'
 
 // type DefaultCatchBoundaryType = {
@@ -21,6 +24,7 @@ import { useEffect } from 'react'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
+  const needsReload = isStaleAppError(error)
 
   useEffect(() => {
     if (reloadOnStaleAppError(error)) return
@@ -47,10 +51,14 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
         <Button
           color="gray"
           onClick={() => {
-            router.invalidate()
+            if (needsReload) {
+              window.location.reload()
+              return
+            }
+            void router.invalidate()
           }}
         >
-          Try Again
+          {needsReload ? 'Reload Page' : 'Try Again'}
         </Button>
         {isRoot ? (
           <Button as={Link} to="/" color="gray">

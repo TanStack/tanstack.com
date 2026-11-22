@@ -172,7 +172,6 @@ const serverBundledClientPackages = [
   '@tanstack/react-pacer',
   '@tanstack/react-table',
   'zustand',
-  /^@fingerprintjs\//,
 ]
 
 const routerSsrPackages = [

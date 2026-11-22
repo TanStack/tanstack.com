@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as Sentry from '@sentry/tanstackstart-react'
 import { twMerge } from 'tailwind-merge'
 const LazyLibrariesMenuContent = React.lazy(() =>
   import('./LibrariesMenuContent').then((module) => ({
@@ -32,6 +33,7 @@ import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
 import { BriefcaseIcon } from '@phosphor-icons/react/Briefcase'
 import { ChatCircleIcon } from '@phosphor-icons/react/ChatCircle'
 import { CodeIcon } from '@phosphor-icons/react/Code'
+import { GearIcon } from '@phosphor-icons/react/Gear'
 import { GridFourIcon } from '@phosphor-icons/react/GridFour'
 import { HammerIcon } from '@phosphor-icons/react/Hammer'
 import { HeartIcon } from '@phosphor-icons/react/Heart'
@@ -81,6 +83,7 @@ import {
 } from '~/utils/partner-inquiry'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { reloadOnStaleAppError } from '~/utils/stale-app-reload'
 
 const LogoSection = () => {
   const pathname = useLocation({ select: (location) => location.pathname })
@@ -406,6 +409,12 @@ function AiDockMount() {
   )
 }
 
+function handleAuthControlsError(error: unknown) {
+  if (!reloadOnStaleAppError(error)) {
+    Sentry.captureException(error)
+  }
+}
+
 export function Navbar({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const isLibrary = Boolean(findLibrary(location.pathname.split('/')[1]))
@@ -545,22 +554,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const userQuery = useCurrentUserQuery()
 
-  const getLoginButtonFallback = (className?: string) => (
-    <Link
-      to="/login"
-      aria-label="Log In"
-      className={twMerge(
-        'flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap',
-        'bg-black dark:bg-white text-white dark:text-black',
-        'hover:bg-gray-800 dark:hover:bg-gray-200',
-        'transition-colors duration-200 text-xs font-medium',
-        className,
-      )}
-    >
-      <span className="hidden min-[430px]:inline">Log In</span>
-      <SignInIcon className="size-4" weight="bold" />
-    </Link>
-  )
+  const renderAuthLink = (className?: string, reloadDocument = false) => {
+    const signedIn = Boolean(userQuery.data)
+    const label = signedIn ? 'Account' : 'Log In'
+    const Icon = signedIn ? GearIcon : SignInIcon
+    return (
+      <Link
+        to={signedIn ? '/account' : '/login'}
+        reloadDocument={reloadDocument}
+        aria-label={label}
+        className={twMerge(
+          'flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap',
+          'bg-black dark:bg-white text-white dark:text-black',
+          'hover:bg-gray-800 dark:hover:bg-gray-200',
+          'transition-colors duration-200 text-xs font-medium',
+          className,
+        )}
+      >
+        <span className="hidden min-[430px]:inline">{label}</span>
+        <Icon className="size-4" weight="bold" />
+      </Link>
+    )
+  }
   const getAuthControlsFallback = (className?: string) =>
     userQuery.data || userQuery.isLoading ? (
       <div
@@ -571,12 +586,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         )}
       />
     ) : (
-      getLoginButtonFallback(className)
+      renderAuthLink(className)
     )
   const renderAuthControls = (className?: string) => (
-    <React.Suspense fallback={getAuthControlsFallback(className)}>
-      <LazyNavbarAuthControls className={className} />
-    </React.Suspense>
+    <CatchBoundary
+      getResetKey={() => 'navbar-auth-controls'}
+      errorComponent={() => renderAuthLink(className, true)}
+      onCatch={handleAuthControlsError}
+    >
+      <React.Suspense fallback={getAuthControlsFallback(className)}>
+        <LazyNavbarAuthControls className={className} />
+      </React.Suspense>
+    </CatchBoundary>
   )
 
   const socialLinks = <SocialStack />
@@ -900,17 +921,22 @@ function MobileNavigation({
     }
   }
 
-  const signIn = (
-    <Link
-      to="/login"
-      tabIndex={activeGroup ? -1 : 0}
-      onClick={onNavigate}
-      className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
-    >
-      <SignInIcon className="size-8 shrink-0" />
-      Sign In
-    </Link>
-  )
+  const renderAuthLink = (signedIn: boolean, reloadDocument = false) => {
+    const Icon = signedIn ? GearIcon : SignInIcon
+    return (
+      <Link
+        to={signedIn ? '/account' : '/login'}
+        reloadDocument={reloadDocument}
+        tabIndex={activeGroup ? -1 : 0}
+        onClick={onNavigate}
+        className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+      >
+        <Icon className="size-8 shrink-0" />
+        {signedIn ? 'Account' : 'Sign In'}
+      </Link>
+    )
+  }
+  const signIn = renderAuthLink(false)
 
   return (
     <nav aria-label="Mobile navigation" className="overflow-hidden">
@@ -969,23 +995,31 @@ function MobileNavigation({
               Ask AI
             </button>
             {loadAuthControls ? (
-              <React.Suspense
-                fallback={
-                  userQuery.data || userQuery.isLoading ? (
-                    <div
-                      aria-hidden="true"
-                      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
-                    />
-                  ) : (
-                    signIn
-                  )
+              <CatchBoundary
+                getResetKey={() => 'navbar-auth-controls'}
+                errorComponent={() =>
+                  renderAuthLink(Boolean(userQuery.data), true)
                 }
+                onCatch={handleAuthControlsError}
               >
-                <LazyMobileNavbarAuthControls
-                  tabIndex={activeGroup ? -1 : 0}
-                  onNavigate={onNavigate}
-                />
-              </React.Suspense>
+                <React.Suspense
+                  fallback={
+                    userQuery.data || userQuery.isLoading ? (
+                      <div
+                        aria-hidden="true"
+                        className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+                      />
+                    ) : (
+                      signIn
+                    )
+                  }
+                >
+                  <LazyMobileNavbarAuthControls
+                    tabIndex={activeGroup ? -1 : 0}
+                    onNavigate={onNavigate}
+                  />
+                </React.Suspense>
+              </CatchBoundary>
             ) : (
               signIn
             )}

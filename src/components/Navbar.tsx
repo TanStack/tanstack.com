@@ -640,9 +640,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         >
           {socialLinks}
         </div>
-        <div className={desktopNavClass}>
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
         <NavbarCartButton />
         <div className={desktopNavClass}>
           <AiDockButton />

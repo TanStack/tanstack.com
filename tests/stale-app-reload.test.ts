@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { BrowserClient, Scope, defaultStackParser } from '@sentry/browser'
+import {
+  BrowserClient,
+  Scope,
+  defaultStackParser,
+  getCurrentScope,
+} from '@sentry/browser'
 import {
   consumeStaleAppRecovery,
   reloadOnStaleAppError,
@@ -33,14 +38,18 @@ test('Sentry suppresses recovered errors but reports cooldown failures', async (
   })
   t.mock.method(Date, 'now', () => now)
   let sent = 0
+  let sentMetrics = 0
+  const metrics: unknown[] = []
   const originals: unknown[] = []
   const client = new BrowserClient({
     dsn: 'https://fixture@example.invalid/1',
     integrations: [],
     stackParser: defaultStackParser,
     transport: () => ({
-      send: async () => {
-        sent++
+      send: async ([, items]) => {
+        if (items.some(([header]) => header.type === 'trace_metric'))
+          sentMetrics++
+        else sent++
         return { statusCode: 200 }
       },
       flush: async () => true,
@@ -49,10 +58,22 @@ test('Sentry suppresses recovered errors but reports cooldown failures', async (
       originals.push(hint.originalException)
       return consumeStaleAppRecovery(hint.originalException) ? null : event
     },
+    beforeSendMetric(metric) {
+      metrics.push({
+        name: metric.name,
+        type: metric.type,
+        value: metric.value,
+      })
+      return metric
+    },
   })
   t.after(() => client.close(100))
   const scope = new Scope()
   scope.setClient(client)
+  const currentScope = getCurrentScope()
+  const previousClient = currentScope.getClient()
+  currentScope.setClient(client)
+  t.after(() => currentScope.setClient(previousClient))
   const first = new Error('Failed to fetch dynamically imported module')
   assert.equal(reloadOnStaleAppError([first]), true)
   // The boundary can see the same error again before Sentry processes it.
@@ -91,4 +112,7 @@ test('Sentry suppresses recovered errors but reports cooldown failures', async (
   const blocked = new Error(first.message)
   assert.throws(() => reloadOnStaleAppError(blocked), /reload blocked/)
   assert.equal(consumeStaleAppRecovery(blocked), false)
+  const reloadMetric = { name: 'app.stale_reload', type: 'counter', value: 1 }
+  assert.deepEqual(metrics, [reloadMetric, reloadMetric])
+  assert.equal(sentMetrics, 2)
 })

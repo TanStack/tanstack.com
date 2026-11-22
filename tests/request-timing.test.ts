@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import * as Sentry from '@sentry/tanstackstart-react'
 import {
   markRequestDatabaseUse,
   timeRequestWork,
@@ -48,4 +49,54 @@ test('non-docs requests have no profiling headers', async () => {
     async () => new Response('account'),
   )
   assert.equal(response.headers.has('Server-Timing'), false)
+})
+
+test('docs response timing is sent through the scheduled Sentry flush', async (t) => {
+  const metricPayloads: unknown[] = []
+  const client = new Sentry.NodeClient({
+    dsn: 'https://fixture@example.invalid/1',
+    integrations: [],
+    stackParser: Sentry.defaultStackParser,
+    transport: () => ({
+      async send([, items]) {
+        for (const [header, payload] of items) {
+          if (header.type === 'trace_metric') metricPayloads.push(payload)
+        }
+        return { statusCode: 200 }
+      },
+      flush: async () => true,
+    }),
+  })
+  t.after(() => client.close(100))
+
+  await Sentry.withScope(async (scope) => {
+    scope.setClient(client)
+    const pending: Array<Promise<boolean>> = []
+    const response = await withDocsRequestTimings(
+      request,
+      async () => {
+        markRequestDatabaseUse()
+        return new Response(null, { status: 503 })
+      },
+      (flush) => pending.push(flush()),
+    )
+
+    assert.equal(response.status, 503)
+    assert.deepEqual(await Promise.all(pending), [true])
+    assert.partialDeepStrictEqual(metricPayloads, [
+      {
+        items: [
+          {
+            name: 'docs.response.headers.duration',
+            type: 'distribution',
+            unit: 'millisecond',
+            attributes: {
+              'http.response.status_code': { type: 'integer', value: 503 },
+              'docs.database_used': { type: 'boolean', value: true },
+            },
+          },
+        ],
+      },
+    ])
+  })
 })

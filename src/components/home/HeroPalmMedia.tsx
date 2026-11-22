@@ -21,6 +21,7 @@ export function HeroPalmMedia() {
     >
       {/* Keep the palm aligned with the original 944 × 416 composition. */}
       <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
+        <div className="absolute inset-0 bg-[url('/images/hero-sky-grain.png')]" />
         <div className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
           {/* Keep the inlined first frame visible during the animation request. */}
           <img

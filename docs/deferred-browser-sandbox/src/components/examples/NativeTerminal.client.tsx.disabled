@@ -1,0 +1,387 @@
+import * as React from 'react'
+import { FitAddon } from '@xterm/addon-fit'
+import { Terminal } from '@xterm/xterm'
+import '@xterm/xterm/css/xterm.css'
+import type { NativeOwnerClient } from '@tanstack/browser-sandbox-experimental'
+import { readTerminalTheme } from './WebContainerTerminal.client'
+
+type CommandResult = Awaited<ReturnType<NativeOwnerClient['terminalCommand']>>
+type InputControl = Pick<ReturnType<NativeOwnerClient['openTerminalCommand']>, 'writeInput' | 'endInput' | 'interrupt' | 'resize'>
+type DirectoryEntry = { name: string; type: 'file' | 'directory' | 'symlink' }
+
+function resolveDirectory(cwd: string, token: string) {
+  const parts = (token.startsWith('/') ? token : `${cwd}/${token}`).split('/')
+  const path: string[] = []
+  for (const part of parts) {
+    if (!part || part === '.') continue
+    if (part === '..') path.pop()
+    else path.push(part)
+  }
+  return '/' + path.join('/')
+}
+
+function commonPrefix(values: string[]) {
+  let prefix = values[0] ?? ''
+  for (const value of values.slice(1)) {
+    while (!value.startsWith(prefix)) prefix = prefix.slice(0, -1)
+  }
+  return prefix
+}
+
+function completionToken(line: string, cursor: number) {
+  let start = 0
+  let decoded = ''
+  let quote: "'" | '"' | null = null
+  let escaped = false
+  for (let index = 0; index < cursor; index++) {
+    const character = line[index]
+    if (escaped) { decoded += character; escaped = false; continue }
+    if (character === '\\' && quote !== "'") { escaped = true; continue }
+    if (quote) {
+      if (character === quote) quote = null
+      else decoded += character
+      continue
+    }
+    if (character === "'" || character === '"') { quote = character; continue }
+    if (/\s/.test(character)) { start = index + 1; decoded = ''; continue }
+    decoded += character
+  }
+  const raw = line.slice(start, cursor)
+  const style: "'" | '"' | null = raw.startsWith("'") ? "'" : raw.startsWith('"') ? '"' : null
+  if (escaped || (quote && quote !== style) || (style && !quote)) return null
+  return { start, decoded, style }
+}
+
+function quoteCompletion(value: string, style: "'" | '"' | null) {
+  if (style === "'") return "'" + value.replaceAll("'", "'\\''")
+  if (style === '"') return '"' + value.replace(/[\\"$`]/g, '\\$&')
+  return value.replace(/([^\p{L}\p{N}_./-])/gu, '\\$1')
+}
+
+export function NativeTerminal({
+  active,
+  focusKey,
+  generation,
+  onCommand,
+  onListCommands,
+  onListDirectory,
+  theme,
+}: {
+  active: boolean
+  focusKey: number
+  generation: number
+  onCommand: (line: string, cwd: string, onOutput: (text: string) => void, signal?: AbortSignal, onControl?: (control: InputControl) => void,
+    size?: { columns: number; rows: number }) => Promise<CommandResult>
+  onListCommands: () => Promise<string[]>
+  onListDirectory: (path: string) => Promise<DirectoryEntry[]>
+  theme: 'dark' | 'light'
+}) {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const terminalRef = React.useRef<Terminal | null>(null)
+  const activeRef = React.useRef(active)
+  activeRef.current = active
+  const commandRef = React.useRef(onCommand)
+  const listCommandsRef = React.useRef(onListCommands)
+  const listDirectoryRef = React.useRef(onListDirectory)
+  commandRef.current = onCommand
+  listCommandsRef.current = onListCommands
+  listDirectoryRef.current = onListDirectory
+
+  React.useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    let dispose: (() => void) | undefined
+    // React may replay this effect before paint. Only open xterm once that replay can be cancelled.
+    const mountFrame = requestAnimationFrame(() => {
+    const terminal = new Terminal({
+      convertEol: true,
+      cursorBlink: true,
+      cursorStyle: 'bar',
+      fontFamily: getComputedStyle(container).fontFamily,
+      fontSize: window.matchMedia('(min-width: 1024px)').matches ? 12 : 13,
+      lineHeight: 1.25,
+      scrollback: 5_000,
+      theme: readTerminalTheme(container),
+    })
+    const fit = new FitAddon()
+    terminal.loadAddon(fit)
+    terminal.open(container)
+    terminalRef.current = terminal
+    if (terminal.textarea) terminal.textarea.ariaLabel = 'Sandbox terminal'
+    if (active) terminal.focus()
+    let cwd = '/project'
+    let input = ''
+    let cursor = 0
+    let historyDraft = ''
+    let busy = false
+    let activeAbort: AbortController | null = null
+    let activeControl: InputControl | null = null
+    let historyIndex = 0
+    const history: string[] = []
+    const pastedLines: string[] = []
+    let pastedTail = ''
+    const pendingKeys: string[] = []
+    let pendingKeyUnits = 0
+    const promptText = () => `${cwd === '/project' ? 'project' : cwd.slice('/project/'.length)} $ `
+    let promptStartLine = 0
+    let redrawPending = false
+    let redrawInFlight = false
+    let redrawDirty = false
+    const redrawWaiters: Array<() => void> = []
+    const prompt = (onReady?: () => void) => terminal.write(promptText(), () => {
+      promptStartLine = terminal.buffer.active.baseY + terminal.buffer.active.cursorY
+      onReady?.()
+    })
+    prompt()
+    const finishRedraw = () => {
+      redrawInFlight = false
+      if (redrawDirty) { redrawDirty = false; redrawInput(); return }
+      for (const resolve of redrawWaiters.splice(0)) resolve()
+    }
+    const redrawInput = () => {
+      if (redrawPending || redrawInFlight) { redrawDirty = true; return }
+      redrawPending = true
+      terminal.write('', () => {
+        redrawPending = false
+        redrawInFlight = true
+        const prefix = promptText()
+        const value = input
+        const nextCursor = cursor
+        const buffer = terminal.buffer.active
+        const currentLine = buffer.baseY + buffer.cursorY
+        const rowsUp = currentLine - promptStartLine
+        if (rowsUp < 0 || rowsUp > buffer.cursorY) {
+          terminal.write(`\r\n${prefix}${value}`, () => {
+            const end = terminal.buffer.active
+            promptStartLine = end.baseY + end.cursorY - Math.floor((prefix.length + value.length - 1) / Math.max(1, terminal.cols))
+            finishRedraw()
+          })
+          return
+        }
+        terminal.write(`${rowsUp ? `\x1b[${rowsUp}A` : ''}\r\x1b[J${prefix}${value}`, () => {
+          if (nextCursor === value.length) { finishRedraw(); return }
+          const end = terminal.buffer.active
+          const columns = Math.max(1, terminal.cols)
+          const targetOffset = prefix.length + nextCursor
+          const targetLine = promptStartLine + Math.floor((Math.max(1, targetOffset) - 1) / columns)
+          const rowsBack = end.baseY + end.cursorY - targetLine
+          const column = (Math.max(1, targetOffset) - 1) % columns
+          terminal.write(`${rowsBack > 0 ? `\x1b[${rowsBack}A` : ''}\r${column ? `\x1b[${column}C` : ''}`, finishRedraw)
+        })
+      })
+    }
+    const flushRedraw = () => !redrawPending && !redrawInFlight && !redrawDirty
+      ? Promise.resolve()
+      : new Promise<void>(resolve => redrawWaiters.push(resolve))
+    const replaceInput = (value: string, nextCursor = value.length) => {
+      input = value
+      cursor = nextCursor
+      redrawInput()
+    }
+    const completePath = async () => {
+      const original = input
+      const originalCursor = cursor
+      const target = completionToken(input, cursor)
+      if (!target) return
+      const { start, decoded: token, style } = target
+      const slash = token.lastIndexOf('/')
+      const directoryPrefix = token.slice(0, slash + 1)
+      const namePrefix = token.slice(slash + 1)
+      let entries: DirectoryEntry[]
+      try {
+        entries = !input.slice(0, start).trim() && !directoryPrefix
+          ? (await listCommandsRef.current()).map(name => ({ name, type: 'file' as const }))
+          : await listDirectoryRef.current(resolveDirectory(cwd, directoryPrefix || '.'))
+      }
+      catch { terminal.write('\x07'); return }
+      if (input !== original || cursor !== originalCursor) return
+      const matches = entries.filter(entry => entry.name.startsWith(namePrefix) && (namePrefix.startsWith('.') || !entry.name.startsWith('.')))
+      if (!matches.length) { terminal.write('\x07'); return }
+      const names = matches.map(entry => entry.name)
+      const completed = matches.length === 1 ? matches[0].name : commonPrefix(names)
+      if (completed.length > namePrefix.length || matches.length === 1) {
+        const directory = matches.length === 1 && matches[0].type === 'directory'
+        const suffix = matches.length === 1 && !directory ? `${style ?? ''} ` : directory ? '/' : ''
+        const replacement = quoteCompletion(directoryPrefix + completed, style) + suffix
+        replaceInput(input.slice(0, start) + replacement + input.slice(cursor), start + replacement.length)
+      }
+      if (matches.length > 1 && completed.length === namePrefix.length) {
+        busy = true
+        await flushRedraw()
+        const shown = matches.slice(0, 60).map(entry => entry.name + (entry.type === 'directory' ? '/' : '')).join('  ')
+        const more = matches.length > 60 ? `  (${matches.length - 60} more)` : ''
+        terminal.write(`\r\n${shown}${more}\r\n`, () => prompt(() => {
+          redrawInput()
+          void flushRedraw().then(resumePrompt)
+        }))
+      }
+    }
+    const drainPastedLines = () => {
+      if (busy) return
+      const line = pastedLines.shift()
+      if (line !== undefined) {
+        replaceInput(line)
+        handleData('\r')
+      } else if (pastedTail) {
+        replaceInput(pastedTail)
+        pastedTail = ''
+      }
+    }
+    const resumePrompt = () => {
+      busy = false
+      drainPastedLines()
+      while (!busy && pendingKeys.length) {
+        const next = pendingKeys.shift()!
+        pendingKeyUnits -= next.length
+        handleData(next)
+      }
+    }
+    function handleData(data: string) {
+      if (!busy && data.length > 1 && /[\r\n]/.test(data)) {
+        const parts = data.replace(/\r\n?/g, '\n').split('\n')
+        const first = input.slice(0, cursor) + parts.shift() + input.slice(cursor)
+        pastedTail = parts.pop() ?? ''
+        pastedLines.push(first, ...parts)
+        drainPastedLines()
+        return
+      }
+      if (busy) {
+        if (data === '\u0003') {
+          if (activeAbort) { terminal.write('^C\r\n'); activeAbort.abort() }
+        } else if (activeControl && !activeAbort?.signal.aborted) {
+          if (data.length > 1 && /[\r\n]/.test(data)) {
+            const parts = data.replace(/\r\n?/g, '\n').split('\n')
+            terminal.write(data.replace(/\r\n?|\n/g, '\r\n'))
+            input += parts.shift() ?? ''
+            for (const part of parts) {
+              activeControl.writeInput(input + '\n')
+              input = part
+            }
+          } else if (data === '\r' || data === '\n') {
+            terminal.write('\r\n')
+            activeControl.writeInput(input + '\n')
+            input = ''
+          } else if (data === '\u0004') {
+            if (input) activeControl.writeInput(input)
+            input = ''
+            activeControl.endInput()
+          } else if (data === '\u007f') {
+            if (input) { input = input.slice(0, -1); terminal.write('\b \b') }
+          } else if (!data.startsWith('\x1b') && !/[\x00-\x08\x0b-\x1f]/.test(data)) {
+            input += data
+            terminal.write(data)
+          }
+        } else if (pendingKeys.length < 128 && pendingKeyUnits + data.length <= 65536) {
+          pendingKeys.push(data)
+          pendingKeyUnits += data.length
+        } else terminal.write('\x07')
+        return
+      }
+      if (data === '\r' || data === '\n') {
+        const line = input
+        busy = true
+        activeAbort = new AbortController()
+        void flushRedraw().then(() => {
+          input = ''
+          cursor = 0
+          terminal.write('\r\n')
+          if (!line.trim()) { activeAbort = null; prompt(resumePrompt); return }
+          history.push(line)
+          historyIndex = history.length
+          historyDraft = ''
+          if (line === 'clear') { terminal.clear(); activeAbort = null; prompt(resumePrompt); return }
+          void commandRef.current(line, cwd, text => terminal.write(text.replaceAll('\n', '\r\n')), activeAbort?.signal,
+            control => { activeControl = control; control.resize(terminal.cols, terminal.rows) },
+            { columns: terminal.cols, rows: terminal.rows }).then(result => {
+            cwd = result.cwd
+            if (result.exitCode && result.exitCode !== 130) terminal.write(`Exited with code ${result.exitCode}\r\n`)
+          }).catch(error => terminal.write(`\x1b[31m${String(error)}\x1b[0m\r\n`))
+            .finally(() => { activeAbort = null; activeControl = null; input = ''; prompt(resumePrompt) })
+        })
+      } else if (data === '\u007f') {
+        if (!cursor) return
+        replaceInput(input.slice(0, cursor - 1) + input.slice(cursor), cursor - 1)
+      } else if (data === '\x1b[D') {
+        if (cursor) replaceInput(input, cursor - 1)
+      } else if (data === '\x1b[C') {
+        if (cursor < input.length) replaceInput(input, cursor + 1)
+      } else if (data === '\x1b[H' || data === '\x1b[1~' || data === '\u0001') {
+        replaceInput(input, 0)
+      } else if (data === '\x1b[F' || data === '\x1b[4~' || data === '\u0005') {
+        replaceInput(input)
+      } else if (data === '\x1b[3~') {
+        if (cursor < input.length) replaceInput(input.slice(0, cursor) + input.slice(cursor + 1), cursor)
+      } else if (data === '\u0015') {
+        replaceInput(input.slice(cursor), 0)
+      } else if (data === '\u000b') {
+        replaceInput(input.slice(0, cursor), cursor)
+      } else if (data === '\u0017' || data === '\x1b\x7f') {
+        let start = cursor
+        while (start > 0 && /\s/.test(input[start - 1])) start--
+        while (start > 0 && !/\s/.test(input[start - 1])) start--
+        if (start < cursor) replaceInput(input.slice(0, start) + input.slice(cursor), start)
+      } else if (data === '\u0003') {
+        busy = true
+        void flushRedraw().then(() => {
+          terminal.write('^C\r\n')
+          input = ''
+          cursor = 0
+          prompt(resumePrompt)
+        })
+      } else if (data === '\x1b[A' || data === '\x1b[B') {
+        if (!history.length) return
+        if (historyIndex === history.length) historyDraft = input
+        historyIndex = Math.max(0, Math.min(history.length,
+          historyIndex + (data === '\x1b[A' ? -1 : 1)))
+        replaceInput(history[historyIndex] ?? historyDraft)
+      } else if (data === '\u000c') {
+        busy = true
+        void flushRedraw().then(() => {
+          terminal.clear()
+          terminal.write('\x1b[2J\x1b[H', () => {
+            promptStartLine = terminal.buffer.active.baseY + terminal.buffer.active.cursorY
+            redrawInput()
+            void flushRedraw().then(resumePrompt)
+          })
+        })
+      } else if (data === '\t') {
+        void completePath()
+      } else if (!data.startsWith('\x1b') && !/[\x00-\x08\x0b-\x1f]/.test(data)) {
+        if (cursor === input.length && !redrawPending && !redrawInFlight) {
+          input += data
+          cursor += data.length
+          terminal.write(data)
+        } else replaceInput(input.slice(0, cursor) + data + input.slice(cursor), cursor + data.length)
+      }
+    }
+    const listener = terminal.onData(handleData)
+    const onPaste = (event: ClipboardEvent) => {
+      const text = event.clipboardData?.getData('text/plain')
+      if (!text) return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      handleData(text)
+    }
+    terminal.textarea?.addEventListener('paste', onPaste, true)
+    const resizeObserver = new ResizeObserver(() => {
+      if (container.clientWidth && container.clientHeight) { fit.fit(); activeControl?.resize(terminal.cols, terminal.rows) }
+    })
+    resizeObserver.observe(container)
+    if (container.clientWidth && container.clientHeight) fit.fit()
+    if (activeRef.current) terminal.focus()
+    dispose = () => { terminal.textarea?.removeEventListener('paste', onPaste, true); listener.dispose(); resizeObserver.disconnect(); terminal.dispose(); terminalRef.current = null }
+    })
+    return () => { cancelAnimationFrame(mountFrame); dispose?.() }
+  }, [generation])
+
+  React.useEffect(() => {
+    if (active) terminalRef.current?.focus()
+  }, [active, focusKey])
+
+  React.useEffect(() => {
+    if (terminalRef.current && containerRef.current)
+      terminalRef.current.options.theme = readTerminalTheme(containerRef.current)
+  }, [theme])
+
+  return <div ref={containerRef} role="region" aria-label="Sandbox terminal" className="size-full min-h-0 bg-background-default px-2 py-1 font-ds-mono [&_.xterm]:h-full [&_.xterm-viewport]:!bg-background-default" data-native-terminal="" data-theme={theme} />
+}

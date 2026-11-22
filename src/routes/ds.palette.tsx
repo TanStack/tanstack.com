@@ -76,6 +76,9 @@ function PalettePage() {
           <Swatch token="ds-neutral-0" />
           <Swatch token="ds-neutral-tint-100" />
           <Swatch token="ds-neutral-tint-200" />
+          <Swatch token="ds-neutral-tint-300" />
+          <Swatch token="ds-neutral-tint-400" />
+          <Swatch token="ds-neutral-tint-500" />
         </div>
       </DsSection>
 

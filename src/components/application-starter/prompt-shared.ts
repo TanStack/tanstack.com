@@ -4,6 +4,7 @@ import { composeApplicationStarterInput } from '~/utils/partners'
 import {
   type ApplicationStarterAnalysis,
   sanitizeStarterPrompt,
+  isNextJsMigrationInput,
   type ApplicationStarterRequest,
   type ApplicationStarterResult,
 } from '~/utils/application-starter'
@@ -58,16 +59,7 @@ export type StarterPartnerButtonStyle = CSSProperties & {
   '--starter-partner-hover-border-color'?: string
 }
 
-const nextJsMigrationPattern =
-  /migrat(?:e|ing|ion).*(next(?:\.js)?)|(next(?:\.js)?).*(migrat(?:e|ing|ion))/i
-const remixMigrationPattern =
-  /migrat(?:e|ing|ion).*(remix|react[\s-]?router)|(remix|react[\s-]?router).*(migrat(?:e|ing|ion))/i
 const migrationRepositoryUrlPattern = /^(https?:\/\/\S+|git@\S+|ssh:\/\/\S+)$/i
-
-export const STARTER_NEXTJS_MIGRATION_GUIDE_URL =
-  'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js'
-export const STARTER_REMIX_MIGRATION_GUIDE_URL =
-  'https://tanstack.com/router/latest/docs/guide/how-to/migrate-from-react-router'
 
 export const starterPinnedLibraryIds = [
   'start',
@@ -151,26 +143,6 @@ export function isPinnedStarterLibrary(libraryId: LibraryId) {
   return starterPinnedLibraryIds.some(
     (pinnedLibraryId) => pinnedLibraryId === libraryId,
   )
-}
-
-export function isNextJsMigrationInput(input: string) {
-  return nextJsMigrationPattern.test(input)
-}
-
-export function isRemixMigrationInput(input: string) {
-  return remixMigrationPattern.test(input)
-}
-
-export function getStarterMigrationGuideUrl(input: string) {
-  if (isNextJsMigrationInput(input)) {
-    return STARTER_NEXTJS_MIGRATION_GUIDE_URL
-  }
-
-  if (isRemixMigrationInput(input)) {
-    return STARTER_REMIX_MIGRATION_GUIDE_URL
-  }
-
-  return null
 }
 
 export function normalizeMigrationRepositoryUrl(value: string) {
@@ -373,3 +345,11 @@ export class ApplicationStarterError extends Error {
     this.retryAfter = options?.retryAfter
   }
 }
+
+export {
+  isNextJsMigrationInput,
+  isRemixMigrationInput,
+  getStarterMigrationGuideUrl,
+  STARTER_NEXTJS_MIGRATION_GUIDE_URL,
+  STARTER_REMIX_MIGRATION_GUIDE_URL,
+} from '~/utils/application-starter'

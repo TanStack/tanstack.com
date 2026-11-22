@@ -1,0 +1,314 @@
+@scope (:root:has(.tanchat-shell)) {
+  .saved-files,
+  .saved-file-viewer {
+    padding: 16px;
+    min-width: 0;
+  }
+  .saved-files {
+    min-height: 100%;
+    border: 2px solid transparent;
+  }
+  .saved-files.is-dragging {
+    border-color: var(--accent);
+    background: var(--soft);
+  }
+  .saved-files-toolbar,
+  .saved-file-viewer-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .saved-files-toolbar > .icon-button {
+    margin-left: auto;
+  }
+  .saved-files-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .saved-files-note,
+  .saved-file-meta {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .saved-files-note {
+    margin: 8px 0;
+  }
+  .saved-files-empty {
+    color: var(--muted);
+  }
+  .saved-file-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+  }
+  .saved-file-list > li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 0;
+  }
+  .saved-file-list > li > svg,
+  .saved-file-list > li > .icon-button {
+    flex-shrink: 0;
+  }
+  .saved-file-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    gap: 3px;
+  }
+  .saved-file-name {
+    display: block;
+    max-width: 100%;
+    padding: 3px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  button.saved-file-name {
+    cursor: pointer;
+  }
+  button.saved-file-name:hover {
+    text-decoration: underline;
+  }
+  button.saved-file-name:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .saved-file-error {
+    color: var(--danger);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  .saved-file-viewer-heading h2 {
+    min-width: 0;
+    flex: 1;
+    font-size: 14px;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .saved-file-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+  }
+  .saved-file-source {
+    margin: 12px 0;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    tab-size: 4;
+  }
+  .saved-file-markdown {
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .saved-file-html-preview {
+    display: block;
+    width: 100%;
+    min-height: 600px;
+    height: 70vh;
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+  }
+  .saved-file-markdown :is(h1, h2, h3, h4, h5, h6) {
+    font-family: inherit;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: normal;
+    margin: 1.25em 0 0.5em;
+  }
+  .saved-file-markdown h1 {
+    font-size: 22px;
+  }
+  .saved-file-markdown h2 {
+    font-size: 18px;
+  }
+  .saved-file-markdown h3 {
+    font-size: 16px;
+  }
+  .saved-file-markdown :is(h4, h5, h6) {
+    font-size: 14px;
+  }
+  .saved-file-markdown > :first-child {
+    margin-top: 0;
+  }
+  .saved-file-markdown :is(ul, ol) {
+    padding-left: 1.5em;
+  }
+  .saved-file-markdown hr {
+    margin: 1.25em 0;
+    border: 0;
+  }
+  .saved-file-markdown table {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+  }
+  .saved-file-menu-positioner {
+    z-index: 100;
+  }
+  .saved-file-menu {
+    min-width: 200px;
+    max-width: min(360px, calc(100vw - 24px));
+    max-height: min(360px, var(--available-height));
+    overflow: auto;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--background);
+    box-shadow: 0 8px 28px var(--shadow-soft);
+  }
+  .saved-file-menu > p {
+    margin: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .saved-file-menu-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+  }
+  .saved-file-menu-item small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .saved-file-menu-item[data-highlighted] {
+    outline: none;
+    background: var(--soft);
+  }
+  .saved-file-diff-heading {
+    margin-bottom: 8px;
+  }
+  .saved-file-diff-label {
+    min-width: 40px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .saved-file-diff-scroll {
+    max-width: 100%;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .saved-file-diff {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    tab-size: 4;
+  }
+  .saved-file-diff th {
+    padding: 4px 8px;
+    white-space: nowrap;
+    text-align: left;
+    color: var(--muted);
+    font-weight: normal;
+  }
+  .saved-file-diff th:nth-child(-n + 2) {
+    min-width: calc(3ch + 16px);
+  }
+  .saved-file-diff td {
+    vertical-align: top;
+  }
+  .saved-file-line-number {
+    width: 1%;
+    min-width: 28px;
+    white-space: nowrap;
+    padding: 0 8px;
+    text-align: right;
+    color: var(--muted);
+    user-select: none;
+  }
+  .saved-file-diff-marker {
+    width: 1%;
+    padding: 0 6px;
+    user-select: none;
+  }
+  .saved-file-diff-text {
+    padding: 0 8px;
+    white-space: pre;
+  }
+  .saved-file-diff-added {
+    background: var(--success-soft);
+  }
+  .saved-file-diff-removed {
+    background: var(--danger-soft);
+  }
+  .saved-file-line-ending,
+  .saved-file-bom {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 0 4px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    user-select: none;
+  }
+  .saved-file-bom {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+  .saved-file-viewer img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-top: 12px;
+  }
+  .saved-file-viewer pre {
+    overflow: auto;
+    white-space: pre;
+  }
+  .saved-file-preview-note {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .saved-files-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (pointer: coarse) {
+    .saved-files-upload,
+    button.saved-file-name,
+    .saved-file-menu-item {
+      min-height: 44px;
+    }
+  }
+  @media (max-width: 600px) {
+    .saved-file-viewer-heading {
+      flex-wrap: wrap;
+    }
+    .saved-file-actions {
+      margin-left: auto;
+    }
+  }
+}

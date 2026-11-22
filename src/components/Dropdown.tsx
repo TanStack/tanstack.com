@@ -114,7 +114,7 @@ export function DropdownItem({
   render,
 }: DropdownItemProps) {
   const itemClassName = twMerge(
-    'flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 outline-none',
+    'relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 outline-none',
     'text-sm text-gray-700 dark:text-gray-300',
     'hover:bg-gray-100 dark:hover:bg-gray-700/50',
     'data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-700/50',

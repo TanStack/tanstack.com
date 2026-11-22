@@ -224,7 +224,7 @@ test('replayable EventSource resumes from a cursor and closes on abort', () => {
   let closeCount = 0
 
   openReplayableEventSource({
-    url: '/api/builder/projects/project-id/sync?mode=events',
+    url: '/api/chat/projects/project-id/sync?mode=events',
     after: 14,
     signal: abortController.signal,
     eventType: 'project-event',
@@ -262,7 +262,7 @@ test('replayable EventSource resumes from a cursor and closes on abort', () => {
 
   assert.equal(
     openedUrl,
-    '/api/builder/projects/project-id/sync?mode=events&stream=1&after=14',
+    '/api/chat/projects/project-id/sync?mode=events&stream=1&after=14',
   )
   listeners
     .get('project-event')
@@ -283,7 +283,7 @@ test('replayable EventSource recovers only after a terminal native error', () =>
   let closeCount = 0
 
   const cleanup = openReplayableEventSource({
-    url: '/api/builder/projects/project-id/sync',
+    url: '/api/chat/projects/project-id/sync',
     after: 0,
     signal: new AbortController().signal,
     eventType: 'project-event',

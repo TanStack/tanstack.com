@@ -19,7 +19,7 @@ const searchSchema = v.object({
   q: v.optional(v.pipe(v.string(), v.maxLength(120))),
 })
 
-export const PAGE_SIZE_OPTIONS = [24, 48, 96, 192] as const
+export const PAGE_SIZE_OPTIONS = [24, 48, 96] as const
 
 function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
   return Boolean(

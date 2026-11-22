@@ -41,18 +41,6 @@ const partnerTierPlacementOrder = {
   bronze: 2,
 } satisfies Record<PartnerTier, number>
 
-const reservedPartnerPlacementRules = [
-  {
-    category: 'deployment',
-    partnerId: 'cloudflare',
-    placementRank: 0,
-  },
-] satisfies ReadonlyArray<{
-  category: Partner['category']
-  partnerId: string
-  placementRank: number
-}>
-
 function getPartnerTier(partner: Pick<Partner, 'tier'>): PartnerTier {
   return partner.tier ?? 'bronze'
 }
@@ -123,119 +111,6 @@ function comparePartnerIdentity(
   return left.id.localeCompare(right.id)
 }
 
-function getReservedPartnerRank(
-  partner: PartnerForPlacement,
-  category: Partner['category'],
-) {
-  if (partner.category !== category) {
-    return undefined
-  }
-
-  const rule = reservedPartnerPlacementRules.find(
-    (candidate) =>
-      candidate.category === category && candidate.partnerId === partner.id,
-  )
-
-  return rule?.placementRank
-}
-
-function getReservedPlacementCategory<TPartner extends PartnerForPlacement>(
-  left: TPartner,
-  right: TPartner,
-  context: PartnerPlacementContext,
-) {
-  if (context.category) {
-    return context.category
-  }
-
-  return left.category === right.category ? left.category : undefined
-}
-
-function compareReservedPartnerPlacement<TPartner extends PartnerForPlacement>(
-  left: TPartner,
-  right: TPartner,
-  context: PartnerPlacementContext,
-) {
-  const category = getReservedPlacementCategory(left, right, context)
-
-  if (!category) {
-    return 0
-  }
-
-  const leftRank = getReservedPartnerRank(left, category)
-  const rightRank = getReservedPartnerRank(right, category)
-
-  if (leftRank !== undefined && rightRank !== undefined) {
-    return leftRank - rightRank
-  }
-
-  if (leftRank !== undefined) {
-    return -1
-  }
-
-  if (rightRank !== undefined) {
-    return 1
-  }
-
-  return 0
-}
-
-function applyReservedPartnerPlacementRules<
-  TPartner extends PartnerForPlacement,
->(partners: Array<TPartner>, context: PartnerPlacementContext) {
-  let nextPartners = partners
-
-  for (const rule of reservedPartnerPlacementRules) {
-    const shouldApplyRule =
-      context.category === rule.category ||
-      nextPartners.some(
-        (partner) =>
-          partner.category === rule.category && partner.id !== rule.partnerId,
-      )
-
-    if (!shouldApplyRule) {
-      continue
-    }
-
-    const partnersBeforeReserved: Array<TPartner> = []
-    const categoryPartnersBeforeReserved: Array<TPartner> = []
-    const partnersAfterReserved: Array<TPartner> = []
-    let reservedPartner: TPartner | undefined
-
-    for (const partner of nextPartners) {
-      if (partner.category === rule.category && partner.id === rule.partnerId) {
-        reservedPartner = partner
-        continue
-      }
-
-      if (reservedPartner) {
-        partnersAfterReserved.push(partner)
-        continue
-      }
-
-      if (partner.category === rule.category) {
-        categoryPartnersBeforeReserved.push(partner)
-        continue
-      }
-
-      partnersBeforeReserved.push(partner)
-    }
-
-    if (!reservedPartner || categoryPartnersBeforeReserved.length === 0) {
-      continue
-    }
-
-    nextPartners = [
-      ...partnersBeforeReserved,
-      reservedPartner,
-      ...categoryPartnersBeforeReserved,
-      ...partnersAfterReserved,
-    ]
-  }
-
-  return nextPartners
-}
-
 function compareLegacyPartnerPriority<TPartner extends PartnerForPlacement>(
   left: TPartner,
   right: TPartner,
@@ -280,16 +155,6 @@ export function comparePartnersForPlacement<
     return tierComparison
   }
 
-  const reservedComparison = compareReservedPartnerPlacement(
-    left,
-    right,
-    context,
-  )
-
-  if (reservedComparison !== 0) {
-    return reservedComparison
-  }
-
   if (context.orderStrategy === 'tier-rotated' && context.rotationSeed) {
     return compareSeededPartnerOrder(left, right, context.rotationSeed)
   }
@@ -301,11 +166,9 @@ export function getPartnersForPlacement<TPartner extends PartnerForPlacement>(
   partners: Array<TPartner>,
   context: PartnerPlacementContext,
 ) {
-  const sortedPartners = [...partners].sort((left, right) =>
+  return [...partners].sort((left, right) =>
     comparePartnersForPlacement(left, right, context),
   )
-
-  return applyReservedPartnerPlacementRules(sortedPartners, context)
 }
 
 export function getPartnerTierGroupsForPlacement<

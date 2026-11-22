@@ -601,8 +601,8 @@ test('Builder bootstrap assembles bounded pages before replaying concurrent even
     const client = await settlesWithin(pendingClient)
     assert.equal(client.collection.utils.lastSequence, 5)
     assert.deepEqual(requestedUrls, [
-      `/api/builder/projects/${projectId}/sync`,
-      `/api/builder/projects/${projectId}/sync?continuation=next-page`,
+      `/api/chat/projects/${projectId}/sync`,
+      `/api/chat/projects/${projectId}/sync?continuation=next-page`,
     ])
     assert.match(openedStreamUrl, /stream=1&after=4$/)
     assert.equal(

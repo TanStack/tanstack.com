@@ -1,0 +1,26 @@
+@scope (:root:has(.tanchat-shell)) {
+  .schedule-review p {
+    margin: 10px 0;
+  }
+  .schedule-review-objective {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .schedule-review dl {
+    margin: 12px 0;
+    display: grid;
+    gap: 6px;
+  }
+  .schedule-review dl > div {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .schedule-review dt {
+    color: var(--muted);
+  }
+  .schedule-review dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}

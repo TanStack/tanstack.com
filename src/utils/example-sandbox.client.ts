@@ -887,6 +887,26 @@ function createRuntimeBridgeScript(
 ) {
   return `const runToken = ${JSON.stringify(runToken)}
 
+// Opaque sandbox origins cannot use browser storage. Keep example settings
+// inside this preview instead of granting access to the host site's origin.
+for (const name of ['localStorage', 'sessionStorage']) {
+  try {
+    if (window[name]) continue
+  } catch {}
+  const entries = new Map()
+  Object.defineProperty(window, name, {
+    configurable: true,
+    value: {
+      get length() { return entries.size },
+      clear() { entries.clear() },
+      getItem(key) { return entries.get(String(key)) ?? null },
+      key(index) { return [...entries.keys()][index] ?? null },
+      removeItem(key) { entries.delete(String(key)) },
+      setItem(key, value) { entries.set(String(key), String(value)) },
+    },
+  })
+}
+
 function send(value) {
   parent.postMessage({ type: 'tanstack-example-sandbox', runToken, ...value }, '*')
 }

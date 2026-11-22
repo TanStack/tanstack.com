@@ -292,7 +292,7 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
 }
 
 export function SearchModal() {
-  const { isOpen, closeSearch } = useSearchContext()
+  const { isOpen, closeSearch, getSearchFocusTarget } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
     if (typeof window === 'undefined') return false
@@ -345,12 +345,14 @@ export function SearchModal() {
           // xl keeps a deliberately lighter scrim: past that width the
           // palette covers a small share of the screen, and the full
           // --color-scrim reads as heavier than the interaction warrants.
-          className="search-modal-overlay fixed inset-0 z-[var(--z-scrim)] bg-scrim backdrop-blur-sm xl:bg-black/30"
+          // Scrim and panel cover the AI dock at --z-overlay.
+          className="search-modal-overlay fixed inset-0 z-[calc(var(--z-overlay)+1)] bg-scrim backdrop-blur-sm xl:bg-black/30"
         />
         <Dialog.Popup
           ref={contentRef}
+          finalFocus={getSearchFocusTarget}
           className={twMerge(
-            'search-modal-content fixed z-[var(--z-overlay)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+            'search-modal-content fixed z-[calc(var(--z-overlay)+2)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
             isFullHeight && 'sm:bottom-4',
           )}
         >

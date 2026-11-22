@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source not '../components/visitor-chat';
 @import 'tw-fade';
 
 @plugin "@tailwindcss/typography";
@@ -7,6 +8,13 @@
 @custom-variant light (&:is(.light, .light *));
 @custom-variant auto (&:is(.auto, .auto *));
 @custom-variant aria-current (&[aria-current="location"]);
+
+@supports not (animation-timeline: scroll()) {
+  .fade-y {
+    --tw-fade-t: 0 !important;
+    --tw-fade-b: 0 !important;
+  }
+}
 
 html.theme-switching,
 html.theme-switching *,
@@ -22,6 +30,7 @@ html.theme-switching *::after {
   --breakpoint-xs: 480px;
 
   /* Fonts */
+  --font-library-name: 'Chopen-SemiBold', ui-sans-serif, system-ui, sans-serif;
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
@@ -575,9 +584,15 @@ html.dark [data-ds-takeover-scrim='glass'] {
   --color-ds-neutral-400: #3e3529;
   --color-ds-neutral-500: #111111;
 
-  /* Cool neutral tints (distinct from the warm neutral ramp above) */
+  /* Cool neutral tints (distinct from the warm neutral ramp above).
+     300–500 match the relative luminance of neutral 200, 300, and 350 so they
+     swap in without changing any contrast ratio.
+     NOTE: not yet in Figma — add them there when syncing. */
   --color-ds-neutral-tint-100: #e8e7e5;
   --color-ds-neutral-tint-200: #c5c3bf;
+  --color-ds-neutral-tint-300: #a9a6a0;
+  --color-ds-neutral-tint-400: #706d66;
+  --color-ds-neutral-tint-500: #54514c;
 
   /* --- Category brand colors ---
      Libraries inherit their category's color as their core brand color. These
@@ -603,7 +618,7 @@ html.dark [data-ds-takeover-scrim='glass'] {
   --color-lib-form: var(--color-category-ui);
   --color-lib-virtual: var(--color-category-performance);
   --color-lib-pacer: var(--color-category-performance);
-  --color-lib-hotkeys: var(--color-category-ui);
+  --color-lib-hotkeys: var(--color-category-performance);
   --color-lib-store: var(--color-category-data);
   --color-lib-devtools: var(--color-category-tooling);
   --color-lib-cli: var(--color-category-tooling);
@@ -1078,6 +1093,9 @@ html.dark {
 /* Safelist for dynamic colors */
 @source inline('{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/{20,30,40,80}');
 @source inline('{hover:{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/40}');
+/* Library `bgStyle` values, tinted via template strings in library chips */
+@source inline('{bg-category-{framework,data,ui,performance,tooling},bg-fuchsia-500,bg-amber-500}/{30,40}');
+@source inline('{hover:{bg-category-{framework,data,ui,performance,tooling},bg-fuchsia-500,bg-amber-500}/40}');
 /* Black/gray-100 theme colors for ranger, config, devtools, mcp */
 @source inline('dark:text-gray-100 dark:bg-gray-100 dark:border-gray-100/50 dark:from-gray-100 dark:via-gray-400/50 text-black bg-black border-black/50 from-black via-gray-600/50 to-gray-600 to-gray-400 dark:text-gray-900');
 /* Accent colors for docs UI (sidebar, TOC, prev/next) */
@@ -1193,8 +1211,12 @@ button {
   pointer-events: none;
 }
 
-.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover::after,
-.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within::after {
+.ts-mega-trigger-wrap:has(> .ts-mega-dropdown):not(
+    [data-menu-dismissed='true']
+  ):hover::after,
+.ts-mega-trigger-wrap:has(> .ts-mega-dropdown):not(
+    [data-menu-dismissed='true']
+  ):focus-within::after {
   pointer-events: auto;
 }
 
@@ -1951,6 +1973,60 @@ button {
   @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
 }
 
+.library-status-badge-rc {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    135deg,
+    color-mix(
+      in srgb,
+      var(--landing-accent, var(--color-ds-terracotta-400)) 84%,
+      black
+    ),
+    color-mix(
+      in srgb,
+      var(--landing-accent, var(--color-ds-terracotta-400)) 52%,
+      black
+    )
+  );
+  color: #fff;
+}
+.library-status-badge-rc::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px solid rgb(var(--landing-glow, 195 80 43) / 0.55);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .library-status-badge-rc {
+    animation: library-badge-rc-glow 2.4s ease-in-out infinite;
+  }
+  .library-status-badge-rc::after {
+    animation: library-badge-rc-ring 2.4s cubic-bezier(0.2, 0, 0, 1) infinite;
+  }
+}
+@keyframes library-badge-rc-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--landing-glow, 195 80 43) / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 14px 2px rgb(var(--landing-glow, 195 80 43) / 0.4);
+  }
+}
+@keyframes library-badge-rc-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
 /* Text utilities */
 .text-secondary {
   @apply text-gray-600 dark:text-gray-400;
@@ -2673,6 +2749,16 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   transition: opacity 120ms linear;
 }
 
+.home-palm-sky {
+  background: linear-gradient(
+    #8fd7fe,
+    #b0dbff 25%,
+    #d3e0ff 50%,
+    #e7dffb 75%,
+    #f5d9f2
+  );
+}
+
 @keyframes home-open-source-gradient-shift {
   0%,
   100% {
@@ -2896,14 +2982,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   outline-color: rgba(59, 130, 246, 0.3);
 }
 
-/* Icons */
-
-.lucide {
-  stroke-width: 2.25;
-  width: 1em;
-  height: 1em;
-}
-
 [data-tab] .codeblock + .codeblock {
   @apply mt-0 border-t-0 rounded-t-none;
 }
@@ -2949,12 +3027,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   @apply my-4;
 }
 
-/* Kapa injects invisible reCAPTCHA; keep it from occupying the UI corner. */
-.grecaptcha-badge {
-  display: none !important;
-  pointer-events: none !important;
-}
-
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
@@ -2973,4 +3045,30 @@ html.dark .sandbox-ui {
 
 [data-builder-shell]:has([data-builder-ready]) > [data-builder-initial] {
   display: none;
+}
+
+/*
+Font: 		Chopen Semi Bold
+Style:
+URL: 		https://youworkforthem.com/font/T28170/chopen
+Foundry: 	Typeface Design Studio
+Foundry: 	https://youworkforthem.com/designer/1740/typeface-design-studio
+Copyright:
+Version: 	18
+Created:	April 02, 2026
+License: 	https://www.youworkforthem.com/font-license
+License: 	The WebFont(s) listed in this document must follow the YouWorkForThem
+			WebFont license rules. All other parties are strictly restricted
+			from using the WebFonts(s) listed without a purchased license.
+			All details above must always remain unaltered and visible in your CSS.
+*/
+
+@font-face {
+  font-family: 'Chopen-SemiBold';
+  src:
+    url('/fonts/chopen/chopen-semi-bold.woff2') format('woff2'),
+    url('/fonts/chopen/chopen-semi-bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }

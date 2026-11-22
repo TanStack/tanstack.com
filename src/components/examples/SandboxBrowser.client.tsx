@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { safeRandomUUID } from '~/utils/crypto.client'
 import {
   ArrowClockwiseIcon,
   ArrowLeftIcon,
@@ -296,7 +297,7 @@ export function SandboxBrowser({
     const note = annotationNote.trim()
     if (!note) return
     const annotation = {
-      id: crypto.randomUUID(),
+      id: safeRandomUUID(),
       note,
       target: annotationTarget,
     } satisfies SandboxBrowserAnnotation
@@ -418,7 +419,7 @@ export function SandboxBrowser({
   function submitCurrentAnnotation() {
     if (!annotationTarget) return
     const annotation = {
-      id: crypto.randomUUID(),
+      id: safeRandomUUID(),
       note: annotationNote.trim(),
       target: annotationTarget,
     } satisfies SandboxBrowserAnnotation

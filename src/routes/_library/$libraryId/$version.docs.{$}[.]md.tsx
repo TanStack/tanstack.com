@@ -1,6 +1,11 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { findLibrary, getBranch } from '~/libraries'
-import { buildDocsMarkdownRedirectHref, loadDocsRoute } from '~/utils/docs'
+import {
+  appendPathToDocsHref,
+  buildDocsMarkdownRedirectHref,
+  loadDocsRoute,
+} from '~/utils/docs'
+import { canonicalUrl } from '~/utils/seo'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 import { getContentDispositionHeader } from '~/utils/http-response'
 import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
@@ -27,7 +32,7 @@ export const Route = createFileRoute(
         const library = findLibrary(libraryId)
 
         if (!library) {
-          throw notFound()
+          return new Response('Not found', { status: 404 })
         }
 
         const root = library.docsRoot || 'docs'
@@ -36,6 +41,7 @@ export const Route = createFileRoute(
         const result = await loadDocsRoute({
           repo: library.repo,
           branch,
+          latestBranch: getBranch(library, 'latest'),
           docsRoot: root,
           docsPath,
           defaultDocs: library.defaultDocs ?? 'overview',
@@ -56,19 +62,16 @@ export const Route = createFileRoute(
         }
 
         if (result.type === 'not-found') {
-          throw notFound()
+          return new Response('Not found', { status: 404 })
         }
 
         const doc = result.doc
 
-        // Filter framework-specific content only if framework is explicitly specified
-        const filteredContent = framework
-          ? filterFrameworkContent(doc.content, {
-              framework,
-              packageManager: pm,
-              keepMarkers,
-            })
-          : doc.content
+        const filteredContent = filterFrameworkContent(doc.content, {
+          framework: framework ?? undefined,
+          packageManager: pm,
+          keepMarkers,
+        })
 
         const markdownContent = `# ${doc.title}\n${filteredContent}`
         const filename = `${result.docsPath || 'file'}.md`
@@ -77,6 +80,16 @@ export const Route = createFileRoute(
           headers: {
             ...cacheHeaders,
             'Content-Type': 'text/markdown',
+            Link: `<${canonicalUrl(
+              appendPathToDocsHref({
+                libraryId,
+                version:
+                  result.latestDocsPath || version === library.latestVersion
+                    ? 'latest'
+                    : version,
+                docsPath: result.latestDocsPath ?? result.docsPath,
+              }),
+            )}>; rel="canonical"`,
             'Content-Disposition': getContentDispositionHeader(
               'inline',
               filename,

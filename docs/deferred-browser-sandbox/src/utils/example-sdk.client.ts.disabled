@@ -1,0 +1,251 @@
+import {
+  WorkerKernel,
+  WorkerHTTP,
+  WorkerWebSocket,
+  URLPreview,
+  assertSDKRuntimeEnvironment,
+  installProjectCommand,
+  spawnProjectCommand,
+} from '@tanstack/browser-sandbox-experimental'
+import type { CheckpointMetadata, SDKRuntimeProfile } from '@tanstack/browser-sandbox-experimental'
+
+export type SDKProjectFiles = Record<string, string | Uint8Array>
+
+export function decodeSDKProjectFiles(
+  files: Record<string, string>,
+  binaryFiles: Record<string, string> = {},
+): SDKProjectFiles {
+  const decoded: SDKProjectFiles = { ...files }
+  for (const [path, source] of Object.entries(binaryFiles)) {
+    if (Object.hasOwn(decoded, path)) throw Error(`Duplicate project file: ${path}`)
+    try {
+      const binary = atob(source)
+      const bytes = Uint8Array.from(binary, character => character.charCodeAt(0))
+      let canonical = ''
+      for (const byte of bytes) canonical += String.fromCharCode(byte)
+      if (btoa(canonical) !== source) throw Error('Non-canonical base64')
+      decoded[path] = bytes
+    } catch {
+      throw Error(`Invalid binary project file: ${path}`)
+    }
+  }
+  return decoded
+}
+
+export function createSDKExampleSession(options: {
+  container: HTMLElement
+  files: SDKProjectFiles
+  checkpointKey?: string
+  resume?: boolean
+  installCommand: string
+  startCommand: string
+  externalFetchOrigins?: string[]
+  externalScriptOrigins?: string[]
+  onOutput(text: string): void
+  onStatus(status: string): void
+}) {
+  let kernel: WorkerKernel | undefined
+  let preview: Awaited<ReturnType<typeof URLPreview.mount>> | undefined
+  let mounting: ReturnType<typeof URLPreview.mount> | undefined
+  let disposed = false
+  let started = false
+  let cancelPort: (() => void) | undefined
+  let child: Awaited<ReturnType<WorkerKernel['spawn']>> | undefined
+  let drain: Promise<void> | undefined
+  let closing: Promise<CheckpointMetadata | undefined> | undefined
+  const assertActive = () => { if (disposed) throw Error('Session stopped') }
+  function close(saveCheckpoint: boolean) {
+    if (closing) {
+      if (saveCheckpoint) return Promise.reject(Error('Session is already stopping without a checkpoint'))
+      return closing
+    }
+    disposed = true
+    cancelPort?.()
+    preview?.close()
+    closing = (async () => {
+      let checkpoint: CheckpointMetadata | undefined
+      let failure: unknown
+      try {
+        await mounting?.then(mounted => mounted.close(), () => undefined)
+        await child?.dispose()
+        await drain
+        if (saveCheckpoint) {
+          if (!options.checkpointKey) throw Error('A checkpoint key is required')
+          checkpoint = await kernel?.saveCheckpoint(options.checkpointKey)
+        }
+      } catch (error) {
+        failure = error
+      }
+      try {
+        kernel?.close()
+        await kernel?.shutdown
+      } catch (error) {
+        if (!failure) failure = error
+      }
+      options.onStatus('Stopped')
+      if (failure) throw failure
+      return checkpoint
+    })()
+    return closing
+  }
+  return {
+    dispose: () => close(false).then(() => undefined),
+    async readFile(path: string) {
+      assertActive()
+      if (!kernel) throw Error('Start the app before reading files')
+      if (!path.startsWith('/project/') || path.split('/').includes('..')) throw Error('Invalid project path')
+      return kernel.readText(path)
+    },
+    async save() {
+      const checkpoint = await close(true)
+      if (!checkpoint) throw Error('Workspace checkpoint is unavailable')
+      return checkpoint
+    },
+    async writeFile(path: string, source: string) {
+      assertActive()
+      if (!kernel) throw Error('Start the app before applying edits')
+      if (!path.startsWith('/project/') || path.split('/').includes('..')) throw Error('Invalid project path')
+      await kernel.writeText(path, source)
+    },
+    async start() {
+      if (started) throw Error('Session already started')
+      started = true
+      assertActive()
+      try {
+        if (!crossOriginIsolated) throw Error('The local SDK requires cross-origin isolation')
+        const response = await fetch('/__sandbox-local/config.json')
+        if (!response.ok) throw Error('Local SDK host is unavailable')
+        const config = await response.json() as { previewOrigin: string; appPort: number; env: Record<string, string>; runtimeProfile: SDKRuntimeProfile }
+        if (!Number.isInteger(config.appPort) || config.appPort < 1 || config.appPort > 65535) throw Error('Invalid configured app port')
+        assertSDKRuntimeEnvironment(config.runtimeProfile)
+        assertActive()
+        kernel = new WorkerKernel(options.resume ? {} : options.files, {
+          assetBaseURL: new URL('/__sandbox-local/runtime/', location.href).href,
+          ...config.runtimeProfile.kernelOptions,
+          maxBytes: 256 * 1024 * 1024,
+          timeoutMs: 120000,
+          workspace: { maxBytes: 256 * 1024 * 1024 },
+          workerMaxBytes: 128 * 1024 * 1024,
+          sharedMemoryPerEngine: { maxBytes: 1280 * 1024 * 1024, growthReservation: true },
+        })
+        if (options.resume) {
+          if (!options.checkpointKey) throw Error('A checkpoint key is required')
+          options.onStatus('Restoring workspace')
+          await kernel.restoreCheckpoint(options.checkpointKey)
+          options.onOutput('Restored saved workspace without installing dependencies.\n')
+        } else {
+          options.onStatus('Installing dependencies')
+          const installed = await installProjectCommand(kernel, options.installCommand, {
+            cwd: '/project',
+            ignoreScripts: true,
+          })
+          options.onOutput(`Installed ${installed.installed} packages. Lifecycle scripts are disabled.\n`)
+        }
+        assertActive()
+        options.onStatus('Starting app')
+        let unsubscribe: (() => void) | undefined
+        let timer: ReturnType<typeof setTimeout> | undefined
+        let settled = false
+        const port = new Promise<number>((resolve, reject) => {
+          const finish = (error?: Error, value?: number) => {
+            if (settled) return
+            settled = true
+            clearTimeout(timer)
+            unsubscribe?.()
+            if (error) reject(error)
+            else resolve(value!)
+          }
+          cancelPort = () => finish(Error('App startup cancelled'))
+          timer = setTimeout(() => finish(Error('App did not open a port within 120000ms')), 120000)
+          unsubscribe = kernel!.subscribePorts(event => { if (event.type === 'open' && event.port === config.appPort) finish(undefined, event.port) })
+          if (settled) unsubscribe()
+        })
+        void port.catch(() => {})
+        const process = await spawnProjectCommand(kernel, options.startCommand, {
+          cwd: '/project', env: config.env, guestWasm: true, webAPIs: true,
+          writable: true, workspaceFetch: true,
+          externalFetch: options.externalFetchOrigins?.length ? {
+            allowedOrigins: options.externalFetchOrigins,
+          } : undefined,
+          lifetime: 'session', maxBytes: 256 * 1024 * 1024, timeoutMs: 120000,
+          diagnostics: true,
+        })
+        child = process
+        const processResult = process.wait()
+        let readyResolve!: () => void
+        let readyTimer: ReturnType<typeof setTimeout> | undefined
+        const ready = new Promise<void>((resolve, reject) => {
+          readyResolve = resolve
+          readyTimer = setTimeout(() => reject(Error('App did not finish startup within 120000ms')), 120000)
+        })
+        drain = (async () => {
+          const decoder = new TextDecoder()
+          let startupOutput = ''
+          for (;;) {
+            const event = await process.next()
+            if (event?.type === 'stdout' || event?.type === 'stderr') {
+              const text = decoder.decode(event.bytes)
+              options.onOutput(text)
+              startupOutput = (startupOutput + text).slice(-64000)
+              if (/https?:\/\/[^\s]+|ready in/i.test(startupOutput)) readyResolve()
+            } else if (event?.type === 'error') throw Error(event.error.message)
+            else if (!event || event.type === 'exit') break
+          }
+        })()
+        void drain.catch(error => { if (!disposed) options.onOutput(String(error) + '\n') })
+        const appPort = await Promise.race([
+          Promise.all([port, ready]).then(([value]) => value),
+          drain.then(async () => {
+            const result = await processResult
+            throw Error(`App exited before becoming ready (status ${result.exitCode})${result.stderr ? `\n${result.stderr}` : ''}`)
+          }),
+        ]).finally(() => clearTimeout(readyTimer))
+        assertActive()
+        const server = new WorkerHTTP(kernel, appPort, { requestTimeoutMs: 120000 })
+        const readinessDeadline = performance.now() + 30000
+        for (;;) {
+          const response = await server.fetch(new Request(`http://localhost:${appPort}/`, {
+            headers: { Accept: 'text/html' },
+          }))
+          if (response.status < 500) {
+            await response.body?.cancel()
+            break
+          }
+          await response.body?.cancel()
+          if (performance.now() >= readinessDeadline) throw Error(`App HTTP readiness failed with status ${response.status}`)
+          await new Promise(resolve => setTimeout(resolve, 250))
+        }
+        mounting = URLPreview.mount(options.container, {
+          origin: config.previewOrigin,
+          requestTimeoutMs: 120000,
+          server,
+          scriptOrigins: options.externalScriptOrigins,
+          connectOrigins: options.externalFetchOrigins,
+          connectWebSocket: (url, protocols) => {
+            const target = new URL(url)
+            const previewOrigin = new URL(config.previewOrigin)
+            const previewAddress = target.host === previewOrigin.host &&
+              target.protocol === (previewOrigin.protocol === 'https:' ? 'wss:' : 'ws:')
+            const guestLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(target.hostname)
+            const port = previewAddress ? appPort : guestLoopback && target.port ? Number(target.port) : appPort
+            if (!Number.isInteger(port) || port < 1 || port > 65535) throw Error('Invalid guest WebSocket port')
+            return WorkerWebSocket.connect(kernel!, port, config.previewOrigin, url, protocols)
+          },
+        })
+        const mounted = await mounting
+        if (disposed) { mounted.close(); throw Error('Session stopped') }
+        preview = mounted
+        options.onStatus('Preview attached')
+        void process.wait().then(async result => {
+          if (disposed) return
+          options.onOutput(`App exited with status ${result.exitCode}\n`)
+          await close(false)
+        }).catch(error => { if (!disposed) options.onOutput(String(error) + '\n') })
+      } catch (error) {
+        options.onOutput('Startup failed: ' + String(error) + '\n')
+        await close(false).catch(cleanupError => options.onOutput('Cleanup failed: ' + String(cleanupError) + '\n'))
+        throw error
+      } finally { cancelPort?.(); cancelPort = undefined }
+    },
+  }
+}

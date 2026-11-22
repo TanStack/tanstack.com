@@ -11,7 +11,7 @@ import {
   BuilderRouteFrame,
   BuilderRouteReady,
   BuilderRouteSkeleton,
-} from '../src/components/builder/BuilderLoading'
+} from '../src/chat/components/projects/Loading'
 import { Route as BuilderRoute } from '../src/routes/builder'
 import { Route as BuilderProjectRoute } from '../src/routes/builder_.$id'
 import { Route as BuilderAiRoute } from '../src/routes/builder_.ai'

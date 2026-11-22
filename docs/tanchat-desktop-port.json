@@ -1,0 +1,157 @@
+[
+  {
+    "source": "desktop/assets/README.md",
+    "destination": "desktop/assets/README.md",
+    "sourceSha256": "9c0575168b0f1f5ae227d31e77d0d780344af292ef2521427d22b3b08f70f7e0",
+    "destinationSha256": "9c0575168b0f1f5ae227d31e77d0d780344af292ef2521427d22b3b08f70f7e0",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/assets/kody-icon.png",
+    "destination": "desktop/assets/kody-icon.png",
+    "sourceSha256": "66f85a49eaa3ef356ce944408137c7e0ffe5d99e608105b9c2d9b54c27b5828a",
+    "destinationSha256": "66f85a49eaa3ef356ce944408137c7e0ffe5d99e608105b9c2d9b54c27b5828a",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/assets/kody-square.png",
+    "destination": "desktop/assets/kody-square.png",
+    "sourceSha256": "098ca8fcc5ec0c35032c711c06775b9181993b59fc0ea8becb35c84c807802da",
+    "destinationSha256": "098ca8fcc5ec0c35032c711c06775b9181993b59fc0ea8becb35c84c807802da",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/assets/kody-squircle.png",
+    "destination": "desktop/assets/kody-squircle.png",
+    "sourceSha256": "e714fee3da324d3c053f062845bb247ab6b2c6525335f1960c84b441fc8928f0",
+    "destinationSha256": "e714fee3da324d3c053f062845bb247ab6b2c6525335f1960c84b441fc8928f0",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/build-device-helper.mjs",
+    "destination": "desktop/build-device-helper.mjs",
+    "sourceSha256": "05e74361d2f210bd5d887d63da86ece28ffbe30c2c7017e5121a5c0e9d21ef54",
+    "destinationSha256": "05e74361d2f210bd5d887d63da86ece28ffbe30c2c7017e5121a5c0e9d21ef54",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/builder.config.cjs",
+    "destination": "desktop/builder.config.mjs",
+    "sourceSha256": "8c99c75b9a7a1f3dc5aa35af0307fce332242b0fb7762f3769d8e17f7e9e9dff",
+    "destinationSha256": "605ff8a552776802f417b29734651df595ff62195b9c57f81b1a543a94b02ebe",
+    "unchanged": false,
+    "adaptation": "Original Electron Builder configuration converted to ES modules, with TanStack application identity and the existing site logo. Packaging commands load this .mjs file."
+  },
+  {
+    "source": "desktop/connected-device.mjs",
+    "destination": "desktop/connected-device.mjs",
+    "sourceSha256": "665b4ada07d44a1f2050e6953948c6485732b096f6a2b647145c3b096d656322",
+    "destinationSha256": "1b0834367532bb587d1eeed80ee02e658e1c3b9d5bcfc34b4b1e00b21a23547b",
+    "unchanged": false
+  },
+  {
+    "source": "desktop/connected-device.test.mjs",
+    "destination": "desktop/connected-device.test.mjs",
+    "sourceSha256": "b2cd69a5f796d834c7c5245958c5dac75aed134880819a9b1e5356449dd42e23",
+    "destinationSha256": "b2cd69a5f796d834c7c5245958c5dac75aed134880819a9b1e5356449dd42e23",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/device-folders.mjs",
+    "destination": "desktop/device-folders.mjs",
+    "sourceSha256": "7a79ca0a68bf62d3688f4c58a224ed8790496aef632f031edf42deddba5ad13f",
+    "destinationSha256": "7a79ca0a68bf62d3688f4c58a224ed8790496aef632f031edf42deddba5ad13f",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/device-folders.test.mjs",
+    "destination": "desktop/device-folders.test.mjs",
+    "sourceSha256": "17adc9decd37be2c9de685e21bdfb39cee1ca4b5c221374c813e85a17693939e",
+    "destinationSha256": "17adc9decd37be2c9de685e21bdfb39cee1ca4b5c221374c813e85a17693939e",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/external-links.mjs",
+    "destination": "desktop/external-links.mjs",
+    "sourceSha256": "b969c53a48f58af67315ca7fbc9d1fc6d027dbfdfef86cb83e41255bdedf0273",
+    "destinationSha256": "b969c53a48f58af67315ca7fbc9d1fc6d027dbfdfef86cb83e41255bdedf0273",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/external-links.test.mjs",
+    "destination": "desktop/external-links.test.mjs",
+    "sourceSha256": "737fa97e0cdc4bdf226b96477528c8741ea7f9d014765c40c7fdfe8c5b5129b9",
+    "destinationSha256": "737fa97e0cdc4bdf226b96477528c8741ea7f9d014765c40c7fdfe8c5b5129b9",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/main.mjs",
+    "destination": "desktop/main.mjs",
+    "sourceSha256": "d1df0bb614bfce6047eb2f08b9ae1723daff51dc25441f4c1f4f67f764a53e5e",
+    "destinationSha256": "c53ca36e0f1690379343daa6a59af3476ff1c75b45312d2d9047fb9df920aff7",
+    "unchanged": false
+  },
+  {
+    "source": "desktop/native/folder-access.c",
+    "destination": "desktop/native/folder-access.c",
+    "sourceSha256": "4f02622c6f6c5ef24dc6d3e0ed58ae2e121faafa07beb08039cbcfe9e9bc97c1",
+    "destinationSha256": "4f02622c6f6c5ef24dc6d3e0ed58ae2e121faafa07beb08039cbcfe9e9bc97c1",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/package.json",
+    "destination": "desktop/package.json",
+    "sourceSha256": "65d8fe7c7dd9a8b3ff1ecb1f09ad397e01e25b3e2d095db7fc5a1499118a3e0d",
+    "destinationSha256": "aea4f84e9c99ed5344fcf8d5e045802abaeed369e2e9ec6fd71ae18d42ae7dca",
+    "unchanged": false
+  },
+  {
+    "source": "desktop/preload.cjs",
+    "destination": "desktop/preload.cjs",
+    "sourceSha256": "3aed61630c3cf53179693a817dfad4bda2c234e8b3b3df227688cfee7b405a37",
+    "destinationSha256": "3aed61630c3cf53179693a817dfad4bda2c234e8b3b3df227688cfee7b405a37",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/preload.test.mjs",
+    "destination": "desktop/preload.test.mjs",
+    "sourceSha256": "7624315d2de075a1ddba5323c5ec04c88e401f83151b318fe65bed74b2ea8b27",
+    "destinationSha256": "7624315d2de075a1ddba5323c5ec04c88e401f83151b318fe65bed74b2ea8b27",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/runtime-config.mjs",
+    "destination": "desktop/runtime-config.mjs",
+    "sourceSha256": "cea70c7db40b838cf17423f5ea1ad125109d48512070c238048a76da45108687",
+    "destinationSha256": "f5199e710769dd6d4371e63169801b10293ffd575b4fba0353008aeface80189",
+    "unchanged": false
+  },
+  {
+    "source": "desktop/runtime-config.test.mjs",
+    "destination": "desktop/runtime-config.test.mjs",
+    "sourceSha256": "0635f91759cbaeebb2d625d403683077eb9216ce9d1f646294a72af2f2ee8713",
+    "destinationSha256": "bc6a2a65dd88419e40c220aafca2220c23f741f6fa795f83084083f25e048b9e",
+    "unchanged": false
+  },
+  {
+    "source": "desktop/updates.mjs",
+    "destination": "desktop/updates.mjs",
+    "sourceSha256": "724180d585eb9aa3c519c8d4cd91776b164dac990e7c9f7a60a5c9c603b22b40",
+    "destinationSha256": "724180d585eb9aa3c519c8d4cd91776b164dac990e7c9f7a60a5c9c603b22b40",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/updates.test.mjs",
+    "destination": "desktop/updates.test.mjs",
+    "sourceSha256": "e5b5b9c50f2e6ade259106a62a696ef25e7f7ebe43f9110bd25602f8e0d6260e",
+    "destinationSha256": "e5b5b9c50f2e6ade259106a62a696ef25e7f7ebe43f9110bd25602f8e0d6260e",
+    "unchanged": true
+  },
+  {
+    "source": "desktop/windows.test.mjs",
+    "destination": "desktop/windows.test.mjs",
+    "sourceSha256": "af2f9b052e5001b61049e947ddd3cbaf9e1d8f51228d942bf23d524fd638ad6c",
+    "destinationSha256": "ed0ae29d97fce963bb970e675ab9e417039a2bda01a276ff583b709f632734b6",
+    "unchanged": false
+  }
+]

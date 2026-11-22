@@ -6,6 +6,7 @@
  */
 
 import type { SessionCookieData, ISessionService } from './types'
+import { oauthPopupAttemptSchema } from './oauth-popup'
 
 // ============================================================================
 // Base64URL Utilities
@@ -204,17 +205,51 @@ export function getOAuthStateCookie(request: Request): string | null {
   return decodeURIComponent(stateCookie.split('=').slice(1).join('=').trim())
 }
 
-export function createOAuthPopupCookie(isProduction: boolean): string {
-  return `oauth_popup=1; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
+export function createOAuthPopupCookie(
+  isProduction: boolean,
+  attempt?: { state: string; channel: string },
+): string {
+  const value = attempt
+    ? encodeURIComponent(JSON.stringify(oauthPopupAttemptSchema.parse(attempt)))
+    : '1'
+  return `oauth_popup=${value}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
 }
 
 export function clearOAuthPopupCookie(isProduction: boolean): string {
   return `oauth_popup=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${isProduction ? '; Secure' : ''}`
 }
 
+function readOAuthPopupCookie(request: Request) {
+  const cookie = (request.headers.get('cookie') ?? '')
+    .split(';')
+    .map((value) => value.trim())
+    .find((value) => value.startsWith('oauth_popup='))
+  if (!cookie) return null
+  const value = cookie.slice('oauth_popup='.length)
+  if (value === '1') return { legacy: true as const }
+  try {
+    const parsed = oauthPopupAttemptSchema.safeParse(
+      JSON.parse(decodeURIComponent(value)),
+    )
+    return parsed.success ? parsed.data : null
+  } catch {
+    return null
+  }
+}
+
 export function isOAuthPopupMode(request: Request): boolean {
-  const cookies = request.headers.get('cookie') || ''
-  return cookies.split(';').some((c) => c.trim().startsWith('oauth_popup=1'))
+  return readOAuthPopupCookie(request) !== null
+}
+
+/** Only call after the callback has verified the original OAuth state. */
+export function getOAuthPopupChannel(
+  request: Request,
+  verifiedState: string,
+): string | null {
+  const attempt = readOAuthPopupCookie(request)
+  return attempt && 'state' in attempt && attempt.state === verifiedState
+    ? attempt.channel
+    : null
 }
 
 export function createOAuthReturnToCookie(

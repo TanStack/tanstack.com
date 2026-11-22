@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import { QuestionIcon } from '@phosphor-icons/react'
@@ -90,50 +90,55 @@ const bucketOffsetSchema = v.pipe(
   v.maxValue(0),
 )
 const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
-export const Route = createFileRoute('/stats/npm/')({
-  validateSearch: v.object({
-    packageGroups: v.fallback(
-      v.optional(packageGroupsSchema, defaultPackageGroups),
-      defaultPackageGroups,
-    ),
-    range: v.fallback(
-      v.optional(
-        v.picklist([
-          '7-days',
-          '30-days',
-          '90-days',
-          '180-days',
-          '365-days',
-          '730-days',
-          '1825-days',
-          'all-time',
-        ]),
+export const npmStatsSearchSchema = v.object({
+  packageGroups: v.fallback(
+    v.optional(packageGroupsSchema, defaultPackageGroups),
+    defaultPackageGroups,
+  ),
+  range: v.fallback(
+    v.optional(
+      v.picklist([
+        '7-days',
+        '30-days',
+        '90-days',
+        '180-days',
+        '365-days',
+        '730-days',
         '1825-days',
-      ),
+        'all-time',
+      ]),
       '1825-days',
     ),
-    transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
-    binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
-    viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
-    chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
-    barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
-    barSort: v.fallback(v.optional(latestBarSortSchema, 'value'), 'value'),
-    bucketOffset: v.fallback(v.optional(bucketOffsetSchema, 0), 0),
-    playbackIntervalMs: v.fallback(
-      v.optional(playbackIntervalMsSchema, defaultPlaybackIntervalMs),
-      defaultPlaybackIntervalMs,
-    ),
-    playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
-    playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
-    showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
-    normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
-    showBaseline: v.fallback(v.optional(v.boolean(), false), false),
-    showLegend: v.fallback(v.optional(v.boolean(), false), false),
-    height: v.fallback(v.optional(chartHeightSchema, 400), 400),
-    width: v.fallback(v.optional(chartWidthSchema), undefined),
-    timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
-    timelineEnd: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
-  }),
+    '1825-days',
+  ),
+  transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
+  binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
+  viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
+  chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
+  barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
+  barSort: v.fallback(v.optional(latestBarSortSchema, 'value'), 'value'),
+  bucketOffset: v.fallback(v.optional(bucketOffsetSchema, 0), 0),
+  playbackIntervalMs: v.fallback(
+    v.optional(playbackIntervalMsSchema, defaultPlaybackIntervalMs),
+    defaultPlaybackIntervalMs,
+  ),
+  playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
+  playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
+  showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+  normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
+  showBaseline: v.fallback(v.optional(v.boolean(), false), false),
+  showLegend: v.fallback(v.optional(v.boolean(), false), false),
+  height: v.fallback(v.optional(chartHeightSchema, 400), 400),
+  width: v.fallback(v.optional(chartWidthSchema), undefined),
+  timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
+  timelineEnd: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
+})
+
+export const defaultNpmStatsSearch = v.parse(npmStatsSearchSchema, {})
+
+export const Route = createFileRoute('/stats/npm/')({
+  validateSearch: npmStatsSearchSchema,
+  search: { middlewares: [stripSearchParams(defaultNpmStatsSearch)] },
   loaderDeps: ({ search }) => ({
     packageList: search.packageGroups?.map(getPackageGroupLabel).join(' vs '),
     packageNames: search.packageGroups?.map(getPackageGroupLabel) ?? [],
@@ -183,46 +188,6 @@ export const Route = createFileRoute('/stats/npm/')({
       },
     }
 
-    // FAQ structured data for rich results
-    const faqJsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: 'How are npm download statistics calculated?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'NPM download statistics are sourced from the official npm registry API. Downloads are counted each time a package is installed via npm, yarn, or pnpm. These numbers include downloads from CI/CD pipelines, development machines, and production deployments.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: "What's the difference between weekly and daily downloads?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Daily downloads show the exact number of downloads per day, useful for spotting short-term trends. Weekly downloads aggregate 7 days of data, smoothing out variations and making it easier to identify long-term growth patterns.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'How does TanStack NPM Stats compare to npmtrends?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'TanStack NPM Stats offers faster load times with cached data, flexible time ranges up to all-time history, advanced features like baseline comparisons and relative growth charts, plus the ability to combine multiple packages into a single trend line.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'Can I compare any npm package?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Yes! You can compare any public package on the npm registry. Search for packages by name and add them to your comparison. You can compare multiple packages simultaneously and group related packages together for accurate historical tracking.',
-          },
-        },
-      ],
-    }
-
     return {
       meta: seo({
         title,
@@ -234,17 +199,10 @@ export const Route = createFileRoute('/stats/npm/')({
           type: 'application/ld+json',
           children: JSON.stringify(jsonLd),
         },
-        {
-          type: 'application/ld+json',
-          children: JSON.stringify(faqJsonLd),
-        },
       ],
     }
   },
   component: RouteComponent,
-  staticData: {
-    includeSearchInCanonical: true,
-  },
 })
 
 type _NpmStatsSearch = {

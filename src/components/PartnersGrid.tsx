@@ -24,6 +24,7 @@ type PartnerItem = (typeof allPartners)[number]
 type PartnersGridProps = {
   analyticsPlacement?: PartnerPlacement
   partnersList?: PartnerItem[]
+  status?: PartnerItem['status']
   /**
    * Optional final band rendered inside the same bordered container as the tier
    * bands — used to fold the OSS Sponsors band into the stack.
@@ -157,10 +158,11 @@ function PartnerGridItem({
 export function PartnersGrid({
   analyticsPlacement = 'grid',
   partnersList,
+  status = 'active',
   trailingBand,
 }: PartnersGridProps) {
   const items = (partnersList ?? allPartners).filter(
-    (partner) => partner.status === 'active',
+    (partner) => partner.status === status,
   )
 
   const placementContext = usePartnerPlacementContext({

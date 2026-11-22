@@ -621,6 +621,60 @@ async function createBuilderProjectStateInternal(
   }
 }
 
+/** Recover a committed revision using the existing mutation receipt protocol. */
+export async function getBuilderProjectRevisionForMutation(input: {
+  projectId: string
+  ownerId: string
+  clientMutationId: string
+  requestHash: string
+}) {
+  await getBuilderProjectState({
+    projectId: input.projectId,
+    ownerId: input.ownerId,
+  })
+  const [receipt] = await db
+    .select()
+    .from(builderProjectMutationReceipts)
+    .where(
+      and(
+        eq(builderProjectMutationReceipts.projectId, input.projectId),
+        eq(
+          builderProjectMutationReceipts.clientMutationId,
+          input.clientMutationId,
+        ),
+      ),
+    )
+    .limit(1)
+  if (!receipt) return undefined
+  if (
+    !isMatchingBuilderProjectMutationReceipt(
+      { commandType: 'project.revise', requestHash: input.requestHash },
+      receipt,
+    )
+  )
+    throw new BuilderProjectConflictError(
+      'Builder project mutation conflicts with an existing receipt',
+    )
+  const [revision] = await db
+    .select({
+      revisionNumber: builderProjectRevisions.revisionNumber,
+      snapshotHash: builderProjectRevisions.snapshotHash,
+    })
+    .from(builderProjectRevisions)
+    .where(
+      and(
+        eq(builderProjectRevisions.projectId, input.projectId),
+        eq(builderProjectRevisions.clientMutationId, input.clientMutationId),
+      ),
+    )
+    .limit(1)
+  if (!revision)
+    throw new BuilderProjectConflictError(
+      'Builder project revision is unavailable',
+    )
+  return revision
+}
+
 export async function updateBuilderProjectState(input: {
   projectId: string
   ownerId: string

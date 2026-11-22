@@ -7,6 +7,7 @@ import {
   type ApplicationStarterAction,
   type ApplicationStarterSessionContext,
 } from '~/utils/analytics'
+import { trackScarfClipboardText } from '~/utils/analytics/scarf'
 import {
   extractMigrationRepositoryUrl,
   getApplicationStarterSuggestions,
@@ -397,6 +398,9 @@ export function useApplicationStarter({
       },
     ) => {
       await navigator.clipboard.writeText(value)
+      if (options?.trigger !== 'automatic') {
+        trackScarfClipboardText('copy', value)
+      }
       markCopied(kind, {
         showPromptNotice: options?.showPromptNotice,
         trigger: options?.trigger,

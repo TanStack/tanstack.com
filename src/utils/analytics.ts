@@ -1,5 +1,7 @@
+import { trackLiveAction } from './analytics/live-browser'
 import * as React from 'react'
 import { googleAnalyticsProvider } from './analytics/providers/google'
+import { scarfAnalyticsProvider } from './analytics/scarf'
 import type {
   AnalyticsEventName,
   AnalyticsEventProps,
@@ -120,7 +122,7 @@ function buildEventPayload(props: object): EventPayload {
   return payload
 }
 
-const analyticsProviders = [googleAnalyticsProvider]
+const analyticsProviders = [googleAnalyticsProvider, scarfAnalyticsProvider]
 
 /**
  * Track an analytics event. Type-safe — the event name determines which
@@ -138,6 +140,7 @@ export function trackEvent<TName extends AnalyticsEventName>(
   name: TName,
   props: AnalyticsEventProps<TName>,
 ): void {
+  trackLiveAction(name)
   const payload = buildEventPayload(props)
 
   for (const provider of analyticsProviders) {

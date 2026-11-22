@@ -1,0 +1,2095 @@
+[
+  {
+    "source": "migrations/0004_bot_workspace.sql",
+    "destination": "drizzle/migrations/0034_tanchat_parent_guards.sql",
+    "sourceSha256": "f89c1a930b361afa2dbe5d4cb55a73077e5ba5837eda5062ec8797d1d9461390",
+    "destinationSha256": "f7b75380a984d6e9a385a8b25670ea9e76d33d369663de072891396c034d7780",
+    "unchanged": false,
+    "sourceSection": "bots_parent_insert, bots_parent_update"
+  },
+  {
+    "source": "src/server.ts",
+    "destination": "src/server.ts",
+    "sourceSha256": "bc496fe7c294f4106a9749d6f1e4ea40b2ed147b6adc7b7175d8636c01562a5a",
+    "destinationSha256": "9cad65182a4b70e59168c9d2a8b8851a59fe6cd9d37eaeaa1f2790ecc1a599a6",
+    "unchanged": false,
+    "sourceSection": "StreamObject and WorkspaceSync named Worker exports"
+  },
+  {
+    "source": "src/server/account-preferences.ts",
+    "destination": "src/chat/server/account-preferences.ts",
+    "sourceSha256": "946a6a2223bb67235458aed2b937a178f16ae36cfab0dba4bab3880815629bea",
+    "destinationSha256": "bce22f23a4ca5d1167bee461f13192c3b60920dd7b3f63b1f1f11fe979faaf4d",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/answer-evidence.ts",
+    "destination": "src/chat/server/answer-evidence.ts",
+    "sourceSha256": "88bedd06eef0bc4a438af9cbf75c1a7a334f3ea16da3feebbbe3c46474a6cd25",
+    "destinationSha256": "58a03cb2a04a2fe1e1fd957e7eb4bff816f4ba150fd18291556bff25032f1097",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/bootstrap-workspace-data.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "22b79ff22daf5628d7a3baf3721ff7b329b5514f4adf4a14b77448c05005fb37",
+    "unchanged": false,
+    "sourceSection": "bootstrap workspace/bots/sections/activity/recipes/membership list reads, native PostgreSQL adaptation; original workspaceActivity serialization"
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/bootstrap.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "0f638fed06bbfa9c4f84e2d30aed66c179d852d0f192c97e14f41da9f5b89f40",
+    "unchanged": false,
+    "sourceSection": "complete bootstrap response composition, native PostgreSQL and shared TanStack identity adaptation"
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-control-api.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "203c49349cd91b9196a68aa17856e963d467f71e166c0c344a151be5620f59ab",
+    "unchanged": false,
+    "sourceSection": "stop, queue, lifecycle rejection, reset, dismiss-task, continue-task and approval branches; server context loading injected"
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-read-api.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "d4ef4951a12133d4a7490180197d8edee4ff817a393c20b779171881ee9248dd",
+    "unchanged": false,
+    "sourceSection": "history and stream operation branches, unchanged bodies; caller authorization remains required"
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-send-api.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "41a4c0639a15d8381ba599919b7aa20d8f60e6dfb7a37a52c0878e90cb05a9aa",
+    "unchanged": false,
+    "sourceSection": "message submission schema, begin call and result status mapping, unchanged bodies; server context and authorization supplied by caller"
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/saved-actions.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "fe52a9f287e58f5c0d69871843b18649becaaba998ce7d68dbe7950aeaa0f3bb",
+    "unchanged": false,
+    "sourceSection": "recipes POST/DELETE and workspace recipe listing; conversation.ts retains 30-row run bound"
+  },
+  {
+    "source": "src/server/assistant-capability-guidance.ts",
+    "destination": "src/chat/server/assistant-capability-guidance.ts",
+    "sourceSha256": "f0bc851325e7cff6c462365c8db8a8451cb4cf37c3a6ddb8adbc6a1501223778",
+    "destinationSha256": "f0bc851325e7cff6c462365c8db8a8451cb4cf37c3a6ddb8adbc6a1501223778",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-connection-tools.ts",
+    "destination": "src/chat/server/assistant-connection-tools.ts",
+    "sourceSha256": "87b0bfa3126c900aa6036677d3d12b606715b37c4ed28fb64a6e1d3817ebd10d",
+    "destinationSha256": "87b0bfa3126c900aa6036677d3d12b606715b37c4ed28fb64a6e1d3817ebd10d",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-context.ts",
+    "destination": "src/chat/server/assistant-context.ts",
+    "sourceSha256": "3f7309866029bf20002adf10651dc52f1bdab1b7e8a57da3bb1477ab33f6dbe0",
+    "destinationSha256": "3f7309866029bf20002adf10651dc52f1bdab1b7e8a57da3bb1477ab33f6dbe0",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-conversation-tools.ts",
+    "destination": "src/chat/server/assistant-conversation-tools.ts",
+    "sourceSha256": "b48b450bcb43b56289ec99fe378f96dee044df2d92be72141a7be7e57dd90f30",
+    "destinationSha256": "522878d49b3c2422b4371f772b4060687077cb5d62e75dd9ea0b1294d7f371df",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-delegation-tools.ts",
+    "destination": "src/chat/server/assistant-delegation-tools.ts",
+    "sourceSha256": "09e299bf2504938e39aba9079db792dd35b8a8046c162a90fffa376e686af7f4",
+    "destinationSha256": "09e299bf2504938e39aba9079db792dd35b8a8046c162a90fffa376e686af7f4",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-discovery.ts",
+    "destination": "src/chat/server/assistant-discovery.ts",
+    "sourceSha256": "a0dc605518caa5fcb8370466a99260dfe0f0afc473195d5075b67f96ca2d7d96",
+    "destinationSha256": "a0dc605518caa5fcb8370466a99260dfe0f0afc473195d5075b67f96ca2d7d96",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-file-tools.ts",
+    "destination": "src/chat/server/assistant-file-tools.ts",
+    "sourceSha256": "9b29699b95952fb50482d3d96bb9d3278a0dbcb166cb5844c506c90d956b8639",
+    "destinationSha256": "9b29699b95952fb50482d3d96bb9d3278a0dbcb166cb5844c506c90d956b8639",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-instructions.ts",
+    "destination": "src/chat/server/assistant-instructions.ts",
+    "sourceSha256": "d67017671c4da99283743b4fa1ce820340b1ad8fefd7206deffbab4cc0086fb1",
+    "destinationSha256": "e8fa20923f91f6834bbea208aa552e204ebadf96891b43cd905ac6698741b575",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-kody-memory-tools.ts",
+    "destination": "src/chat/server/assistant-kody-memory-tools.ts",
+    "sourceSha256": "ba43d469d58ef5e5a0c58b65d03f4c3ec0d052eb0b1162b3129c2b4935b8382c",
+    "destinationSha256": "8cc12850738fd48548188bfa1474e5f2955709000a0841c94a94e22e5e71ed15",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-kody-run-tools.ts",
+    "destination": "src/chat/server/assistant-kody-run-tools.ts",
+    "sourceSha256": "ff46f255bf4f0a2d574572c70ad645ec091c1fde3ed1022ebecbeffeb0bdb481",
+    "destinationSha256": "6177a03e95a21807588805d232b9b987d970625a82760b8ab72fc717d7b35516",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-mcp-tools.ts",
+    "destination": "src/chat/server/assistant-mcp-tools.ts",
+    "sourceSha256": "ec66f65b929737b3f24125cdc8ba492e2a25f3c05992c7f9a0bd4740138444e1",
+    "destinationSha256": "ec66f65b929737b3f24125cdc8ba492e2a25f3c05992c7f9a0bd4740138444e1",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-memory-tools.ts",
+    "destination": "src/chat/server/assistant-memory-tools.ts",
+    "sourceSha256": "832f96f8f23fd0077d860032b2126c3685002fbb1cb4b5bb098ca887872c34c5",
+    "destinationSha256": "1ef3070ede35913ea1b1c6afe43b55469a942ea8c282afb4b5a234f753c01894",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-message-history.ts",
+    "destination": "src/chat/server/assistant-message-history.ts",
+    "sourceSha256": "3b6285378f1ce4c6f275b1364ee9dc820cc1d0ab3579eb7ad849e34a6be91be8",
+    "destinationSha256": "3b6285378f1ce4c6f275b1364ee9dc820cc1d0ab3579eb7ad849e34a6be91be8",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-plugin-tools.ts",
+    "destination": "src/chat/server/assistant-plugin-tools.ts",
+    "sourceSha256": "7900972908a5177eac71ca7e57b204696266de749f0269ecadc96811c538379f",
+    "destinationSha256": "9be055a4f853db30a6c101b75e99d5e8b5984e0005682a6c76c5933db7db59dc",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-progress.ts",
+    "destination": "src/chat/server/assistant-progress.ts",
+    "sourceSha256": "52c469e959f8b01bce61502ab8e5315870144bbbb8820b2b50a85f4025c86046",
+    "destinationSha256": "52c469e959f8b01bce61502ab8e5315870144bbbb8820b2b50a85f4025c86046",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-schedule-policy.ts",
+    "destination": "src/chat/server/assistant-schedule-policy.ts",
+    "sourceSha256": "7e387ecb7fabd4deda0760645eb336576901410e06742196b4b5d5046d8eb066",
+    "destinationSha256": "7e387ecb7fabd4deda0760645eb336576901410e06742196b4b5d5046d8eb066",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-schedule-tools.ts",
+    "destination": "src/chat/server/assistant-schedule-tools.ts",
+    "sourceSha256": "f724841b1a8664550bb8b8558ae9ff6c3237f31202b7063d0ea5211634a194cf",
+    "destinationSha256": "f724841b1a8664550bb8b8558ae9ff6c3237f31202b7063d0ea5211634a194cf",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-skill-tools.ts",
+    "destination": "src/chat/server/assistant-skill-tools.ts",
+    "sourceSha256": "58770fe09f184f2483ea468a7621340fca438c3bfd9d40cc97a447c54782d943",
+    "destinationSha256": "0e50175338f2bc35b69867d3c2ef601af222cc5a3c03bb990d366b5457848a8e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-thread-tools.ts",
+    "destination": "src/chat/server/assistant-thread-tools.ts",
+    "sourceSha256": "bd5729432560512fecfd08f84a8b7bddae26659d230b8fb65fe8ae77626e8a0c",
+    "destinationSha256": "2392bad16980f9842a332bb9ed05cdb327257c8710e8e21cd5ca893c18c6ecf7",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-tool-failures.ts",
+    "destination": "src/chat/server/assistant-tool-failures.ts",
+    "sourceSha256": "fdd2626cecd87ab1a77e625f20a795b8471cdcee82452c351379409029df8f26",
+    "destinationSha256": "fdd2626cecd87ab1a77e625f20a795b8471cdcee82452c351379409029df8f26",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/assistant-workflow-tools.ts",
+    "destination": "src/chat/server/assistant-workflow-tools.ts",
+    "sourceSha256": "313a4b7888b835b17ca88662eef39a15643a6ee602ccfb96f0918b6a7a385824",
+    "destinationSha256": "06bfd4c4df108aa5a0871acc9c6f6d22e6d8cf95d6487999cf16f6879891c816",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/assistant-workspace-tools.ts",
+    "destination": "src/chat/server/assistant-workspace-tools.ts",
+    "sourceSha256": "19ac60ed9310394b8b4ecb6175009215d2c7db83fb9b3f795ec63a9ade0ba8d6",
+    "destinationSha256": "19ac60ed9310394b8b4ecb6175009215d2c7db83fb9b3f795ec63a9ade0ba8d6",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/attachment-request.ts",
+    "destination": "src/chat/server/attachment-request.ts",
+    "sourceSha256": "41595f455016fb9450efaa2a6e3afc81e55e26cea87dabedb0bf6481b56f6a27",
+    "destinationSha256": "a822b72add1aebbb3380f9e834df23e3c2dbba93a0738809d558ea0838856b19",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/batched-ranking.ts",
+    "destination": "src/chat/server/batched-ranking.ts",
+    "sourceSha256": "aadf3ef39642889ae37f2e0abdd54f636cf8bbc121199a8487a1f8a7520971ee",
+    "destinationSha256": "487da97f4fe2e399ab5f41b6e8e90541fb50b6486832dd73a30ce5f86ed6cfb7",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/batched-values.ts",
+    "destination": "src/chat/server/batched-values.ts",
+    "sourceSha256": "a8661521828210dcc07d6c5a219c898c5ccd2e6d5e00a549f31edb8983cc0ed3",
+    "destinationSha256": "365d8296a6d8f7f0be9a1df20f0733aa3986df87653565f76dd9b23c69a7b3bc",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/bot-activity.ts",
+    "destination": "src/chat/server/bot-activity.ts",
+    "sourceSha256": "0c73be4dc3fd02d34f9cb294929e8ef4ae6368e7863d25a90011e9408651d2c8",
+    "destinationSha256": "fd0a8376d6fc62c0827ac744cccb888469124a4be346a7038279746bb90ec3c4",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/bot-drafts.ts",
+    "destination": "src/chat/server/bot-drafts.ts",
+    "sourceSha256": "68160fcf9f7c522828ff5923959a30898921ec17cf684050d3e511a15f88ac9e",
+    "destinationSha256": "932439184f5f16a3deb7a1a1fcb161215a8a9b9db157e49d64cc4a5ecec102a2",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/bot-workspace.ts",
+    "sourceSection": "readWorkspaceBots, readBotSections, BotWorkspace.get",
+    "destination": "src/chat/server/bot-workspace-reads.ts",
+    "sourceSha256": "3ae848924e558d8eac7cb113296dfe6f568a2b75778fc5df988b2f83aded8db2",
+    "destinationSha256": "749a024373332cb0f52ce0b6aa1ae9ba0ddcfa03bd6b37ee7e9ad4fae25ef499",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/bot-workspace.ts",
+    "destination": "src/chat/server/bot-workspace.ts",
+    "sourceSha256": "3ae848924e558d8eac7cb113296dfe6f568a2b75778fc5df988b2f83aded8db2",
+    "destinationSha256": "dc2f5441b1de073331efedb8994ab7745fff34e9857920ef5e89d33170b4812e",
+    "unchanged": false,
+    "sourceSection": "BotWorkspace.get, checkVersion, available, parent, authorize, create, patch, applyHistory, organize, reorderBots, subtree, snapshotGuard, activeAncestor, delete, restore, move, moveGroup; source section commands reused through WorkspaceSections"
+  },
+  {
+    "source": "src/server/bot-workspace.ts",
+    "sourceSection": "BotWorkspaceError class",
+    "destination": "src/chat/server/workspace-error.ts",
+    "sourceSha256": "3ae848924e558d8eac7cb113296dfe6f568a2b75778fc5df988b2f83aded8db2",
+    "destinationSha256": "983557af317e5af36ad04f617e4d58de89e297f9aa56d1e1f461c4e67852d40c",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/bot-workspace.ts",
+    "destination": "src/chat/server/workspace-lifecycle-reservation.ts",
+    "sourceSha256": "3ae848924e558d8eac7cb113296dfe6f568a2b75778fc5df988b2f83aded8db2",
+    "destinationSha256": "d9b884a111a45e2caeb3ee33754d848bab51b37d9c8fe45a2dade46a93823533",
+    "unchanged": false,
+    "sourceSection": "BotWorkspace.reserve"
+  },
+  {
+    "source": "src/server/bot-workspace.ts",
+    "sourceSection": "createSection, setSections, removeEmptySections, patchSection and deleteSection, native PostgreSQL transaction adaptation",
+    "destination": "src/chat/server/workspace-sections.ts",
+    "sourceSha256": "3ae848924e558d8eac7cb113296dfe6f568a2b75778fc5df988b2f83aded8db2",
+    "destinationSha256": "2eb659b23b948a0e1a304e997db725f8381b31da15f1f44f268f285c12cac12f",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/browser-execution.ts",
+    "destination": "src/chat/server/browser-execution.ts",
+    "sourceSha256": "cc41190efa89446459a5b01fd97fd81c598c2df5977b262721449b557d0cfb22",
+    "destinationSha256": "7943dbe14892315eb0cad2591b9300c022f51c8d895f00d901c0f425de695e8f",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/catalog-evidence.ts",
+    "destination": "src/chat/server/catalog-evidence.ts",
+    "sourceSha256": "506afb02048c2f000a4a8eb7f73d35c4ffc7cbd5825cd5a5b0171e2f58b90dba",
+    "destinationSha256": "506afb02048c2f000a4a8eb7f73d35c4ffc7cbd5825cd5a5b0171e2f58b90dba",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/cloudflare-text.ts",
+    "destination": "src/chat/server/cloudflare-text.ts",
+    "sourceSha256": "3238bb9da3176a64c30edc8425a6f869c1556ff8d46503050a0bab85f4f60e91",
+    "destinationSha256": "3238bb9da3176a64c30edc8425a6f869c1556ff8d46503050a0bab85f4f60e91",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/composer-drafts.ts",
+    "destination": "src/chat/server/composer-drafts.ts",
+    "sourceSha256": "a8853f2ebb93a422c580e8794f641933df597f30065d3ecb95a26ffde5979b3e",
+    "destinationSha256": "cd76a66eff7fcd65519a4360645511e4fac38ec4e97893009fc0198806a696e4",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/connected-devices.ts",
+    "destination": "src/chat/server/connected-devices.ts",
+    "sourceSha256": "59e1c63b76f2d6469a4288bc1ddb006c42d260aea9064cfece3d34d389f39173",
+    "destinationSha256": "b3abff79331a51d9484ee8cd4f256ed24421782063247402e764125cccb0edd9",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-copies.ts",
+    "sourceSection": "ConversationCopies admission, status and source provenance service",
+    "destination": "src/chat/server/conversation-copies.ts",
+    "sourceSha256": "1b97f074e26e84a26df1897d05b3780a1f23fd582fc35c72970a1d3000cf967a",
+    "destinationSha256": "6899ada9dd552d9477f0f32ea26720bf185406cf94c29131672c4baf49cf491c",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-copies.ts",
+    "sourceSection": "CopyFailure through CopyOperationView, RPC interfaces",
+    "destination": "src/chat/server/conversation-copy-contract.ts",
+    "sourceSha256": "1b97f074e26e84a26df1897d05b3780a1f23fd582fc35c72970a1d3000cf967a",
+    "destinationSha256": "eac51c99d2f138528e0fefcfc604e88787ea8c0a7723782b8f956ee8af0eb9ae",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-copies.ts",
+    "sourceSection": "updateOperation through resumeConversationCopies, original worker and authority helpers",
+    "destination": "src/chat/server/conversation-copy-worker.ts",
+    "sourceSha256": "1b97f074e26e84a26df1897d05b3780a1f23fd582fc35c72970a1d3000cf967a",
+    "destinationSha256": "8fff7779bc5a56f9bde9112da723b039b4eb6756c422e6785244897fc1e85e64",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-copy-storage.ts",
+    "destination": "src/chat/server/conversation-copy-storage.ts",
+    "sourceSha256": "f253e32498c0d4bf96eba33d5a22fc6b9a6506404bbf9f2ee73eb096a6483d4f",
+    "destinationSha256": "e3a771e71c3b1fa124f2defea9860cea8f3dd829bf6295b98e943ceae248b89b",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-events.ts",
+    "destination": "src/chat/server/conversation-events.ts",
+    "sourceSha256": "b5d62937c95d476d065e2f21927f7ea88297a770baf02f3c05223e6c1b4a30eb",
+    "destinationSha256": "b5d62937c95d476d065e2f21927f7ea88297a770baf02f3c05223e6c1b4a30eb",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/conversation-retries.ts",
+    "destination": "src/chat/server/conversation-retries.ts",
+    "sourceSha256": "61963fa5602a20e607ac0148d5c1860e738b40753545bd9c12af0c0c934779f5",
+    "destinationSha256": "5b5718dc25543d72602b1025aba5db0c0de059ddf9b6694114085dea37850b71",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-retries.ts",
+    "sourceSection": "ConversationRetryRow and copyRetrySource immutable review verifier",
+    "destination": "src/chat/server/copy-retry-source.ts",
+    "sourceSha256": "61963fa5602a20e607ac0148d5c1860e738b40753545bd9c12af0c0c934779f5",
+    "destinationSha256": "17ae1eca75c8bf76c37ad4ceb256a287a41e6e334c45825ac90622d0d7785854",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-run-projection.ts",
+    "destination": "src/chat/server/conversation-run-projection.ts",
+    "sourceSha256": "9568ec56c30da805dd56bb9ad9340e8390a577e0ec26535a0f5e46cae7466808",
+    "destinationSha256": "9568ec56c30da805dd56bb9ad9340e8390a577e0ec26535a0f5e46cae7466808",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/conversation-runs.ts",
+    "destination": "src/chat/server/conversation-runs.ts",
+    "sourceSha256": "257c72c6e8edf4a50859314316141908a9a08dc7e25c63cd1bc99ba8f793cafc",
+    "destinationSha256": "759459679e1769d50486292bb594adb2c55c7d9ad750b99fa0a5e056f0738972",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-stream.ts",
+    "destination": "src/chat/server/conversation-stream.ts",
+    "sourceSha256": "2621e87122946c235170facfae9c13db332414e28535385bb01c610d260afa9b",
+    "destinationSha256": "919ec8fe21e3053bee6a68fc8f7bca9cfd4e2788716dea9a9886de216ebbc5eb",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation-threads.ts",
+    "destination": "src/chat/server/conversation-threads.ts",
+    "sourceSha256": "0bc23acced6315bf60bcfec875bc437255c12ebb1d1db642bcec8d1ec084e4bf",
+    "destinationSha256": "1761869910e129bbc056e5091b7cba425a1104ad4e888db33591858fe6a13c74",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/conversation.ts",
+    "destination": "src/chat/server/conversation-database.ts",
+    "sourceSha256": "f7236d21002472cc1a6f28e681dfbd573247eafd99cd71b7ac794a48d3a58dce",
+    "destinationSha256": "19a3d4595342bbfd58ac1b5cf3ab1b84ee1d811487a9f617a2fe408b10ecfbd4",
+    "unchanged": false,
+    "sourceSection": "guardActive lifecycle/retry queries; delegationContext, scheduleContext and queued run context reads; activateCopyImport activity/read publication checks; discardCopyImport publication check; workflow result child publication check; router Kody username hint; final run usage receipt start"
+  },
+  {
+    "source": "src/server/conversation.ts",
+    "destination": "src/chat/server/conversation.ts",
+    "sourceSha256": "f7236d21002472cc1a6f28e681dfbd573247eafd99cd71b7ac794a48d3a58dce",
+    "destinationSha256": "29c59572580d5ef9339a45c9b585b0d8d4330045f440a2772e6715646bed6b08",
+    "unchanged": false,
+    "status": "in_progress"
+  },
+  {
+    "source": "src/server/crypto.ts",
+    "destination": "src/chat/server/crypto.ts",
+    "sourceSha256": "b96b8f41e5dacd2ec1f63dcb1a4509c4f63b394a8015ca19e4ab85088b3905a4",
+    "destinationSha256": "b96b8f41e5dacd2ec1f63dcb1a4509c4f63b394a8015ca19e4ab85088b3905a4",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/delegation-admissions.ts",
+    "destination": "src/chat/server/delegation-admissions.ts",
+    "sourceSha256": "b4d7d57154995b17617dc9b9eae0a89f2ad62da1203090af849fc194c074dee8",
+    "destinationSha256": "f480396f30ddcf7409550e2c1c8b2f74f8eb4a85d4a81b5761292af6d91f1470",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/delegation-budget.ts",
+    "destination": "src/chat/server/delegation-budget.ts",
+    "sourceSha256": "08a4e6be93826712d1fced55709fe0469789c1ccff905f17bb80ee662ebc3fb4",
+    "destinationSha256": "8d46b56b22866d96aedad876b71cf5cf027be7339dab7c5ed874febaf5ef76bc",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/delegation-waits.ts",
+    "destination": "src/chat/server/delegation-waits.ts",
+    "sourceSha256": "91e2a7a57be7905ebbcba860b27c82869224ec45ab153b17071b6df79420ce7b",
+    "destinationSha256": "01e8dad5f43821c228ce729cbd7cb2857efee7081a95490f6edc4d481165990f",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/delegations.ts",
+    "destination": "src/chat/server/delegations.ts",
+    "sourceSha256": "2e1c19385d2dc1cad941a618418855984c35fa0c0bfb4ba23df819040d53cc79",
+    "destinationSha256": "6245b63a8c778e2fa06e3370b45474f6049aeb205763898c1da131115d97e887",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/development.ts",
+    "destination": "src/chat/server/development.ts",
+    "sourceSha256": "11071aca5a7fafd0778141773f285d3897581b74c6b60c2f885e818e9fd78a7b",
+    "destinationSha256": "11071aca5a7fafd0778141773f285d3897581b74c6b60c2f885e818e9fd78a7b",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/discovery-integrations/contract.ts",
+    "destination": "src/chat/server/discovery-integrations/contract.ts",
+    "sourceSha256": "d1f9081d2fc4c4be67960c3df93b90edd31b61e2a72f25d8d49f3bcb50b6d513",
+    "destinationSha256": "d1f9081d2fc4c4be67960c3df93b90edd31b61e2a72f25d8d49f3bcb50b6d513",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/discovery-integrations/index.ts",
+    "destination": "src/chat/server/discovery-integrations/index.ts",
+    "sourceSha256": "56e029b0d481114ddc5ea1034fd30d292cd26ac44400b55e251fc2811f4b79dd",
+    "destinationSha256": "56e029b0d481114ddc5ea1034fd30d292cd26ac44400b55e251fc2811f4b79dd",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/discovery-integrations/kody-contract.ts",
+    "destination": "src/chat/server/discovery-integrations/kody-contract.ts",
+    "sourceSha256": "d99c8a703a8930439fafb8cfc215db7d21b5dc248158345a25ade008ee5cec7e",
+    "destinationSha256": "d99c8a703a8930439fafb8cfc215db7d21b5dc248158345a25ade008ee5cec7e",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/discovery-integrations/kody-inventory.ts",
+    "destination": "src/chat/server/discovery-integrations/kody-inventory.ts",
+    "sourceSha256": "03d3ecf336b8445cf26785a8ec786bc27157cdbee9bcce888fa353e2096729ca",
+    "destinationSha256": "03d3ecf336b8445cf26785a8ec786bc27157cdbee9bcce888fa353e2096729ca",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/discovery-integrations/kody.ts",
+    "destination": "src/chat/server/discovery-integrations/kody.ts",
+    "sourceSha256": "ddb2a0703f7072d0b28561cc71b60d91541d45b6ed8399422f38bbbbcf418303",
+    "destinationSha256": "ddb2a0703f7072d0b28561cc71b60d91541d45b6ed8399422f38bbbbcf418303",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/discovery-model.ts",
+    "destination": "src/chat/server/discovery-model.ts",
+    "sourceSha256": "6073425f9350f01ca6630dd67608f55f98ef5eea1ea095ceb44c101e0b1f3bfc",
+    "destinationSha256": "0905f303849795d8fa240dec6054ca8180a6197f0697d6776751748d1cda1ff3",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/draft-files.ts",
+    "destination": "src/chat/server/draft-files.ts",
+    "sourceSha256": "155ff8411d217b7b4a7d72f3d5489b82f26c38821aa0c0582335749f8ec3a524",
+    "destinationSha256": "4111036842cb2b7b29c2c660f404708df1615d7ba0cd96bf8789ab095b7422e6",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/durable-results.ts",
+    "destination": "src/chat/server/durable-results.ts",
+    "sourceSha256": "2f0d2dee8148b1e64c93d37918dd692d2030ef89958396da8f9f494f7da013a1",
+    "destinationSha256": "86dd35979d6ebc4ef5b99caf178988595c62a21475011ba4a0512a9b330edf04",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/execution-authority.ts",
+    "destination": "src/chat/server/execution-authority.ts",
+    "sourceSha256": "4235387e77d47c9ea05378ad4e0ce67f0924467e7185ae7c107dcfe5af3880ec",
+    "destinationSha256": "211c105c01f994cebe1f1660c23caa0cdccdbdf049da16d2f04b03bb07d8fb88",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/execution-sessions.ts",
+    "destination": "src/chat/server/execution-sessions.ts",
+    "sourceSha256": "e6f21a5ab9325b706583e76c158baec5ef4b9fc8a9f1125ee5dc12de26d6cb8f",
+    "destinationSha256": "b322a6a02af723f4c04f5c4bb660cbe4fe426a07c9b8aa52226ca19afcde62d7",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/file-api.ts",
+    "destination": "src/chat/server/file-api.ts",
+    "sourceSha256": "b1937fb880c565bb7d9a1d855c72a6e45edbe7a9b1866edb9717bdebda832873",
+    "destinationSha256": "0927671b2a5df65a3f869de8809f3122a54143365a9470eeb129b7125a1fefc8",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/gateway.ts",
+    "destination": "src/chat/server/gateway.ts",
+    "sourceSha256": "77cbe844e0fd0f0f91e5b693c62dc3f0d36ae0c8aface3080a67d0e8804865fd",
+    "destinationSha256": "2fa593c630be8b399514e8ac2020b3734ad35d9610547c6e8315ef5166f7a3e5",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/history-tools.ts",
+    "destination": "src/chat/server/history-tools.ts",
+    "sourceSha256": "eac522e597df51b57627df82811ce636e00b91da1c019e2d6b185178ab83fb50",
+    "destinationSha256": "5ab0b00fdee1fc86f7d91657397e4ce4d2a456b8bbe723eb381427f683f5a94d",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-arguments.ts",
+    "destination": "src/chat/server/jev-arguments.ts",
+    "sourceSha256": "7ecfc74090ff20cadba81641c9243fc567ece19cc4f8c489087775948ff4add3",
+    "destinationSha256": "1e9478280450d4b520cf410ec6da462cd5b7a5ec50035d7c52dcc05cc41c4578",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-array.ts",
+    "destination": "src/chat/server/jev-array.ts",
+    "sourceSha256": "531fed068c812175554af586edce67948cca84a6bfda726c30400edbe892879e",
+    "destinationSha256": "77f19cab9df2a568e34fe1aee28c6f45e242daf70471d4afbfed79dd79aff23d",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-batched-arguments.ts",
+    "destination": "src/chat/server/jev-batched-arguments.ts",
+    "sourceSha256": "0171f521a238cc4d73959aaeb1f6dc77f003494e8f3f0b5ee3ee62132af19391",
+    "destinationSha256": "ea62a2966aacb56fc63e1a7caaff989e0f83ae574763981fd4847256cab5ffe5",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-call-review.ts",
+    "destination": "src/chat/server/jev-call-review.ts",
+    "sourceSha256": "3b88c4046c1825fb1b06537ff5ce94f11fabfa0e47e346c00728c5d5244dfd19",
+    "destinationSha256": "4f787276ee0ad7e4cd98796a56caa299ceaba1ca31ace42f047ddc15232015df",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-router.ts",
+    "destination": "src/chat/server/jev-router.ts",
+    "sourceSha256": "13945266943b1786c0f855288f62b17cca2654b5910c418b4a9cb297c1e5ff01",
+    "destinationSha256": "f74c50f4e69d765dd31933b1d6d737480b2d3d270929cd4aa81f9a4eb03e3ffb",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-task-decisions.ts",
+    "destination": "src/chat/server/jev-task-decisions.ts",
+    "sourceSha256": "5655a6609f357e38b637ce47600d267c21983d0a085907668e7f0ce03f213568",
+    "destinationSha256": "06d6eca49580e1c5dfa3a69a9180d0d2ecc6db6fa9f0919c46df49eb5e63fbc8",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/jev-verification.ts",
+    "destination": "src/chat/server/jev-verification.ts",
+    "sourceSha256": "d90e0b1b4278a57f87940a910599176f70bb2bf6c0f66ef3dd95b97f70da170c",
+    "destinationSha256": "676d0678178b7581a6a402effd7820d986d22819a2fb8a85a4a3bd2e12650f9e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-account-reference-catalog.ts",
+    "destination": "src/chat/server/kody-account-reference-catalog.ts",
+    "sourceSha256": "1c3965a516a03671e83b4a1d7800935f20b7584a587ba21467ea8cf9f84f0119",
+    "destinationSha256": "c2fa48dc180cb9f2edba2b4cae47d405cc348c98cb835e81866e12e16794cf5f",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-account.ts",
+    "destination": "src/chat/server/kody-account.ts",
+    "sourceSha256": "87c5342b29368b4bd3d77c48534b95d18706658dd6aa4e833359699d90fcf1b1",
+    "destinationSha256": "8d25b6a67b74e1faf5397ec6e017b286d4c71e2d0d536a38f57ed33268453711",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-actions.ts",
+    "destination": "src/chat/server/kody-actions.ts",
+    "sourceSha256": "e5691caacab29927f46325d2c3d19727584a0f68221e914e64ad59f5d9fa3991",
+    "destinationSha256": "e5691caacab29927f46325d2c3d19727584a0f68221e914e64ad59f5d9fa3991",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-answer.ts",
+    "destination": "src/chat/server/kody-answer.ts",
+    "sourceSha256": "2b7853de370bb95498c80cb74b5936a38cc06392f7fbcd09154b5cb3dc072ea5",
+    "destinationSha256": "36177311063028d049e16199934de294d23c509821b7cf93ccbeff3e7b62eea2",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-assistant-discovery.ts",
+    "destination": "src/chat/server/kody-assistant-discovery.ts",
+    "sourceSha256": "a10fa8c512047d3e4db7005e2f4e2b1dceea59b4a6c426ae76cd0d1b477291e6",
+    "destinationSha256": "a10fa8c512047d3e4db7005e2f4e2b1dceea59b4a6c426ae76cd0d1b477291e6",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-code-run.ts",
+    "destination": "src/chat/server/kody-code-run.ts",
+    "sourceSha256": "eb551a90bc459cc8a0a2fd0ec4a5406debe27ba326cae4324809482b892867fa",
+    "destinationSha256": "eb551a90bc459cc8a0a2fd0ec4a5406debe27ba326cae4324809482b892867fa",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-guidance.ts",
+    "destination": "src/chat/server/kody-guidance.ts",
+    "sourceSha256": "3018e44b4d7c98254af371bbd78838175a6587ea86a1a6e26dd4f221b1008089",
+    "destinationSha256": "6151cc59e2444e2f94d51ee50934876dd964c6108b45f8e5a511103267e7317e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-internal-read.ts",
+    "destination": "src/chat/server/kody-internal-read.ts",
+    "sourceSha256": "1cd1314e75f06972a3acee407b68ab67a6bde01ca2642ce8f4f92dbaea00d988",
+    "destinationSha256": "1cd1314e75f06972a3acee407b68ab67a6bde01ca2642ce8f4f92dbaea00d988",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-memory-create.ts",
+    "destination": "src/chat/server/kody-memory-create.ts",
+    "sourceSha256": "ee4c6169f7e1ad033e662ff5e67cc0a53d177f53781517c82ac9d4fc575adb6c",
+    "destinationSha256": "fd4b25293c373c4961df17746bfd7ff2077a29d4731e98a4674d4c7894127edd",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-memory.ts",
+    "destination": "src/chat/server/kody-memory.ts",
+    "sourceSha256": "02fd82689ea1d82f9eb5712b1a341aa17967fea74914eaaccd9f9075d5bada5b",
+    "destinationSha256": "a171117e374a2b398a76b20faaa994f29f0e8ae410ff38faa9748792b3c07b42",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-package-actions.ts",
+    "destination": "src/chat/server/kody-package-actions.ts",
+    "sourceSha256": "67b3fd58323c4224ab461ac425f0709553a9400d1aeb61e7b106f023607a43b4",
+    "destinationSha256": "67b3fd58323c4224ab461ac425f0709553a9400d1aeb61e7b106f023607a43b4",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-package-recovery.ts",
+    "destination": "src/chat/server/kody-package-recovery.ts",
+    "sourceSha256": "a3fa24dfa6986c9d4550484f1a511969e588fa3b58363cea187c77a5628c4076",
+    "destinationSha256": "a3fa24dfa6986c9d4550484f1a511969e588fa3b58363cea187c77a5628c4076",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-reference-access.ts",
+    "destination": "src/chat/server/kody-reference-access.ts",
+    "sourceSha256": "5a70e41d808d2bb633c59b9e70e05aea23a426225e539dff8bd7b54dc9b204b9",
+    "destinationSha256": "b78b93cf1f4a4b561c17da1a4fefab6c4fb0054b7a89f432b963969b2eec39d8",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-reference-catalog.ts",
+    "destination": "src/chat/server/kody-reference-catalog.ts",
+    "sourceSha256": "3bb955d93c4c0d95d48455d092553798891a4d2e2261caeb231bc574c04003de",
+    "destinationSha256": "ff4dc2372a8be482481baee82988ff3f914c222dd56b2e55471a5cafce9525ec",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-resources.ts",
+    "destination": "src/chat/server/kody-resources.ts",
+    "sourceSha256": "b3e745b2f59540217c6d831d39c8ad63bcb901dabaadcdc09e9c195ceeaf6bc8",
+    "destinationSha256": "9cae624f97ee8e8fe9974066aa5bb8ea46ada50dbf30cc7261d1742897deb6e3",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-run-history.ts",
+    "destination": "src/chat/server/kody-run-history.ts",
+    "sourceSha256": "07c9d31a5ddd078bfd20f5b1844e2725d5c1bd620e7d4fa1d8e3d5e9d0f3b36e",
+    "destinationSha256": "31aa48fe8c701533c0c1444c4dc0ace7215fd300adff55ecaf8e284361d49ea5",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-run.ts",
+    "destination": "src/chat/server/kody-run.ts",
+    "sourceSha256": "b45a68c7e634dd60dd662ab1c718c31eb88b70bd03c0d23976fb67cffd44b70a",
+    "destinationSha256": "06e1fee23a1ee7ea11aa1df9bc31fe9c5020cc61e8e32c8e66a462bd5e0595c4",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-search-synced-skills.ts",
+    "destination": "src/chat/server/kody-search-synced-skills.ts",
+    "sourceSha256": "51916efce35e495115f5aff75575e76d4eebdaf7adb376a95168c73d0be15d6a",
+    "destinationSha256": "51916efce35e495115f5aff75575e76d4eebdaf7adb376a95168c73d0be15d6a",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-setup-readiness.ts",
+    "destination": "src/chat/server/kody-setup-readiness.ts",
+    "sourceSha256": "68c75ac77611bcb92bb2677e327cf584b895c104c8a9994f3e6956657f971425",
+    "destinationSha256": "fd15f82e0ddf9b4646d2e9ecb222a4377ca5f2de55b039be7fd432d72cba92f6",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody-skill-catalog.ts",
+    "destination": "src/chat/server/kody-skill-catalog.ts",
+    "sourceSha256": "af1f5e74547c4c7246706306c6a18068be62d85b72bf09e1db20b71812148440",
+    "destinationSha256": "a6a50d4427431527fd45f6295417ee1ee4f77f7392d4bbb371ed8e957ba50a1c",
+    "unchanged": false,
+    "extracted": "ranking, suggestions, catalog readers, original freshness and inspection behavior"
+  },
+  {
+    "source": "src/server/kody-skill-catalog.ts",
+    "destination": "src/chat/server/kody-skill-source.ts",
+    "sourceSha256": "af1f5e74547c4c7246706306c6a18068be62d85b72bf09e1db20b71812148440",
+    "destinationSha256": "b7ecea02cfd82b8494de61615a9a9a4cd62d31476158baf922b7b48cfafbed78",
+    "unchanged": false,
+    "extracted": "source schemas, result envelope parser, collect function"
+  },
+  {
+    "source": "src/server/kody-skill-catalog.ts",
+    "destination": "src/chat/server/kody-skill-sync.ts",
+    "sourceSha256": "af1f5e74547c4c7246706306c6a18068be62d85b72bf09e1db20b71812148440",
+    "destinationSha256": "c82a66f17d464e8ea3e102c09e22662a9c23e4c52a39f19eb2cc6642dcac7f6a",
+    "unchanged": false,
+    "extracted": "sync function, adapted to Postgres transactions"
+  },
+  {
+    "source": "src/server/kody-skill-search.ts",
+    "destination": "src/chat/server/kody-skill-search.ts",
+    "sourceSha256": "3085deb10eaebc1d436d9d6232a396a4fa52ff8f3912c9aa70b0d8b0573dc747",
+    "destinationSha256": "3085deb10eaebc1d436d9d6232a396a4fa52ff8f3912c9aa70b0d8b0573dc747",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/kody-sync.ts",
+    "destination": "src/chat/server/kody-sync.ts",
+    "sourceSha256": "55d36ea6e9af95ddb287ffe851506901e9913dac4f97f7a5d5601793a365773e",
+    "destinationSha256": "f6e6b751148b19bc8184212f22b4473af38138555dec342cd4714a66b5eb9274",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/kody.ts",
+    "destination": "src/chat/server/kody.ts",
+    "sourceSha256": "d43d235e205a47ada4b5749895b1139633e1aa84393733b31c379ab0bdd8f5ea",
+    "destinationSha256": "b8ee9ce698a57a5aea684cde892cc1f725165b0f09c5f9936a5570bc4d76cf0a",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/local-task-tools.ts",
+    "destination": "src/chat/server/local-task-tools.ts",
+    "sourceSha256": "f92306bc1f89e651a2881ccc7810aa40c57825f32637125571b2e9ca3dd2a58e",
+    "destinationSha256": "f92306bc1f89e651a2881ccc7810aa40c57825f32637125571b2e9ca3dd2a58e",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/mcp-account-api.ts",
+    "destination": "src/chat/server/mcp-account-api.ts",
+    "sourceSha256": "85d3afcad4efed15514ee16c35037d4ab67026f483936e911a9c1bf1818d12da",
+    "destinationSha256": "0f22936599c9d4922b5b32d34d9fe8858e2282656cf726384d3519e7c4fed9de",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-account-runtime.ts",
+    "destination": "src/chat/server/mcp-account-runtime.ts",
+    "sourceSha256": "7c0aaad0485b6f1cc7c88b936d6cadd8c49c8b801d5ef592e42e541dcda3352a",
+    "destinationSha256": "e9daf9c68575ed99968af603cd1d3f14d0b6bf4de4946afccea1ddc64d2849f5",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-accounts.ts",
+    "destination": "src/chat/server/mcp-account-contract.ts",
+    "sourceSha256": "a6e1cead226b0b61a5edef3fa2e9855776d36af5aeb0166da070cc632e920c9f",
+    "destinationSha256": "d35ec45a326fdf905933d85c84de62afc2c663c755d39859f757d46720510ccc",
+    "unchanged": false,
+    "extracted": "account and OAuth refresh contracts"
+  },
+  {
+    "source": "src/server/mcp-accounts.ts",
+    "destination": "src/chat/server/mcp-account-reads.ts",
+    "sourceSha256": "a6e1cead226b0b61a5edef3fa2e9855776d36af5aeb0166da070cc632e920c9f",
+    "destinationSha256": "f8029e70dc03f8f2efb29fe0fd4966457c8ee37d7f52b621011e51f5a58d0d4b",
+    "unchanged": false,
+    "extracted": "summary, decrypt, list/get/read and configured/runtime server projection, with Neon authorization and storage"
+  },
+  {
+    "source": "src/server/mcp-accounts.ts",
+    "destination": "src/chat/server/mcp-accounts.ts",
+    "sourceSha256": "a6e1cead226b0b61a5edef3fa2e9855776d36af5aeb0166da070cc632e920c9f",
+    "destinationSha256": "c188a0ab4b0bcf0dc696119d428358173c2d156218b6155b8ae309c51f1f703b",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-auth-network.ts",
+    "destination": "src/chat/server/mcp-auth-network.ts",
+    "sourceSha256": "a3a8d2ce72b71ecfc16e2b30f740ea8c5f3115ba49c1f5d51759402889cfafa3",
+    "destinationSha256": "a3a8d2ce72b71ecfc16e2b30f740ea8c5f3115ba49c1f5d51759402889cfafa3",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/mcp-catalog.ts",
+    "destination": "src/chat/server/mcp-catalog.ts",
+    "sourceSha256": "f351a53cd0e043000862ef8a24eaccd8294e9de61e886effd1f58e0babc32738",
+    "destinationSha256": "d37981cebb6b464a3a5e7abf48fa206d794d5c6f0155b4d305d4ed422735568b",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-connections.ts",
+    "destination": "src/chat/server/mcp-connections.ts",
+    "sourceSha256": "878f9091ee18edcd29aaf619f09a65e2be59c172be9be922791a2ced0eec04e5",
+    "destinationSha256": "d96a34c401243a723aa27c892c44b79c7479fd65edb123b19033a1346beedda5",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-discovery.ts",
+    "destination": "src/chat/server/mcp-discovery.ts",
+    "sourceSha256": "da77e146c8f2342c9dbf2bd131784171e165cba8f476d54ad6e75e075df7db54",
+    "destinationSha256": "da77e146c8f2342c9dbf2bd131784171e165cba8f476d54ad6e75e075df7db54",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/mcp-oauth-discovery.ts",
+    "destination": "src/chat/server/mcp-oauth-discovery.ts",
+    "sourceSha256": "6d8ca05fe9b9dd4c83cd6a4f9d686291eb29a9cb07fbd13cfb7e0c10aecb5ce7",
+    "destinationSha256": "6d8ca05fe9b9dd4c83cd6a4f9d686291eb29a9cb07fbd13cfb7e0c10aecb5ce7",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/mcp-public-fetch.ts",
+    "destination": "src/chat/server/mcp-public-fetch.ts",
+    "sourceSha256": "66c40f1595ece5111f115884f05f8c158111ff928364a91f6432066616941a78",
+    "destinationSha256": "669aff134352a37ee7a004bff6691b0e41bd1ed03235eacf9f333f38966df8e3",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-session-store.ts",
+    "destination": "src/chat/server/mcp-session-store.ts",
+    "sourceSha256": "9d1a797925a29415ba2681a6692ff76b7803cf446531446bf9ec9192703c576f",
+    "destinationSha256": "760c119836ff60cd194e7b4e4b6c1961bd479e05999b93a4a8e32cf8df853540",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-setup.ts",
+    "destination": "src/chat/server/mcp-setup.ts",
+    "sourceSha256": "ac95395ae73f3cd7d5bcbcdb9708c23ef110fb510351999a3c83482f56c254b2",
+    "destinationSha256": "a1055dbe4d84016b7b0f67430411deb4e25c4d963c0ad574c8c71f65a343eb61",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/mcp-task-host.ts",
+    "destination": "src/chat/server/mcp-task-host.ts",
+    "sourceSha256": "d745ddde24baa6b4fd96a3b3b8e0711a33f3ad08af14a8e6f61c18859614e983",
+    "destinationSha256": "d745ddde24baa6b4fd96a3b3b8e0711a33f3ad08af14a8e6f61c18859614e983",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/mcp.ts",
+    "destination": "src/chat/server/mcp.ts",
+    "sourceSha256": "600e0872b581ef5a3164310723171aacb04b163d8ab3ba31f007728013dd6251",
+    "destinationSha256": "317045f61cf6e179c5a14624898e4ad024e99f17780006913d6f7538c4b87d6e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/memory.ts",
+    "destination": "src/chat/server/memory.ts",
+    "sourceSha256": "46dda6fc1afa60439940c761766028468313bb8db3b966e9eee704242fdbeb28",
+    "destinationSha256": "9fc68e1da057dd0c6ebd887377434edd8c3c55df2afdfe8adc6d1b24bd377c9e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/message-attachments.ts",
+    "destination": "src/chat/server/message-attachments.ts",
+    "sourceSha256": "0df36e572b4d8162b76c00d4991df0d71b0207cbe860c4579c35357fd9bc5fd1",
+    "destinationSha256": "2424152a36c4b41b4b33df4d8a08625d2de8d95d7d839e9f29c317ffa1b22a70",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/message-references.ts",
+    "destination": "src/chat/server/message-references.ts",
+    "sourceSha256": "05fc0faab9f0dd1ab1049ffc9542926a86ae9ad29984a43adcbf96ca53bb5263",
+    "destinationSha256": "e0994c4ffd45cea4ec28aa03ba8c8dc2f524e02910a9b73f03da5481c2e29880",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/model-attachments.ts",
+    "destination": "src/chat/server/model-attachments.ts",
+    "sourceSha256": "2c5b13984db5ce8dc3c8a63dfd22c13ff22ff44e24ccc53ed75b3cede67355c7",
+    "destinationSha256": "7cd9cb147f620b039e2196261354bb800bd4954656365d4382fc00cffb55cb37",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/native-file-delivery.ts",
+    "destination": "src/chat/server/native-file-delivery.ts",
+    "sourceSha256": "9e6aa9d0ff7a41906353fd08a2bc3e3f325c31f7722b30dedaa09576d4ac2d95",
+    "destinationSha256": "73d433eadea95043f977aa55d5db494d0d96e20463d0db25ef654b108ed73baf",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/onboarding.ts",
+    "destination": "src/chat/server/onboarding.ts",
+    "sourceSha256": "d64ad0d27f033cfd600451ebc400e31f19579634e6a2f7db03d491505876e7f3",
+    "destinationSha256": "9aff8a66f4128ed80949cd3681d360db2b3a92d670bab60d53786cb88517211c",
+    "unchanged": false,
+    "sourceSection": "complete original read/update semantics and errors; PostgreSQL transaction and row locks replace D1 batch/receipt-gated writes"
+  },
+  {
+    "source": "src/server/ordered-history.ts",
+    "destination": "src/chat/server/ordered-history.ts",
+    "sourceSha256": "5e3587d4a48aed53c349a20c1e0ef2c19a08dac9a5b58aa74de55b3f02412238",
+    "destinationSha256": "988cc6a0cc94763ba9decc750735e5a5c7ec2a2690ae9b396418cfa4b8785a19",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/plugin-api.ts",
+    "destination": "src/chat/server/plugin-api.ts",
+    "sourceSha256": "578a4905763afd603b4e4e19de9a20d9133a046b65e27138190ce6bf668bb9ba",
+    "destinationSha256": "45f169c40c795959e6d1f6105bea81b9ec93af6dd305df4bf5057fbf6361269a",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/plugin-connections.ts",
+    "destination": "src/chat/server/plugin-connections.ts",
+    "sourceSha256": "8cad24f7b8bf79109b07838632d1f79ac7d5a21fe71bf867bbe1b50a2a3af105",
+    "destinationSha256": "59770b05538b809c96f248163cabd0941f8320aeeaa5ebded17931a1416ff6c4",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/plugins.ts",
+    "destination": "src/chat/server/plugin-contract.ts",
+    "sourceSha256": "18c9368b1a8a4842bc161fe80c1c2c481c8dec6e4cabff49cc682ca7c57a8446",
+    "destinationSha256": "74ca4b5a580b47b9a59db9c74e3fa4aef2d86cc2dfacb8d153d6b2631d0b584d",
+    "unchanged": false,
+    "extracted": "scope, errors, version pins, origin and binding types"
+  },
+  {
+    "source": "src/server/plugins.ts",
+    "destination": "src/chat/server/plugin-packages.ts",
+    "sourceSha256": "18c9368b1a8a4842bc161fe80c1c2c481c8dec6e4cabff49cc682ca7c57a8446",
+    "destinationSha256": "86a20ed757dd21cd1c1120fe034ae5142becd178cfde0cee7df6cec8e31972e3",
+    "unchanged": false,
+    "extracted": "preview, inspect, resolveMetadata, authorizeVersion, resolve and readFile protocols adapted to Neon; inspectSkill and resolveSkill; original listSkills pagination and pins"
+  },
+  {
+    "source": "src/server/plugins.ts",
+    "destination": "src/chat/server/plugins.ts",
+    "sourceSha256": "18c9368b1a8a4842bc161fe80c1c2c481c8dec6e4cabff49cc682ca7c57a8446",
+    "destinationSha256": "f94950bf662e1e7929394b27ef2391cd55fe2c205ff72b1b4907ceefccc7ee05",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/provider-observation.ts",
+    "destination": "src/chat/server/provider-observation.ts",
+    "sourceSha256": "a31f3846ba4d268dab6672f55150054b091f205da8cdc42215312d92f227e33b",
+    "destinationSha256": "a31f3846ba4d268dab6672f55150054b091f205da8cdc42215312d92f227e33b",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/provider-request-shape.ts",
+    "destination": "src/chat/server/provider-request-shape.ts",
+    "sourceSha256": "c0253408bedd83440b7278c2e9bf70c1c57c56293165d5801c3b13b30397201f",
+    "destinationSha256": "c0253408bedd83440b7278c2e9bf70c1c57c56293165d5801c3b13b30397201f",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/provider-token-totals.ts",
+    "destination": "src/chat/server/provider-token-totals.ts",
+    "sourceSha256": "f1d68a07020f3be32f5a12b6a40c6a0568f9819fb5ca9ac89d356ed2cd77f158",
+    "destinationSha256": "f1d68a07020f3be32f5a12b6a40c6a0568f9819fb5ca9ac89d356ed2cd77f158",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/providers.ts",
+    "destination": "src/chat/server/providers.ts",
+    "sourceSha256": "b5ea35fb2d6accf603b23d240040de65aa262a56b3563a539b7587829e9c347f",
+    "destinationSha256": "84d9868ba36260f6e8af72214f60f2e4755ddd5e755a99656d5758e8e60bd747",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/public-endpoint.ts",
+    "destination": "src/chat/server/public-endpoint.ts",
+    "sourceSha256": "95f6f9e7bd296c0cac85477554ea2a69ed6a8f32885dd31a606e8581c4386d18",
+    "destinationSha256": "95f6f9e7bd296c0cac85477554ea2a69ed6a8f32885dd31a606e8581c4386d18",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/research.ts",
+    "destination": "src/chat/server/research.ts",
+    "sourceSha256": "fca733d2eed2114275dc20ec6913d3192d53a7b7e85d32923c0dbeade4c64485",
+    "destinationSha256": "4714b07600d34e911ee3487cea254a00bdafd0e540e216da42bb94fd4ad18ede",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/run-models.ts",
+    "destination": "src/chat/server/run-models.ts",
+    "sourceSha256": "b16ceeb37fabf14a5306741fbbfa210b6c0a64d4f3895c66080205b550a48d82",
+    "destinationSha256": "fa6f8b2a0cfe8524cf3e78527fe9a24301fdadb6d87084f8ef27f4513dbe8950",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/run-usage.ts",
+    "destination": "src/chat/server/run-usage.ts",
+    "sourceSha256": "1cfa46b49ab0553845c3456af0e4c1667831edaa49d8f4c6611b7df418ddcf31",
+    "destinationSha256": "6d9c0fe0a021253d9e357ecad6e17fecc910565409cc250bf7332301145fcc25",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/saved-file-contract.ts",
+    "destination": "src/chat/server/saved-file-contract.ts",
+    "sourceSha256": "b065ab25a8e1d675372444fa056d3cd9f09f8ecf100604077c2f6bd743e788d6",
+    "destinationSha256": "b065ab25a8e1d675372444fa056d3cd9f09f8ecf100604077c2f6bd743e788d6",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/saved-files.ts",
+    "destination": "src/chat/server/saved-files.ts",
+    "sourceSha256": "86132f8b280f680a9b1a540d9ffa647efb417bb80e6bed7c731e3cae196b61ea",
+    "destinationSha256": "a7a1344321ad34734c97b33da6ea71d8bd497bc47b5bb9801443117d92d0db47",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/schedule-clock.ts",
+    "destination": "src/chat/server/schedule-clock.ts",
+    "sourceSha256": "959921027b2a694b706d14af63a377e08f1ef777f08ee1bce1ad172f5f69a1b5",
+    "destinationSha256": "959921027b2a694b706d14af63a377e08f1ef777f08ee1bce1ad172f5f69a1b5",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/schedule-lifecycle.ts",
+    "destination": "src/chat/server/schedule-lifecycle.ts",
+    "sourceSha256": "05968e249d3059484f9f7f1b0e9b381deb1f4d61413a8599e0fe160597ba8dde",
+    "destinationSha256": "c1defa25058e93db985ab9c4aa503c6760e5a2c4235902b4eabf5998c7e2bc6f",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/schedule-time.ts",
+    "destination": "src/chat/server/schedule-time.ts",
+    "sourceSha256": "1bd2ae0b8ec46c9c34ba298413f8c18c0517d81ac32295090794fd5269b46719",
+    "destinationSha256": "1bd2ae0b8ec46c9c34ba298413f8c18c0517d81ac32295090794fd5269b46719",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/schedules.ts",
+    "destination": "src/chat/server/schedules.ts",
+    "sourceSha256": "a86fdcc7e96f024bd7abcdb20f0cb1a3268f8ce170e87804b42961629cbdbc31",
+    "destinationSha256": "7199122760ea6883ccfcb421aafaeaa5000b83c2190a4859cd9ff05e0abaca2e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/setup-evidence.ts",
+    "destination": "src/chat/server/setup-evidence.ts",
+    "sourceSha256": "0f8c06a6e44b8f8855ce1bf5a9bf6629bf31d7dcb10f78b5b99c04807e1ea69e",
+    "destinationSha256": "0f8c06a6e44b8f8855ce1bf5a9bf6629bf31d7dcb10f78b5b99c04807e1ea69e",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/skill-api.ts",
+    "destination": "src/chat/server/skill-api.ts",
+    "sourceSha256": "2156739d86ebd05937a7d65ab7d2bc01820408bce0fb1883a1b35c6beaf7e55d",
+    "destinationSha256": "967a7749ebdbab5383306a86ad40480fa44bef5e5b11fb50276b63fd4b82df67",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/skill-catalog.ts",
+    "destination": "src/chat/server/skill-catalog.ts",
+    "sourceSha256": "df13c3a73da2bbc4fdbdd3eb5d07e60555741dac434ce5a2197a993cc1e0e9de",
+    "destinationSha256": "732824c7f98d4e7f1881505bf4456e37298990d48a154956d65b1b5d199d731e",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/skills.ts",
+    "destination": "src/chat/server/skills.ts",
+    "sourceSha256": "6883e56024e4527f04bbbab8db88365c60de511a7b033c54fa86723f7f4413ac",
+    "destinationSha256": "0872ac1a120ff996ed1c3e1181507d4f8cc0580575c8447a5bea50879a98431b",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/stored-results.ts",
+    "destination": "src/chat/server/stored-results.ts",
+    "sourceSha256": "cdae253c460b9dc8af05d52a0bcfbc879344aa4d6e48f9c4908e5d4ac9bfc0b6",
+    "destinationSha256": "cdae253c460b9dc8af05d52a0bcfbc879344aa4d6e48f9c4908e5d4ac9bfc0b6",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/stream-append.ts",
+    "destination": "src/chat/server/stream-append.ts",
+    "sourceSha256": "f48e3b21e7e9415a58e0ea2fc51fb73953eaef600e513d11567a17972c26d9a4",
+    "destinationSha256": "f48e3b21e7e9415a58e0ea2fc51fb73953eaef600e513d11567a17972c26d9a4",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/system-one-loop.ts",
+    "destination": "src/chat/server/system-one-loop.ts",
+    "sourceSha256": "07693e3a998ea4c5a89b160353ec81e8ba2dc71a14ed25d8f48ea26213db05e7",
+    "destinationSha256": "1bb5d80609e7481321d39445874bfb91260b35041261a265da1fd2bf02f99ce3",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/task-history.ts",
+    "destination": "src/chat/server/task-history.ts",
+    "sourceSha256": "666371b438eafaf87f5a953f49c95e3a2f1ea192f055fe9f7412ba0e2665bdec",
+    "destinationSha256": "9c4d9089830fc8d05d90c6434bbbfc1be5327585bcd0a980d54e2d34402b2d98",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/task-plugins.ts",
+    "destination": "src/chat/server/task-plugins.ts",
+    "sourceSha256": "74ec43fc8af8f8ddedca9c2f35fe1df3843a7c444a96b2ca4bd334ea2609925e",
+    "destinationSha256": "0ded1ac14367f845ba80ad33d4493f9bad5bcf0ba13b61c887892fd4f143a891",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/task-skills.ts",
+    "destination": "src/chat/server/task-skills.ts",
+    "sourceSha256": "d5c564f30cc2f879d897aa4611773def76a29a164b6420e687749273ae0e2c60",
+    "destinationSha256": "eda2d8a719ab1e2887895866306567379809a7834fe2fad34d04835541690495",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/tool-proposals.ts",
+    "destination": "src/chat/server/tool-proposals.ts",
+    "sourceSha256": "87866ef88f1a129ac10981c4a81a368e21d970cd06a12e5d48527088052aa6fc",
+    "destinationSha256": "0634b2e49eb9110fd37235c4a145b23986189383b41360e859042f3354cad2b7",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/tool-reference-catalog.ts",
+    "destination": "src/chat/server/tool-reference-catalog.ts",
+    "sourceSha256": "90d612cda64ffc137b17f8c58de2314252d3f36265a2b0371839fe114d7c12b2",
+    "destinationSha256": "d90f7cb594f3ab24fb7024632653588b98aadda76eee3f5b6a78da94ea7f5ea6",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/transcript-archive.ts",
+    "destination": "src/chat/server/transcript-archive.ts",
+    "sourceSha256": "ad6c819fab44f327dddb062a0ac0863ae926051d72dcb05974d30da67225e253",
+    "destinationSha256": "f8fca9af49090a953aa39e821eae5f687140707c2f79f95293f588743fd78a79",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/type-contract.ts",
+    "destination": "src/chat/server/type-contract.ts",
+    "sourceSha256": "db0c0a7ae974d4228d52fafc459c6d7fed4b98728a0482b26f5921261ade8a93",
+    "destinationSha256": "db0c0a7ae974d4228d52fafc459c6d7fed4b98728a0482b26f5921261ade8a93",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/usage-cost.ts",
+    "destination": "src/chat/server/usage-cost.ts",
+    "sourceSha256": "7bca30f79dbfcd651eb301d7090155ef7ac4fa788b51a25fc2e8d11e6afa5bbf",
+    "destinationSha256": "7bca30f79dbfcd651eb301d7090155ef7ac4fa788b51a25fc2e8d11e6afa5bbf",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/usage.ts",
+    "destination": "src/chat/server/usage.ts",
+    "sourceSha256": "95770f8dd9090cd8539f7b38d2d6858ac224825a91f513c0bdb6f2ffb29aae65",
+    "destinationSha256": "f49e556d775ee287db2e5965255623d02b06c643f70656ee962f368ddbf35757",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/value-candidates.ts",
+    "destination": "src/chat/server/value-candidates.ts",
+    "sourceSha256": "0aff87aa0deee733128d5a025a1d33847b29f303a9761d68acaf73fb5f766102",
+    "destinationSha256": "0aff87aa0deee733128d5a025a1d33847b29f303a9761d68acaf73fb5f766102",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/workflow-admissions.ts",
+    "destination": "src/chat/server/workflow-admissions.ts",
+    "sourceSha256": "a94c3338303a3ed0f230e6c6f3e47c603893b4da3bd961a65bd9cf8466b9aba3",
+    "destinationSha256": "7f2079b211a2e6bf9f4810bcd94dc0ad9f7c43ec9337e7e388c5111c028ba54a",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-authority.ts",
+    "destination": "src/chat/server/workflow-authority.ts",
+    "sourceSha256": "4434330e82c13fa2205daf242bbd8037fdd83e86a9d99a732fdce8fd3b3dd4a1",
+    "destinationSha256": "5daa7e01b881adca9d21395522baff39ca79dfc485b5e6ccc2401974b8da3ece",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-children.ts",
+    "destination": "src/chat/server/workflow-children.ts",
+    "sourceSha256": "2be7f07ee40d51f5132aacc4f83a18fcdc29b224d8099434cabe044fe7f2afc4",
+    "destinationSha256": "cc795953b9a78a209796604dcf0883e77c58c5736cb7a662501037ca546fb03b",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-context.ts",
+    "destination": "src/chat/server/workflow-context.ts",
+    "sourceSha256": "0755e4235248e2e6bb18844d125ddd9814163b5e04fd695fc3b1561d1f85ff6d",
+    "destinationSha256": "bca1e2236d9be76b03cb5c84fc7696d614c9813a5639936f9c569322b22a6930",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-driver.ts",
+    "destination": "src/chat/server/workflow-driver.ts",
+    "sourceSha256": "fdee5538e5fe2d58e8b84433b723eed48337a12c4a6363e3be790160d4b37050",
+    "destinationSha256": "dbf52e72b64396a6b71347851d01f62ce7caab810c8e90b9793586a37e8573c2",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-file-input.ts",
+    "destination": "src/chat/server/workflow-file-input.ts",
+    "sourceSha256": "6ba7ca1ea6d10f2961a3da344c140075f5303efd793bc4b973da1cdb98f57505",
+    "destinationSha256": "6ba7ca1ea6d10f2961a3da344c140075f5303efd793bc4b973da1cdb98f57505",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/workflow-input-store.ts",
+    "destination": "src/chat/server/workflow-input-store.ts",
+    "sourceSha256": "5964ff70a7fd58e2a83e593c3a6bd528b46ac6d81c59115294da214aa00bd799",
+    "destinationSha256": "5964ff70a7fd58e2a83e593c3a6bd528b46ac6d81c59115294da214aa00bd799",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/workflow-inputs.ts",
+    "destination": "src/chat/server/workflow-inputs.ts",
+    "sourceSha256": "3974e306908d3b73f03514b3822b862edeea5ae082a78005d0e5b7a4d4ffa43f",
+    "destinationSha256": "3974e306908d3b73f03514b3822b862edeea5ae082a78005d0e5b7a4d4ffa43f",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/workflow-launches.ts",
+    "destination": "src/chat/server/workflow-launches.ts",
+    "sourceSha256": "09882806f8f9748d78e6bd4fe8fc1c63f583df1ef78d5ae09471ac001c4ee84b",
+    "destinationSha256": "c2ef38f05b0ada629cbac33692e74597bec2c934b164e1203b25bb24347ea043",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-results.ts",
+    "destination": "src/chat/server/workflow-results.ts",
+    "sourceSha256": "2be9cc549f2c69df92e2ab8c80dd03c2fafd4a0098b8a4d835da14851ed0e2eb",
+    "destinationSha256": "ad85ae34d7628433a5cc1173709284dd62e31c56d76a1543fa9606b253baf4bc",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflow-runs.ts",
+    "destination": "src/chat/server/workflow-runs.ts",
+    "sourceSha256": "da87d64c95f4c9cfae3e6af00a63c3f9b84efb76bc525f3661e5f4fce7cca123",
+    "destinationSha256": "1eb33d9af7a0f30bd901593d8f7fa3d0d7aeab1eac3568fa9be01af6c4face84",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workflows.ts",
+    "destination": "src/chat/server/workflows.ts",
+    "sourceSha256": "474b59e7bf2f954ef706fd3875ed2e646cc952576a3153f0d15a64fb9998f499",
+    "destinationSha256": "d5fdc1cd69caf16a7824c8e85e240277b2258d8955d2ea7ea8391c039b5d3831",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workspace-request.ts",
+    "destination": "src/chat/server/workspace-request.ts",
+    "sourceSha256": "2c0044b3389c46070e4bd2860955cacbdc4da28dbcb4e845a96d5169c59a5241",
+    "destinationSha256": "2c0044b3389c46070e4bd2860955cacbdc4da28dbcb4e845a96d5169c59a5241",
+    "unchanged": true
+  },
+  {
+    "source": "src/server/workspace-sync-object.ts",
+    "destination": "src/chat/server/workspace-sync-object.ts",
+    "sourceSha256": "26f342613a657cc7d89de10b01524dea75e5d10c238cbeee3de5822f6234db3e",
+    "destinationSha256": "39f418f662f57014d0cebfb1afb364cbed676abd465824fc27b329f9f6596a67",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workspace-sync.ts",
+    "sourceSection": "syncMembership and readSyncProjection",
+    "destination": "src/chat/server/workspace-sync-projection.ts",
+    "sourceSha256": "df803103249fae57ece55dc7fd221f8415d9b233c62c70538009543e6a7a1ee4",
+    "destinationSha256": "b5d48a21a0692c862362e474c9831e991887d965a0f75350726ad6dd2b43736d",
+    "unchanged": false
+  },
+  {
+    "source": "src/server/workspace-sync.ts",
+    "destination": "src/chat/server/workspace-sync.ts",
+    "sourceSha256": "df803103249fae57ece55dc7fd221f8415d9b233c62c70538009543e6a7a1ee4",
+    "destinationSha256": "b9f70c033f0c6c089230c30bfd2b2c8a013915c3c084e7b8d1cd7fee647e2662",
+    "unchanged": false,
+    "sourceSection": "workspace stream transport, durable publisher, wake and recovery; projection readers extracted separately"
+  },
+  {
+    "source": "tests/workflow-driver.test.ts",
+    "destination": "harness-tests/core/workflow-driver.test.ts",
+    "sourceSha256": "16fd8cd5d73fe1dd7a4c66bc7d0d9812bf07dbf0ddf64da55b9165193ad8e56f",
+    "destinationSha256": "682caad0a1b863f51e01afa9b44b6db07977b5fc3c175d9fa9c253c4bbfac60d",
+    "unchanged": false
+  },
+  {
+    "source": "wrangler.jsonc",
+    "destination": "wrangler.jsonc",
+    "sourceSha256": "de52d4e5a762d550bd5f1f0720d7103ef4552041bbda0009d767d46f55e65448",
+    "destinationSha256": "c9736f4ef4f437ac98fcf12788fffb5ff9277b08009eaffb1162ff56f7fa93b2",
+    "unchanged": false,
+    "sourceSection": "STREAMS and WORKSPACE_SYNC bindings and new SQLite Durable Object migration"
+  },
+  {
+    "source": "src/server/workspace-index.ts",
+    "destination": "src/chat/server/workspace-index.ts",
+    "sourceSha256": "20866f556a2c9953a848c30bc10a261f16a81871f0f88249a1b6814dbb6e9ece",
+    "destinationSha256": "be476049ac77a181069a106b1ee8bfa84381c01c5e7acc5de06cea5335ee9ea6",
+    "unchanged": false,
+    "adaptation": "Removed D1 argument and imported the existing native PostgreSQL workspace reads. Original composition and response shape retained."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "workspace-sync/snapshot and workspace-sync/stream branches",
+    "destination": "src/chat/server/workspace-sync-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "48e309127d892dc1ff7c3c59b220e36f1a3dcb9ef05033c03d3f640af52a64ae",
+    "unchanged": false,
+    "adaptation": "Original HTTP behavior retained with native PostgreSQL workspace reads and shared TanStack authentication and JSON responses."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "indexResponse helper",
+    "destination": "src/chat/server/workspace-index-response.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "352e66103ca50cdde89f91f99cd6e9cba8d44f7eb2782881839471fb45f81aea",
+    "unchanged": false,
+    "adaptation": "Original HTTP behavior retained with native PostgreSQL workspace reads and shared TanStack authentication and JSON responses."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "bots POST; botMatch mutation dispatch; bots/bulk; bots/move; workspace-history POST",
+    "destination": "src/chat/server/bot-mutation-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "2032af386f20b7aaf36ff440552dc38f57f2e0b055d59c8d9121fcec8784abfa",
+    "unchanged": false,
+    "adaptation": "Original operation dispatch to ported native services, shared TanStack session and workspace membership authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "sections POST and sectionMatch PATCH/DELETE dispatch",
+    "destination": "src/chat/server/workspace-sections-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "e1eceba598d3ab8365e7cbd23cdb729554ec2bbd59c74dcb28edbb0323e075fe",
+    "unchanged": false,
+    "adaptation": "Original operation dispatch to ported native services, shared TanStack session and workspace membership authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "bots/bulk POST command loop",
+    "destination": "src/chat/server/conversation-bulk-actions.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "91053338bf591186e4ed17073363e95fca14afa5ed98ff72cb87163447edc0f5",
+    "unchanged": false,
+    "adaptation": "Original command loop extracted unchanged, database service already native, input passed as an argument."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "model-options GET branch",
+    "destination": "src/chat/server/model-options-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "e6b210f65cca762e7b0a696925f3777ce27cbb700bd96748ddc49d943bc4736f",
+    "unchanged": false,
+    "adaptation": "Original model catalog operation, shared authenticated identity and native workspace policy boundary."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "recipes POST and recipes/:id DELETE branches",
+    "destination": "src/chat/server/saved-actions-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "eadd641fdba02968a1c82198f2feead203cf0adbbaf26502ea94aabbbc75777b",
+    "unchanged": false,
+    "adaptation": "Dispatch to the previously ported native SavedActions service, shared account/workspace auth and bounded request parsing."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "connection POST branch",
+    "destination": "src/chat/server/provider-connection.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "c8f7afb0d9091672d63e26adf1d01f9344864fb0f2a781acbccf8c45bd60af38",
+    "unchanged": false,
+    "adaptation": "Original credential updater retained, native encrypted storage and shared session/workspace boundary."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "connection POST branch",
+    "destination": "src/chat/server/provider-connection-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "39a356dfb610a97d3b027903080e99cef0825daf61734f9f0cf10bfcd85fbab6",
+    "unchanged": false,
+    "adaptation": "Original credential updater retained, native encrypted storage and shared session/workspace boundary."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "threadRoute threads/thread GET/POST/DELETE dispatch",
+    "destination": "src/chat/server/conversation-threads-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "6edba82aa9c4e259e7ec2ec0172ccacd5db1d6b23dc55fce40719923006edd58",
+    "unchanged": false,
+    "adaptation": "Original operation dispatch, shared account/workspace authorization and native thread service."
+  },
+  {
+    "source": "src/server/api.ts",
+    "sourceSection": "fileRoute bots/bot-drafts/conversations dispatch to fileApi",
+    "destination": "src/chat/server/file-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "005b9f55ad0e1f43bb5ea476648eb0d184c89013c8cc35a0c4a1c6d30eb63bf8",
+    "unchanged": false,
+    "adaptation": "Original fileApi dispatch with shared session/workspace checks and native conversation ownership resolver."
+  },
+  {
+    "source": "src/server/bot-drafts.ts",
+    "sourceSection": "BotDrafts.start model/attachment/reference preparation and conversation admission",
+    "destination": "src/chat/server/bot-draft-start.ts",
+    "sourceSha256": "68160fcf9f7c522828ff5923959a30898921ec17cf684050d3e511a15f88ac9e",
+    "destinationSha256": "c7fdfbddb5d635eb5ea50e434be03dfb8745a09e742be03c8254c5c8d9c56ed6",
+    "unchanged": false,
+    "adaptation": "Source preparation block copied directly, original begin payload preserved. Native reservation and started receipt replace D1 writes. Fresh-only drafts require their reserved model, no legacy data migration."
+  },
+  {
+    "source": "src/server/execution-project-snapshots.ts",
+    "destination": "src/chat/server/execution-project-snapshots.ts",
+    "sourceSha256": "052d410e55da4fd77061208266615b6fe4b93647d44dc4193cfe77507f3df763",
+    "destinationSha256": "0f4098c80f11aa5ccb3e28f8175edc5e25d279bbc3a155082d035c08a69cdb49",
+    "unchanged": false,
+    "adaptation": "Explicit Cloudflare and FileEnvironment types replace original global Env, workspace query scoping excluded from original snapshot query validation. Checksum verification accepts only used size/checksums fields, native typed etagDoesNotMatch wildcard preserves conditional create semantics."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-execution-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "f12f610f847bfc8269bf7fbcf9e91c4382803533480e41c7b67c0deb5ca77b1b",
+    "unchanged": false,
+    "sourceSection": "executionRoute command, history, exact-session snapshot and event cursor dispatch",
+    "adaptation": "Original dispatch retained with shared auth, native conversation identity and scoped workspace query, TanStack response helpers and existing local execution restriction."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "fa56cc92a235ba57df3046af1e5e1f21038405c92563d2cfa9bfa92bdcf572a6",
+    "unchanged": false,
+    "sourceSection": "task-usage, runs and action-evidence read dispatch blocks; copy-boundary and retry-source capture",
+    "adaptation": "Original validation, RPCs and statuses retained inside shared session and native conversation ownership boundary. Native lifecycle and membership policy readers replace D1, retry JSON uses existing source parser and typed result envelope, workspace selector retained in generic API query."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-database.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "19a3d4595342bbfd58ac1b5cf3ab1b84ee1d811487a9f617a2fe408b10ecfbd4",
+    "unchanged": false,
+    "sourceSection": "workflow_children owner lookup and parent-only mutation restriction",
+    "adaptation": "Native PostgreSQL owner reader, authorized before lookup, used by shared-session control route. Verified against freshly published workflow child and main/missing conversations. Original owner/run/step metadata also forwarded in history snapshots."
+  },
+  {
+    "source": "src/server/workflow-api.ts",
+    "destination": "src/chat/server/workflow-api.ts",
+    "sourceSha256": "fcafff417e3541cd7682dd6b0590677da3fb87aa845902c535849204d918b410",
+    "destinationSha256": "0d03c895408f692c1b95b1930a50d69de454c9f11f6a4d229ffe697eccdf53cf",
+    "unchanged": false,
+    "adaptation": "Native Workflows constructor removes D1 argument, native identity import, shared workspace query omitted from original strict workflow query validation."
+  },
+  {
+    "source": "src/server/workflow-run-api.ts",
+    "destination": "src/chat/server/workflow-run-api.ts",
+    "sourceSha256": "b3f10c28ef77aabce4afae69c1c5d218a294a4abd61a999ee769d5f27508368d",
+    "destinationSha256": "0e2876201634214011b687fefadb66a0d260a04cdf4966b47f44561bf4ae82ce",
+    "unchanged": false,
+    "adaptation": "Explicit Conversation namespace environment and native identity import, generic workspace selector omitted from source query validation. Existing run RPC dispatch preserved."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-copy-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "d127a854a4e042cedbd8f56ab84236873ef5a7b8110839c0199215bb892abc64",
+    "unchanged": false,
+    "sourceSection": "copyStart/copyStatus/copySource dispatch",
+    "adaptation": "Shared session and native workspace membership, typed CopyEnvironment namespace, exact source create/status semantics."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/conversation-retry-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "06570c74903f6bb51908157fcd1b319fd94a7585e4a1283da65b7868bae52358",
+    "unchanged": false,
+    "sourceSection": "retryStart/retryStatus dispatch",
+    "adaptation": "Shared session, native identity and policy, explicit typed retry environment, fixture false server-side, original preparing status and explicit prepare/get behavior."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/workspace-activity-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "459531f7d9fae36323d93774d8842a4f20407e018f14d6827e63b8f5e7032f4a",
+    "unchanged": false,
+    "sourceSection": "activity and workspace-index/activity GET contracts",
+    "adaptation": "Shared session and native membership boundary reuse existing bootstrap activity serializer."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/workspace-policy.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "f3be8276c9bdb545962201845a78f635f8b37671f0327147c3e5c062d95223e6",
+    "unchanged": false,
+    "sourceSection": "policy POST owner-only update",
+    "adaptation": "Native PostgreSQL policy schema and conditional owner update, shared session/member/origin boundary."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/workspace-policy-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "a64f0521d4102532d64486927e39b0f3e7a8aa857de4daeb1080c722327745bb",
+    "unchanged": false,
+    "sourceSection": "policy POST owner-only update",
+    "adaptation": "Native PostgreSQL policy schema and conditional owner update, shared session/member/origin boundary."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-account-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "a4a133797ea6507b6597e8c56aaf8442c2bf215dc9b57ce02b51bf66b08c46d3",
+    "unchanged": false,
+    "sourceSection": "kody/account GET and kody/sync POST",
+    "adaptation": "Shared session and native policy membership boundary, server credential/origin configuration, source service calls and bounded account cancellation."
+  },
+  {
+    "source": "src/server/kody-community.ts",
+    "destination": "src/chat/server/kody-community.ts",
+    "sourceSha256": "c9bdd29fe4844834b944c4dea9e670a86c6df947224ee873f6a4e72acb9bffb4",
+    "destinationSha256": "7e2bd77fac6f28ab6967994348d42e0a660cdad83a4568fb23a4c96577e59732",
+    "unchanged": false,
+    "adaptation": "Original complete implementation copied; global Env replaced with explicit existing KodyEnvironment. HTTP routes remain to be mounted."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-account-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "f8a1899b1f62331be715aaa4a966fe81aef49a888afc5a7862621b6d1019d6af",
+    "unchanged": false,
+    "sourceSection": "Kody community search and listing GET dispatch",
+    "adaptation": "Original service inputs and cancellation retained behind shared TanStack auth and native workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/community.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "ccce2d4753fd135290d619a64f0e269fa4ab2c579c8e69c91b2c54933d97181d",
+    "unchanged": false,
+    "sourceSection": "Kody community search and listing GET dispatch",
+    "adaptation": "Original service inputs and cancellation retained behind shared TanStack auth and native workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/community/$listingId.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "3f86b8a70f4fde59edf5140e50aad779740af29df0969c037dd1c00cf7687fea",
+    "unchanged": false,
+    "sourceSection": "Kody community search and listing GET dispatch",
+    "adaptation": "Original service inputs and cancellation retained behind shared TanStack auth and native workspace policy."
+  },
+  {
+    "source": "src/server/kody-usage.ts",
+    "destination": "src/chat/server/kody-usage.ts",
+    "sourceSha256": "a3886848b1267445a03a84a9b50d4d95e280abe045c98e8a1eb3c2047bce3367",
+    "destinationSha256": "9eee3686826369ea3e4f0bc6a1475949ba36a5093dfc279917b1f868e0ac91e8",
+    "unchanged": false,
+    "adaptation": "Complete original implementation retained with explicit existing KodyEnvironment type."
+  },
+  {
+    "source": "src/server/kody-mail.ts",
+    "destination": "src/chat/server/kody-mail.ts",
+    "sourceSha256": "f653229b75fae3f34e6946701071b5319f39b87c6e8d8b52f3506cc0b5de1e2b",
+    "destinationSha256": "85a131d05abc5f830e9fd8542aa40ecd409086afd36cf6cb022f63438ccdfe33",
+    "unchanged": false,
+    "adaptation": "Original service copied in full; explicit existing KodyEnvironment replaces global Env."
+  },
+  {
+    "source": "src/server/kody-package-document.ts",
+    "destination": "src/chat/server/kody-package-document.ts",
+    "sourceSha256": "0068456f92ef2138270a0e7b264d442dc8b907ab5a8dcec7be38e359123b5a0a",
+    "destinationSha256": "6685683034e8aa6faf367da4248fdc29c4120884af2e0cd4b0cf9a7495d24c87",
+    "unchanged": false,
+    "adaptation": "Original implementation copied with explicit existing KodyEnvironment type."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-account-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "b37a3b8adca8778c0db6bc057ebb7182df21479e25f58b51ce84691b2ec7139b",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/usage.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "1ba72b93c845e021b995057d0713bdb960d40c6694cf919c0e87951fb65579ed",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/mail/inboxes.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "5df960fabc639a3f8257bcce84ea1543d0d3bc54049c70489a4b1af2833a396d",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/mail/messages.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "de01f83ece0dd900c6422c40cd591beea284ab21c2f22a158e5530f93bf55c7f",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/mail/messages/$messageId.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "40f03bda2f348f969a55a38fa5d420d1fa7f49b7a3f94486fcc80ed08237e7dc",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/packages/$packageId/document.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "e252dd16261c9ad53f772939141706514f811aa0a5e0678dfc4a8f068db8cac9",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/resources/$kind.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "882f4973341b7c3dbc87524bd46f99b337029989b38b2f595e490ed8799055f8",
+    "unchanged": false,
+    "sourceSection": "Original Kody account/resource/usage/mail/package document read dispatch",
+    "adaptation": "Original services and inputs retained behind shared TanStack session and workspace policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-account-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "60880c8f129fbc895c93914b8dc484842b2921d049a4ac798253ef3c4fb00336",
+    "unchanged": false,
+    "sourceSection": "Kody run history and run detail GET dispatch",
+    "adaptation": "Original service calls, filter schemas, policy denial and timeout durations preserved with shared TanStack session."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/runs.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "2454792e32a7386cb93152a62ae477e1f4e72a2152a4c2eaa9a93aab2ad02412",
+    "unchanged": false,
+    "sourceSection": "Kody run history and run detail GET dispatch",
+    "adaptation": "Original service calls, filter schemas, policy denial and timeout durations preserved with shared TanStack session."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/runs/$runId.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "b730f06feea704f74586676402d28f509c78925e93848b53b8ee2fc0dc38b486",
+    "unchanged": false,
+    "sourceSection": "Kody run history and run detail GET dispatch",
+    "adaptation": "Original service calls, filter schemas, policy denial and timeout durations preserved with shared TanStack session."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-account-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "41e30182643f352e3482b32f2741263299382c1b4fae0d043bf239eb6562f3f6",
+    "unchanged": false,
+    "sourceSection": "Original Kody memory search and detail GET dispatch",
+    "adaptation": "Original service inputs and timeout retained behind shared TanStack account/workspace authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/memories.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "a3c35c3850f3df08a6bfd4b8a4325cdfa217021f9304f92aeb19bfdc49132db8",
+    "unchanged": false,
+    "sourceSection": "Original Kody memory search and detail GET dispatch",
+    "adaptation": "Original service inputs and timeout retained behind shared TanStack account/workspace authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/memories/$memoryId.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "e3a9e963877294673600c4c0b0f9234ca55f61aa35e4979fcb26f08b6312cf6c",
+    "unchanged": false,
+    "sourceSection": "Original Kody memory search and detail GET dispatch",
+    "adaptation": "Original service inputs and timeout retained behind shared TanStack account/workspace authorization."
+  },
+  {
+    "source": "src/server/kody-memory-change.ts",
+    "destination": "src/chat/server/kody-memory-change.ts",
+    "sourceSha256": "1dcd7afcfd6247d1d7854e019ae604b5121f644b606ab09cdda5c9cca1c62fbd",
+    "destinationSha256": "c8ecca73be59ce2a5891e0d45668df8a974e70352f6044b6bfa95ef8d7ca9d99",
+    "unchanged": false,
+    "sourceSection": "Complete original implementation",
+    "adaptation": "Explicit native Kody environment and shared TanStack auth; original mutation service contracts preserved."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-memory-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "105d9da407331bfd4754771746312821f36e38b84d41fc4e456c37c7f84ddc73",
+    "unchanged": false,
+    "sourceSection": "Memory create/change review and apply POST dispatch",
+    "adaptation": "Explicit native Kody environment and shared TanStack auth; original mutation service contracts preserved."
+  },
+  {
+    "source": "src/server/kody-server-add.ts",
+    "destination": "src/chat/server/kody-server-add.ts",
+    "sourceSha256": "e68590dfc63d996b50b94e92b5680bff96649c7dc3dfa3bdaf6e0b9b35b86506",
+    "destinationSha256": "e09d93e7eb97fcd9d2d1c88d5ba06418a26a8e69b9aacd605767ebe8ae7c1354",
+    "unchanged": false,
+    "adaptation": "Original service copied, explicit KodyEnvironment; D1 membership/policy/link lookup replaced by equivalent native PostgreSQL joins for controls. HTTP routes pending."
+  },
+  {
+    "source": "src/server/kody-server-control.ts",
+    "destination": "src/chat/server/kody-server-control.ts",
+    "sourceSha256": "c4f3f02846883a125919fa803f937ff1712b246e3d89e13cc707fe0283f167c4",
+    "destinationSha256": "5ce7b37b26e905f3af71514b8ecb9eb0202e954dcc2d1940becfbf9311f505fd",
+    "unchanged": false,
+    "adaptation": "Original service copied, explicit KodyEnvironment; D1 membership/policy/link lookup replaced by equivalent native PostgreSQL joins for controls. HTTP routes pending."
+  },
+  {
+    "source": "src/server/kody-job-control.ts",
+    "destination": "src/chat/server/kody-job-control.ts",
+    "sourceSha256": "59fe13d05777e5d1b4dc812b5d8156eb25731d343482018cd3328febf6aefe02",
+    "destinationSha256": "ea5995d3ce5c05a7ab2528b3fe748b81185b78f3cd73d5146e80a62c0f759b4c",
+    "unchanged": false,
+    "adaptation": "Original service copied, explicit KodyEnvironment; D1 membership/policy/link lookup replaced by equivalent native PostgreSQL joins for controls. HTTP routes pending."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-control-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "41c3f472e5f5144440cf7a75fdab2545b84e3548bd67a593dbca7e11d1bc995a",
+    "unchanged": false,
+    "sourceSection": "Original Kody job enable and server add/enable/reconnect/check POST dispatch",
+    "adaptation": "Source services, validation, policy restriction, timeouts and catalog invalidation retained under shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/jobs/$jobId/enabled.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "374e3ef381333ed4bbeecf417f23b88b5147381292814ed846246f5adc505c87",
+    "unchanged": false,
+    "sourceSection": "Original Kody job enable and server add/enable/reconnect/check POST dispatch",
+    "adaptation": "Source services, validation, policy restriction, timeouts and catalog invalidation retained under shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/servers.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "8bcc5ea306f7d6a168380a823c7d0aa2e08cb98c78ff62963b1e426cd65aebd2",
+    "unchanged": false,
+    "sourceSection": "Original Kody job enable and server add/enable/reconnect/check POST dispatch",
+    "adaptation": "Source services, validation, policy restriction, timeouts and catalog invalidation retained under shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/servers/$serverId/enabled.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "485256730c54e0743cd303a79822fe12fd3ef2bd4670ff472ee447bcaa9097cf",
+    "unchanged": false,
+    "sourceSection": "Original Kody job enable and server add/enable/reconnect/check POST dispatch",
+    "adaptation": "Source services, validation, policy restriction, timeouts and catalog invalidation retained under shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/servers/$serverId/reconnect.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "4cda7a869bc846d8417542f638a3ada913bc87dd84ea4f817c9f88451c718ff2",
+    "unchanged": false,
+    "sourceSection": "Original Kody job enable and server add/enable/reconnect/check POST dispatch",
+    "adaptation": "Source services, validation, policy restriction, timeouts and catalog invalidation retained under shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/servers/$serverId/check.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "ae4b8d6bffddf88727aad4b3bb01a97fd6801d3c53c6d86989bc679f9eadd3be",
+    "unchanged": false,
+    "sourceSection": "Original Kody job enable and server add/enable/reconnect/check POST dispatch",
+    "adaptation": "Source services, validation, policy restriction, timeouts and catalog invalidation retained under shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/reference-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "2c5e71ee81b9dde7402d48fffe26809e7aaaf3079a4744011202d732c3ff50a9",
+    "unchanged": false,
+    "sourceSection": "Workspace and conversation reference GET lookup",
+    "adaptation": "Original kind/query/excludeBotId inputs and listMessageReferences call retained with shared TanStack session, native policy and conversation identity."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/references.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "bbc61345cfca0de39bb71acf5d9c1cb2f6b0ed4d24c9fa40dd4b37210eb1bb00",
+    "unchanged": false,
+    "sourceSection": "Workspace and conversation reference GET lookup",
+    "adaptation": "Original kind/query/excludeBotId inputs and listMessageReferences call retained with shared TanStack session, native policy and conversation identity."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/conversations/$id/references.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "152bb402c9c5259ce80f2d9181b5b5dd2afa88bb3ca9878e1c17a61c1b1bf9b0",
+    "unchanged": false,
+    "sourceSection": "Workspace and conversation reference GET lookup",
+    "adaptation": "Original kind/query/excludeBotId inputs and listMessageReferences call retained with shared TanStack session, native policy and conversation identity."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/reference-catalog-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "0d59c9a25900509abacf7d775c5d4a60cb9ddab14d8d75253070098b22948d82",
+    "unchanged": false,
+    "sourceSection": "Reference tool refresh, parallel Kody refresh and Kody inspect dispatch",
+    "adaptation": "Original service calls, validation, allSettled semantics and cancellation preserved behind shared TanStack auth/policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/references/tools/refresh.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "76aaac6cc84920453f1fa5bafe6a400decf9b3c6a50d6c370ce1408079940cde",
+    "unchanged": false,
+    "sourceSection": "Reference tool refresh, parallel Kody refresh and Kody inspect dispatch",
+    "adaptation": "Original service calls, validation, allSettled semantics and cancellation preserved behind shared TanStack auth/policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/references/kody/refresh.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "b80df0aa780f3d1e2c5ee16498ac439978131e81d90f77a372d407d4ab08d808",
+    "unchanged": false,
+    "sourceSection": "Reference tool refresh, parallel Kody refresh and Kody inspect dispatch",
+    "adaptation": "Original service calls, validation, allSettled semantics and cancellation preserved behind shared TanStack auth/policy."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/references/kody/inspect.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "35f563840f288e30cb2003bb7b965f49eb8da96981398206196472ff00fb530c",
+    "unchanged": false,
+    "sourceSection": "Reference tool refresh, parallel Kody refresh and Kody inspect dispatch",
+    "adaptation": "Original service calls, validation, allSettled semantics and cancellation preserved behind shared TanStack auth/policy."
+  },
+  {
+    "source": "src/server/kody-run-triage.ts",
+    "destination": "src/chat/server/kody-run-triage.ts",
+    "sourceSha256": "c861dd7f29aee4f36e0d421462f065bbb0c846e2a47352c57c3b6ad6a491016f",
+    "destinationSha256": "4f9cc972cd0c3b9bde0acd40e24b8b127b41e1d301bcda19d1c271746a97803b",
+    "unchanged": false,
+    "adaptation": "Original triage service and dispatch preserved with explicit environment and shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/kody-control-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "39f926af8ba68b2e809aaa55894f4186a9ff5b35343ee769b2a162b74f0b9922",
+    "unchanged": false,
+    "adaptation": "Original triage service and dispatch preserved with explicit environment and shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/kody/runs/$runId/triage.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "12c23b409dc3864569dc2d3e1c362e94e37fb40a00b218999478b12326df88ac",
+    "unchanged": false,
+    "adaptation": "Original triage service and dispatch preserved with explicit environment and shared TanStack authorization."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/file-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "1ee9a8daf21921c9733b55a5f79a22cf9d585296d64883a8a1595fe1188df982",
+    "unchanged": false,
+    "sourceSection": "Conversation file import POST dispatch",
+    "adaptation": "Original input validation and SavedFiles.importFrom retained with native conversation identity and shared auth."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/conversations/$id/files/import.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "751b277b1bcd6c1a63cb5246e1f383578539b98ef34e6f281ec7b88335a0ec6a",
+    "unchanged": false,
+    "sourceSection": "Conversation file import POST dispatch",
+    "adaptation": "Original input validation and SavedFiles.importFrom retained with native conversation identity and shared auth."
+  },
+  {
+    "source": "src/server/memory-api.ts",
+    "destination": "src/chat/server/memory-api.ts",
+    "sourceSha256": "c0fb1250e7268344a815b25bf8780807ade4090fb066caf79ab04391ffa2d482",
+    "destinationSha256": "6d98336c40128c3323065f0712e6a30638275964106f62c53b5f7599045e91e5",
+    "unchanged": false,
+    "adaptation": "Original API copied; D1 constructor argument removed for existing native PostgreSQL Memories service. Shared session/conversation identity boundary mounted."
+  },
+  {
+    "source": "src/server/semantic-history.ts",
+    "destination": "src/chat/server/semantic-history.ts",
+    "sourceSha256": "2658908eab0d8e6cfe612c2b9b2e9b2749f337d22de1aff1118444938c05e15e",
+    "destinationSha256": "4a013cd2e11e97d08c83811d6c07a8f4a0d7762b78c57df7275ff838475dd46d",
+    "unchanged": false,
+    "adaptation": "Original implementation retained with native explicit types/shared account authorization. History imports normalized for destination TypeScript config."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/reference-catalog-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "b2f769111cdf4a62d64c5a8e403d3ef6d639d69f0de10219ca723ed75adeebfc",
+    "unchanged": false,
+    "adaptation": "Original implementation retained with native explicit types/shared account authorization. History imports normalized for destination TypeScript config."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/mcp/contract.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "8b45464d8f32492345701f56658492aafdc90ab511982cdcf1b17e8a18f9785d",
+    "unchanged": false,
+    "adaptation": "Original implementation retained with native explicit types/shared account authorization. History imports normalized for destination TypeScript config."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/chat/server/device-http.server.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "ff6aea5391e86064beb68a5626bdab06c464773a1edffd09edeecb16beb9b72c",
+    "unchanged": false,
+    "sourceSection": "Device account and dedicated bearer transport dispatch",
+    "adaptation": "Original native device service retained; shared session supplied only to account operations, transport keeps original bearer authentication."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/account/devices.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "1f1d1ee2434df84012d014160591b3fffa74387b79708b70045a50f486378253",
+    "unchanged": false,
+    "sourceSection": "Device account and dedicated bearer transport dispatch",
+    "adaptation": "Original native device service retained; shared session supplied only to account operations, transport keeps original bearer authentication."
+  },
+  {
+    "source": "src/server/api.ts",
+    "destination": "src/routes/api/chat/device-transport.ts",
+    "sourceSha256": "7a51ad09f49077214eb1298bbfcdd28cba8f5ae2dd2f7e90985ec97afdd05f24",
+    "destinationSha256": "0f474a6e218f2de8b524b3814b6af0e112a80183cc1138d56c4554d4af43e6fd",
+    "unchanged": false,
+    "sourceSection": "Device account and dedicated bearer transport dispatch",
+    "adaptation": "Original native device service retained; shared session supplied only to account operations, transport keeps original bearer authentication."
+  },
+  {
+    "source": "src/server/auth.ts",
+    "destination": "src/chat/server/kody-unlink-http.server.ts",
+    "sourceSha256": "4f1cb251794f7f043d82c8e60527e06d39a47b465cc10aeef25e7aa10d3ad0cd",
+    "destinationSha256": "09951c07f40e58e81ff5c883332466ec9cc618ddf6f5039302d1fd9e0a8561b6",
+    "unchanged": false,
+    "sourceSection": "Kody unlink credential and link removal",
+    "adaptation": "Shared TanStack session replaces Gum account auth, native PostgreSQL link deletion; no email-only login prerequisite since account identity is independent."
+  },
+  {
+    "source": "src/server/auth.ts",
+    "destination": "src/routes/api/chat/kody/unlink.ts",
+    "sourceSha256": "4f1cb251794f7f043d82c8e60527e06d39a47b465cc10aeef25e7aa10d3ad0cd",
+    "destinationSha256": "174d1b6fbefd826559877fb155df923ee3b6475645b77285864583992c941392",
+    "unchanged": false,
+    "sourceSection": "Kody unlink credential and link removal",
+    "adaptation": "Shared TanStack session replaces Gum account auth, native PostgreSQL link deletion; no email-only login prerequisite since account identity is independent."
+  },
+  {
+    "source": "src/server/auth.ts",
+    "destination": "src/chat/server/kody-connect-http.server.ts",
+    "sourceSha256": "4f1cb251794f7f043d82c8e60527e06d39a47b465cc10aeef25e7aa10d3ad0cd",
+    "destinationSha256": "108d4712f26db3cd632f23e183ba79d64dfd0d470bcce5991b3820b3a73b0875",
+    "unchanged": false,
+    "adaptation": "Ported connection initiation only. Shared TanStack identity, native PostgreSQL registration and pending state, validated registration response, scoped OAuth cookie and /api/chat callback URL. Callback remains unfinished and this handler is not mounted yet."
+  },
+  {
+    "source": "src/server/auth-popup.ts",
+    "destination": "src/chat/server/auth-popup.ts",
+    "sourceSha256": "5039421439c3942cf09336f841612b24c0903b23800c54b353432809bbe35c82",
+    "destinationSha256": "5039421439c3942cf09336f841612b24c0903b23800c54b353432809bbe35c82",
+    "unchanged": true,
+    "adaptation": "Exact original popup completion source."
+  },
+  {
+    "source": "src/server/auth.ts",
+    "destination": "src/chat/server/kody-callback-http.server.ts",
+    "sourceSha256": "4f1cb251794f7f043d82c8e60527e06d39a47b465cc10aeef25e7aa10d3ad0cd",
+    "destinationSha256": "4e9fb37596239a36a1a0671c2f3dfedf59b1f955b6141790943effba80e6c04a",
+    "unchanged": false,
+    "adaptation": "Connect-only callback port using shared TanStack session and native PostgreSQL. Preserves PKCE exchange, RS256 issuer/audience/nonce verification, verified email, account linking and credential compare-and-swap. No Gum identity/session creation. Route remains unmounted pending boundary tests and concurrent link collision recovery."
+  },
+  {
+    "source": "vite.config.ts",
+    "destination": "vite.config.ts",
+    "sourceSha256": "1b9ee909170407ac3fc2ebe427c226f59f3df82e3de395490b94b018fbd2c26c",
+    "destinationSha256": "6daf9b6fa80a95e4e775ae1a175c7f9f489a013937ce77f412a00d4fabd600d3",
+    "unchanged": false,
+    "adaptation": "Original build content hashing ported into destination Vite defines, with destination path/fs imports and config directory."
+  },
+  {
+    "source": "src/server.ts",
+    "destination": "src/routes/api/chat/app-version.ts",
+    "sourceSha256": "bc496fe7c294f4106a9749d6f1e4ea40b2ed147b6adc7b7175d8636c01562a5a",
+    "destinationSha256": "9b2871bc19bd6d7214c93952f228b53a2a9d861851c5eae074fe779825b7df79",
+    "unchanged": false,
+    "adaptation": "Original no-store public build version response mounted under /api/chat/app-version."
+  },
+  {
+    "source": "public/sw.js",
+    "destination": "public/tanchat-sw.js",
+    "sourceSha256": "9d040a823d820110ff9b3aad98f2c33f6909b9f9ddd5a8149f86154420601431",
+    "destinationSha256": "1441cfb24a312b455c1925cbf14f31e0a513cd2bc8f0311f6c505db8d87065fc",
+    "unchanged": false,
+    "adaptation": "Original network-only offline worker scoped to /chat/ with a separate public offline cache."
+  },
+  {
+    "source": "public/offline.html",
+    "destination": "public/chat/offline.html",
+    "sourceSha256": "0a3c73f6057be60895fe322551916e9e80c1eb54df0710e447d9ed1dcefe7b63",
+    "destinationSha256": "0a3c73f6057be60895fe322551916e9e80c1eb54df0710e447d9ed1dcefe7b63",
+    "unchanged": true,
+    "adaptation": "Exact source public offline page."
+  },
+  {
+    "source": "src/server.ts",
+    "destination": "src/chat/server/scheduled.server.ts",
+    "sourceSha256": "bc496fe7c294f4106a9749d6f1e4ea40b2ed147b6adc7b7175d8636c01562a5a",
+    "destinationSha256": "d93be73eb702a5a89443dbc48b90b01c7757f3e339dc83cf0ffd5864d52408d8",
+    "unchanged": false,
+    "adaptation": "Original scheduled recoverWorkspaceSync invocation restored through shared host context and native namespace validation. Runs concurrently with the existing TanStack minute workflow sweep."
+  },
+  {
+    "source": "scripts/local-mcp-egress.ts",
+    "destination": "scripts/local-mcp-egress.ts",
+    "sourceSha256": "c1619ad25e46175b594ed44895ace61ddd5ec156ae221b4b7eb2d889bf1b26e1",
+    "destinationSha256": "c1619ad25e46175b594ed44895ace61ddd5ec156ae221b4b7eb2d889bf1b26e1",
+    "unchanged": true,
+    "adaptation": "Exact original public-only relay source. Wired into shared Vite dev configuration with original runtime disposal behavior."
+  }
+]

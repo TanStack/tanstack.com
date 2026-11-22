@@ -1,0 +1,50 @@
+diff --git a/cf/polyfills.js b/cf/polyfills.js
+index 53c5203dd5b057d741d14d708ba83b27751b527c..9b27f2f8f13f59284bfaec60267e95ced3535c5b 100644
+--- a/cf/polyfills.js
++++ b/cf/polyfills.js
+@@ -115,8 +115,8 @@ export const tls = {
+     tcp.readyState = 'upgrading'
+     tcp.raw = tcp.raw.startTls({ servername })
+     tcp.raw.closed.then(
+-      () => tcp.emit('close'),
+-      (e) => tcp.emit('error', e)
++      () => tcp.close(),
++      (e) => tcp.error(e)
+     )
+     tcp.writer = tcp.raw.writable.getWriter()
+     tcp.reader = tcp.raw.readable.getReader()
+@@ -139,7 +139,9 @@ function Socket() {
+     write,
+     end,
+     destroy,
+-    read
++    read,
++    close,
++    error
+   })
+ 
+   return tcp
+@@ -184,6 +186,9 @@ function Socket() {
+   }
+ 
+   function end(data) {
++    if (tcp.readyState === 'closed')
++      return Promise.resolve()
++    tcp.readyState = 'closing'
+     return data
+       ? tcp.write(data, () => tcp.raw.close())
+       : tcp.raw.close()
+@@ -211,8 +216,12 @@ function Socket() {
+   }
+ 
+   function error(err) {
++    if (tcp.readyState === 'closed')
++      return
++    if (tcp.readyState === 'closing')
++      return close()
+     tcp.emit('error', err)
+-    tcp.emit('close')
++    close()
+   }
+ }
+ 

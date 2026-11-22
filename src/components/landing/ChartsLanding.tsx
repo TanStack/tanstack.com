@@ -12,7 +12,8 @@ import {
   BundleSizeChart,
   ThemeGallery,
 } from './ChartsLandingGraphics'
-import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
+import { ChartsCatalogGallery } from './ChartsCatalogGallery'
+import { ChartsHeroBackground } from './ChartsHeroBackground'
 
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts/scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
@@ -27,12 +28,23 @@ export default function ChartsLanding({
     <LibraryLandingShell
       description={charts.description}
       headline="A chart grammar you don't have to outgrow."
-      hero={<CatalogChartsHero catalog={catalog} />}
+      heroBackground={<ChartsHeroBackground />}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"
     >
       <style>{chartsLandingStyles}</style>
+      <div className="px-6 py-6 lg:px-12 text-ds-body-sm text-text-secondary">
+        Charts 1.0 has a{' '}
+        <a href="/charts/latest/docs/compatibility" className="underline">
+          stable API
+        </a>
+        . Upgrading? Read the{' '}
+        <a href="/charts/latest/docs/guides/migrating" className="underline">
+          migration guide
+        </a>
+        . React Native remains experimental.
+      </div>
 
       <LandingSection
         id="common-charts"
@@ -65,8 +77,8 @@ export default function ChartsLanding({
             A lot of chart. Not a lot of bundle.
           </h2>
           <p className="max-w-2xl border-l-2 border-[var(--landing-accent)] pl-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Basic React line, 29 kB minified + gzip. SVG, compact scales, axes
-            included.
+            Basic React line, 32.1 kB gzip. SVG, compact scales, axes included.
+            The comparison below is an August 2026 snapshot.
           </p>
         </div>
 

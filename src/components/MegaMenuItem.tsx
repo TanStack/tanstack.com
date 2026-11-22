@@ -14,6 +14,7 @@ export interface MegaMenuItemProps {
   /** Internal route or external (http/mailto) URL. */
   to: string
   hash?: string
+  preload?: 'intent' | false
   badge?: string
   /** When set, the row renders as a button running this instead of navigating. */
   onSelect?: () => void
@@ -42,6 +43,7 @@ export function MegaMenuItem({
   description,
   to,
   hash,
+  preload = 'intent',
   badge,
   onSelect,
   onNavigate,
@@ -149,7 +151,7 @@ export function MegaMenuItem({
       hash={hash}
       className={rootClassName}
       onClick={onNavigate}
-      preload="intent"
+      preload={preload}
     >
       {content}
     </Link>

@@ -1,4 +1,5 @@
 import { setResponseHeaders } from '@tanstack/react-start/server'
+import { timeRequestWork } from './request-timing.server'
 
 // Re-export pure functions for use in server functions
 export { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
@@ -544,7 +545,9 @@ export async function getOSSStats({
 
   if (envFunctions.DATABASE_URL) {
     const { getCachedOssStats } = await import('./stats-db.server')
-    cachedStats = await getCachedOssStats(scopeType, scopeKey)
+    cachedStats = await timeRequestWork('oss_stats_db_read', () =>
+      getCachedOssStats(scopeType, scopeKey),
+    )
   }
 
   const cachedStatsWithSummary = await mergeCachedSummaryNpmStats(

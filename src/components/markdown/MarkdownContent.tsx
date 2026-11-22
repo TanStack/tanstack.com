@@ -145,9 +145,13 @@ export function MarkdownContent({
           </div>
         </div>
       ) : null}
-      <div className="h-4" />
-      <div className="h-px bg-gray-500 opacity-20" />
-      <div className="h-4" />
+      {title ? (
+        <>
+          <div className="h-4" />
+          <div className="h-px bg-gray-500 opacity-20" />
+          <div className="h-4" />
+        </>
+      ) : null}
       <div
         ref={containerRef}
         className={twMerge(

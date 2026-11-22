@@ -1,69 +1,55 @@
-import { Link } from '@tanstack/react-router'
-import { Hydrate } from '@tanstack/react-start'
-import { visible } from '@tanstack/react-start/hydration'
+import { lazy, Suspense } from 'react'
+import { ClientOnly, createLink } from '@tanstack/react-router'
 import { ArrowRightIcon } from '@phosphor-icons/react'
-import { MaintainerCard } from '~/components/MaintainerCard'
-import { coreMaintainers } from '~/libraries/maintainers'
 import { Button } from '~/components/ds/ui'
+import { allMaintainers } from '~/libraries/maintainers'
+
+const ButtonLink = createLink(Button)
+
+const MaintainersMap = lazy(() =>
+  import('~/components/MaintainersMap').then((module) => ({
+    default: module.MaintainersMap,
+  })),
+)
+
+// Reserve the map, its help text line, and the gap between them.
+const globeFallback = (
+  <div
+    aria-hidden="true"
+    className="box-content h-(--globe-height) pb-[calc(1rem+1lh)] text-xs leading-relaxed"
+  />
+)
 
 export function HomeCommunitySection() {
   return (
-    <Hydrate
-      when={visible({ rootMargin: '25%' })}
-      fallback={<CommunitySkeleton />}
+    <section
+      aria-labelledby="maintainers"
+      className="@container isolate mx-auto flex w-full max-w-(--breakpoint-lg) flex-col gap-4 px-4 [--globe-width:calc(100cqw+2rem)] [--globe-height:calc(var(--globe-width)*1.25)] sm:[--globe-width:min(120cqw,calc(100vw-1rem))] sm:[--globe-height:calc(var(--globe-width)*0.875)]"
     >
-      <HomeCommunityContent />
-    </Hydrate>
-  )
-}
-
-function CommunitySkeleton() {
-  return (
-    <div className="space-y-24">
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <div className="mb-6 h-10 w-52 animate-pulse rounded corner-squircle bg-gray-200/70 dark:bg-gray-800/70" />
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <div
-              key={`maintainer-skeleton-${index}`}
-              className="h-52 animate-pulse rounded-lg corner-squircle bg-gray-100/70 dark:bg-gray-900/60"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function HomeCommunityContent() {
-  return (
-    <div className="space-y-24">
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <h3 id="maintainers" className="text-3xl font-bold mb-6 scroll-mt-24">
+      <header className="sm:mb-10 lg:-mt-6">
+        <h2
+          id="maintainers"
+          className="scroll-mt-24 text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]"
+        >
           <a
             href="#maintainers"
-            className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            className="decoration-gray-400 hover:underline dark:decoration-gray-600"
           >
-            Core Maintainers
+            Who builds TanStack?
           </a>
-        </h3>
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
-          {coreMaintainers.map((maintainer) => (
-            <MaintainerCard key={maintainer.github} maintainer={maintainer} />
-          ))}
-        </div>
-        <div className="flex justify-center mt-6">
-          <Button
-            as={Link}
-            to="/maintainers"
-            variant="subtle-link"
-            color="gray"
-          >
-            View All Maintainers
-            <ArrowRightIcon />
-          </Button>
-        </div>
+        </h2>
+      </header>
+      <ClientOnly fallback={globeFallback}>
+        <Suspense fallback={globeFallback}>
+          <MaintainersMap maintainers={allMaintainers} />
+        </Suspense>
+      </ClientOnly>
+      <div className="relative z-20 flex justify-end">
+        <ButtonLink as="a" to="/maintainers" variant="subtle-link" color="gray">
+          View Maintainers &amp; Contributors
+          <ArrowRightIcon />
+        </ButtonLink>
       </div>
-    </div>
+    </section>
   )
 }

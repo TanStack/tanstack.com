@@ -1,3 +1,5 @@
+import type { BreadcrumbItem } from './Breadcrumbs'
+import type { readDocsFreshness } from '~/utils/docs-freshness'
 import * as React from 'react'
 import {
   ArrowsInLineHorizontalIcon,
@@ -20,6 +22,7 @@ import {
 } from '~/utils/start-hosting-guide'
 
 type DocProps = {
+  freshness?: ReturnType<typeof readDocsFreshness>
   title: string
   content: string
   repo: string
@@ -35,6 +38,7 @@ type DocProps = {
   pagePath?: string
   // Breadcrumb props (optional)
   config?: ConfigSchema
+  breadcrumbItems?: Array<BreadcrumbItem>
   // Footer content rendered after markdown
   footer?: React.ReactNode
   // Optional framework to use (overrides URL and local storage)
@@ -42,6 +46,7 @@ type DocProps = {
 }
 
 export function Doc({
+  freshness,
   title,
   content,
   repo,
@@ -55,6 +60,7 @@ export function Doc({
   libraryVersion,
   pagePath,
   config,
+  breadcrumbItems,
   footer,
   framework: frameworkProp,
 }: DocProps) {
@@ -158,10 +164,11 @@ export function Doc({
         )}
       >
         <div className="flex flex-col w-full min-w-0">
-          {config && (
+          {(config || breadcrumbItems) && (
             <div className="mb-3">
               <DocBreadcrumb
                 config={config}
+                items={breadcrumbItems}
                 headings={isTocVisible ? headings : undefined}
               />
             </div>
@@ -194,6 +201,24 @@ export function Doc({
               ) : null
             }
           />
+          {freshness && (freshness.updated || freshness.packages.length > 0) ? (
+            <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+              {freshness.updated ? (
+                <p>
+                  Updated{' '}
+                  <time dateTime={freshness.updated}>{freshness.updated}</time>
+                </p>
+              ) : null}
+              {freshness.packages.length > 0 ? (
+                <p>
+                  Tested with{' '}
+                  {freshness.packages
+                    .map(({ name, version }) => `${name} ${version}`)
+                    .join(', ')}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           {footer ?? <DocNavigation />}
           <div className="h-4" />
         </div>

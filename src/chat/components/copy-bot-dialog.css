@@ -1,0 +1,75 @@
+@scope (:root:has(.tanchat-shell)) {
+  .copy-bot-dialog {
+    width: min(440px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    color: inherit;
+    box-shadow: 0 20px 60px var(--shadow-medium);
+  }
+  .copy-bot-dialog::backdrop {
+    background: var(--overlay);
+  }
+  .copy-bot-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .copy-bot-heading h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+  .copy-bot-dialog p {
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  .copy-bot-dialog [role='alert'] {
+    color: var(--danger);
+  }
+  .copy-bot-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    display: inline-flex;
+    padding: 7px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .copy-bot-dialog fieldset {
+    display: grid;
+    gap: 14px;
+    border: 0;
+    padding: 8px 0 0;
+    margin: 0;
+  }
+  .copy-bot-dialog label {
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .copy-bot-dialog input,
+  .copy-bot-dialog .select-field-trigger {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 9px;
+    background: var(--surface);
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+  }
+  .copy-bot-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+  }
+  .copy-bot-dialog :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}

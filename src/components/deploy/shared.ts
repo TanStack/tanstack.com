@@ -67,7 +67,7 @@ export const PROVIDER_INFO: Record<DeployProvider, ProviderInfo> = {
     name: 'Render',
     color: '#46E3B7',
     deployUrl: (owner, repo) => {
-      const url = new URL('https://render.com/deploy')
+      const url = new URL('https://render.com/tanstack')
 
       url.searchParams.set('repo', `https://github.com/${owner}/${repo}`)
       url.searchParams.set('utm_source', 'tanstack')

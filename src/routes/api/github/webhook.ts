@@ -80,12 +80,14 @@ export const Route = createFileRoute("/api/github/webhook")({
           { libraries },
           { purgeHostingCacheTags },
           { scheduleHostRuntimeTask },
+          { measureBlobStorageOperations },
         ] = await Promise.all([
           import("~/utils/github-content-cache.server"),
           import("~/utils/env"),
           import("~/libraries"),
           import("~/utils/hosting-cache.server"),
           import("~/server/runtime/host.server"),
+          import("~/server/runtime/blob-storage-metrics.server"),
         ]);
         const bodyResult = await readTextBody(request, MAX_GITHUB_WEBHOOK_BYTES);
         if (!bodyResult.success) {
@@ -167,10 +169,13 @@ export const Route = createFileRoute("/api/github/webhook")({
         ];
 
         const invalidate = async () => {
-          const [staleContentCount, staleArtifactCount] = await Promise.all([
-            markGitHubContentStale({ repo, gitRef }),
-            markDocsArtifactsStale({ repo, gitRef }),
-          ]);
+          const [staleContentCount, staleArtifactCount] =
+            await measureBlobStorageOperations("github-webhook-invalidation", () =>
+              Promise.all([
+                markGitHubContentStale({ repo, gitRef }),
+                markDocsArtifactsStale({ repo, gitRef }),
+              ]),
+            );
           const purge = await purgeHostingCacheTags(tags);
 
           return { purge, staleArtifactCount, staleContentCount };

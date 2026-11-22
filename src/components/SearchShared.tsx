@@ -578,7 +578,11 @@ export const Hit = ({
     }
   }
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation()
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return
+    }
     handleActivate()
   }
 
@@ -725,12 +729,19 @@ export const Hit = ({
         value={commandValue}
         onSelect={handleCommandSelect}
         className={twMerge(
-          'block cursor-pointer scroll-my-2 px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
+          'block cursor-pointer scroll-my-2 focus:outline-none border-b border-gray-300 dark:border-gray-700',
           'hover:bg-gray-500/10 data-[selected=true]:bg-gray-500/20',
         )}
         data-search-hit="true"
       >
-        {content}
+        <SafeLink
+          href={hitUrl}
+          className="block px-4 py-2.5"
+          onClick={handleClick}
+          tabIndex={-1}
+        >
+          {content}
+        </SafeLink>
       </Command.Item>
     )
   }

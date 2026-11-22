@@ -11,8 +11,9 @@ import {
   DropdownItem,
 } from './Dropdown'
 import { getPackageManager } from '~/utils/markdown/installCommand'
+import * as Sentry from '@sentry/tanstackstart-react'
 import {
-  copyTextToClipboard,
+  copyTextPromiseToClipboard,
   openPopupWindow,
   useTemporaryFlag,
 } from '~/utils/browser-effects'
@@ -150,39 +151,20 @@ export function CopyPageDropdown({
         ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
         : pageMarkdownUrl
 
-  const handleCopyPage = async () => {
+  // Resolve the text to copy (raw content, cache, fetched markdown, or fallbacks).
+  const resolveCopyContent = async (): Promise<{
+    content: string
+    source?: string
+  }> => {
     if (rawContent) {
-      await copyTextToClipboard(rawContent)
-      copied.trigger()
-      notify(
-        <div>
-          <div className="font-medium">Copied to clipboard</div>
-        </div>,
-        { id: 'page-copied' },
-      )
-      return
+      return { content: rawContent }
     }
 
     const urlToFetch = sourceMarkdownUrl
     const cached = markdownCache.get(urlToFetch)
 
-    const copyContent = async (content: string, source: string) => {
-      await copyTextToClipboard(content)
-      copied.trigger()
-      notify(
-        <div>
-          <div className="font-medium">Copied to clipboard</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {source}
-          </div>
-        </div>,
-        { id: 'page-copied' },
-      )
-    }
-
     if (cached) {
-      await copyContent(cached, 'Markdown content copied from cache')
-      return
+      return { content: cached, source: 'Markdown content copied from cache' }
     }
 
     try {
@@ -190,32 +172,66 @@ export function CopyPageDropdown({
       if (!response.ok) throw new Error('Failed to fetch')
       const content = await response.text()
       markdownCache.set(urlToFetch, content)
-      await copyContent(
+      return {
         content,
-        repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
-          ? 'Markdown content copied from markdown endpoint'
-          : 'Markdown content copied from GitHub',
-      )
+        source:
+          repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
+            ? 'Markdown content copied from markdown endpoint'
+            : 'Markdown content copied from GitHub',
+      }
     } catch {
       // Fallback: try to copy current page content if available
       const pageContent =
         document.querySelector('.styled-markdown-content')?.textContent || ''
       if (pageContent) {
-        await copyContent(pageContent, 'Copied rendered page content')
-      } else {
-        // Last resort: copy the URL
-        await copyTextToClipboard(window.location.href)
-        copied.trigger()
-        notify(
-          <div>
-            <div className="font-medium">Copied to clipboard</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Page URL copied
-            </div>
-          </div>,
-          { id: 'page-copied' },
-        )
+        return { content: pageContent, source: 'Copied rendered page content' }
       }
+      // Last resort: copy the URL
+      return { content: window.location.href, source: 'Page URL copied' }
+    }
+  }
+
+  const handleCopyPage = async () => {
+    // Start the clipboard write synchronously inside the click handler and let
+    // the content resolve later. Awaiting the fetch first consumes the user
+    // activation, and WebKit (iOS Safari) then rejects every clipboard write.
+    const contentPromise = resolveCopyContent()
+    const copyPromise = copyTextPromiseToClipboard(
+      contentPromise.then(({ content }) => content),
+    )
+
+    try {
+      await copyPromise
+      const { source } = await contentPromise
+      copied.trigger()
+      notify(
+        <div>
+          <div className="font-medium">Copied to clipboard</div>
+          {source ? (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {source}
+            </div>
+          ) : null}
+        </div>,
+        { id: 'page-copied' },
+      )
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { feature: 'copy-page' },
+        extra: {
+          sourceMarkdownUrl,
+          hasClipboardItem: typeof ClipboardItem !== 'undefined',
+        },
+      })
+      notify(
+        <div>
+          <div className="font-medium">Copy failed</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Your browser blocked clipboard access. Try View as Markdown instead.
+          </div>
+        </div>,
+        { id: 'page-copy-failed' },
+      )
     }
   }
 

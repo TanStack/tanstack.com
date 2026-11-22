@@ -401,8 +401,7 @@ function BlockButton({
   if (!portalContainer) {
     portalContainer = document.createElement('div')
     portalContainer.setAttribute('data-button-portal', blockId)
-    portalContainer.className =
-      'absolute top-0 right-0 -translate-y-full z-[100]'
+    portalContainer.className = 'absolute top-0 right-0 -translate-y-full z-20'
     portalContainer.style.position = 'absolute'
 
     // Make the block relatively positioned if not already

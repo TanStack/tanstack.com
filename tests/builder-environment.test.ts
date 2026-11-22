@@ -128,23 +128,23 @@ test('provides hidden entry modules for every example environment', () => {
 test('exposes current Highlight and Markdown modules', () => {
   assert.equal(
     builderImports['@tanstack/highlight'],
-    'https://esm.sh/@tanstack/highlight@0.0.10',
+    'https://esm.sh/@tanstack/highlight@1.0.0',
   )
   assert.equal(
     builderImports['@tanstack/highlight/'],
-    'https://esm.sh/@tanstack/highlight@0.0.10/',
+    'https://esm.sh/@tanstack/highlight@1.0.0/',
   )
   assert.equal(
     builderImports['@tanstack/markdown'],
-    'https://esm.sh/@tanstack/markdown@0.0.13',
+    'https://esm.sh/@tanstack/markdown@1.0.0',
   )
   assert.equal(
     builderImports['@tanstack/markdown/'],
-    'https://esm.sh/@tanstack/markdown@0.0.13/',
+    'https://esm.sh/@tanstack/markdown@1.0.0/',
   )
   assert.equal(
     builderImports['@tanstack/markdown/react'],
-    'https://esm.sh/@tanstack/markdown@0.0.13/react?external=react',
+    'https://esm.sh/@tanstack/markdown@1.0.0/react?external=react',
   )
 
   const guide = generateBuilderLlmsTxt()

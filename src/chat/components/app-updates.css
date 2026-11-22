@@ -1,0 +1,29 @@
+@scope (:root:has(.tanchat-shell)) {
+  .app-updates {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1500;
+    display: grid;
+    gap: 8px;
+    max-width: calc(100vw - 32px);
+    pointer-events: none;
+  }
+  .app-update-notice {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+  }
+  .app-update-notice button {
+    white-space: nowrap;
+  }
+}

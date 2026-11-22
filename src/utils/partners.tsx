@@ -45,6 +45,9 @@ import renderBlackSvg from '~/images/render-black.svg'
 import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import kodyOutlinedSvg from '~/images/kody-outlined.svg'
+import kodyWhiteSvg from '~/images/kody-white.svg'
+import scarfSvg from '~/images/scarf.svg'
 import {
   getPartnerPlacementContext,
   getPartnersForPlacement,
@@ -85,7 +88,7 @@ export type PartnerResource = {
 
 type ApplicationStarterPartnerTier = 1 | 2 | 3
 
-const currentPartnerReviewDate = '2026-07-21'
+const currentPartnerReviewDate = '2026-11-18'
 
 export const partnerUniqueConstraints = ['auth-provider', 'hosting'] as const
 export type PartnerUniqueConstraint = (typeof partnerUniqueConstraints)[number]
@@ -282,6 +285,7 @@ export const partnerCategories = [
   'auth',
   'database',
   'monitoring',
+  'analytics',
   'cms',
   'api',
   'ai',
@@ -297,6 +301,7 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   auth: 'Authentication',
   database: 'Databases',
   monitoring: 'Error Monitoring',
+  analytics: 'Analytics',
   cms: 'CMS',
   api: 'API Infrastructure',
   ai: 'AI/LLM',
@@ -875,7 +880,7 @@ const sentry = ((): Partner => {
       dark: sentryWordMarkLightSvg,
     },
     llmDescription:
-      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and an alpha TanStack Start React SDK.',
+      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and a beta TanStack Start React SDK.',
     category: 'monitoring',
     content: (
       <>
@@ -1141,8 +1146,10 @@ const electric = ((): Partner => {
     name: 'Electric',
     id: 'electric',
     relatedProducts: ['db'] as const,
-    status: 'active' as const,
-    lastReviewedAt: currentPartnerReviewDate,
+    status: 'inactive',
+    startDate: null,
+    endDate: 'Aug 30, 2026',
+    lastReviewedAt: '2026-09-30',
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://electric.ax/',
@@ -1335,7 +1342,7 @@ const codeRabbit = ((): Partner => {
     relatedProducts: [],
     startDate: 'Aug 2025',
     tier: 'gold' as const,
-    brandColor: '#FF6B2B',
+    brandColor: '#FF570A',
     tagline: 'AI Code Review',
     applicationStarterPromptInstructions: [
       'Do not add runtime app code for CodeRabbit.',
@@ -1505,7 +1512,7 @@ const railway = ((): Partner => {
 
 const render = ((): Partner => {
   const href =
-    'https://render.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
+    'https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
 
   return {
     name: 'Render',
@@ -1516,7 +1523,7 @@ const render = ((): Partner => {
     tier: 'gold',
     uniqueConstraints: ['hosting'],
     href,
-    canonicalHref: 'https://render.com/',
+    canonicalHref: 'https://render.com/tanstack',
     resources: [
       {
         kind: 'announcement',
@@ -1628,6 +1635,90 @@ const openRouter = ((): Partner => {
   }
 })()
 
+const scarf = ((): Partner => {
+  return {
+    name: 'Scarf',
+    id: 'scarf',
+    href: 'https://about.scarf.sh/?utm_source=tanstack',
+    canonicalHref: 'https://about.scarf.sh/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Scarf partnership',
+        href: '/blog/scarf-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Scarf documentation',
+        href: 'https://docs.scarf.sh/',
+      },
+    ],
+    status: 'active',
+    lastReviewedAt: '2026-09-30',
+    relatedProducts: [],
+    tier: 'bronze',
+    brandColor: '#0572F1',
+    tagline: 'Open Source Analytics',
+    image: { src: scarfSvg },
+    llmDescription:
+      'Open source usage analytics that connect package downloads, documentation visits, and product telemetry with company adoption.',
+    category: 'analytics',
+    applicationStarterPromptInstructions: [
+      'Use Scarf for open source adoption analytics only when it fits the requested project.',
+      'Follow the official Scarf documentation for the chosen collection method. Keep account setup and project-specific package or pixel IDs explicit, and never reuse TanStack website tracking IDs.',
+    ],
+    content: (
+      <>
+        <div className="text-xs">
+          Scarf helps open source teams understand{' '}
+          <strong>company adoption</strong> through package downloads,
+          documentation visits, and product telemetry.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const kody: Partner = {
+  name: 'Kody',
+  id: 'kody',
+  href: 'https://kody.codes/?utm_source=tanstack&utm_medium=partner-page&utm_campaign=tanstack-partnership-2026-11&utm_content=partners-logo',
+  canonicalHref: 'https://kody.codes/',
+  resources: [
+    {
+      kind: 'announcement',
+      label: 'TanStack + Kody partnership',
+      href: '/blog/kody-partnership',
+    },
+    {
+      kind: 'documentation',
+      label: 'Connect your agent to Kody',
+      href: 'https://kody.codes/docs/connect-your-agent?utm_source=tanstack&utm_medium=partner-page&utm_campaign=tanstack-partnership-2026-11&utm_content=connect-first-agent',
+    },
+  ],
+  status: 'active',
+  lastReviewedAt: '2026-11-17',
+  tier: 'bronze',
+  category: 'ai',
+  tagline: 'Cloud tools for AI agents',
+  image: { light: kodyOutlinedSvg, dark: kodyWhiteSvg },
+  llmDescription:
+    'Kody gives AI agents access to shared memory, credentials, and reusable packages across sessions.',
+  applicationStarterPromptInstructions: [
+    'For projects that need persistent agent workflows, use the Kody documentation to connect the chosen agent.',
+  ],
+  content: (
+    <>
+      <div className="text-xs">
+        Give your agent tools it can use again. Kody stores the packages,
+        credentials, and context your agent needs between sessions.
+      </div>
+      <LearnMoreButton />
+    </>
+  ),
+}
+
 export const partners = [
   codeRabbit,
   cloudflare,
@@ -1652,6 +1743,8 @@ export const partners = [
   fireship,
   nozzle,
   speakeasy,
+  scarf,
+  kody,
 ] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([
@@ -2220,5 +2313,5 @@ export function getPartnerHref(
     return partner.href
   }
 
-  return `https://render.com/?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
+  return `https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
 }

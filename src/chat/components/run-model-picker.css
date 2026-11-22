@@ -1,0 +1,163 @@
+@scope (:root:has(.tanchat-shell)) {
+  .run-model-picker {
+    min-width: 0;
+    max-width: min(55%, 300px);
+    margin-right: auto;
+  }
+  .run-model-trigger {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 32px;
+    max-width: 100%;
+    border: 0;
+    border-radius: 6px;
+    padding: 4px 6px;
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+  }
+  .run-model-trigger > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .run-model-trigger svg {
+    flex-shrink: 0;
+  }
+  .run-model-trigger:hover:not(:disabled) {
+    background: var(--soft);
+  }
+  .run-model-trigger:disabled {
+    opacity: 0.65;
+    cursor: default;
+  }
+  .run-model-trigger:focus-visible,
+  .run-model-option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .run-model-positioner {
+    z-index: 120;
+  }
+  .run-model-popup {
+    width: min(350px, calc(100vw - 24px));
+    max-height: min(520px, var(--available-height));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+    color: var(--text);
+    background: var(--background);
+    box-shadow: 0 8px 32px var(--shadow-soft);
+  }
+  .run-model-search {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .run-model-search input {
+    width: 100%;
+    min-width: 0;
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: inherit;
+    background: transparent;
+  }
+  .run-model-options {
+    overflow-y: auto;
+    min-height: 0;
+    overscroll-behavior: contain;
+  }
+  .run-model-options h3 {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 13px 7px 4px;
+  }
+  .run-model-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 38px;
+    padding: 7px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+  }
+  .run-model-option > span {
+    min-width: 0;
+  }
+  .run-model-option strong {
+    font-size: 12px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+  .run-model-option small {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .run-model-option:hover:not(:disabled),
+  .run-model-option[aria-pressed='true'] {
+    background: var(--soft);
+  }
+  .run-model-option:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .run-model-option svg {
+    flex-shrink: 0;
+  }
+  .run-model-reasoning {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    margin-top: 8px;
+    padding: 10px 7px 2px;
+    font-size: 12px;
+  }
+  .run-model-reasoning .select-field-trigger {
+    min-width: 0;
+    max-width: 60%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px;
+    color: inherit;
+    background: transparent;
+  }
+  .run-model-notice,
+  .run-model-error {
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 7px;
+    overflow-wrap: anywhere;
+  }
+  .run-model-error {
+    margin: 2px 6px;
+    color: var(--danger);
+  }
+  .run-model-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (pointer: coarse) {
+    .run-model-trigger,
+    .run-model-option,
+    .run-model-reasoning .select-field-trigger {
+      min-height: 44px;
+    }
+  }
+}

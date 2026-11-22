@@ -21,6 +21,8 @@ export function BlogPostCard({
   post,
   size = 'sm',
   featured = false,
+  imageLoading,
+  imageSizes,
   showLibraryBadges = true,
   showCategory = false,
 }: {
@@ -33,6 +35,8 @@ export function BlogPostCard({
   /** Hero treatment: image and copy sit side-by-side on wider screens with the
    *  largest type. Used for the single latest post atop the Blog index. */
   featured?: boolean
+  imageLoading?: 'eager' | 'lazy'
+  imageSizes?: string
   /** Show the library tag(s) over the image. Off for a single-library blog,
    *  where every card would carry the same redundant badge. */
   showLibraryBadges?: boolean
@@ -41,6 +45,23 @@ export function BlogPostCard({
   showCategory?: boolean
 }) {
   const isLarge = featured || size === 'lg'
+  const headerImage = post.headerImage
+  const imageSrc = headerImage
+    ? getOptimizedImageUrl(headerImage, {
+        format: 'auto',
+        quality: 80,
+        width: featured ? 1200 : isLarge ? 900 : 640,
+      })
+    : undefined
+  const imageSrcSet =
+    imageSizes && headerImage && imageSrc !== headerImage
+      ? [400, 640, 900, 1200, 1800]
+          .map(
+            (width) =>
+              `${getOptimizedImageUrl(headerImage, { width, quality: 80, format: 'auto' })} ${width}w`,
+          )
+          .join(', ')
+      : undefined
   const blogLibraries = showLibraryBadges ? getBlogLibraries(post.library) : []
   const primaryLibrary = showCategory
     ? getBlogLibraries(post.library)[0]
@@ -75,14 +96,11 @@ export function BlogPostCard({
       >
         {post.headerImage ? (
           <img
-            src={getOptimizedImageUrl(post.headerImage, {
-              fit: 'cover',
-              format: 'auto',
-              quality: 80,
-              width: featured ? 1200 : isLarge ? 900 : 640,
-            })}
+            src={imageSrc}
+            srcSet={imageSrcSet}
+            sizes={imageSizes}
             alt=""
-            loading={featured ? 'eager' : 'lazy'}
+            loading={imageLoading ?? (featured ? 'eager' : 'lazy')}
             decoding="async"
             className={
               featured ? 'block h-auto w-full' : 'h-full w-full object-cover'

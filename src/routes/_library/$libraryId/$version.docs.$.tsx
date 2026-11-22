@@ -1,4 +1,6 @@
+import { getDocsBreadcrumbItems } from '~/utils/docs-breadcrumbs'
 import { canonicalUrl, seo } from '~/utils/seo'
+import { getDocsStructuredData } from '~/utils/docs-structured-data'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
 import {
@@ -9,6 +11,7 @@ import {
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getDocsEmbedRuntimeHeaders } from '~/utils/docs-embed-headers'
 import {
   notFound,
   redirect,
@@ -36,6 +39,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
     const docsRoot = library.docsRoot || 'docs'
     const requestedDocsPath = docsPath ?? ''
     const result = await loadDocsRoute({
+      queryClient: ctx.context.queryClient,
       repo: library.repo,
       branch,
       docsRoot,
@@ -96,7 +100,24 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
         appendPathToDocsHref({ docsPath: docsPath ?? '', libraryId, version }),
     )
 
+    const structuredData = getDocsStructuredData({
+      doc: loaderData,
+      library,
+      canonicalHref,
+    })
+
     return {
+      scripts: structuredData
+        ? [
+            {
+              type: 'application/ld+json',
+              children: JSON.stringify(structuredData).replaceAll(
+                '<',
+                '\\u003c',
+              ),
+            },
+          ]
+        : [],
       meta: [
         ...seo({
           title: loaderData?.title
@@ -120,16 +141,24 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
     }
   },
   component: Docs,
-  headers: ({ params }) => {
+  headers: ({ loaderData, params }) => {
     const { version, libraryId } = params
 
-    return getDocsCacheHeaders({ libraryId, version })
+    return {
+      ...getDocsCacheHeaders({ libraryId, version }),
+      'X-Docs-Html': loaderData?.isFallback ? 'no-store' : '1',
+      ...getDocsEmbedRuntimeHeaders({
+        content: loaderData?.content ?? '',
+        version,
+      }),
+    }
   },
 })
 
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
-  const { content, filePath, title } = Route.useLoaderData()
+  const { content, filePath, title, freshness, canonicalPathOverride } =
+    Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
   const library = getLibrary(libraryId)
@@ -140,6 +169,14 @@ function Docs() {
     <DocContainer>
       <Doc
         title={title}
+        breadcrumbItems={getDocsBreadcrumbItems({
+          doc: { title },
+          library,
+          canonicalHref: canonicalUrl(
+            canonicalPathOverride ?? location.pathname,
+          ),
+        })}
+        freshness={freshness}
         content={content}
         repo={library.repo}
         branch={branch}

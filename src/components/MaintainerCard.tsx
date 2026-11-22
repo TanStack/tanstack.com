@@ -8,6 +8,7 @@ import {
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
+import { MaintainerAvatarImage } from './MaintainerAvatarImage'
 
 function RoleBadge({
   maintainer,
@@ -91,14 +92,14 @@ function SpecialtyChip({ specialty }: { specialty: string }) {
 }
 
 function LibraryBadge({ library }: { library: Library }) {
-  const bgClass = `${library.bgStyle ?? 'bg-gray-500'}/40`
+  const bgClass = `${library.bgStyle ?? 'bg-category-tooling'}/40`
   if (library.to) {
     return (
       <Link
         to="/$libraryId/$version/docs/contributors"
         params={{ libraryId: library.id, version: 'latest' }}
         className={twMerge(
-          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
+          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
           bgClass,
         )}
         aria-label={`View contributors for ${library.name}`}
@@ -113,7 +114,7 @@ function LibraryBadge({ library }: { library: Library }) {
   return (
     <span
       className={twMerge(
-        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize`,
+        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary capitalize`,
         bgClass,
       )}
       aria-label={`View contributors for ${library.name}`}
@@ -160,7 +161,7 @@ const MaintainerSocialIcons: Record<
   ),
   website: (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="2 2 20 20"
       className="w-5 h-5"
       fill="currentColor"
       aria-hidden="true"
@@ -190,7 +191,7 @@ function MaintainerSocialLinks({
   const socialEntries =
     variant === 'card'
       ? [
-          ...Object.entries(maintainer.social || {}).slice(0, 2),
+          ...Object.entries(maintainer.social || {}),
           ['github', `https://github.com/${maintainer.github}`],
         ]
       : Object.entries({
@@ -223,7 +224,7 @@ function MaintainerSocialLinks({
     <div
       className={
         variant === 'card'
-          ? 'flex flex-wrap items-center justify-center gap-4 sm:gap-6'
+          ? 'flex flex-wrap items-center justify-center gap-2'
           : 'flex flex-wrap items-center gap-x-2 gap-y-2 pt-1 text-gray-400 sm:gap-x-4 dark:text-gray-500'
       }
     >
@@ -265,12 +266,10 @@ export function CompactMaintainerCard({
       className="group relative aspect-square block rounded-lg corner-squircle shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
       tabIndex={0}
     >
-      <img
+      <MaintainerAvatarImage
         alt={`Avatar of ${maintainer.name}`}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0"
         src={maintainer.avatar}
-        loading="lazy"
-        decoding="async"
       />
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
       <div className="absolute inset-0 p-3 flex flex-col justify-end">
@@ -308,12 +307,10 @@ export function MaintainerRowCard({
           tabIndex={0}
         >
           <div className="relative w-16 h-16 rounded-lg corner-squircle overflow-hidden">
-            <img
+            <MaintainerAvatarImage
               alt={`Avatar of ${maintainer.name}`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="transition-[opacity,scale] duration-500 group-hover:scale-110"
               src={maintainer.avatar}
-              loading="lazy"
-              decoding="async"
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
@@ -395,7 +392,7 @@ export function MaintainerRowCard({
 export function MaintainerCard({ maintainer }: MaintainerCardProps) {
   return (
     <div
-      className="group flex w-full max-w-[190px] flex-col items-center rounded-[20px] corner-squircle p-1 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none sm:max-w-[252px] sm:rounded-[26px] sm:p-1.5 dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
+      className="group @container flex w-full max-w-[190px] flex-col items-center rounded-[20px] corner-squircle p-1 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none sm:max-w-[252px] sm:rounded-[26px] sm:p-1.5 dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
       aria-label={`Maintainer card for ${maintainer.name}`}
     >
       <a
@@ -403,20 +400,17 @@ export function MaintainerCard({ maintainer }: MaintainerCardProps) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View ${maintainer.name}'s GitHub profile`}
-        className="block aspect-square w-full overflow-hidden rounded-[17px] corner-squircle bg-[#d9d9d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:rounded-[22px]"
+        className="relative block aspect-square w-full overflow-hidden rounded-[17px] corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:rounded-[22px]"
         tabIndex={0}
       >
-        <img
+        <MaintainerAvatarImage
           alt={`Avatar of ${maintainer.name}`}
-          className="h-full w-full object-cover"
           src={maintainer.avatar}
-          loading="lazy"
-          decoding="async"
         />
       </a>
       <div className="flex w-full flex-col items-start gap-2 pb-[18px] pt-4 sm:pb-[27px] sm:pt-5">
         <span
-          className="text-left font-ds-mono text-ds-mono-sm text-text-primary sm:text-ds-mono-lg"
+          className="text-left font-ds-mono text-ds-mono-sm text-text-primary @[13rem]:text-ds-mono-lg"
           id={`maintainer-name-${maintainer.github}`}
         >
           {maintainer.name}

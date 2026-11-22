@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/devtools/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('devtools', params.version, queryClient),
-  head: () => getLibraryLandingHead('devtools'),
+  head: ({ match }) =>
+    getLibraryLandingHead('devtools', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('devtools'),
   component: DevtoolsLandingRoute,
 })

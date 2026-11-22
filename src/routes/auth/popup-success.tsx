@@ -1,5 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
+import {
+  oauthPopupChannelName,
+  oauthPopupChannelSchema,
+} from '~/auth/oauth-popup'
 
 export const Route = createFileRoute('/auth/popup-success')({
   component: PopupSuccessPage,
@@ -7,13 +11,20 @@ export const Route = createFileRoute('/auth/popup-success')({
 
 function PopupSuccessPage() {
   React.useEffect(() => {
-    if (window.opener) {
-      window.opener.postMessage(
-        { type: 'TANSTACK_AUTH_SUCCESS' },
-        window.location.origin,
-      )
-      window.close()
+    const parsed = oauthPopupChannelSchema.safeParse(
+      new URLSearchParams(window.location.search).get('channel'),
+    )
+    const message = parsed.success
+      ? { type: 'TANSTACK_AUTH_SUCCESS', channel: parsed.data }
+      : { type: 'TANSTACK_AUTH_SUCCESS' }
+    if (parsed.success && typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel(oauthPopupChannelName(parsed.data))
+      channel.postMessage(message)
+      channel.close()
     }
+    if (window.opener)
+      window.opener.postMessage(message, window.location.origin)
+    if (parsed.success || window.opener) window.close()
   }, [])
 
   return (

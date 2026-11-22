@@ -742,16 +742,14 @@ test('round-trips opaque snapshot continuations and bounds every page', () => {
 test('parses replay cursors and recognizes stream requests', () => {
   assert.equal(
     parseBuilderProjectSyncCursor(
-      new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync`,
-      ),
+      new Request(`https://tanstack.com/api/chat/projects/${projectId}/sync`),
     ),
     0,
   )
   assert.equal(
     parseBuilderProjectSyncCursor(
       new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync?after=2`,
+        `https://tanstack.com/api/chat/projects/${projectId}/sync?after=2`,
         { headers: { 'Last-Event-ID': '7' } },
       ),
     ),
@@ -760,16 +758,15 @@ test('parses replay cursors and recognizes stream requests', () => {
   assert.throws(() =>
     parseBuilderProjectSyncCursor(
       new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync?after=-1`,
+        `https://tanstack.com/api/chat/projects/${projectId}/sync?after=-1`,
       ),
     ),
   )
   assert.equal(
     isBuilderProjectSyncStreamRequest(
-      new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync`,
-        { headers: { Accept: 'text/event-stream' } },
-      ),
+      new Request(`https://tanstack.com/api/chat/projects/${projectId}/sync`, {
+        headers: { Accept: 'text/event-stream' },
+      }),
     ),
     true,
   )

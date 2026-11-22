@@ -1,0 +1,39 @@
+@scope (:root:has(.tanchat-shell)) {
+  .icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .icon-button > svg {
+    max-width: 14px;
+    max-height: 14px;
+  }
+  .icon-button[aria-disabled='true'] {
+    cursor: default;
+    opacity: 0.5;
+  }
+  .action-tooltip-positioner {
+    z-index: 100;
+  }
+  .action-tooltip {
+    max-width: min(260px, calc(100vw - 24px));
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 3px 12px var(--shadow-soft);
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  @media (pointer: coarse) {
+    .icon-button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+}

@@ -1,27 +1,18 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
 import {
-  libraryIdSchema,
-  showcaseUseCaseSchema,
-  pageNumberSchema,
-  pageSizeSchema,
-} from '~/utils/schemas'
+  showcaseSearchSchema,
+  defaultShowcaseSearch,
+} from '~/utils/showcase-search'
 
-const searchSchema = v.object({
-  page: v.optional(pageNumberSchema, 1),
-  pageSize: v.optional(pageSizeSchema, 24),
-  libraryIds: v.optional(v.pipe(v.array(libraryIdSchema), v.maxLength(16))),
-  useCases: v.optional(v.pipe(v.array(showcaseUseCaseSchema), v.maxLength(12))),
-  hasSourceCode: v.optional(v.boolean()),
-  q: v.optional(v.pipe(v.string(), v.maxLength(120))),
-})
+export const PAGE_SIZE_OPTIONS = [24, 48, 96] as const
 
-export const PAGE_SIZE_OPTIONS = [24, 48, 96, 192] as const
-
-function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
+function hasNonCanonicalSearch(
+  search: v.InferOutput<typeof showcaseSearchSchema>,
+) {
   return Boolean(
     search.page > 1 ||
     search.pageSize !== PAGE_SIZE_OPTIONS[0] ||
@@ -33,7 +24,8 @@ function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
 }
 
 export const Route = createFileRoute('/showcase/')({
-  validateSearch: searchSchema,
+  validateSearch: showcaseSearchSchema,
+  search: { middlewares: [stripSearchParams(defaultShowcaseSearch)] },
   loaderDeps: ({ search }) => ({
     page: search.page,
     pageSize: search.pageSize,

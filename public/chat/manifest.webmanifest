@@ -1,0 +1,25 @@
+{
+  "name": "TanChat",
+  "short_name": "TanChat",
+  "description": "Your TanStack assistant.",
+  "start_url": "/chat",
+  "scope": "/chat",
+  "display": "standalone",
+  "theme_color": "#f7f7f8",
+  "background_color": "#f7f7f8",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "/chat"
+}

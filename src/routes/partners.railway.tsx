@@ -1,3 +1,8 @@
+import { Breadcrumbs } from '~/components/Breadcrumbs'
+import {
+  getPartnerBreadcrumbItems,
+  getPartnerBreadcrumbJsonLd,
+} from '~/utils/partner-breadcrumbs'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
@@ -265,7 +270,10 @@ export const Route = createFileRoute('/partners/railway')({
     scripts: [
       {
         type: 'application/ld+json',
-        children: JSON.stringify(getPartnerJsonLd(RAILWAY_PARTNER)),
+        children: JSON.stringify({
+          ...getPartnerJsonLd(RAILWAY_PARTNER),
+          breadcrumb: getPartnerBreadcrumbJsonLd(RAILWAY_PARTNER),
+        }),
       },
       {
         type: 'application/ld+json',
@@ -333,18 +341,10 @@ function RailwayPartnerPage() {
   return (
     <div className="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <div className="mx-auto w-full max-w-4xl flex-1 px-4 pb-16 pt-6 md:px-8">
-        <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <Link
-            to="/partners"
-            className="transition-colors hover:text-blue-500"
-          >
-            Partners
-          </Link>
-          <span>/</span>
-          <span className="text-gray-900 dark:text-white">
-            {RAILWAY_PARTNER.name}
-          </span>
-        </nav>
+        <Breadcrumbs
+          section="Partners"
+          items={getPartnerBreadcrumbItems(RAILWAY_PARTNER)}
+        />
 
         {/* Hero */}
         <section className="border-b border-gray-200 pb-10 pt-10 dark:border-gray-800">

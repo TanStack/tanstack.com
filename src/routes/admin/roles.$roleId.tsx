@@ -219,9 +219,11 @@ function RoleDetailPage() {
     [selectedUserIds, usersWithRole, toggleAllSelection, toggleUserSelection],
   )
 
+  const tableData = useMemo(() => usersWithRole ?? [], [usersWithRole])
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: usersWithRole || [],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })

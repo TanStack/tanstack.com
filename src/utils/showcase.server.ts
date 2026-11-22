@@ -1,4 +1,4 @@
-import { db } from '~/db/client'
+import { db, isDatabaseConfigured } from '~/db/client'
 import {
   showcases,
   users,
@@ -544,6 +544,16 @@ export async function searchShowcasesCore(
   const page = pagination.page ?? 1
   const pageSize = pagination.pageSize ?? 24
 
+  if (
+    process.env.NODE_ENV === 'development' &&
+    !(await isDatabaseConfigured())
+  ) {
+    return {
+      showcases: [],
+      pagination: { page, pageSize, total: 0, totalPages: 0 },
+    }
+  }
+
   // Build where conditions
   const conditions = [
     eq(showcases.status, 'approved'),
@@ -643,6 +653,8 @@ export async function getShowcaseCore(
   options: GetShowcaseOptions = {},
 ) {
   const { userId } = options
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    throw notFound()
 
   const [result] = await db
     .select({

@@ -1,0 +1,85 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-button.ui-button {
+    --button-bg: transparent;
+    --button-color: inherit;
+    --button-border: var(--line);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 6px 12px;
+    border: 1px solid var(--button-border);
+    border-radius: 7px;
+    background: var(--button-bg);
+    color: var(--button-color);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 550;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+  .ui-button.ui-button-primary {
+    --button-bg: var(--text);
+    --button-color: var(--on-accent);
+    --button-border: transparent;
+  }
+  .ui-button.ui-button-ghost {
+    --button-border: transparent;
+    --button-color: var(--muted);
+  }
+  .ui-button.ui-button-link {
+    --button-border: transparent;
+    --button-color: var(--accent);
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    vertical-align: baseline;
+  }
+  .ui-button.ui-button-danger {
+    --button-color: var(--danger);
+  }
+  .ui-button.ui-button-sm {
+    min-height: 30px;
+    padding: 4px 10px;
+  }
+  .ui-button.ui-button-icon {
+    width: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 5px;
+  }
+  .ui-button.ui-button > svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .ui-button.ui-button:not(:disabled):not([aria-disabled='true']):hover {
+    background: color-mix(in srgb, var(--button-bg) 88%, currentColor 12%);
+  }
+  .ui-button.ui-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+  .ui-button.ui-button:disabled,
+  .ui-button.ui-button[aria-disabled='true'] {
+    opacity: 0.45;
+    cursor: default;
+  }
+  @media (pointer: coarse) {
+    .ui-button.ui-button {
+      min-height: 44px;
+    }
+    .ui-button.ui-button-icon {
+      min-width: 44px;
+      width: 44px;
+    }
+  }
+}

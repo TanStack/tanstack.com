@@ -30,7 +30,6 @@
         "src/chat/skill-identifiers.ts",
         "src/components/BottomCTA.tsx",
         "src/components/DocFeedbackContext.tsx",
-        "src/components/FrameworkIconTabs.tsx",
         "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",
         "src/components/LandingPageGad.tsx",

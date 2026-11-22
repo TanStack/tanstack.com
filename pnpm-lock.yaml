@@ -18,6 +18,7 @@ overrides:
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
 patchedDependencies:
+  '@number-flow/react@0.6.2': 80306edd0e7c581978ecb77ebe3f0cfa98e3c0804130afe0df2a8ff3e1931b10
   '@tanstack/openai-base@0.10.11': d5a9a6775c599c7d626961820afdcb98df388773f78274c4e3708e30cddae5d3
   '@tanstack/router-core@1.171.34': f9187b6989d21f57e74b2e62f566350b92fda4efaa5af9a65ef5290137d5c27e
   postgres@3.4.8: 3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033
@@ -91,7 +92,7 @@ importers:
         version: 1.31.0(@cfworker/json-schema@4.1.1)(zod@4.3.6)
       '@number-flow/react':
         specifier: ^0.6.2
-        version: 0.6.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 0.6.2(patch_hash=80306edd0e7c581978ecb77ebe3f0cfa98e3c0804130afe0df2a8ff3e1931b10)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@octokit/graphql':
         specifier: ^9.0.3
         version: 9.0.3
@@ -10053,7 +10054,7 @@ snapshots:
 
   '@noble/hashes@2.3.0': {}
 
-  '@number-flow/react@0.6.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@number-flow/react@0.6.2(patch_hash=80306edd0e7c581978ecb77ebe3f0cfa98e3c0804130afe0df2a8ff3e1931b10)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       esm-env: 1.2.2
       number-flow: 0.6.2

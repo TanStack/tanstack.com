@@ -29,8 +29,8 @@ import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
 import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
-const initialScale = initialView.scale * zoomStep
-const mobileMaxZoom = initialScale * 1.2
+const desktopInitialScale = initialView.scale * zoomStep
+const mobileMaxZoom = desktopInitialScale * 1.2
 const mobileViewport = '(width < 40rem)'
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
@@ -42,8 +42,14 @@ const globeRadius = 0.4
 const globeAtmosphereDiameter = 2 * globeRadius * globeHaloScale
 const desktopProjectionDiameter = 0.9
 const desktopMaxZoom =
-  (initialScale * desktopProjectionDiameter) / globeAtmosphereDiameter
+  (desktopInitialScale * desktopProjectionDiameter) / globeAtmosphereDiameter
 const zoomControls = { width: 46, height: 171 }
+
+function getInitialScale() {
+  return window.matchMedia(mobileViewport).matches
+    ? mobileMaxZoom
+    : desktopInitialScale
+}
 
 type View = typeof initialView
 
@@ -781,7 +787,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       const projectionHeight = mobile.matches
         ? (Math.min(paintWidth, paintHeight) - 2 * viewportGutter) /
           (globeAtmosphereDiameter * mobileMaxZoom)
-        : paintHeight / (initialScale * desktopProjectionDiameter)
+        : paintHeight / (desktopInitialScale * desktopProjectionDiameter)
       hostSize.current = {
         width,
         height,
@@ -1102,6 +1108,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         wakeGlobe.current?.()
       })
     selection.call(behavior)
+    const initialScale = getInitialScale()
     selection.call(behavior.transform, zoomIdentity.scale(initialScale))
     view.current.scale = initialScale
     return () => {
@@ -1311,7 +1318,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
-              select(host).call(behavior.scaleTo, initialScale)
+              select(host).call(behavior.scaleTo, getInitialScale())
               target.current.theta = startingView.theta
               wakeGlobe.current?.()
             }}

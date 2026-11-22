@@ -141,7 +141,6 @@
         "iconv-lite",
         "parse5-parser-stream",
         "remove-markdown",
-        "source-map-explorer",
       ],
     },
     "desktop": {

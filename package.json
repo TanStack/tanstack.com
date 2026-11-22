@@ -80,7 +80,6 @@
     "@durable-streams/client": "^0.2.7",
     "@durable-streams/server-cloudflare": "^0.1.1",
     "@durable-streams/tanstack-ai-transport": "^0.0.10",
-    "@fingerprintjs/fingerprintjs-pro-react": "^2.7.1",
     "@js-temporal/polyfill": "^0.5.1",
     "@lezer/highlight": "^1.2.3",
     "@modelcontextprotocol/sdk": "^1.31.0",

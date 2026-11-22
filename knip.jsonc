@@ -128,7 +128,6 @@
         "src/utils/showcase.client.ts",
       ],
       "ignoreDependencies": [
-        "@fingerprintjs/fingerprintjs-pro-react",
         "@react-three/drei",
         "@tanstack/react-start-client",
         "@types/hast",

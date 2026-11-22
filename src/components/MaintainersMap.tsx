@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ComponentProps,
 } from 'react'
 import { Popover } from '@base-ui/react/popover'
 import { ClientOnly } from '@tanstack/react-router'
@@ -68,6 +69,7 @@ type ProfileSize = { width: number; height: number }
 type ProfileSizes = { portraits: ProfileSize; count: ProfileSize }
 type OffscreenEdge = 'top' | 'bottom'
 type MarkerVector = [x: number, y: number, z: number]
+type ProfileSelection = { groupId: string; trigger: HTMLButtonElement }
 
 function markerVector(latitude: number, longitude: number): MarkerVector {
   const lat = (latitude * Math.PI) / 180
@@ -676,14 +678,15 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   > | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [scale, setScale] = useState(initialView.scale)
-  const [profilePopover] = useState(() => Popover.createHandle<string>())
+  const [selection, setSelection] = useState<ProfileSelection | null>(null)
   const [paused, setPaused] = useState(false)
   const [behavior] = useState(() => zoom<HTMLDivElement, unknown>())
   const [profilePositions] = useState(
     (): Map<string, ProfilePosition> => new Map(),
   )
   const profileNodes = useRef<ReturnType<typeof readProfileNodes>>(undefined)
-  const openProfileTrigger = useRef<Element>(undefined)
+  const openProfileTrigger = useRef<HTMLButtonElement>(null)
+  const profilePopupId = `${prefix}-nearby-maintainers`
   const [startingView] = useState(() => initialMaintainersView(initialLocation))
   const view = useRef({ ...startingView })
   const target = useRef({ ...startingView })
@@ -754,6 +757,12 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   }, [maintainers, prefix, scale])
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
+  const selected = groups.find((group) => group.id === selection?.groupId)
+
+  useLayoutEffect(() => {
+    openProfileTrigger.current = selection?.trigger ?? null
+    wakeGlobe.current?.()
+  }, [selection])
 
   useLayoutEffect(() => {
     if (!host || !surface) return
@@ -1014,7 +1023,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                 profile.hasAttribute('data-offscreen') !==
                   trigger.hasAttribute('data-globe-count')
               ) {
-                profilePopover.close()
+                setSelection(null)
               }
             }
             viewportChanged = false
@@ -1068,15 +1077,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       cancelAnimationFrame(frame)
       wakeGlobe.current = undefined
     }
-  }, [
-    host,
-    globe,
-    surface,
-    reducedMotion,
-    profilePositions,
-    invalidate,
-    profilePopover,
-  ])
+  }, [host, globe, surface, reducedMotion, profilePositions, invalidate])
 
   useEffect(() => {
     if (!host) return
@@ -1134,6 +1135,27 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       selection.on('.zoom', null)
     }
   }, [host, behavior, invalidate, pauseRotation])
+
+  function profileTriggerProps(
+    groupId: string,
+    suffix: string,
+  ): ComponentProps<'button'> {
+    const id = `${groupId}-${suffix}`
+    const expanded = selection?.trigger.id === id
+    return {
+      id,
+      type: 'button',
+      'aria-haspopup': 'dialog',
+      'aria-expanded': expanded,
+      'aria-controls': expanded ? profilePopupId : undefined,
+      onClick(event) {
+        const trigger = event.currentTarget
+        setSelection((current) =>
+          current?.trigger === trigger ? null : { groupId, trigger },
+        )
+      },
+    }
+  }
 
   // The composite globe needs a focus target for its keyboard rotation controls.
   /* oxlint-disable jsx-a11y/no-noninteractive-tabindex */
@@ -1276,23 +1298,22 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                           </div>
                         }
                       >
-                        <Popover.Trigger
-                          type="button"
-                          handle={profilePopover}
-                          payload={group.id}
+                        <button
+                          {...profileTriggerProps(
+                            group.id,
+                            `portrait-${member.github}`,
+                          )}
                           aria-label={`Show ${member.name}`}
                           className="relative shrink-0 rounded-full bg-background-elevated hover:z-10 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <GlobeAvatar member={member} color={group.color} />
-                        </Popover.Trigger>
+                        </button>
                       </Tooltip>
                     ))}
                   </div>
-                  <Popover.Trigger
-                    type="button"
+                  <button
+                    {...profileTriggerProps(group.id, 'count')}
                     data-globe-count
-                    handle={profilePopover}
-                    payload={group.id}
                     aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'} near ${group.members[0]?.location?.name ?? 'this location'}`}
                     className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
@@ -1307,7 +1328,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                       ))}
                     </span>
                     {group.members.length}
-                  </Popover.Trigger>
+                  </button>
                 </div>
               ))}
             </ClientOnly>
@@ -1377,76 +1398,84 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         </div>
       </div>
       <Popover.Root
-        handle={profilePopover}
-        onOpenChange={(open, { trigger }) => {
-          openProfileTrigger.current = open ? trigger : undefined
-          wakeGlobe.current?.()
+        open={Boolean(selected)}
+        onOpenChange={(open, details) => {
+          if (open) return
+          if (
+            details.reason === 'outside-press' &&
+            details.event.target instanceof Element &&
+            details.event.target.closest('[data-globe-profile] button')
+          ) {
+            details.cancel()
+            return
+          }
+          setSelection(null)
         }}
       >
-        {({ payload }) => {
-          const selected = groups.find((group) => group.id === payload)
-          if (!selected) return null
-          return (
-            <Popover.Portal>
-              <Popover.Positioner
-                positionMethod="fixed"
-                sideOffset={8}
-                collisionPadding={12}
-                collisionAvoidance={{ align: 'shift' }}
-                className="z-[var(--z-overlay)] data-[anchor-hidden]:invisible"
+        {selection && selected && (
+          <Popover.Portal>
+            <Popover.Positioner
+              anchor={selection.trigger}
+              positionMethod="fixed"
+              sideOffset={8}
+              collisionPadding={12}
+              collisionAvoidance={{ align: 'shift' }}
+              className="z-[var(--z-overlay)] data-[anchor-hidden]:invisible"
+            >
+              <Popover.Popup
+                id={profilePopupId}
+                className="flex max-h-(--available-height) w-72 max-w-(--available-width) flex-col rounded-xl border border-border-default bg-background-elevated p-2 shadow-lg outline-none [&_:focus-visible]:outline-2 [&_:focus-visible]:-outline-offset-2 [&_:focus-visible]:outline-border-strong dark:border-white/20"
               >
-                <Popover.Popup className="flex max-h-(--available-height) w-72 max-w-(--available-width) flex-col rounded-xl border border-border-default bg-background-elevated p-2 shadow-lg outline-none [&_:focus-visible]:outline-2 [&_:focus-visible]:-outline-offset-2 [&_:focus-visible]:outline-border-strong dark:border-white/20">
-                  <div className="flex shrink-0 items-start justify-between gap-2 px-2 py-1">
-                    <div>
-                      <Popover.Title className="text-sm font-semibold">
-                        {selected.members.length === 1
-                          ? '1 maintainer nearby'
-                          : `${selected.members.length} maintainers nearby`}
-                      </Popover.Title>
-                      <Popover.Description className="mt-1 text-xs text-text-muted">
-                        Select a profile to open their GitHub.
-                      </Popover.Description>
-                    </div>
-                    <Popover.Close
-                      aria-label="Close maintainer profiles"
-                      className="grid size-7 shrink-0 place-items-center rounded-md hover:bg-surface-state-hover"
+                <div className="flex shrink-0 items-start justify-between gap-2 px-2 py-1">
+                  <div>
+                    <Popover.Title className="text-sm font-semibold">
+                      {selected.members.length === 1
+                        ? '1 maintainer nearby'
+                        : `${selected.members.length} maintainers nearby`}
+                    </Popover.Title>
+                    <Popover.Description className="mt-1 text-xs text-text-muted">
+                      Select a profile to open their GitHub.
+                    </Popover.Description>
+                  </div>
+                  <Popover.Close
+                    aria-label="Close maintainer profiles"
+                    className="grid size-7 shrink-0 place-items-center rounded-md hover:bg-surface-state-hover"
+                  >
+                    <XIcon aria-hidden="true" className="size-4" />
+                  </Popover.Close>
+                </div>
+                <div className="min-h-0 overflow-y-auto overscroll-contain">
+                  {selected.members.map((member) => (
+                    <a
+                      key={member.github}
+                      href={`https://github.com/${member.github}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
                     >
-                      <XIcon aria-hidden="true" className="size-4" />
-                    </Popover.Close>
-                  </div>
-                  <div className="min-h-0 overflow-y-auto overscroll-contain">
-                    {selected.members.map((member) => (
-                      <a
-                        key={member.github}
-                        href={`https://github.com/${member.github}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
-                      >
-                        <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
-                          <MaintainerAvatarImage
-                            src={member.avatar}
-                            alt=""
-                            width={36}
-                            height={36}
-                          />
-                        </span>
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold">
-                            {member.name}
-                          </div>
-                          <div className="text-xs text-text-muted">
-                            {member.location?.name}
-                          </div>
+                      <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
+                        <MaintainerAvatarImage
+                          src={member.avatar}
+                          alt=""
+                          width={36}
+                          height={36}
+                        />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold">
+                          {member.name}
                         </div>
-                      </a>
-                    ))}
-                  </div>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          )
-        }}
+                        <div className="text-xs text-text-muted">
+                          {member.location?.name}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        )}
       </Popover.Root>
       {!groups.length && (
         <p role="status" className="text-sm text-text-secondary">

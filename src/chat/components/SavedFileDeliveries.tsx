@@ -1,5 +1,5 @@
 import { Link, useRouter, useRouterState } from '@tanstack/react-router'
-import { File as FileIcon, FileSymlink } from 'lucide-react'
+import { FileIcon, LinkSimpleIcon } from '@phosphor-icons/react'
 import { fileDeliveryKey, type FileDelivery } from '../core/file-deliveries'
 import {
   defaultWorkspaceSearch,
@@ -46,7 +46,7 @@ function DeliveryLinks({ deliveries, currentConversation }: DeliveryProps) {
       {unique.map((delivery) => {
         const { file, workspaceId } = delivery
         const referenced = delivery.kind === 'file-reference'
-        const Icon = referenced ? FileSymlink : FileIcon
+        const Icon = referenced ? LinkSimpleIcon : FileIcon
         const destination = router.buildLocation({
           ...conversationLocation(
             { workspaceId, ...file },

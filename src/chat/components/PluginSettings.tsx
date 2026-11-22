@@ -8,7 +8,11 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { Menu } from '@base-ui/react/menu'
-import { ArrowLeft, MoreHorizontal, Upload } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  DotsThreeIcon,
+  UploadSimpleIcon,
+} from '@phosphor-icons/react'
 import { z } from 'zod'
 import { readPluginArchive } from '../core/plugin-archive'
 import {
@@ -610,7 +614,7 @@ function PrivatePluginSettings({
               disabled={disabled}
               onClick={back}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
             <strong>{review.candidate.manifest.name}</strong>
             <span>
@@ -716,7 +720,7 @@ function PrivatePluginSettings({
               disabled={disabled}
               onClick={back}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
             <strong>{current?.name ?? 'Plugin'}</strong>
           </div>
@@ -978,7 +982,7 @@ function PrivatePluginSettings({
               disabled={disabled}
               onClick={() => openArchive()}
             >
-              <Upload size={15} aria-hidden /> Add ZIP
+              <UploadSimpleIcon size={15} aria-hidden /> Add ZIP
             </Button>
           </div>
           {list.isError ? (
@@ -1051,7 +1055,7 @@ function PrivatePluginSettings({
                             label={`Manage ${plugin.name}`}
                             disabled={disabled}
                           >
-                            <MoreHorizontal size={17} aria-hidden />
+                            <DotsThreeIcon size={17} aria-hidden />
                           </IconButton>
                         }
                       />

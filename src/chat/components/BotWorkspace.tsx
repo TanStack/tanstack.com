@@ -38,29 +38,29 @@ import { Tooltip } from '@base-ui/react/tooltip'
 import { Popover } from '@base-ui/react/popover'
 import { useHotkeys, formatForDisplay } from '@tanstack/react-hotkeys'
 import {
-  Archive,
-  Bell,
-  FolderInput,
-  CheckSquare,
-  ArchiveRestore,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Copy,
-  GripVertical,
-  List,
-  MoreHorizontal,
-  Pencil,
-  Pin,
-  PinOff,
-  Plus,
-  Search,
-  Settings2,
-  SlidersHorizontal,
-  Trash2,
-  Rows3,
-  X,
-} from 'lucide-react'
+  ArchiveIcon,
+  BellIcon,
+  CaretDownIcon,
+  CaretRightIcon,
+  CheckIcon,
+  CheckSquareIcon,
+  CopyIcon,
+  DotsSixVerticalIcon,
+  DotsThreeIcon,
+  FolderOpenIcon,
+  ListBulletsIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  PushPinIcon,
+  PushPinSlashIcon,
+  RowsIcon,
+  SlidersHorizontalIcon,
+  SlidersIcon,
+  TrashIcon,
+  TrayArrowUpIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import type { BotSection, WorkspaceBot } from '../core/bot-workspace'
 import {
   activityLabels,
@@ -528,7 +528,7 @@ export function BotWorkspace({
           variant="secondary"
           onClick={() => onCreate(null)}
         >
-          <Plus size={16} aria-hidden />
+          <PlusIcon size={16} aria-hidden />
           New Chat
         </Button>
         <div className="bw-heading">
@@ -538,7 +538,7 @@ export function BotWorkspace({
               aria-label={`Conversation filter: ${activeViewLabel}`}
             >
               {activeViewLabel}
-              <ChevronDown size={14} aria-hidden />
+              <CaretDownIcon size={14} aria-hidden />
             </Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner
@@ -572,7 +572,7 @@ export function BotWorkspace({
                         className="bw-menu-item bw-menu-radio"
                       >
                         <Menu.RadioItemIndicator className="bw-menu-check">
-                          <Check size={14} aria-hidden />
+                          <CheckIcon size={14} aria-hidden />
                         </Menu.RadioItemIndicator>
                         {label}
                       </Menu.RadioItem>
@@ -595,7 +595,7 @@ export function BotWorkspace({
                 })
               }
             >
-              <Bell size={16} aria-hidden />
+              <BellIcon size={16} aria-hidden />
             </IconButton>
             {touchControls && hasMovableItems && (
               <button
@@ -614,7 +614,7 @@ export function BotWorkspace({
                 className="bw-icon"
                 aria-label="Sidebar display"
               >
-                <SlidersHorizontal size={16} aria-hidden />
+                <SlidersHorizontalIcon size={16} aria-hidden />
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner
@@ -640,12 +640,12 @@ export function BotWorkspace({
                           {
                             value: 'comfortable',
                             label: 'Standard',
-                            icon: <Rows3 size={18} aria-hidden />,
+                            icon: <RowsIcon size={18} aria-hidden />,
                           },
                           {
                             value: 'compact',
                             label: 'Compact',
-                            icon: <List size={18} aria-hidden />,
+                            icon: <ListBulletsIcon size={18} aria-hidden />,
                           },
                         ]}
                       />
@@ -660,7 +660,8 @@ export function BotWorkspace({
                       }}
                     >
                       {' '}
-                      <CheckSquare size={15} aria-hidden /> Select conversations
+                      <CheckSquareIcon size={15} aria-hidden /> Select
+                      conversations
                     </Button>
                     <p className="bw-selection-hint">
                       ⌘/Ctrl-click to select. Shift-click for a range.
@@ -770,9 +771,9 @@ export function BotWorkspace({
                         }}
                       >
                         {allExpanded ? (
-                          <ChevronRight size={15} aria-hidden />
+                          <CaretRightIcon size={15} aria-hidden />
                         ) : (
-                          <ChevronDown size={15} aria-hidden />
+                          <CaretDownIcon size={15} aria-hidden />
                         )}
                         {allExpanded ? 'Collapse all' : 'Expand all'}
                       </button>
@@ -783,7 +784,7 @@ export function BotWorkspace({
                         className="bw-menu-item bw-display-reorder"
                         onClick={beginReorder}
                       >
-                        <GripVertical size={15} aria-hidden />
+                        <DotsSixVerticalIcon size={15} aria-hidden />
                         Reorder
                       </button>
                     )}
@@ -796,7 +797,7 @@ export function BotWorkspace({
                         setManageSections(true)
                       }}
                     >
-                      <Settings2 size={15} aria-hidden />
+                      <SlidersIcon size={15} aria-hidden />
                       Manage sections
                     </button>
                   </Popover.Popup>
@@ -809,7 +810,7 @@ export function BotWorkspace({
                 aria-label="Search conversations"
                 title="Search conversations"
               >
-                <Search size={18} aria-hidden />
+                <MagnifyingGlassIcon size={18} aria-hidden />
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner
@@ -822,7 +823,7 @@ export function BotWorkspace({
                       Search conversations
                     </Popover.Title>
                     <div className="bw-search">
-                      <Search size={15} aria-hidden="true" />
+                      <MagnifyingGlassIcon size={15} aria-hidden="true" />
                       <label className="bw-sr-only" htmlFor={searchId}>
                         Search conversations
                       </label>
@@ -881,7 +882,7 @@ export function BotWorkspace({
                   disabled={bulkBusy}
                   onClick={finishEditing}
                 >
-                  <X size={14} aria-hidden />
+                  <XIcon size={14} aria-hidden />
                 </IconButton>
               </div>
               {selectedIds.length > 0 && (
@@ -893,7 +894,11 @@ export function BotWorkspace({
                       void runBulk({ type: 'pin', pinned: !allPinned })
                     }
                   >
-                    {allPinned ? <PinOff aria-hidden /> : <Pin aria-hidden />}
+                    {allPinned ? (
+                      <PushPinSlashIcon aria-hidden />
+                    ) : (
+                      <PushPinIcon aria-hidden />
+                    )}
                   </IconButton>
                   <IconButton
                     label={
@@ -905,9 +910,9 @@ export function BotWorkspace({
                     }
                   >
                     {allArchived ? (
-                      <ArchiveRestore aria-hidden />
+                      <TrayArrowUpIcon aria-hidden />
                     ) : (
-                      <Archive aria-hidden />
+                      <ArchiveIcon aria-hidden />
                     )}
                   </IconButton>
                   <Menu.Root>
@@ -916,7 +921,7 @@ export function BotWorkspace({
                       aria-label="Move selected to section"
                       disabled={bulkBusy}
                     >
-                      <FolderInput size={14} aria-hidden />
+                      <FolderOpenIcon size={14} aria-hidden />
                     </Menu.Trigger>
                     <Menu.Portal>
                       <Menu.Positioner className="bw-positioner" sideOffset={6}>
@@ -1281,7 +1286,7 @@ function SidebarSectionHeader({
                   setConfirmDelete(true)
                 }}
               >
-                <Trash2 size={14} aria-hidden />
+                <TrashIcon size={14} aria-hidden />
                 Delete section
               </Button>
               {error && (
@@ -1333,7 +1338,7 @@ function SidebarSectionHeader({
                 }
               }}
             >
-              <Trash2 size={14} aria-hidden />
+              <TrashIcon size={14} aria-hidden />
               {busy ? 'Deleting…' : 'Delete section'}
             </Button>
           </div>
@@ -1352,7 +1357,7 @@ function SidebarSectionHeader({
         hidden={!draggable || !editing}
         {...drag.dragHandleProps}
       >
-        <GripVertical size={13} aria-hidden />
+        <DotsSixVerticalIcon size={13} aria-hidden />
       </button>
     </div>
   )
@@ -1587,7 +1592,7 @@ function BotRow({
           >
             <span>{bot.name}</span>
             {bot.pinned && !inPinnedSection && (
-              <Pin size={11} aria-label="Pinned" />
+              <PushPinIcon size={11} aria-label="Pinned" />
             )}
           </span>
           {parent && (
@@ -1610,9 +1615,9 @@ function BotRow({
           onClick={onToggleExpanded}
         >
           {expanded ? (
-            <ChevronDown size={14} aria-hidden />
+            <CaretDownIcon size={14} aria-hidden />
           ) : (
-            <ChevronRight size={14} aria-hidden />
+            <CaretRightIcon size={14} aria-hidden />
           )}
         </IconButton>
       )}
@@ -1626,7 +1631,7 @@ function BotRow({
           hidden={!draggable || !editing}
           {...drag.dragHandleProps}
         >
-          <GripVertical size={13} aria-hidden />
+          <DotsSixVerticalIcon size={13} aria-hidden />
         </button>
         <BotControls
           hideTrigger
@@ -1820,7 +1825,7 @@ export function BotControls({
             aria-label={`Manage ${bot.name}`}
             disabled={mutation.busy}
           >
-            <MoreHorizontal size={17} aria-hidden />
+            <DotsThreeIcon size={17} aria-hidden />
           </Menu.Trigger>
         )}
         <Menu.Portal>
@@ -1861,9 +1866,9 @@ export function BotControls({
                       }
                     >
                       {bot.archived_at === null ? (
-                        <Archive size={15} aria-hidden />
+                        <ArchiveIcon size={15} aria-hidden />
                       ) : (
-                        <ArchiveRestore size={15} aria-hidden />
+                        <TrayArrowUpIcon size={15} aria-hidden />
                       )}
                       {bot.archived_at === null ? 'Archive' : 'Unarchive'}
                       <kbd className="bw-menu-shortcut">
@@ -1880,7 +1885,7 @@ export function BotControls({
                       )
                     }
                   >
-                    <Pencil size={15} aria-hidden />
+                    <PencilSimpleIcon size={15} aria-hidden />
                     Rename
                     <kbd className="bw-menu-shortcut">
                       {formatForDisplay('Mod+Alt+R')}
@@ -1898,9 +1903,9 @@ export function BotControls({
                     }
                   >
                     {bot.pinned ? (
-                      <PinOff size={15} aria-hidden />
+                      <PushPinSlashIcon size={15} aria-hidden />
                     ) : (
-                      <Pin size={15} aria-hidden />
+                      <PushPinIcon size={15} aria-hidden />
                     )}
                     {bot.pinned ? 'Unpin' : 'Pin'}
                     <kbd className="bw-menu-shortcut">
@@ -1913,7 +1918,7 @@ export function BotControls({
                       disabled={mutation.busy}
                       onClick={() => launch(() => onDuplicate(bot))}
                     >
-                      <Copy size={15} aria-hidden />
+                      <CopyIcon size={15} aria-hidden />
                       Duplicate
                       <kbd className="bw-menu-shortcut">
                         {formatForDisplay('Mod+Alt+D')}
@@ -1926,7 +1931,7 @@ export function BotControls({
                       disabled={mutation.busy}
                       onClick={() => launch(() => onCreate(bot.id))}
                     >
-                      <Plus size={15} aria-hidden />
+                      <PlusIcon size={15} aria-hidden />
                       New chat
                       <kbd className="bw-menu-shortcut">
                         {formatForDisplay('Mod+Alt+N')}
@@ -1941,9 +1946,9 @@ export function BotControls({
                 onClick={() => launch(() => setEditorOpen(true))}
               >
                 {bot.deleted_at === null ? (
-                  <Settings2 size={15} aria-hidden />
+                  <SlidersIcon size={15} aria-hidden />
                 ) : (
-                  <ArchiveRestore size={15} aria-hidden />
+                  <TrayArrowUpIcon size={15} aria-hidden />
                 )}
                 {bot.deleted_at === null ? 'Settings' : 'Restore…'}
                 {bot.deleted_at === null && (
@@ -2332,7 +2337,7 @@ function SectionManager({
                   onClick={() => setEditing(null)}
                   disabled={mutation.busy}
                 >
-                  <X size={16} />
+                  <XIcon size={16} />
                 </button>
               </form>
             ) : (
@@ -2362,7 +2367,7 @@ function SectionManager({
                       setEditing(null)
                     }}
                   >
-                    <X size={16} />
+                    <XIcon size={16} />
                   </button>
                 </div>
               </>
@@ -2560,12 +2565,12 @@ function SectionDisplayOptions({
           {
             value: 'comfortable',
             label: 'Standard',
-            icon: <Rows3 size={18} aria-hidden />,
+            icon: <RowsIcon size={18} aria-hidden />,
           },
           {
             value: 'compact',
             label: 'Compact',
-            icon: <List size={18} aria-hidden />,
+            icon: <ListBulletsIcon size={18} aria-hidden />,
           },
         ]}
       />

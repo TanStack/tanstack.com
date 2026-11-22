@@ -1,6 +1,6 @@
 import { LoadingState } from './ui/LoadingState'
 import { useQuery } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
+import { ArrowsClockwiseIcon } from '@phosphor-icons/react'
 import type { ConversationDestination } from '../core/conversation-destination'
 import type { TaskUsage, TaskUsageSnapshot } from '../core/task-usage'
 import { useWorkspaceApi } from './WorkspaceApi'
@@ -59,7 +59,7 @@ export function TaskUsageDetails({
           disabled={query.isFetching}
           onClick={() => void query.refetch()}
         >
-          <RefreshCw size={14} aria-hidden />
+          <ArrowsClockwiseIcon size={14} aria-hidden />
         </IconButton>
       </div>
       {query.error ? (

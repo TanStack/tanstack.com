@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import type { ConversationDestination } from '../core/conversation-destination'
 import { IconButton } from './IconButton'
 import { ApiError, useWorkspaceApi } from './WorkspaceApi'
@@ -105,7 +105,7 @@ export function RetryReturn({
       disabled={busy || !visible || !!disabledReason}
       onClick={(event) => void go(event.currentTarget)}
     >
-      <ArrowLeft size={16} aria-hidden />
+      <ArrowLeftIcon size={16} aria-hidden />
     </IconButton>
   )
 }

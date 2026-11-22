@@ -1,3 +1,10 @@
+import {
+  BookOpenIcon,
+  PackageIcon,
+  PlugIcon,
+  WrenchIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -27,6 +34,12 @@ import {
   emptyToolCatalogText,
   parseReferenceCatalog,
 } from '../../src/chat/components/ComposerReferences'
+
+function iconMarkup(Icon: Icon, size: number) {
+  return renderToStaticMarkup(
+    createElement(Icon, { size, 'aria-hidden': true }),
+  )
+}
 
 const conversation: MessageReference = {
   kind: 'conversation',
@@ -493,7 +506,7 @@ describe('tool reference catalog presentation', () => {
     )
     expect(transcript).toContain('Alpha connection')
     expect(transcript).toContain('Beta connection')
-    expect(transcript.match(/lucide-wrench/g)).toHaveLength(2)
+    expect(transcript.split(iconMarkup(WrenchIcon, 14))).toHaveLength(3)
     expect(transcript).not.toContain('<a ')
     const html = renderToStaticMarkup(
       createElement(QueryClientProvider, {
@@ -575,12 +588,16 @@ describe('plugin reference presentation', () => {
         }),
       }),
     )
-    for (const html of [transcript, details, composer]) {
+    for (const [html, size] of [
+      [transcript, 14],
+      [details, 17],
+      [composer, 15],
+    ] as const) {
       expect(html).toContain('Weekly planning')
       expect(html).toContain('<small>Installed v1</small>')
       expect(html).toContain('<small>Installed v3</small>')
-      expect(html.match(/lucide-package/g)).toHaveLength(2)
-      expect(html).not.toContain('lucide-plug ')
+      expect(html.split(iconMarkup(PackageIcon, size))).toHaveLength(3)
+      expect(html).not.toContain(iconMarkup(PlugIcon, size))
       expect(html).not.toContain('Activate')
       expect(html).not.toContain(plugin.installationId)
     }
@@ -772,6 +789,6 @@ it('renders selected skill identity and exact version without treating it as a c
   )
   expect(html).toContain('weekly-update')
   expect(html).toContain('Personal · v1')
-  expect(html).toContain('lucide-book-open')
-  expect(html).not.toContain('lucide-plug')
+  expect(html).toContain(iconMarkup(BookOpenIcon, 14))
+  expect(html).not.toContain(iconMarkup(PlugIcon, 14))
 })

@@ -8,7 +8,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { RefreshCw, Square } from 'lucide-react'
+import { ArrowsClockwiseIcon, SquareIcon } from '@phosphor-icons/react'
 import type {
   WorkflowRunInspection,
   WorkflowRunSummary,
@@ -307,7 +307,7 @@ function WorkflowHistoryItem({
             disabled={stop.isPending}
             onClick={() => stop.mutate()}
           >
-            <Square size={14} />
+            <SquareIcon size={14} />
           </IconButton>
           {stop.isPending && <span role="status">Stopping…</span>}
           {stop.isSuccess && <span role="status">Stop requested.</span>}
@@ -381,7 +381,7 @@ export function WorkflowHistory({
             })
           }}
         >
-          <RefreshCw size={14} />
+          <ArrowsClockwiseIcon size={14} />
         </IconButton>
       </header>
       <WorkflowStart

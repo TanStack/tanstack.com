@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from 'react'
-import { X } from 'lucide-react'
+import { XIcon } from '@phosphor-icons/react'
 import { IconButton } from '../IconButton'
 import './action-card.css'
 
@@ -32,7 +32,7 @@ export function ActionCard({
             disabled={disabled}
             onClick={onDismiss}
           >
-            <X aria-hidden />
+            <XIcon aria-hidden />
           </IconButton>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { XIcon } from '@phosphor-icons/react'
 import type { useRetryPreparation } from './useRetryPreparation'
 import { IconButton } from './IconButton'
 import './retry.css'
@@ -37,7 +37,7 @@ export function RetryPreparation({
           className="message-action"
           onClick={preparation.stop}
         >
-          <X size={14} aria-hidden />
+          <XIcon size={14} aria-hidden />
         </IconButton>
       )}
     </div>

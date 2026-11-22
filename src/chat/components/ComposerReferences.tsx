@@ -6,21 +6,21 @@ import { Popover } from '@base-ui/react/popover'
 import { Tooltip } from '@base-ui/react/tooltip'
 import { z } from 'zod'
 import {
-  Check,
-  BookOpen,
-  ArrowLeft,
-  File as FileIcon,
-  Info,
-  MessageCircle,
-  PencilLine,
-  Package,
-  Plug,
-  Plus,
-  RotateCw,
-  Upload,
-  Wrench,
-  X,
-} from 'lucide-react'
+  ArrowClockwiseIcon,
+  ArrowLeftIcon,
+  BookOpenIcon,
+  ChatCircleIcon,
+  CheckIcon,
+  FileIcon,
+  InfoIcon,
+  PackageIcon,
+  PencilSimpleLineIcon,
+  PlugIcon,
+  PlusIcon,
+  UploadSimpleIcon,
+  WrenchIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import {
   messageReferenceSchema,
   referenceKey,
@@ -59,19 +59,19 @@ const categories: Array<{ kind: ReferenceKind; label: string }> = [
 ]
 function ReferenceIcon({ kind }: { kind: ReferenceKind }) {
   return kind === 'skill' ? (
-    <BookOpen size={15} aria-hidden />
+    <BookOpenIcon size={15} aria-hidden />
   ) : kind === 'plugin' ? (
-    <Package size={15} aria-hidden />
+    <PackageIcon size={15} aria-hidden />
   ) : kind === 'file' ? (
     <FileIcon size={15} aria-hidden />
   ) : kind === 'conversation' ? (
-    <MessageCircle size={15} aria-hidden />
+    <ChatCircleIcon size={15} aria-hidden />
   ) : kind === 'tool' ? (
-    <Wrench size={15} aria-hidden />
+    <WrenchIcon size={15} aria-hidden />
   ) : kind === 'kody' ? (
-    <Package size={15} aria-hidden />
+    <PackageIcon size={15} aria-hidden />
   ) : (
-    <Plug size={15} aria-hidden />
+    <PlugIcon size={15} aria-hidden />
   )
 }
 
@@ -128,7 +128,7 @@ function InspectSkill({
     <>
       <div className="skill-reference-actions">
         <IconButton ref={backButton} label="Back to skills" onClick={onBack}>
-          <ArrowLeft size={16} aria-hidden />
+          <ArrowLeftIcon size={16} aria-hidden />
         </IconButton>
         <button
           type="button"
@@ -215,7 +215,7 @@ function InspectKody({
           label="Back to references"
           onClick={onBack}
         >
-          <ArrowLeft size={16} aria-hidden />
+          <ArrowLeftIcon size={16} aria-hidden />
         </IconButton>
         <button
           type="button"
@@ -409,7 +409,7 @@ function RefreshTools({
           disabled={busy}
           onClick={() => onRefresh(source)}
         >
-          <RotateCw size={15} aria-hidden />
+          <ArrowClockwiseIcon size={15} aria-hidden />
           <span>
             Retry {source.label} tools <small>{sourceStatus(source)}</small>
           </span>
@@ -439,7 +439,7 @@ export function ComposerAddButton({
           />
         }
       >
-        <Plus size={18} aria-hidden />
+        <PlusIcon size={18} aria-hidden />
       </Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Positioner
@@ -1118,7 +1118,7 @@ export function ComposerReferences({
                                   }
                                 </em>
                                 {included && (
-                                  <Check
+                                  <CheckIcon
                                     size={15}
                                     aria-label="Already selected"
                                   />
@@ -1130,7 +1130,7 @@ export function ComposerReferences({
                                   label={`Inspect ${item.label}`}
                                   onClick={() => setInspectingSkill(item)}
                                 >
-                                  <Info size={15} aria-hidden />
+                                  <InfoIcon size={15} aria-hidden />
                                 </IconButton>
                               )}
                               {item.kind === 'kody' && (
@@ -1139,7 +1139,7 @@ export function ComposerReferences({
                                   label={`Inspect ${item.label}`}
                                   onClick={() => setInspectingKody(item)}
                                 >
-                                  <Info size={15} aria-hidden />
+                                  <InfoIcon size={15} aria-hidden />
                                 </IconButton>
                               )}
                             </div>
@@ -1165,7 +1165,7 @@ export function ComposerReferences({
                               onUpload()
                             }}
                           >
-                            <Upload size={15} aria-hidden />
+                            <UploadSimpleIcon size={15} aria-hidden />
                             Upload files
                           </button>
                           <button
@@ -1181,7 +1181,7 @@ export function ComposerReferences({
                               onSketch()
                             }}
                           >
-                            <PencilLine size={15} aria-hidden />
+                            <PencilSimpleLineIcon size={15} aria-hidden />
                             Sketch
                           </button>
                           {sketchDisabledReason && (
@@ -1330,7 +1330,7 @@ export function ComposerReferences({
                 disabled={disabled || references.busy}
                 onClick={() => void references.remove(item)}
               >
-                <X size={14} aria-hidden />
+                <XIcon size={14} aria-hidden />
               </IconButton>
             </li>
           ))}

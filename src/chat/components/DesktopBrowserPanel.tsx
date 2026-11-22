@@ -6,13 +6,13 @@ import {
   type FormEvent,
 } from 'react'
 import {
-  ArrowLeft,
-  ArrowRight,
-  MoreHorizontal,
-  RotateCw,
-  Search,
-  X,
-} from 'lucide-react'
+  ArrowClockwiseIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  DotsThreeIcon,
+  MagnifyingGlassIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import {
   useDesktopBrowserHost,
   type DesktopBrowserState,
@@ -196,21 +196,21 @@ export function DesktopBrowserPanel({
           disabled={!state?.canGoBack}
           onClick={() => run(host.back())}
         >
-          <ArrowLeft size={16} aria-hidden />
+          <ArrowLeftIcon size={16} aria-hidden />
         </IconButton>
         <IconButton
           label="Forward"
           disabled={!state?.canGoForward}
           onClick={() => run(host.forward())}
         >
-          <ArrowRight size={16} aria-hidden />
+          <ArrowRightIcon size={16} aria-hidden />
         </IconButton>
         <IconButton
           label="Reload page"
           disabled={!state?.url}
           onClick={() => run(host.reload())}
         >
-          <RotateCw size={16} aria-hidden />
+          <ArrowClockwiseIcon size={16} aria-hidden />
         </IconButton>
         <input
           ref={addressField}
@@ -251,7 +251,7 @@ export function DesktopBrowserPanel({
             setMenuOpen(!menuOpen)
           }}
         >
-          <MoreHorizontal size={17} aria-hidden />
+          <DotsThreeIcon size={17} aria-hidden />
         </IconButton>
       </form>
       {zoomOpen && (
@@ -350,7 +350,7 @@ export function DesktopBrowserPanel({
             run(host.find(findText, true))
           }}
         >
-          <Search size={15} aria-hidden />
+          <MagnifyingGlassIcon size={15} aria-hidden />
           <input
             ref={findField}
             aria-label="Find in page"
@@ -373,17 +373,17 @@ export function DesktopBrowserPanel({
             disabled={!findText}
             onClick={() => run(host.find(findText, true, false))}
           >
-            <ArrowLeft size={15} aria-hidden />
+            <ArrowLeftIcon size={15} aria-hidden />
           </IconButton>
           <IconButton
             label="Next match"
             disabled={!findText}
             onClick={() => run(host.find(findText, true, true))}
           >
-            <ArrowRight size={15} aria-hidden />
+            <ArrowRightIcon size={15} aria-hidden />
           </IconButton>
           <IconButton label="Close find" onClick={closeFind}>
-            <X size={15} aria-hidden />
+            <XIcon size={15} aria-hidden />
           </IconButton>
         </form>
       )}
@@ -430,7 +430,7 @@ export function DesktopBrowserPanel({
                     : 'Browser settings'}
             </strong>
             <IconButton label="Back to page" onClick={() => setScreen('page')}>
-              <X size={16} aria-hidden />
+              <XIcon size={16} aria-hidden />
             </IconButton>
           </div>
           {screen === 'history' && (

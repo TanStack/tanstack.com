@@ -112,11 +112,8 @@ function FilterSelect<
                   <Select.Item
                     key={value}
                     value={value}
-                    className="relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-2 pl-7 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
+                    className="relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-7 pl-2 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
                   >
-                    <Select.ItemIndicator className="absolute left-2 flex">
-                      <CheckIcon size={14} aria-hidden="true" />
-                    </Select.ItemIndicator>
                     {ItemIcon && (
                       <ItemIcon
                         size={16}
@@ -125,6 +122,9 @@ function FilterSelect<
                       />
                     )}
                     <Select.ItemText>{label}</Select.ItemText>
+                    <Select.ItemIndicator className="absolute right-2 flex">
+                      <CheckIcon size={14} aria-hidden="true" />
+                    </Select.ItemIndicator>
                   </Select.Item>
                 ))}
               </Select.List>

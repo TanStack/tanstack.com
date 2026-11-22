@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import * as v from 'valibot'
 import { libraries } from '~/libraries'
+import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { allMaintainers } from '~/libraries/maintainers'
@@ -75,7 +76,12 @@ function FilterSelect<
   'multiple' | 'value' | 'onValueChange'
 > & {
   label: string
-  choices: ReadonlyArray<{ value: TValue; label: string; icon?: Icon }>
+  choices: ReadonlyArray<{
+    value: TValue
+    label: string
+    icon?: Icon
+    iconColor?: string
+  }>
 }) {
   const selectionCount = Array.isArray(selection.value)
     ? selection.value.length
@@ -108,16 +114,16 @@ function FilterSelect<
           >
             <Select.Popup className="flex max-h-[min(20rem,var(--available-height))] max-w-(--available-width) min-w-(--anchor-width) flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated shadow-lg outline-none">
               <Select.List className="min-h-0 overflow-y-auto overscroll-contain p-1">
-                {choices.map(({ value, label, icon: ItemIcon }) => (
+                {choices.map(({ value, label, icon: ItemIcon, iconColor }) => (
                   <Select.Item
                     key={value}
                     value={value}
-                    className="relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-7 pl-2 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
+                    className="group/filter-item relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-7 pl-2 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
                   >
                     {ItemIcon && (
                       <ItemIcon
                         size={16}
-                        className="mr-2 shrink-0 text-text-muted"
+                        className={`mr-2 shrink-0 transition-colors group-not-data-highlighted/filter-item:text-text-muted ${iconColor ?? 'text-text-muted'}`}
                         aria-hidden="true"
                       />
                     )}
@@ -153,6 +159,7 @@ export function MaintainersDirectoryFilters({
       value: id,
       label: name.replace(/^TanStack /, ''),
       icon: libraryIcons[id] ?? fallbackLibraryIcon,
+      iconColor: categoryTextColor[categoryOf(id)],
     }))
 
   const hasAdvancedFilters =

@@ -161,7 +161,7 @@ const MaintainerSocialIcons: Record<
   ),
   website: (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="2 2 20 20"
       className="w-5 h-5"
       fill="currentColor"
       aria-hidden="true"

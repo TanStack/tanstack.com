@@ -6,7 +6,9 @@ import {
   useMemo,
   useRef,
   useState,
+  type ComponentProps,
 } from 'react'
+import { Popover } from '@base-ui/react/popover'
 import { ClientOnly } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
@@ -23,14 +25,13 @@ import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 import { MaintainerAvatarImage } from './MaintainerAvatarImage'
 import { getVisitorLocation } from '~/utils/visitor-location.functions'
-import { createChartsGlobe } from './maintainersChartsGlobe'
+import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
 import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
-const maxZoom = 128
 const initialScale = initialView.scale * zoomStep
-const mobileViewport = '(max-width: 639px)'
-const mobileZoomFade = 48
+const mobileMaxZoom = initialScale * 1.2
+const mobileViewport = '(width < 40rem)'
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
@@ -38,7 +39,10 @@ const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
-const globeGlowDiameter = 0.9
+const globeAtmosphereDiameter = 2 * globeRadius * globeHaloScale
+const desktopProjectionDiameter = 0.9
+const desktopMaxZoom =
+  (initialScale * desktopProjectionDiameter) / globeAtmosphereDiameter
 const zoomControls = { width: 46, height: 171 }
 
 type View = typeof initialView
@@ -61,14 +65,13 @@ type ProfileViewport = {
   bottom: number
   contentTop: number
   contentBottom: number
-  helpTop: number
-  helpBottom: number
 }
 
 type ProfileSize = { width: number; height: number }
 type ProfileSizes = { portraits: ProfileSize; count: ProfileSize }
 type OffscreenEdge = 'top' | 'bottom'
 type MarkerVector = [x: number, y: number, z: number]
+type ProfileSelection = { groupId: string; trigger: HTMLButtonElement }
 
 function markerVector(latitude: number, longitude: number): MarkerVector {
   const lat = (latitude * Math.PI) / 180
@@ -231,12 +234,6 @@ function placeProfiles(
       right: contentRight,
       top: bounds.height - zoomControls.height,
       bottom: bounds.height,
-    },
-    {
-      left: bounds.contentInset,
-      right: contentRight,
-      top: viewport.helpTop,
-      bottom: viewport.helpBottom,
     },
   ]
   const labels = nodes.flatMap(
@@ -639,10 +636,6 @@ type MaintainersMapProps = {
   maintainers: Maintainer[]
 }
 
-function Key({ children }: { children: React.ReactNode }) {
-  return <kbd className="font-sans font-medium">{children}</kbd>
-}
-
 function GlobeAvatar({
   member,
   color,
@@ -687,13 +680,16 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   > | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [scale, setScale] = useState(initialView.scale)
-  const [selectedId, setSelectedId] = useState('')
+  const [maxZoom, setMaxZoom] = useState(desktopMaxZoom)
+  const [selection, setSelection] = useState<ProfileSelection | null>(null)
   const [paused, setPaused] = useState(false)
   const [behavior] = useState(() => zoom<HTMLDivElement, unknown>())
   const [profilePositions] = useState(
     (): Map<string, ProfilePosition> => new Map(),
   )
   const profileNodes = useRef<ReturnType<typeof readProfileNodes>>(undefined)
+  const openProfileTrigger = useRef<HTMLButtonElement>(null)
+  const profilePopupId = `${prefix}-nearby-maintainers`
   const [startingView] = useState(() => initialMaintainersView(initialLocation))
   const view = useRef({ ...startingView })
   const target = useRef({ ...startingView })
@@ -762,22 +758,31 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     }
     return result
   }, [maintainers, prefix, scale])
-  const selected = groups.find((group) => group.id === selectedId)
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
+  const selected = groups.find((group) => group.id === selection?.groupId)
+
+  useLayoutEffect(() => {
+    openProfileTrigger.current = selection?.trigger ?? null
+    wakeGlobe.current?.()
+  }, [selection])
 
   useLayoutEffect(() => {
     if (!host || !surface) return
-    const readBounds = () => {
+    const mobile = window.matchMedia(mobileViewport)
+    const updateBounds = () => {
       const width = host.clientWidth
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
       const height = host.clientHeight
       const paintHeight = surface.clientHeight
-      // The mobile surface is taller than the viewport-wide SVG's width so
-      // the globe fills its height and extends past its side edges.
-      const projectionHeight = paintHeight / (initialScale * globeGlowDiameter)
-      return {
+      const limit = mobile.matches ? mobileMaxZoom : desktopMaxZoom
+      // Keep the desktop starting diameter. On mobile, fit to the smaller edge.
+      const projectionHeight = mobile.matches
+        ? (Math.min(paintWidth, paintHeight) - 2 * viewportGutter) /
+          (globeAtmosphereDiameter * mobileMaxZoom)
+        : paintHeight / (initialScale * desktopProjectionDiameter)
+      hostSize.current = {
         width,
         height,
         centerY: height / 2,
@@ -787,14 +792,16 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         paintTop: (height - paintHeight) / 2,
         projectionHeight,
       }
-    }
-    hostSize.current = readBounds()
-    const instance = createChartsGlobe(surface)
-    setGlobe(instance)
-    const updateBounds = () => {
-      hostSize.current = readBounds()
+      behavior.scaleExtent([1, limit])
+      setMaxZoom(limit)
+      view.current.scale = Math.min(view.current.scale, limit)
+      if (target.current.scale > limit)
+        select(host).call(behavior.scaleTo, limit)
       invalidate()
     }
+    updateBounds()
+    const instance = createChartsGlobe(surface)
+    setGlobe(instance)
     const resize = new ResizeObserver(updateBounds)
     resize.observe(host)
     resize.observe(surface)
@@ -817,7 +824,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       instance.destroy()
       surface.replaceChildren()
     }
-  }, [host, surface, invalidate])
+  }, [host, surface, behavior, invalidate])
 
   useLayoutEffect(() => {
     groupsRef.current = groups
@@ -845,12 +852,10 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   }, [])
 
   useEffect(() => {
-    if (!host || !globe || !surface) return
+    if (!host || !globe) return
     const container = host
     const instance = globe
-    const canvasSurface = surface
     const section = container.closest('section')
-    const help = section?.querySelector('#maintainers-globe-help')
     const intro = section?.parentElement?.querySelector(':scope > header')
     const navbarHeight =
       Number.parseFloat(
@@ -870,31 +875,16 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     }
     wakeGlobe.current = requestFrame
     const visualViewport = window.visualViewport
-    let fadeOffset: number | undefined
-    let fadedScale: number | undefined
-    let fadedBounds: GlobeBounds | undefined
     const updateViewport = () => {
       const { top, height } = container.getBoundingClientRect()
       const contentTop =
         (intro?.getBoundingClientRect().bottom ?? top) - top + viewportGutter
-      const helpBounds = help?.getBoundingClientRect()
-      // Keep the zoomed paint and floating profiles clear of the next section.
-      const nextContent =
-        help?.nextElementSibling ?? section?.nextElementSibling
+      // Keep floating profiles clear of the next section.
+      const nextContent = section?.nextElementSibling
       const contentBottom =
-        (nextContent?.getBoundingClientRect().top ??
-          helpBounds?.bottom ??
-          top + height) -
+        (nextContent?.getBoundingClientRect().top ?? top + height) -
         top -
         viewportGutter
-      const nextFadeOffset = contentBottom - height / 2
-      if (fadeOffset !== nextFadeOffset) {
-        fadeOffset = nextFadeOffset
-        canvasSurface.style.setProperty(
-          '--globe-fade-offset',
-          `${fadeOffset}px`,
-        )
-      }
       const screenTop = visualViewport?.offsetTop ?? 0
       const screenHeight =
         visualViewport?.height ?? document.documentElement.clientHeight
@@ -903,8 +893,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         bottom: screenTop + screenHeight - viewportGutter - top,
         contentTop,
         contentBottom,
-        helpTop: (helpBounds?.top ?? 0) - top,
-        helpBottom: (helpBounds?.bottom ?? 0) - top,
       }
       viewportChanged = true
       requestFrame()
@@ -973,9 +961,15 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           const readingProfile = container.querySelector(
             '[data-globe-profile]:hover, [data-globe-profile]:focus-within',
           )
-          const idle = !readingProfile && !interacting.current
+          const idle =
+            !readingProfile &&
+            !openProfileTrigger.current &&
+            !interacting.current
           const autoRotate =
-            globeVisible && !reducedMotion && !pausedRef.current
+            globeVisible &&
+            !reducedMotion &&
+            !pausedRef.current &&
+            !openProfileTrigger.current
           if (autoRotate && idle) {
             target.current.phi += Math.min(elapsed, 100) * 0.00015
           }
@@ -1017,33 +1011,22 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                 viewport,
                 globeVisible,
               ) || !profileNodes.current
+            const trigger = openProfileTrigger.current
+            if (trigger) {
+              const profile = trigger.closest('[data-globe-profile]')
+              if (
+                !trigger.isConnected ||
+                profile?.getAttribute('data-shown') !== 'true' ||
+                profile.hasAttribute('data-offscreen') !==
+                  trigger.hasAttribute('data-globe-count')
+              ) {
+                setSelection(null)
+              }
+            }
             viewportChanged = false
           }
           wasIdle = idle
           if (redraw && paintHeight > 0) {
-            if (
-              mobile.matches &&
-              (current.scale !== fadedScale || bounds !== fadedBounds)
-            ) {
-              fadedScale = current.scale
-              fadedBounds = bounds
-              const fade = Math.min(
-                mobileZoomFade,
-                mobileZoomFade *
-                  Math.max(0, (current.scale - initialScale) / (zoomStep - 1)),
-              )
-              const drawRadius = projectionHeight * current.scale * globeRadius
-              const fadeAt = (overflow: number) =>
-                `${Math.max(0, Math.min(fade, overflow))}px`
-              canvasSurface.style.setProperty(
-                '--globe-fade-vertical',
-                fadeAt(drawRadius - paintHeight / 2),
-              )
-              canvasSurface.style.setProperty(
-                '--globe-fade-side',
-                fadeAt(drawRadius - paintWidth / 2),
-              )
-            }
             const paintView = {
               ...current,
               scale: (current.scale * projectionHeight) / paintHeight,
@@ -1068,14 +1051,13 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       cancelAnimationFrame(frame)
       wakeGlobe.current = undefined
     }
-  }, [host, globe, surface, reducedMotion, profilePositions, invalidate])
+  }, [host, globe, reducedMotion, profilePositions, invalidate])
 
   useEffect(() => {
     if (!host) return
     const selection = select(host)
     let previous = zoomIdentity
     behavior
-      .scaleExtent([1, maxZoom])
       .extent((): [[number, number], [number, number]] => [
         [0, 0],
         [host.clientWidth, host.clientHeight],
@@ -1127,18 +1109,25 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     }
   }, [host, behavior, invalidate, pauseRotation])
 
-  function focus(group: MaintainerGroup) {
-    pauseRotation()
-    const phi = (-group.location[1] * Math.PI) / 180 - Math.PI / 2
-    target.current.phi =
-      view.current.phi +
-      Math.atan2(
-        Math.sin(phi - view.current.phi),
-        Math.cos(phi - view.current.phi),
-      )
-    target.current.theta = (group.location[0] * Math.PI) / 180
-    setSelectedId(group.id)
-    invalidate()
+  function profileTriggerProps(
+    groupId: string,
+    suffix: string,
+  ): ComponentProps<'button'> {
+    const id = `${groupId}-${suffix}`
+    const expanded = selection?.trigger.id === id
+    return {
+      id,
+      type: 'button',
+      'aria-haspopup': 'dialog',
+      'aria-expanded': expanded,
+      'aria-controls': expanded ? profilePopupId : undefined,
+      onClick(event) {
+        const trigger = event.currentTarget
+        setSelection((current) =>
+          current?.trigger === trigger ? null : { groupId, trigger },
+        )
+      },
+    }
   }
 
   // The composite globe needs a focus target for its keyboard rotation controls.
@@ -1149,33 +1138,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       className="relative space-y-4 [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-border-strong"
     >
       <style>{`
-        [data-globe-surface] {
-          mask-image: linear-gradient(
-            to bottom,
-            black calc(50% + var(--globe-fade-offset) - 4rem),
-            transparent calc(50% + var(--globe-fade-offset))
-          );
-        }
-        @media ${mobileViewport} {
-          [data-globe-surface] {
-            mask-image:
-              linear-gradient(
-                to bottom,
-                transparent,
-                black var(--globe-fade-vertical, 0px),
-                black calc(100% - var(--globe-fade-vertical, 0px)),
-                transparent
-              ),
-              linear-gradient(
-                to right,
-                transparent,
-                black var(--globe-fade-side, 0px),
-                black calc(100% - var(--globe-fade-side, 0px)),
-                transparent
-              );
-            mask-composite: intersect;
-          }
-        }
         @keyframes maintainer-location-pulse {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }
@@ -1190,10 +1152,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           aria-describedby="maintainers-globe-help"
           tabIndex={0}
           onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setSelectedId('')
-              return
-            }
             if (event.target !== event.currentTarget || !event.shiftKey) return
             const directions: Record<string, [number, number]> = {
               ArrowLeft: [-0.15, 0],
@@ -1217,7 +1175,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           <div
             ref={setSurface}
             data-globe-surface
-            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-full sm:top-1/2 sm:h-(--globe-width) sm:-translate-y-1/2"
+            className="pointer-events-none absolute inset-0 -z-10"
           />
           <div className="absolute inset-0">
             <div className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing" />
@@ -1272,11 +1230,12 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                 >
                   <div
                     data-globe-portraits
-                    className="pointer-events-auto left-0 top-0 flex w-max items-center -space-x-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:-space-x-1.5 sm:p-1.5"
+                    className="pointer-events-auto left-0 top-0 flex w-max items-center rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 p-1 shadow-[0_6px_16px_#00000024] group-data-[offscreen]/profile:pointer-events-none group-data-[offscreen]/profile:invisible group-data-[offscreen]/profile:absolute sm:p-1.5 [&>button~button]:-ms-1 sm:[&>button~button]:-ms-1.5"
                   >
                     {group.members.map((member) => (
                       <Tooltip
                         key={member.github}
+                        className="max-sm:hidden pointer-coarse:hidden"
                         content={
                           <div className="max-w-64 space-y-1">
                             <div className="font-semibold">{member.name}</div>
@@ -1287,10 +1246,11 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                         }
                       >
                         <button
-                          type="button"
-                          onClick={() => focus(group)}
+                          {...profileTriggerProps(
+                            group.id,
+                            `portrait-${member.github}`,
+                          )}
                           aria-label={`Show ${member.name}`}
-                          aria-expanded={selectedId === group.id}
                           className="relative shrink-0 rounded-full bg-background-elevated hover:z-10 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                           <GlobeAvatar member={member} color={group.color} />
@@ -1299,11 +1259,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                     ))}
                   </div>
                   <button
-                    type="button"
+                    {...profileTriggerProps(group.id, 'count')}
                     data-globe-count
-                    onClick={() => focus(group)}
                     aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'} near ${group.members[0]?.location?.name ?? 'this location'}`}
-                    aria-expanded={selectedId === group.id}
                     className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
                     <span aria-hidden="true" className="flex -space-x-0.5">
@@ -1386,71 +1344,86 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           </button>
         </div>
       </div>
-      <p
-        id="maintainers-globe-help"
-        className="relative z-20 text-center text-xs leading-relaxed text-text-muted opacity-80"
+      <Popover.Root
+        open={Boolean(selected)}
+        onOpenChange={(open, details) => {
+          if (open) return
+          if (
+            details.reason === 'outside-press' &&
+            details.event.target instanceof Element &&
+            details.event.target.closest('[data-globe-profile] button')
+          ) {
+            details.cancel()
+            return
+          }
+          setSelection(null)
+        }}
       >
-        <span className="hidden sm:inline sm:pointer-coarse:hidden">
-          Select to see nearby maintainers, <Key>Esc</Key> to close.
-        </span>
-        <span className="sm:hidden sm:pointer-coarse:inline">
-          Tap a profile to see nearby maintainers.
-        </span>
-      </p>
-      {selected && (
-        <div
-          role="region"
-          aria-label="Selected maintainers"
-          className="relative z-20 rounded-xl border border-border-default bg-background-subtle/50 p-4 dark:border-white/20"
-        >
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
-              <h3 className="font-semibold">
-                {`${selected.members.length} maintainer${selected.members.length === 1 ? '' : 's'} nearby`}
-              </h3>
-              <p className="mt-1 text-xs text-text-muted">
-                Select a profile to open their GitHub.
-              </p>
-            </div>
-            <button
-              type="button"
-              aria-label="Close selected cluster"
-              onClick={() => {
-                setSelectedId('')
-              }}
-              className="rounded p-1 hover:bg-surface-state-hover"
+        {selection && selected && (
+          <Popover.Portal>
+            <Popover.Positioner
+              anchor={selection.trigger}
+              positionMethod="fixed"
+              sideOffset={8}
+              collisionPadding={12}
+              collisionAvoidance={{ align: 'shift' }}
+              className="z-[var(--z-overlay)] data-[anchor-hidden]:invisible"
             >
-              <XIcon />
-            </button>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {selected.members.map((member) => (
-              <a
-                key={member.github}
-                href={`https://github.com/${member.github}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex min-w-0 items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
+              <Popover.Popup
+                id={profilePopupId}
+                className="flex max-h-(--available-height) w-72 max-w-(--available-width) flex-col rounded-xl border border-border-default bg-background-elevated p-2 shadow-lg outline-none [&_:focus-visible]:outline-2 [&_:focus-visible]:-outline-offset-2 [&_:focus-visible]:outline-border-strong dark:border-white/20"
               >
-                <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
-                  <MaintainerAvatarImage
-                    src={member.avatar}
-                    alt=""
-                    width={36}
-                    height={36}
-                  />
-                </span>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold">{member.name}</div>
-                  <div className="text-xs text-text-muted">
-                    {member.location?.name}
+                <div className="flex shrink-0 items-start justify-between gap-2 px-2 py-1">
+                  <div>
+                    <Popover.Title className="text-sm font-semibold">
+                      {selected.members.length === 1
+                        ? '1 maintainer nearby'
+                        : `${selected.members.length} maintainers nearby`}
+                    </Popover.Title>
+                    <Popover.Description className="mt-1 text-xs text-text-muted">
+                      Select a profile to open their GitHub.
+                    </Popover.Description>
                   </div>
+                  <Popover.Close
+                    aria-label="Close maintainer profiles"
+                    className="grid size-7 shrink-0 place-items-center rounded-md hover:bg-surface-state-hover"
+                  >
+                    <XIcon aria-hidden="true" className="size-4" />
+                  </Popover.Close>
                 </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+                <div className="min-h-0 overflow-y-auto overscroll-contain">
+                  {selected.members.map((member) => (
+                    <a
+                      key={member.github}
+                      href={`https://github.com/${member.github}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 rounded-lg p-2 hover:bg-surface-state-hover"
+                    >
+                      <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
+                        <MaintainerAvatarImage
+                          src={member.avatar}
+                          alt=""
+                          width={36}
+                          height={36}
+                        />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold">
+                          {member.name}
+                        </div>
+                        <div className="text-xs text-text-muted">
+                          {member.location?.name}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        )}
+      </Popover.Root>
       {!groups.length && (
         <p role="status" className="text-sm text-text-secondary">
           No shared locations for the selected maintainers and contributors.

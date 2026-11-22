@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import * as v from 'valibot'
 import { libraries } from '~/libraries'
+import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { allMaintainers } from '~/libraries/maintainers'
@@ -75,11 +76,19 @@ function FilterSelect<
   'multiple' | 'value' | 'onValueChange'
 > & {
   label: string
-  choices: ReadonlyArray<{ value: TValue; label: string; icon?: Icon }>
+  choices: ReadonlyArray<{
+    value: TValue
+    label: string
+    icon?: Icon
+    logo?: string
+    iconColor?: string
+  }>
 }) {
-  const selectionCount = Array.isArray(selection.value)
-    ? selection.value.length
-    : 0
+  const selectedValues = Array.isArray(selection.value) ? selection.value : []
+  const selectedLogo =
+    selectedValues.length === 1
+      ? choices.find(({ value }) => value === selectedValues[0])?.logo
+      : undefined
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
@@ -92,8 +101,17 @@ function FilterSelect<
           {label}
         </Select.Label>
         <Select.Trigger className="flex min-h-9 w-full items-center justify-between gap-2 rounded-lg border border-border-default bg-background-surface px-3 text-left text-sm text-text-primary transition-colors hover:border-border-strong focus-visible:border-border-focus focus-visible:outline-none pointer-coarse:min-h-11">
-          <Select.Value className="min-w-0 truncate" placeholder="All">
-            {selectionCount > 1 ? `${selectionCount} selected` : undefined}
+          {selectedLogo && (
+            <img
+              src={selectedLogo}
+              alt=""
+              className="size-4 shrink-0 object-contain"
+            />
+          )}
+          <Select.Value className="min-w-0 flex-1 truncate" placeholder="All">
+            {selectedValues.length > 1
+              ? `${selectedValues.length} selected`
+              : undefined}
           </Select.Value>
           <Select.Icon className="shrink-0 text-text-muted">
             <CaretDownIcon size={14} aria-hidden="true" />
@@ -108,25 +126,34 @@ function FilterSelect<
           >
             <Select.Popup className="flex max-h-[min(20rem,var(--available-height))] max-w-(--available-width) min-w-(--anchor-width) flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated shadow-lg outline-none">
               <Select.List className="min-h-0 overflow-y-auto overscroll-contain p-1">
-                {choices.map(({ value, label, icon: ItemIcon }) => (
-                  <Select.Item
-                    key={value}
-                    value={value}
-                    className="relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-7 pl-2 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
-                  >
-                    {ItemIcon && (
-                      <ItemIcon
-                        size={16}
-                        className="mr-2 shrink-0 text-text-muted"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <Select.ItemText>{label}</Select.ItemText>
-                    <Select.ItemIndicator className="absolute right-2 flex">
-                      <CheckIcon size={14} aria-hidden="true" />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                ))}
+                {choices.map(
+                  ({ value, label, icon: ItemIcon, iconColor, logo }) => (
+                    <Select.Item
+                      key={value}
+                      value={value}
+                      className="group/filter-item relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-7 pl-2 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
+                    >
+                      {ItemIcon && (
+                        <ItemIcon
+                          size={16}
+                          className={`mr-2 shrink-0 transition-colors group-not-data-highlighted/filter-item:text-text-muted ${iconColor ?? 'text-text-muted'}`}
+                          aria-hidden="true"
+                        />
+                      )}
+                      {logo && (
+                        <img
+                          src={logo}
+                          alt=""
+                          className="mr-2 size-4 shrink-0 object-contain"
+                        />
+                      )}
+                      <Select.ItemText>{label}</Select.ItemText>
+                      <Select.ItemIndicator className="absolute right-2 flex">
+                        <CheckIcon size={14} aria-hidden="true" />
+                      </Select.ItemIndicator>
+                    </Select.Item>
+                  ),
+                )}
               </Select.List>
             </Select.Popup>
           </Select.Positioner>
@@ -153,6 +180,7 @@ export function MaintainersDirectoryFilters({
       value: id,
       label: name.replace(/^TanStack /, ''),
       icon: libraryIcons[id] ?? fallbackLibraryIcon,
+      iconColor: categoryTextColor[categoryOf(id)],
     }))
 
   const hasAdvancedFilters =

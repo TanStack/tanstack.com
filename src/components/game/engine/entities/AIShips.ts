@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { modelLoader } from '../loaders/ModelLoader'
 import { getWaveHeight } from './Ocean'
-import { CULL_DISTANCES } from '../../hooks/useDistanceCulling'
 import { gameStore, type OtherPlayer } from '../../hooks/useGameStore'
 
 interface AIShipData {
@@ -108,7 +107,7 @@ export class AIShips {
     }
     this.group.visible = true
 
-    const maxDistSq = CULL_DISTANCES.ship * CULL_DISTANCES.ship
+    const maxDistSq = 100 ** 2
 
     for (const player of otherPlayers) {
       if (!player.isAI) continue

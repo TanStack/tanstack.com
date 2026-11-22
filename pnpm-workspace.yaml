@@ -35,7 +35,6 @@ allowBuilds:
 
   # sentry
   '@sentry/cli': false
-  '@fingerprintjs/fingerprintjs-pro-react': false
 
   # Cloudflare Workers local runtime
   workerd: true

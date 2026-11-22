@@ -2751,11 +2751,23 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   transition: opacity 120ms linear;
 }
 
-/* The grain repeats behind the tree and stays still as the fronds move. */
+/* A single grain layer keeps the sky texture continuous around the moving fronds. */
 .home-palm-sky {
-  background-image:
-    url('./hero-sky-grain.png?inline'),
-    linear-gradient(#8fd7fe, #b0dbff 25%, #d3e0ff 50%, #e7dffb 75%, #f5d9f2);
+  background: linear-gradient(
+    #8fd7fe,
+    #b0dbff 25%,
+    #d3e0ff 50%,
+    #e7dffb 75%,
+    #f5d9f2
+  );
+}
+
+.home-palm-sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('./hero-sky-grain.png?inline');
+  mix-blend-mode: soft-light;
 }
 
 @keyframes home-open-source-gradient-shift {

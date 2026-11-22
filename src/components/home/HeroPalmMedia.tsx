@@ -7,12 +7,8 @@ const still = '/images/hero-palm-cutout-still.webp'
 const allowMotion = '(prefers-reduced-motion: no-preference)'
 
 export function HeroPalmMedia() {
+  preload(still, { as: 'image', fetchPriority: 'high' })
   preload(motion, { as: 'image', fetchPriority: 'high', media: allowMotion })
-  preload(still, {
-    as: 'image',
-    fetchPriority: 'high',
-    media: '(prefers-reduced-motion: reduce)',
-  })
 
   const [motionFailed, setMotionFailed] = React.useState(false)
 
@@ -23,32 +19,40 @@ export function HeroPalmMedia() {
     >
       {/* Keep the palm aligned with the original 944 × 416 composition. */}
       <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
-        <picture className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
-          {!motionFailed && (
-            <source type="image/webp" media={allowMotion} srcSet={motion} />
-          )}
-          <source type="image/webp" srcSet={still} />
+        <div className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
           <img
-            // The HTML preloader can fetch a network src while parsing streamed markup.
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+            src={still}
             alt=""
             width={260}
             height={348}
             fetchPriority="high"
-            ref={(image) => {
-              // A failed request can finish before hydration attaches onError.
-              if (
-                image?.complete &&
-                !image.naturalWidth &&
-                image.currentSrc.endsWith(motion)
-              ) {
-                setMotionFailed(true)
-              }
-            }}
-            onError={() => setMotionFailed(true)}
             className="block h-auto w-full"
           />
-        </picture>
+          <picture className="absolute inset-0 motion-reduce:hidden">
+            {!motionFailed && (
+              <source type="image/webp" media={allowMotion} srcSet={motion} />
+            )}
+            <img
+              src={still}
+              alt=""
+              width={260}
+              height={348}
+              fetchPriority="high"
+              ref={(image) => {
+                // A failed request can finish before hydration attaches onError.
+                if (
+                  image?.complete &&
+                  !image.naturalWidth &&
+                  image.currentSrc.endsWith(motion)
+                ) {
+                  setMotionFailed(true)
+                }
+              }}
+              onError={() => setMotionFailed(true)}
+              className="block h-auto w-full"
+            />
+          </picture>
+        </div>
       </div>
     </Squircle>
   )

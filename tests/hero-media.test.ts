@@ -39,22 +39,31 @@ test('the WebP loop preserves the source timing and matches its still', async ()
   assert.ok(animation.hasAlpha && poster.hasAlpha)
   assert.equal(animation.width, poster.width)
   assert.equal(animation.height, poster.height)
+  const firstFrame = await sharp(path.join(repoRoot, 'public', motion))
+    .ensureAlpha()
+    .raw()
+    .toBuffer()
+  const stillFrame = await sharp(path.join(repoRoot, 'public', still))
+    .ensureAlpha()
+    .raw()
+    .toBuffer()
+  assert.ok(
+    firstFrame.equals(stillFrame),
+    'the still must match the first frame',
+  )
 })
 
-test('the two high-priority hints match opposite motion preferences', () => {
+test('the server preloads the first frame for everyone and motion when requested', () => {
   assert.doesNotMatch(serverMarkup, /<video\b|<summary\b|<button\b/)
-  assert.doesNotMatch(serverMarkup, /<img[^>]*src="\/images\//)
   const preloads = serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
   assert.equal(preloads.length, 2)
-  for (const [file, preference] of [
-    [motion, 'no-preference'],
-    [still, 'reduce'],
-  ]) {
-    const hint = preloads.find((tag) => tag.includes(`href="${file}"`))
-    assert.ok(hint)
-    assert.ok(hint.includes(`media="(prefers-reduced-motion: ${preference})"`))
-    assert.match(hint, /fetchPriority="high"/i)
-  }
+  const poster = preloads.find((tag) => tag.includes(`href="${still}"`))
+  const animation = preloads.find((tag) => tag.includes(`href="${motion}"`))
+  assert.ok(poster && animation)
+  assert.doesNotMatch(poster, /media=/)
+  assert.match(animation, /media="\(prefers-reduced-motion: no-preference\)"/)
+  assert.match(poster, /fetchPriority="high"/i)
+  assert.match(animation, /fetchPriority="high"/i)
 })
 
 test(
@@ -132,10 +141,10 @@ test(
     for (const width of [390, 844, 1024, 1512]) {
       const hero = await openHero(width)
       await hero.waitForImage(motion)
-      assert.deepEqual(hero.requests, [motion])
+      assert.deepEqual([...hero.requests].sort(), [still, motion].sort())
       assert.equal(await hero.page.locator('picture img').isVisible(), true)
       await hero.hydrate()
-      assert.deepEqual(hero.requests, [motion])
+      assert.deepEqual([...hero.requests].sort(), [still, motion].sort())
       await hero.page.close()
     }
 

@@ -145,7 +145,7 @@ export function MaintainersDirectoryFilters({
       aria-label="Filter and sort maintainers"
       className="border-b border-border-subtle pb-4"
     >
-      <div className="overflow-x-auto pb-1">
+      <div className="fade-x fade-size-x-[1rem] -mx-4 overflow-x-auto overscroll-x-contain px-4 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 md:mask-none! [&::-webkit-scrollbar]:hidden">
         <div className="grid min-w-[42rem] grid-cols-5 gap-2">
           <FilterSelect
             label="Libraries"

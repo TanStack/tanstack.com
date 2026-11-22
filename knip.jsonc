@@ -46,7 +46,6 @@
         "src/components/PartnersSection.tsx",
         "src/components/PartnershipCallout.tsx",
         "src/components/QueryGGBanner.tsx",
-        "src/components/SponsorsSection.tsx",
         "src/components/StackBlitzEmbed.tsx",
         "src/components/Style.tsx",
         "src/components/UserFeedbackSection.tsx",

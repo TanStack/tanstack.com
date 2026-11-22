@@ -57,7 +57,6 @@
         "src/components/landing/LandingCodeExampleCard.tsx",
         "src/components/landing/codeExamples.ts",
         "src/components/npm-stats/index.ts",
-        "src/components/shop/ShopDropCard.tsx",
         "src/hooks/useQueryGGPPPDiscount.ts",
         "src/libraries/cli.tsx",
         "src/libraries/config.tsx",

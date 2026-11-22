@@ -1,6 +1,7 @@
 name: Bundle Size Comment
 
-on:
+on: # zizmor: ignore[dangerous-triggers]
+  # The write token stays here. PR builds run separately and pass only size data.
   workflow_run:
     workflows: [Bundle Size]
     types: [completed]
@@ -23,7 +24,7 @@ jobs:
       - name: Download bundle sizes
         uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
-          pattern: bundle-size-*
+          pattern: bundle-size-{main,pr}
           merge-multiple: true
           path: ${{ runner.temp }}/bundle-size
           github-token: ${{ github.token }}

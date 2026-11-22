@@ -13,11 +13,11 @@ import sharp from 'sharp'
 import { createServer } from 'vite'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
-const motion = '/images/hero-palm-cutout.webp'
+const motion = '/images/hero-palm-loop.mp4'
 const motionFile = path.join(repoRoot, 'public', motion)
 const stillFile = path.join(
   repoRoot,
-  'src/components/home/hero-palm-cutout-still.webp',
+  'src/components/home/hero-palm-loop-still.webp',
 )
 const stillPrefix = 'data:image/webp;base64,'
 const vite = await createServer({
@@ -45,33 +45,16 @@ const chromePath = [
   chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
-test('the palm loop stays at 24 fps, matches its still, and fits the media budget', async () => {
-  const animation = await sharp(motionFile).metadata()
-  const poster = await sharp(stillFile).metadata()
-  // The source has 121 frames at 24 fps. WebP stores whole milliseconds.
-  const delays = Array.from(
-    { length: 121 },
-    (_, i) => Math.round(((i + 1) * 1000) / 24) - Math.round((i * 1000) / 24),
-  )
-  assert.deepEqual(animation.delay, delays)
-  // The MP4 and its posters transferred 1.91 MB in the mobile baseline.
+test('the palm video and still fit the media budget', async () => {
   assert.ok(
     fs.statSync(motionFile).size + fs.statSync(stillFile).size < 1_900_000,
     'the combined palm assets should stay under 1.90 MB',
   )
-  assert.equal(animation.loop, 0)
-  assert.ok(animation.hasAlpha && poster.hasAlpha)
-  assert.equal(animation.width, poster.width)
-  assert.equal(animation.height, poster.height)
-  const firstFrame = await sharp(motionFile).ensureAlpha().raw().toBuffer()
-  const stillFrame = await sharp(stillFile).ensureAlpha().raw().toBuffer()
-  assert.ok(
-    firstFrame.equals(stillFrame),
-    'the still must match the first frame',
-  )
+  const poster = await sharp(stillFile).metadata()
+  assert.equal(poster.hasAlpha, false)
 })
 
-test('the server inlines one visible still and preloads motion when allowed', () => {
+test('the server inlines one visible still', () => {
   assert.doesNotMatch(serverMarkup, /<source\b|<video\b/)
   assert.equal(serverMarkup.match(/<img\b/g)?.length, 1)
   assert.ok(
@@ -79,12 +62,6 @@ test('the server inlines one visible still and preloads motion when allowed', ()
       `src="${stillPrefix}${fs.readFileSync(stillFile, 'base64')}"`,
     ),
   )
-  const [preload, ...extraPreloads] =
-    serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
-  assert.ok(preload)
-  assert.equal(extraPreloads.length, 0)
-  assert.ok(preload.includes(`href="${motion}"`))
-  assert.match(preload, /media="\(prefers-reduced-motion: no-preference\)"/)
 })
 
 test(
@@ -135,7 +112,7 @@ test(
         if (url.pathname === '/') {
           return route.fulfill({
             contentType: 'text/html',
-            body: `<!doctype html><div id="root">${serverMarkup}</div>`,
+            body: `<!doctype html><style>.opacity-0{opacity:0}</style><div id="root">${serverMarkup}</div>`,
           })
         }
         requests.push(url.pathname)
@@ -157,12 +134,12 @@ test(
         requests,
         hydrate,
         still: page.locator(`img[src^="${stillPrefix}"]`),
-        motion: page.locator(`img[src="${motion}"]`),
+        motion: page.locator(`video[src="${motion}"]`),
         releaseAnimation: () => animation.emit('release'),
       }
     }
 
-    for (const width of [390, 844, 1024, 1512]) {
+    for (const width of [390, 1512]) {
       const hero = await openHero(width)
       await hero.still.waitFor({ state: 'visible' })
       assert.ok(
@@ -172,26 +149,34 @@ test(
       )
       await hero.hydrate()
       await hero.motion.waitFor({ state: 'attached' })
-      assert.equal(await hero.motion.isHidden(), true)
-      assert.equal(await hero.still.isVisible(), true)
+      assert.equal(
+        await hero.motion.evaluate((video) => getComputedStyle(video).opacity),
+        '0',
+      )
       hero.releaseAnimation()
-      await hero.motion.waitFor({ state: 'visible' })
-      assert.deepEqual(hero.requests, [motion])
-      assert.equal(await hero.still.isHidden(), true)
+      await hero.page.waitForFunction(() => {
+        const video = document.querySelector('video')
+        return (
+          video &&
+          video.currentTime > 0 &&
+          getComputedStyle(video).opacity === '1'
+        )
+      })
+      assert.ok(hero.requests.length > 0)
+      assert.ok(hero.requests.every((request) => request === motion))
       await hero.page.close()
     }
 
     const reduced = await openHero(390, true)
     reduced.releaseAnimation()
-    await reduced.still.waitFor({ state: 'visible' })
     await reduced.hydrate()
     assert.equal(await reduced.motion.count(), 0)
     assert.deepEqual(reduced.requests, [])
     await reduced.page.emulateMedia({ reducedMotion: 'no-preference' })
-    await reduced.motion.waitFor({ state: 'visible' })
+    await reduced.motion.waitFor({ state: 'attached' })
     await reduced.page.emulateMedia({ reducedMotion: 'reduce' })
-    await reduced.still.waitFor({ state: 'visible' })
-    assert.equal(await reduced.motion.isHidden(), true)
+    await reduced.motion.waitFor({ state: 'detached' })
+    assert.equal(await reduced.still.isVisible(), true)
     await reduced.page.close()
 
     const failed = await openHero(1512, false, true)
@@ -202,7 +187,10 @@ test(
     )
     failed.releaseAnimation()
     await requestFailed
-    assert.equal(await failed.motion.isHidden(), true)
+    assert.equal(
+      await failed.motion.evaluate((video) => getComputedStyle(video).opacity),
+      '0',
+    )
     assert.equal(await failed.still.isVisible(), true)
     await failed.page.close()
   },

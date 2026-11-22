@@ -99,7 +99,7 @@ function Index() {
                 {/* The sky is always light, so scope the CTAs to the DS
                     light mode — the Buttons then render as their standard DS
                     light-mode selves (no per-button color overrides). */}
-                <div className="ds-mode-light flex flex-wrap items-center gap-2">
+                <div className="ds-mode-light -ml-2 flex flex-wrap items-center gap-2 sm:-ml-9 md:ml-0">
                   <Button
                     as="a"
                     href="/libraries"
@@ -132,7 +132,7 @@ function Index() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col px-2.5 py-6 md:flex-row md:items-center md:justify-center">
+            <div className="flex flex-col px-4 py-6 sm:px-1 md:flex-row md:items-center md:justify-center md:px-2.5">
               <Hydrate
                 when={visible({ rootMargin: '0px' })}
                 fallback={<HomeStatsFallback />}

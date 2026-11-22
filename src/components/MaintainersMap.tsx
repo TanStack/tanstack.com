@@ -19,7 +19,6 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import type { Maintainer } from '~/libraries/maintainers'
-import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 import { MaintainerAvatarImage } from './MaintainerAvatarImage'
@@ -69,7 +68,6 @@ type ProfileViewport = {
   contentBottom: number
   helpTop: number
   helpBottom: number
-  filters: Array<{ left: number; right: number; top: number; bottom: number }>
 }
 
 type ProfileSize = { width: number; height: number }
@@ -245,7 +243,6 @@ function placeProfiles(
       top: viewport.helpTop,
       bottom: viewport.helpBottom,
     },
-    ...viewport.filters,
   ]
   const labels = nodes.flatMap(
     ({ id, card, line, pin, sizes, pendingImages }) => {
@@ -645,15 +642,10 @@ function placeProfiles(
 
 type MaintainersMapProps = {
   maintainers: Maintainer[]
-  selectedLibraries?: LibraryId[]
 }
 
 function Key({ children }: { children: React.ReactNode }) {
-  return (
-    <kbd className="rounded border border-border-default px-1 py-0.5 font-sans text-[0.9em]">
-      {children}
-    </kbd>
-  )
+  return <kbd className="font-sans font-medium">{children}</kbd>
 }
 
 function GlobeAvatar({
@@ -682,10 +674,7 @@ function GlobeAvatar({
   )
 }
 
-export function MaintainersMap({
-  maintainers,
-  selectedLibraries,
-}: MaintainersMapProps) {
+export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   const { data: initialLocation } = useSuspenseQuery({
     queryKey: ['maintainers-globe', 'visitor-location'],
     queryFn: () => getVisitorLocation().catch(() => null),
@@ -758,15 +747,11 @@ export function MaintainersMap({
     for (const group of result) {
       const categories = new Set(
         group.members.map((member) => {
-          const library = [
-            ...(member.creatorOf ?? []),
-            ...(member.maintainerOf ?? []),
-            ...(member.contributorOf ?? []),
-            ...(member.consultantOf ?? []),
-          ].find(
-            (id) =>
-              !selectedLibraries?.length || selectedLibraries.includes(id),
-          )
+          const library =
+            member.creatorOf?.[0] ??
+            member.maintainerOf?.[0] ??
+            member.contributorOf?.[0] ??
+            member.consultantOf?.[0]
           return library ? categoryOf(library) : undefined
         }),
       )
@@ -777,7 +762,7 @@ export function MaintainersMap({
         : 'var(--color-text-secondary)'
     }
     return result
-  }, [maintainers, selectedLibraries, prefix, scale])
+  }, [maintainers, prefix, scale])
   const selected = groups.find((group) => group.id === selectedId)
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
@@ -868,8 +853,6 @@ export function MaintainersMap({
     const section = container.closest('section')
     const help = section?.querySelector('#maintainers-globe-help')
     const intro = section?.parentElement?.querySelector(':scope > header')
-    const filterControls =
-      section?.parentElement?.querySelectorAll('[data-globe-filter]') ?? []
     const navbarHeight =
       Number.parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue(
@@ -892,7 +875,7 @@ export function MaintainersMap({
     let fadedScale: number | undefined
     let fadedBounds: GlobeBounds | undefined
     const updateViewport = () => {
-      const { top, left, height } = container.getBoundingClientRect()
+      const { top, height } = container.getBoundingClientRect()
       const contentTop =
         (intro?.getBoundingClientRect().bottom ?? top) - top + viewportGutter
       const helpBounds = help?.getBoundingClientRect()
@@ -923,15 +906,6 @@ export function MaintainersMap({
         contentBottom,
         helpTop: (helpBounds?.top ?? 0) - top,
         helpBottom: (helpBounds?.bottom ?? 0) - top,
-        filters: Array.from(filterControls, (control) => {
-          const rect = control.getBoundingClientRect()
-          return {
-            top: rect.top - top,
-            bottom: rect.bottom - top,
-            left: rect.left - left,
-            right: rect.right - left,
-          }
-        }),
       }
       viewportChanged = true
       requestFrame()
@@ -1497,7 +1471,7 @@ export function MaintainersMap({
       </div>
       <p
         id="maintainers-globe-help"
-        className="relative z-20 min-h-8 rounded-lg border border-border-default bg-background-elevated px-3 py-2 text-xs leading-relaxed text-text-primary"
+        className="relative z-20 text-xs leading-relaxed text-text-muted"
       >
         <span className="hidden sm:inline sm:pointer-coarse:hidden">
           Drag or <Key>Shift</Key>+arrows to rotate. Hold <Key>Ctrl</Key>/

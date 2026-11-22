@@ -22,7 +22,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsFallback } from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
-import { Button, Eyebrow } from '~/components/ds/ui'
+import { Button } from '~/components/ds/ui'
 import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
@@ -165,12 +165,10 @@ function Index() {
 type PrincipleProof = 'adapters' | 'types' | 'adoption' | 'portable'
 
 type WhyTanStackPrinciple = {
-  label: string
   title: string
   body: string
   Icon: Icon
   accentClassName: string
-  eyebrowClassName: string
   iconClassName: string
   proof: PrincipleProof
 }
@@ -200,45 +198,37 @@ type AdapterGraphCurve = {
 // terracotta-400 #c3502b); the DS token wins per the design-system-first rule.
 const whyTanStackPrinciples = [
   {
-    label: 'Portable core',
     title: 'Framework Agnostic',
     body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
     Icon: StackIcon,
     accentClassName: 'from-blue-500 to-cyan-500',
-    eyebrowClassName: 'text-category-ui',
     iconClassName:
       'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
     proof: 'adapters',
   },
   {
-    label: 'Compile-time contracts',
     title: 'Type-Safe by Design',
     body: 'Built with TypeScript from the ground up, providing incredible autocomplete and safety across your entire data-fetching and state management stack.',
     Icon: CodeIcon,
     accentClassName: 'from-emerald-500 to-teal-500',
-    eyebrowClassName: 'text-ds-green-400',
     iconClassName:
       'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
     proof: 'types',
   },
   {
-    label: 'Real workloads',
     title: 'Production-Grade',
     body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
     Icon: LightningIcon,
     accentClassName: 'from-orange-500 to-red-500',
-    eyebrowClassName: 'text-ds-terracotta-400',
     iconClassName:
       'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
     proof: 'adoption',
   },
   {
-    label: 'Independent tools',
     title: 'No Vendor Lock-in',
     body: "Open source and independent. We aren't beholden to any single cloud provider or framework team, ensuring the best tools for the community.",
     Icon: ShieldIcon,
     accentClassName: 'from-purple-500 to-pink-500',
-    eyebrowClassName: 'text-ds-purple-400',
     iconClassName:
       'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300',
     proof: 'portable',
@@ -408,19 +398,9 @@ function WhyTanStackSection() {
   return (
     <section className="px-4 md:mx-auto">
       <div className="mx-auto max-w-[960px] py-16 lg:py-20">
-        {/* section-header — 478:1737 */}
-        <div className="flex flex-col items-center gap-12 text-center">
-          <Eyebrow tone="warning">Principles</Eyebrow>
-          <div className="flex flex-col items-center gap-4">
-            <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
-              Why TanStack?
-            </h3>
-            <p className="max-w-[376px] text-base leading-[1.45] text-gray-600 dark:text-gray-400">
-              Our libraries are built around real products and the developers
-              shipping them.
-            </p>
-          </div>
-        </div>
+        <h3 className="text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
+          Why TanStack?
+        </h3>
 
         {/* features-stack — 478:1742 */}
         <ol className="mt-2 rounded-[20px]">
@@ -437,14 +417,9 @@ function WhyTanStackSection() {
                   card edge; at desktop sizes the title and description stay
                   grouped at the center of the 233px proof panel. */}
               <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
-                <div className="flex w-full flex-col gap-2">
-                  <Eyebrow className={principle.eyebrowClassName}>
-                    {principle.label}
-                  </Eyebrow>
-                  <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
-                    {principle.title}
-                  </h4>
-                </div>
+                <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
+                  {principle.title}
+                </h4>
                 <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">
                   {principle.body}
                 </p>

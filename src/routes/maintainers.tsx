@@ -1,17 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import * as v from 'valibot'
 import * as React from 'react'
+import { CompactMaintainerCard } from '~/components/MaintainerCard'
 import {
-  MaintainerCard,
-  CompactMaintainerCard,
-  MaintainerRowCard,
-} from '~/components/MaintainerCard'
-import {
-  MaintainersFilter,
-  groupBySchema,
-  sortBySchema,
-  viewModeSchema,
-} from '~/components/MaintainersFilter'
+  MaintainersDirectoryFilters,
+  maintainersDirectorySearchSchema,
+} from '~/components/MaintainersDirectoryFilters'
 import { seo } from '~/utils/seo'
 import {
   allMaintainers,
@@ -22,19 +15,11 @@ import {
   getIsCoreMaintainerForFilteredLibraries,
   getRoleForFilteredLibraries,
 } from '~/libraries/maintainers'
-import { Library, libraries } from '~/libraries'
-import { libraryIdSchema } from '~/utils/schemas'
-
-const searchSchema = v.object({
-  libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
-  viewMode: v.fallback(v.optional(viewModeSchema, 'full'), 'full'),
-  groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
-  sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),
-})
+import { libraries } from '~/libraries'
 
 export const Route = createFileRoute('/maintainers')({
   component: RouteComponent,
-  validateSearch: searchSchema,
+  validateSearch: maintainersDirectorySearchSchema,
   staticData: {
     includeSearchInCanonical: true,
   },
@@ -50,33 +35,15 @@ export const Route = createFileRoute('/maintainers')({
 
 function MaintainerGrid({
   maintainers,
-  viewMode,
   title,
-  stats,
 }: {
   maintainers: Maintainer[]
-  viewMode: 'compact' | 'full' | 'row'
-  title?: string
-  stats?: Array<{
-    username: string
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }>
+  title: string
 }) {
   return (
-    <div className="@container">
-      {title && <h3 className="text-2xl font-semibold mb-4">{title}</h3>}
-      <div
-        className={`transition-all duration-300 ${
-          viewMode === 'compact'
-            ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
-            : viewMode === 'row'
-              ? 'flex flex-col gap-4'
-              : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
-        }`}
-      >
+    <div>
+      {title && <h3 className="mb-4 text-2xl font-semibold">{title}</h3>}
+      <div className="grid grid-cols-3 gap-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {maintainers.map((maintainer, index) => (
           <div
             key={maintainer.github}
@@ -86,16 +53,7 @@ function MaintainerGrid({
               animation: 'fadeInUp 0.5s ease-out forwards',
             }}
           >
-            {viewMode === 'compact' ? (
-              <CompactMaintainerCard maintainer={maintainer} />
-            ) : viewMode === 'row' ? (
-              <MaintainerRowCard
-                maintainer={maintainer}
-                stats={stats?.find((s) => s.username === maintainer.github)}
-              />
-            ) : (
-              <MaintainerCard maintainer={maintainer} />
-            )}
+            <CompactMaintainerCard maintainer={maintainer} />
           </div>
         ))}
       </div>
@@ -107,24 +65,25 @@ function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 
-  const updateFilters = (updates: {
-    libraries?: Library['id'][] | undefined
-    viewMode?: 'compact' | 'full' | 'row'
-    groupBy?: 'none' | 'core' | 'library' | 'role'
-    sortBy?: 'none' | 'name' | 'role' | 'contributions'
-  }) => {
+  const updateFilters = (updates: Partial<typeof search>) => {
     navigate({
-      search: {
-        ...search,
-        ...updates,
-      },
+      search: (previous) => ({ ...previous, ...updates }),
       replace: true,
     })
   }
 
-  // Filter maintainers based on selected criteria
   const filteredMaintainers = React.useMemo(() => {
-    const filtered = [...getMaintainersForLibraries(search.libraries)]
+    const filtered = getMaintainersForLibraries(search.libraries).filter(
+      (maintainer) =>
+        (!search.frameworks?.length ||
+          search.frameworks.some((framework) =>
+            maintainer.frameworkExpertise?.includes(framework),
+          )) &&
+        (!search.specialties?.length ||
+          maintainer.specialties?.some((specialty) =>
+            search.specialties?.includes(specialty.toLowerCase()),
+          )),
+    )
 
     // Sort maintainers
     filtered.sort((a, b) => {
@@ -185,7 +144,7 @@ function RouteComponent() {
     })
 
     return filtered
-  }, [search.libraries, search.sortBy])
+  }, [search.libraries, search.frameworks, search.specialties, search.sortBy])
 
   // Group maintainers based on groupBy setting
   const groupedMaintainers = React.useMemo(() => {
@@ -347,7 +306,9 @@ function RouteComponent() {
 
   const hasResults = filteredMaintainers.length > 0
   const hasFilters =
-    (search.libraries && search.libraries.length > 0) ||
+    !!search.libraries?.length ||
+    !!search.frameworks?.length ||
+    !!search.specialties?.length ||
     search.groupBy !== 'none' ||
     search.sortBy !== 'none'
 
@@ -376,18 +337,14 @@ function RouteComponent() {
             </p>
           </header>
 
-          <MaintainersFilter
-            selectedLibraries={search.libraries}
-            onLibrariesChange={(libraries) => updateFilters({ libraries })}
-            onClearAll={() => navigate({ search: {}, replace: true })}
-            directory={{
-              viewMode: search.viewMode,
-              groupBy: search.groupBy,
-              sortBy: search.sortBy,
-              onViewModeChange: (viewMode) => updateFilters({ viewMode }),
-              onGroupByChange: (groupBy) => updateFilters({ groupBy }),
-              onSortByChange: (sortBy) => updateFilters({ sortBy }),
-            }}
+          <MaintainersDirectoryFilters
+            search={search}
+            onChange={updateFilters}
+            clearAll={
+              hasFilters
+                ? () => navigate({ search: {}, replace: true })
+                : undefined
+            }
           />
 
           {hasResults ? (
@@ -396,15 +353,6 @@ function RouteComponent() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
                   Showing {filteredMaintainers.length} maintainer
                   {filteredMaintainers.length === 1 ? '' : 's'}
-                  {search.libraries && search.libraries.length > 0 && (
-                    <span>
-                      {' '}
-                      for{' '}
-                      <span className="font-medium">
-                        {search.libraries.join(', ')}
-                      </span>
-                    </span>
-                  )}
                 </p>
               )}
 
@@ -412,7 +360,6 @@ function RouteComponent() {
                 <MaintainerGrid
                   key={group.title || 'all'}
                   maintainers={group.maintainers}
-                  viewMode={search.viewMode}
                   title={group.title}
                 />
               ))}

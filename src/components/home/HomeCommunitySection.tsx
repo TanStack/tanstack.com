@@ -1,12 +1,10 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense } from 'react'
 import { ClientOnly, createLink } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react'
-import { MaintainersFilter } from '~/components/MaintainersFilter'
 import { Button } from '~/components/ds/ui'
-import { getMaintainersForLibraries } from '~/libraries/maintainers'
-import type { LibraryId } from '~/libraries/types'
+import { allMaintainers } from '~/libraries/maintainers'
 
 const ButtonLink = createLink(Button)
 
@@ -27,7 +25,7 @@ export function HomeCommunitySection() {
     <Hydrate
       when={visible({ rootMargin: '25%' })}
       fallback={
-        <div className="mx-auto max-w-(--breakpoint-lg) px-4 pt-28">
+        <div className="mx-auto max-w-(--breakpoint-lg) px-4 pt-16">
           {globeFallback}
         </div>
       }
@@ -38,8 +36,6 @@ export function HomeCommunitySection() {
 }
 
 function HomeCommunityContent() {
-  const [selectedLibraries, setSelectedLibraries] = useState<LibraryId[]>()
-
   return (
     <section
       aria-labelledby="maintainers"
@@ -51,31 +47,17 @@ function HomeCommunityContent() {
             href="#maintainers"
             className="decoration-gray-400 hover:underline dark:decoration-gray-600"
           >
-            Maintainers
+            TanStack Everywhere
           </a>
         </h2>
       </header>
-      <MaintainersFilter
-        selectedLibraries={selectedLibraries}
-        onLibrariesChange={setSelectedLibraries}
-        onClearAll={() => setSelectedLibraries(undefined)}
-      />
       <ClientOnly fallback={globeFallback}>
         <Suspense fallback={globeFallback}>
-          <MaintainersMap
-            maintainers={getMaintainersForLibraries(selectedLibraries)}
-            selectedLibraries={selectedLibraries}
-          />
+          <MaintainersMap maintainers={allMaintainers} />
         </Suspense>
       </ClientOnly>
       <div className="relative z-20 flex justify-center">
-        <ButtonLink
-          as="a"
-          to="/maintainers"
-          search={{ libraries: selectedLibraries }}
-          variant="subtle-link"
-          color="gray"
-        >
+        <ButtonLink as="a" to="/maintainers" variant="subtle-link" color="gray">
           View Maintainer Directory
           <ArrowRightIcon />
         </ButtonLink>

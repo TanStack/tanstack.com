@@ -34,7 +34,23 @@ import { seo } from '~/utils/seo'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
-  loader: () => fetchRecentPosts(),
+  loader: async ({ context: { queryClient } }) => {
+    const [stats, npmSummary, recentPosts] = await Promise.all([
+      queryClient.ensureQueryData(ossStatsQuery()),
+      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
+      fetchRecentPosts(),
+    ])
+
+    return {
+      recentPosts,
+      initialStats: {
+        totalDownloads: npmSummary?.totalDownloads ?? stats.npm?.totalDownloads,
+        weeklyDownloads: npmSummary?.weeklyDownloads,
+        weeklyRatePerDay: npmSummary?.weeklyRatePerDay,
+        starCount: stats.github?.starCount,
+      },
+    }
+  },
   head: () => ({
     meta: seo({
       title: 'TanStack | The open-source application stack for the web.',
@@ -52,7 +68,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const recentPosts = Route.useLoaderData()
+  const { initialStats, recentPosts } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
   const startWithPrompt = (e: React.MouseEvent) => {
@@ -77,10 +93,9 @@ function Index() {
               headline bottom-left, description + CTA bottom-right. The sky is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
-            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
-                the URL bar mid-scroll, visibly stretching the hero. */}
-            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
+          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1 md:grid md:h-[calc(100svh-var(--navbar-height))] md:min-h-min md:grid-rows-[minmax(min-content,1fr)_auto]">
+            {/* The small viewport height keeps the hero stable as mobile browser chrome collapses. */}
+            <div className="group relative isolate flex flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] max-md:h-[calc(100svh-var(--navbar-height))] max-md:max-h-[720px] max-md:min-h-[560px] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
               <HeroPalmMedia />
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
                 The{' '}
@@ -137,7 +152,7 @@ function Index() {
                 when={visible({ rootMargin: '0px' })}
                 fallback={<HomeStatsFallback />}
               >
-                <HomeStatsSection />
+                <HomeStatsSection initialStats={initialStats} />
               </Hydrate>
             </div>
           </div>

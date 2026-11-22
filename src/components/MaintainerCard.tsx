@@ -191,7 +191,7 @@ function MaintainerSocialLinks({
   const socialEntries =
     variant === 'card'
       ? [
-          ...Object.entries(maintainer.social || {}).slice(0, 2),
+          ...Object.entries(maintainer.social || {}),
           ['github', `https://github.com/${maintainer.github}`],
         ]
       : Object.entries({

@@ -198,14 +198,16 @@ function LibraryStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
 /* --------------------------------------------------------------- hero stats -- */
 
 function HeroStat({
-  iconTop,
+  layout,
   stat,
   onImage,
 }: {
-  iconTop: boolean
+  layout: StatsLayout
   stat: StatItem
   onImage?: boolean
 }) {
+  const isLandscape = layout === 'landscape'
+
   return (
     <span
       className={twMerge(
@@ -213,7 +215,10 @@ function HeroStat({
         // Over a (light) image the theme-adaptive text is illegible, so force
         // dark ink; otherwise follow the surface via the semantic token.
         onImage ? 'text-gray-900' : 'text-text-primary',
-        iconTop ? 'flex-col items-start' : 'items-center',
+        layout === 'stacked-landscape'
+          ? 'flex-col items-start'
+          : 'items-center',
+        isLandscape && 'max-md:gap-2',
       )}
     >
       {stat.icon ? (
@@ -226,22 +231,33 @@ function HeroStat({
           {stat.icon}
         </span>
       ) : null}
-      <span className="flex min-w-0 items-center gap-4 whitespace-nowrap md:gap-3.5 xl:gap-4">
+      <span
+        className={twMerge(
+          'flex min-w-0 items-center gap-4 whitespace-nowrap md:gap-3.5 xl:gap-4',
+          isLandscape && 'max-md:contents',
+        )}
+      >
         <span
-          className="font-ds-display text-ds-heading-3 font-bold leading-none md:text-[21px] xl:text-ds-heading-3"
+          className={twMerge(
+            'font-ds-mono text-ds-mono-caps-xs font-medium uppercase tracking-[1.75px] md:text-[9.5px] md:tracking-[1.5px] xl:text-ds-mono-caps-xs xl:tracking-[1.75px]',
+            onImage ? 'text-gray-700' : 'text-text-secondary',
+            isLandscape
+              ? 'max-md:text-left max-md:whitespace-normal max-xs:text-[clamp(0.75rem,3.6vw,0.875rem)] max-xs:tracking-normal md:order-last'
+              : 'order-last',
+          )}
+        >
+          {stat.label}
+        </span>
+        <span
+          className={twMerge(
+            'font-ds-display text-ds-heading-3 font-bold leading-none md:text-[21px] xl:text-ds-heading-3',
+            isLandscape && 'max-md:ml-auto max-md:shrink-0 max-md:text-right',
+          )}
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
           <StatValue placeholder={stat.placeholder} valueRef={stat.valueRef}>
             {stat.value}
           </StatValue>
-        </span>
-        <span
-          className={twMerge(
-            'font-ds-mono text-ds-mono-caps-xs font-medium uppercase tracking-[1.75px] md:text-[9.5px] md:tracking-[1.5px] xl:text-ds-mono-caps-xs xl:tracking-[1.75px]',
-            onImage ? 'text-gray-700' : 'text-text-secondary',
-          )}
-        >
-          {stat.label}
         </span>
       </span>
     </span>
@@ -287,21 +303,20 @@ export function StatsSection({
   }
 
   if (page === 'hero') {
-    const iconTop = layout === 'stacked-landscape'
-
     return (
       <div
         className={twMerge(
           layout === 'stacked'
             ? 'flex flex-col items-start gap-5'
             : 'flex flex-col items-center gap-4 md:flex-row md:flex-wrap md:justify-center md:gap-x-3.5 md:gap-y-5 xl:gap-x-9',
+          layout === 'landscape' && 'max-md:w-full max-md:items-stretch',
           className,
         )}
       >
         {stats.map((stat) => (
           <HeroStat
             key={stat.key}
-            iconTop={iconTop}
+            layout={layout}
             stat={stat}
             onImage={onImage}
           />

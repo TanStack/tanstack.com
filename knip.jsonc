@@ -36,7 +36,6 @@
         "src/components/LogoQueryGG.tsx",
         "src/components/MaintainersSection.tsx",
         "src/components/OptimizedImage.tsx",
-        "src/components/PartnersSection.tsx",
         "src/components/PartnershipCallout.tsx",
         "src/components/QueryGGBanner.tsx",
         "src/components/StackBlitzEmbed.tsx",

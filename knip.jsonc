@@ -37,7 +37,6 @@
         "src/components/LandingPageGad.tsx",
         "src/components/LibraryDownloadsMicro.tsx",
         "src/components/LibraryStatsSection.tsx",
-        "src/components/LibraryTestimonials.tsx",
         "src/components/Logo.tsx",
         "src/components/LogoColor.tsx",
         "src/components/LogoQueryGG.tsx",

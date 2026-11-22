@@ -28,7 +28,6 @@
         "src/chat/preferences.functions.ts",
         "src/chat/server/semantic-history.ts",
         "src/chat/skill-identifiers.ts",
-        "src/components/BlockWithFeedback.tsx",
         "src/components/BlogAuthorFilter.tsx",
         "src/components/BottomCTA.tsx",
         "src/components/DocFeedbackContext.tsx",

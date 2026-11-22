@@ -46,5 +46,7 @@ allowBuilds:
   electron-winstaller: true
 
 patchedDependencies:
+  '@number-flow/react@0.6.2': patches/@number-flow__react@0.6.2.patch
   '@tanstack/openai-base@0.10.11': patches/@tanstack__openai-base@0.10.11.patch
+  '@tanstack/router-core@1.171.34': patches/@tanstack__router-core@1.171.34.patch
   postgres@3.4.8: patches/postgres@3.4.8.patch

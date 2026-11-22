@@ -672,7 +672,11 @@ function GlobeAvatar({
 export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   const { data: initialLocation } = useSuspenseQuery({
     queryKey: ['maintainers-globe', 'visitor-location'],
-    queryFn: () => getVisitorLocation().catch(() => null),
+    queryFn: () =>
+      getVisitorLocation().then(
+        (location) => location ?? null,
+        () => null,
+      ),
     staleTime: Infinity,
   })
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')

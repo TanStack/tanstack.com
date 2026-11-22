@@ -28,8 +28,8 @@ export type StatsLayout = 'landscape' | 'stacked' | 'stacked-landscape'
 export type StatItem = {
   /** Stable key for React lists. */
   key: string
-  /** Pre-formatted display value, e.g. "2.2B" or "65,395,147". */
-  value: string
+  /** Display value, e.g. "2.2B" or an animated number. */
+  value: React.ReactNode
   /** Caption beside/beneath the value. */
   label: string
   /** Leading (or, for stacked-landscape, top) icon. */

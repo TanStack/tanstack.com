@@ -2751,6 +2751,16 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   transition: opacity 120ms linear;
 }
 
+.home-palm-sky {
+  background: linear-gradient(
+    #8fd7fe,
+    #b0dbff 25%,
+    #d3e0ff 50%,
+    #e7dffb 75%,
+    #f5d9f2
+  );
+}
+
 @keyframes home-open-source-gradient-shift {
   0%,
   100% {

@@ -12,11 +12,14 @@ import {
   LightningIcon,
   type Icon,
 } from '@phosphor-icons/react'
+import { Hydrate } from '@tanstack/react-start'
+import { visible } from '@tanstack/react-start/hydration'
 import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
+import { HomeStatsFallback } from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
@@ -31,15 +34,7 @@ import { seo } from '~/utils/seo'
 import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
-  loader: async ({ context: { queryClient } }) => {
-    const [, , recentPosts] = await Promise.all([
-      queryClient.ensureQueryData(ossStatsQuery()),
-      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
-      fetchRecentPosts(),
-    ])
-
-    return { recentPosts }
-  },
+  loader: () => fetchRecentPosts(),
   head: () => ({
     meta: seo({
       title: 'TanStack | The open-source application stack for the web.',
@@ -57,7 +52,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const { recentPosts } = Route.useLoaderData()
+  const recentPosts = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
   const startWithPrompt = (e: React.MouseEvent) => {
@@ -78,19 +73,14 @@ function Index() {
       <Scarf id={homepageScarfPixel} path="/" />
       <main className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
-              headline bottom-left, description + CTA bottom-right. The photo is
+          {/* Hero — Figma node 802:2027. Full-bleed palm and sky:
+              headline bottom-left, description + CTA bottom-right. The sky is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
             {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
                 the URL bar mid-scroll, visibly stretching the hero. */}
             <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
-              {/* The parent supplies the 4px frame shared by the hero and stats.
-                  This wrapper clips the image to the inner radius so the <img>
-                  fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
-                  the Cloudflare transform resolves against the production origin,
-                  so a newly-added asset 404s until deployed. */}
               <HeroPalmMedia />
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
                 The{' '}
@@ -106,7 +96,7 @@ function Index() {
                   applications that work naturally for developers and reliably
                   for agents
                 </p>
-                {/* The photo is always light, so scope the CTAs to the DS
+                {/* The sky is always light, so scope the CTAs to the DS
                     light mode — the Buttons then render as their standard DS
                     light-mode selves (no per-button color overrides). */}
                 <div className="ds-mode-light flex flex-wrap items-center gap-2">
@@ -143,7 +133,12 @@ function Index() {
               </div>
             </div>
             <div className="flex items-center justify-center px-2.5 py-6">
-              <HomeStatsSection />
+              <Hydrate
+                when={visible({ rootMargin: '0px' })}
+                fallback={<HomeStatsFallback />}
+              >
+                <HomeStatsSection />
+              </Hydrate>
             </div>
           </div>
           <div
@@ -457,10 +452,12 @@ function WhyTanStackSection() {
 
               {/* proof panel — 478:1744 */}
               <PrinciplePanel>
-                <PrincipleProof
-                  proof={principle.proof}
-                  accentClassName={principle.accentClassName}
-                />
+                <Hydrate when={visible({ rootMargin: '200px' })}>
+                  <PrincipleProof
+                    proof={principle.proof}
+                    accentClassName={principle.accentClassName}
+                  />
+                </Hydrate>
               </PrinciplePanel>
             </li>
           ))}
@@ -493,7 +490,7 @@ function WhyTanStackSection() {
  */
 function PrinciplePanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px]">
+    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px] [&>div]:w-full">
       {children}
     </div>
   )
@@ -704,8 +701,8 @@ function PrincipleProof({
 }
 
 /**
- * Production-Grade proof: the live npm download odometer already prefetched by
- * the route loader, plus weekly volume and stars. Real numbers rather than
+ * Production-Grade proof: the live npm download odometer shared with
+ * the hero stats, plus weekly volume and stars. Real numbers rather than
  * adjectives — the point of the principle is scale.
  */
 function AdoptionProof({ accentClassName }: { accentClassName: string }) {

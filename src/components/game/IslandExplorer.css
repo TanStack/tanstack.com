@@ -1,0 +1,8 @@
+@reference '../../styles/app.css';
+@source './';
+
+@layer utilities {
+  :where(.island-explorer) {
+    @tailwind utilities source(none);
+  }
+}

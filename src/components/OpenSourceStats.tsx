@@ -1,6 +1,5 @@
 import NumberFlow from '@number-flow/react'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
 import {
   CalendarDotsIcon,
   DownloadSimpleIcon,
@@ -12,6 +11,7 @@ import {
   ossStatsQuery,
   recentDownloadsQuery,
 } from '~/queries/stats'
+import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import {
   StatsSection,
@@ -25,44 +25,8 @@ export type HomepageStatsSnapshot = {
   totalDownloads?: number
   weeklyDownloads?: number
   weeklyRatePerDay?: number
+  npmStatsFetchedAt: number
   starCount?: number
-}
-
-function WeeklyDownloadNumber({
-  value,
-  ratePerDay,
-}: {
-  value: number
-  ratePerDay: number
-}) {
-  const [elapsedSeconds, setElapsedSeconds] = useState(0)
-  const isLive = ratePerDay > 0
-
-  useEffect(() => {
-    if (!isLive) return
-
-    const startedAt = Date.now()
-    const tick = () => {
-      if (!document.hidden) {
-        setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000))
-      }
-    }
-    const timer = window.setInterval(tick, 1000)
-    document.addEventListener('visibilitychange', tick)
-
-    return () => {
-      window.clearInterval(timer)
-      document.removeEventListener('visibilitychange', tick)
-    }
-  }, [isLive])
-
-  return (
-    <NumberFlow
-      value={Math.round(value + (ratePerDay * elapsedSeconds) / 86_400)}
-      locales="en-US"
-      transformTiming={{ duration: 450, easing: 'ease-out' }}
-    />
-  )
 }
 
 /** Compact count with a single-letter magnitude, e.g. 2_340_000_000 → "2.3B". */
@@ -97,11 +61,14 @@ export default function OssStats({
   initialStats?: HomepageStatsSnapshot
 }) {
   const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
-  const { data: homepageNpmSummary, isLoading: isLoadingHomepageNpmSummary } =
-    useQuery({
-      ...homepageNpmStatsSummaryQuery(),
-      enabled: !library,
-    })
+  const {
+    data: homepageNpmSummary,
+    dataUpdatedAt,
+    isLoading: isLoadingHomepageNpmSummary,
+  } = useQuery({
+    ...homepageNpmStatsSummaryQuery(),
+    enabled: !library,
+  })
   const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
     useQuery({
       ...recentDownloadsQuery({
@@ -124,6 +91,10 @@ export default function OssStats({
     ? undefined
     : (homepageNpmSummary?.weeklyRatePerDay ?? initialStats?.weeklyRatePerDay)
   const animate = page === 'hero' && !library
+  const liveDownloads = {
+    ratePerDay: weeklyRatePerDay ?? 0,
+    fetchedAt: dataUpdatedAt || initialStats?.npmStatsFetchedAt || 0,
+  }
 
   const weeklyRef = useNpmDownloadCounter({
     totalDownloads: weeklyDownloads,
@@ -151,9 +122,9 @@ export default function OssStats({
       icon: <DownloadSimpleIcon weight="regular" />,
       value: hasNpmDownloads ? (
         animate ? (
-          <NumberFlow
+          <LiveDownloadCount
             value={npmDownloads}
-            locales="en-US"
+            {...liveDownloads}
             format={{
               notation: 'compact',
               minimumFractionDigits: npmDownloads >= 1_000_000 ? 1 : 0,
@@ -177,10 +148,7 @@ export default function OssStats({
       icon: <CalendarDotsIcon weight="regular" />,
       value: hasWeeklyDownloads ? (
         animate ? (
-          <WeeklyDownloadNumber
-            value={weeklyDownloads}
-            ratePerDay={weeklyRatePerDay ?? 0}
-          />
+          <LiveDownloadCount value={weeklyDownloads} {...liveDownloads} />
         ) : (
           weeklyDownloads.toLocaleString()
         )

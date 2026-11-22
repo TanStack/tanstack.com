@@ -1,3 +1,4 @@
+import NumberFlow from '@number-flow/react'
 import { homepageScarfPixel } from '~/utils/analytics/scarf-pixels'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
@@ -21,11 +22,11 @@ import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
 import { HomeStatsFallback } from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
+import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from '~/components/ds/ui'
 import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
-import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
@@ -35,9 +36,10 @@ import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
+    const npmStatsQuery = homepageNpmStatsSummaryQuery()
     const [stats, npmSummary, recentPosts] = await Promise.all([
       queryClient.ensureQueryData(ossStatsQuery()),
-      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
+      queryClient.ensureQueryData(npmStatsQuery),
       fetchRecentPosts(),
     ])
 
@@ -47,6 +49,8 @@ export const Route = createFileRoute('/')({
         totalDownloads: npmSummary?.totalDownloads ?? stats.npm?.totalDownloads,
         weeklyDownloads: npmSummary?.weeklyDownloads,
         weeklyRatePerDay: npmSummary?.weeklyRatePerDay,
+        npmStatsFetchedAt:
+          queryClient.getQueryState(npmStatsQuery.queryKey)?.dataUpdatedAt ?? 0,
         starCount: stats.github?.starCount,
       },
     }
@@ -684,33 +688,28 @@ function PrincipleProof({
   }
 
   if (proof === 'adoption') {
-    return <AdoptionProof accentClassName={accentClassName} />
+    return <AdoptionProof />
   }
 
   return <IndependenceProof accentClassName={accentClassName} />
 }
 
-/**
- * Production-Grade proof: the live npm download odometer shared with
- * the hero stats, plus weekly volume and stars. Real numbers rather than
- * adjectives — the point of the principle is scale.
- */
-function AdoptionProof({ accentClassName }: { accentClassName: string }) {
-  const { data: summary } = useQuery(homepageNpmStatsSummaryQuery())
+function AdoptionProof() {
+  const { initialStats } = Route.useLoaderData()
+  const { data: summary, dataUpdatedAt } = useQuery(
+    homepageNpmStatsSummaryQuery(),
+  )
   const { data: stats } = useQuery(ossStatsQuery())
 
-  const totalDownloads = summary?.totalDownloads ?? 0
-  const weeklyDownloads = summary?.weeklyDownloads ?? 0
-  const starCount = stats?.github?.starCount ?? 0
-
-  // npm can be slow, rate-limited, or down — showing a literal 0 would claim
-  // this library has no users. Fall back to a placeholder instead.
-  const format = (value: number) => (value > 0 ? value.toLocaleString() : '—')
-
-  const counterRef = useNpmDownloadCounter({
-    totalDownloads,
-    ratePerDay: summary?.weeklyRatePerDay ?? 0,
-  })
+  const totalDownloads =
+    summary?.totalDownloads ?? initialStats.totalDownloads ?? 0
+  const weeklyDownloads =
+    summary?.weeklyDownloads ?? initialStats.weeklyDownloads ?? 0
+  const starCount = stats?.github?.starCount ?? initialStats.starCount ?? 0
+  const liveDownloads = {
+    ratePerDay: summary?.weeklyRatePerDay ?? initialStats.weeklyRatePerDay ?? 0,
+    fetchedAt: dataUpdatedAt || initialStats.npmStatsFetchedAt,
+  }
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -718,29 +717,41 @@ function AdoptionProof({ accentClassName }: { accentClassName: string }) {
         <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
           npm downloads
         </span>
-        <span
-          // The odometer writes into this node directly; only hand it over
-          // once there is a real number for it to count from.
-          ref={totalDownloads > 0 ? counterRef : undefined}
-          className={twMerge(
-            'bg-linear-to-r bg-clip-text font-mono text-3xl font-black tabular-nums text-transparent sm:text-4xl',
-            accentClassName,
+        <span className="font-mono text-3xl font-black tabular-nums text-orange-700 sm:text-4xl dark:text-orange-400">
+          {totalDownloads > 0 ? (
+            <LiveDownloadCount value={totalDownloads} {...liveDownloads} />
+          ) : (
+            '—'
           )}
-        >
-          {format(totalDownloads)}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-6 font-mono">
         {[
-          ['per week', weeklyDownloads],
-          ['github stars', starCount],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="flex flex-col gap-1">
+          {
+            label: 'per week',
+            value:
+              weeklyDownloads > 0 ? (
+                <LiveDownloadCount value={weeklyDownloads} {...liveDownloads} />
+              ) : (
+                '—'
+              ),
+          },
+          {
+            label: 'github stars',
+            value:
+              starCount > 0 ? (
+                <NumberFlow value={starCount} locales="en-US" />
+              ) : (
+                '—'
+              ),
+          },
+        ].map(({ label, value }) => (
+          <div key={label} className="flex flex-col gap-1">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
               {label}
             </span>
             <span className="text-xl font-black tabular-nums text-gray-700 dark:text-gray-300">
-              {format(Number(value))}
+              {value}
             </span>
           </div>
         ))}

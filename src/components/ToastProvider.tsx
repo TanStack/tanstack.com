@@ -1,6 +1,6 @@
+import { Toast } from '@base-ui/react/toast'
 import * as React from 'react'
-import { Toaster, toast } from 'sonner'
-import { useTheme } from '~/components/ThemeProvider'
+import styles from './ToastProvider.module.css'
 
 type ToastOptions = {
   durationMs?: number
@@ -9,6 +9,10 @@ type ToastOptions = {
 
 type ToastContextValue = {
   notify: (content: React.ReactNode, options?: ToastOptions) => string
+}
+
+type ToastProviderProps = {
+  children: React.ReactNode
 }
 
 const ToastContext = React.createContext<ToastContextValue | null>(null)
@@ -21,47 +25,51 @@ export function useToast(): ToastContextValue {
   return ctx
 }
 
-export function ToastProvider({
-  children,
-}: {
-  children: React.ReactNode
-}): React.ReactElement {
-  const { resolvedTheme } = useTheme()
+export function ToastProvider({ children }: ToastProviderProps) {
+  return (
+    <Toast.Provider timeout={2500}>
+      <ToastNotifications>{children}</ToastNotifications>
+    </Toast.Provider>
+  )
+}
+
+function ToastNotifications({ children }: ToastProviderProps) {
+  const { add, toasts } = Toast.useToastManager()
 
   const notify = React.useCallback(
-    (content: React.ReactNode, options?: ToastOptions) => {
-      const id = toast(content, {
-        duration: options?.durationMs ?? 2500,
-        id: options?.id,
+    (content: React.ReactNode, { durationMs, id }: ToastOptions = {}) => {
+      const hasId = id !== undefined && id !== ''
+      const toastId = add({
+        title: content,
+        timeout: durationMs === Infinity ? 0 : durationMs,
+        id: hasId ? `${typeof id}:${id}` : undefined,
       })
-      return String(id)
+      return hasId ? String(id) : toastId
     },
-    [],
+    [add],
   )
 
-  const contextValue = React.useMemo<ToastContextValue>(
-    () => ({ notify }),
-    [notify],
-  )
+  const contextValue = React.useMemo(() => ({ notify }), [notify])
 
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
-      <Toaster
-        theme={resolvedTheme}
-        position="bottom-right"
-        swipeDirections={['right']}
-        offset={16}
-        gap={8}
-        toastOptions={{
-          unstyled: true,
-          classNames: {
-            toast:
-              'relative w-96 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-lg outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50',
-            content: 'flex items-start gap-2',
-          },
-        }}
-      />
+      <Toast.Portal>
+        <Toast.Viewport className={styles.viewport}>
+          {toasts.map((toast) => (
+            <Toast.Root
+              key={toast.id}
+              toast={toast}
+              swipeDirection="right"
+              className={`${styles.toast} rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50`}
+            >
+              <Toast.Content className={styles.content}>
+                <Toast.Title className="flex items-start gap-2" />
+              </Toast.Content>
+            </Toast.Root>
+          ))}
+        </Toast.Viewport>
+      </Toast.Portal>
     </ToastContext.Provider>
   )
 }

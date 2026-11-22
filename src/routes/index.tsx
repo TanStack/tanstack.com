@@ -12,14 +12,11 @@ import {
   LightningIcon,
   type Icon,
 } from '@phosphor-icons/react'
-import { Hydrate } from '@tanstack/react-start'
-import { visible } from '@tanstack/react-start/hydration'
 import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
-import { HomeStatsFallback } from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { HomeStatNumber } from '~/components/home/HomeStatNumber'
 import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
@@ -80,12 +77,8 @@ function Index() {
     const section = document.getElementById('start-with-a-prompt')
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     const field = section?.querySelector<HTMLTextAreaElement>('textarea')
-    if (field) {
-      field.focus()
-      field.select()
-    } else if (section) {
-      section.dataset.focusPrompt = 'true'
-    }
+    field?.focus({ preventScroll: true })
+    field?.select()
   }
 
   return (
@@ -152,12 +145,7 @@ function Index() {
               </div>
             </div>
             <div className="flex flex-col px-4 py-6 sm:px-1 md:flex-row md:items-center md:justify-center md:px-2.5">
-              <Hydrate
-                when={visible({ rootMargin: '0px' })}
-                fallback={<HomeStatsFallback />}
-              >
-                <HomeStatsSection initialStats={initialStats} />
-              </Hydrate>
+              <HomeStatsSection initialStats={initialStats} />
             </div>
           </div>
           <div
@@ -446,12 +434,10 @@ function WhyTanStackSection() {
 
               {/* proof panel — 478:1744 */}
               <PrinciplePanel>
-                <Hydrate when={visible({ rootMargin: '200px' })}>
-                  <PrincipleProof
-                    proof={principle.proof}
-                    accentClassName={principle.accentClassName}
-                  />
-                </Hydrate>
+                <PrincipleProof
+                  proof={principle.proof}
+                  accentClassName={principle.accentClassName}
+                />
               </PrinciplePanel>
             </li>
           ))}

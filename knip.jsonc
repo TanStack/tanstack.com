@@ -32,7 +32,6 @@
         "src/components/BackgroundGradient.tsx",
         "src/components/BlockWithFeedback.tsx",
         "src/components/BlogAuthorFilter.tsx",
-        "src/components/BlogSearchFilter.tsx",
         "src/components/BottomCTA.tsx",
         "src/components/DocFeedbackContext.tsx",
         "src/components/DocsCalloutNewsletter.tsx",

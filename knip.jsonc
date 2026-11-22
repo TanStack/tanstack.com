@@ -135,7 +135,6 @@
         "@types/hast",
         "@types/linkify-it",
         "@types/remove-markdown",
-        "discord-interactions",
         "encoding-sniffer",
         "gray-matter",
         "iconv-lite",

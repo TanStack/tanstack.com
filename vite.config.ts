@@ -294,7 +294,6 @@ export default defineConfig(async ({ command, mode }) => {
         'postgres',
         // CTA packages use execa which has a broken unicorn-magic dependency
         '@tanstack/create',
-        'discord-interactions',
         // Don't pre-bundle CLI so we always get fresh changes during dev
         ...(isDev ? ['@tanstack/cli'] : []),
       ],
@@ -500,7 +499,6 @@ export default defineConfig(async ({ command, mode }) => {
               '@tanstack/react-start/server',
               'uploadthing/server',
               /^@modelcontextprotocol\/sdk\/server\//,
-              'discord-interactions',
             ],
           },
         },

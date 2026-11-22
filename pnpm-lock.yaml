@@ -273,9 +273,6 @@ importers:
       diff:
         specifier: ^8.0.4
         version: 8.0.4
-      discord-interactions:
-        specifier: ^4.4.0
-        version: 4.4.0
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.23.1)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
@@ -5699,10 +5696,6 @@ packages:
 
   dir-compare@4.2.0:
     resolution: {integrity: sha512-2xMCmOoMrdQIPHdsTawECdNPwlVFB9zGcz3kuhmBO6U3oU+UQjsue0i8ayLKpgBcm+hcXPMVSGUN9d+pvJ6+VQ==}
-
-  discord-interactions@4.4.0:
-    resolution: {integrity: sha512-jjJx8iwAeJcj8oEauV43fue9lNqkf38fy60aSs2+G8D1nJmDxUIrk08o3h0F3wgwuBWWJUZO+X/VgfXsxpCiJA==}
-    engines: {node: '>=18.4.0'}
 
   dmg-builder@26.15.3:
     resolution: {integrity: sha512-O3zJUFUYHJKgzPqioHxfxzBzlSC1eXCSr79gMSBKBP5AgjjpmrydMsMLotEg9fAJF36vdUncb+4ndRNxoPdlSQ==}
@@ -13833,8 +13826,6 @@ snapshots:
     dependencies:
       minimatch: 3.1.5
       p-limit: 3.1.0
-
-  discord-interactions@4.4.0: {}
 
   dmg-builder@26.15.3(electron-builder-squirrel-windows@26.15.3):
     dependencies:

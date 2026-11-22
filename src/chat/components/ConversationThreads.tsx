@@ -4,7 +4,11 @@ import { useConversationNavigatorScope } from './ConversationNavigatorScope'
 import { LoadingState } from './ui/LoadingState'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowUpRight, Spool, RotateCcw } from 'lucide-react'
+import {
+  ArrowCounterClockwiseIcon,
+  ArrowUpRightIcon,
+  ChatsCircleIcon,
+} from '@phosphor-icons/react'
 import {
   type ThreadSummary,
   type ThreadListItem,
@@ -153,9 +157,9 @@ export function MessageThreads({
           onClick={(event) => void create(event.currentTarget)}
         >
           {pending ? (
-            <RotateCcw size={14} aria-hidden />
+            <ArrowCounterClockwiseIcon size={14} aria-hidden />
           ) : (
-            <Spool size={14} aria-hidden />
+            <ChatsCircleIcon size={14} aria-hidden />
           )}
         </IconButton>
       )}
@@ -275,7 +279,7 @@ export function ThreadLink({
       {opening ? (
         <PixelSpinner className="h-6 w-6 shrink-0" />
       ) : (
-        <Spool size={14} aria-hidden />
+        <ChatsCircleIcon size={14} aria-hidden />
       )}
       {openError && <span role="alert">Could not open. Try again.</span>}
       {preview ? (
@@ -397,7 +401,7 @@ export function ThreadPanel({
           label="Open thread in full view"
           onClick={() => onOpenFull(value)}
         >
-          <ArrowUpRight size={16} aria-hidden />
+          <ArrowUpRightIcon size={16} aria-hidden />
         </IconButton>
       </div>
       <details className="thread-source">

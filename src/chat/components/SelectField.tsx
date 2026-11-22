@@ -4,7 +4,7 @@ import {
   type ReactNode,
 } from 'react'
 import { Select } from '@base-ui/react/select'
-import { Check, ChevronDown } from 'lucide-react'
+import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react'
 import { PortalContainer } from './PortalContainer'
 import './select-field.css'
 
@@ -52,7 +52,7 @@ export function SelectField({
       >
         <Select.Value className="select-field-value" />
         <Select.Icon className="select-field-icon">
-          <ChevronDown size={14} aria-hidden />
+          <CaretDownIcon size={14} aria-hidden />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal container={container}>
@@ -73,7 +73,7 @@ export function SelectField({
                   className="select-field-item"
                 >
                   <Select.ItemIndicator className="select-field-check">
-                    <Check size={14} aria-hidden />
+                    <CheckIcon size={14} aria-hidden />
                   </Select.ItemIndicator>
                   <Select.ItemText>{item.label}</Select.ItemText>
                 </Select.Item>

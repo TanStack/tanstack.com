@@ -1,7 +1,7 @@
 import { SelectField } from './SelectField'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { X } from 'lucide-react'
+import { XIcon } from '@phosphor-icons/react'
 import { ApiError, useWorkspaceApi } from './WorkspaceApi'
 import type { WorkspaceBot } from '../core/bot-workspace'
 import type { BranchBoundary } from '../core/conversation-copy'
@@ -351,7 +351,7 @@ function CopyBotForm({
           aria-label="Close"
           onClick={dismiss}
         >
-          <X size={18} aria-hidden />
+          <XIcon size={18} aria-hidden />
         </button>
       </div>
       <p id={explanationId}>

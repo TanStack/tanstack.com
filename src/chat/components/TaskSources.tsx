@@ -1,13 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import {
-  BookOpen,
-  ChevronRight,
-  File,
-  MessageSquare,
-  Package,
-  Plug,
-  Wrench,
-} from 'lucide-react'
+  BookOpenIcon,
+  CaretRightIcon,
+  ChatCenteredIcon,
+  FileIcon,
+  PackageIcon,
+  PlugIcon,
+  WrenchIcon,
+} from '@phosphor-icons/react'
 import type { MessageReference } from '../core/message-references'
 import { referenceKey } from '../core/message-references'
 import { conversationLocation } from '../core/conversation-destination'
@@ -15,13 +15,13 @@ import { defaultWorkspaceSearch } from '../core/navigation'
 import { useWorkspaceApi } from './WorkspaceApi'
 
 const kinds = {
-  file: { label: 'File', icon: File },
-  conversation: { label: 'Conversation', icon: MessageSquare },
-  connection: { label: 'Connection', icon: Plug },
-  tool: { label: 'Tool', icon: Wrench },
-  kody: { label: 'Kody', icon: Package },
-  skill: { label: 'Skill', icon: BookOpen },
-  plugin: { label: 'Plugin', icon: Package },
+  file: { label: 'File', icon: FileIcon },
+  conversation: { label: 'Conversation', icon: ChatCenteredIcon },
+  connection: { label: 'Connection', icon: PlugIcon },
+  tool: { label: 'Tool', icon: WrenchIcon },
+  kody: { label: 'Kody', icon: PackageIcon },
+  skill: { label: 'Skill', icon: BookOpenIcon },
+  plugin: { label: 'Plugin', icon: PackageIcon },
 }
 
 export function TaskSources({ sources }: { sources: MessageReference[] }) {
@@ -61,7 +61,7 @@ export function TaskSources({ sources }: { sources: MessageReference[] }) {
                   aria-label={`Open ${kind.toLowerCase()}: ${source.label}`}
                 >
                   {content}
-                  <ChevronRight size={15} aria-hidden />
+                  <CaretRightIcon size={15} aria-hidden />
                 </Link>
               ) : (
                 <div

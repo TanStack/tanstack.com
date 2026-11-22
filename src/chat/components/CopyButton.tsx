@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, Copy } from 'lucide-react'
+import { CheckIcon, CopyIcon } from '@phosphor-icons/react'
 import { IconButton } from './IconButton'
 import './message-interactions.css'
 
@@ -43,9 +43,9 @@ export function CopyButton({
         onClick={() => void copy()}
       >
         {state === 'copied' ? (
-          <Check size={14} aria-hidden />
+          <CheckIcon size={14} aria-hidden />
         ) : (
-          (icon ?? <Copy size={14} aria-hidden />)
+          (icon ?? <CopyIcon size={14} aria-hidden />)
         )}
       </IconButton>
       <span

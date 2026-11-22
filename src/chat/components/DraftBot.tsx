@@ -5,7 +5,7 @@ import { modelPalettePage } from './model-palette'
 import { useEffect, useRef, useState } from 'react'
 import { Popover } from '@base-ui/react/popover'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUpIcon } from '@phosphor-icons/react'
 import { ApiError, useWorkspaceApi } from './WorkspaceApi'
 import { useComposerDraft } from './useComposerDraft'
 import { useComposerAttachments } from './useComposerAttachments'
@@ -517,7 +517,7 @@ export function DraftBot({
                     : referencedFiles))
               }
             >
-              <ArrowUp size={20} />
+              <ArrowUpIcon size={20} />
             </button>
           </div>
         </form>

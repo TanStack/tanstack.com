@@ -45,17 +45,16 @@ import {
 } from './bootstrap-onboarding'
 import type { Onboarding as OnboardingSnapshot } from '../core/onboarding'
 import {
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Check,
-  PanelLeft,
-  PanelRight,
-  LogOut,
-  Bookmark,
-  Copy,
-} from 'lucide-react'
+  BookmarkSimpleIcon,
+  CaretDownIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  CheckIcon,
+  CopyIcon,
+  GearIcon,
+  SidebarSimpleIcon,
+  SignOutIcon,
+} from '@phosphor-icons/react'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { WorkspaceApiProvider, useWorkspaceApi, ApiError } from './WorkspaceApi'
 
@@ -730,7 +729,7 @@ function WorkspaceApp({
             else setDesktopSidebarOpen(true)
           }}
         >
-          <PanelLeft size={20} aria-hidden />
+          <SidebarSimpleIcon size={20} aria-hidden />
         </IconButton>
       )}
       <ConversationNavigatorToggle />
@@ -745,14 +744,14 @@ function WorkspaceApp({
               aria-label={parentName}
               onClick={() => selectBot(parentId)}
             >
-              <ChevronLeft
+              <CaretLeftIcon
                 className="breadcrumb-parent-icon"
                 size={14}
                 aria-hidden
               />
               <span className="breadcrumb-parent-name">{parentName}</span>
             </Button>
-            <ChevronRight
+            <CaretRightIcon
               className="breadcrumb-separator"
               size={15}
               aria-hidden
@@ -790,7 +789,11 @@ function WorkspaceApp({
               })
             }
           >
-            <PanelRight size={17} aria-hidden />
+            <SidebarSimpleIcon
+              style={{ transform: 'scaleX(-1)' }}
+              size={17}
+              aria-hidden
+            />
           </IconButton>
         )}
         {selected && (
@@ -860,7 +863,7 @@ function WorkspaceApp({
               ref={sidebarTrigger}
               onClick={() => setDesktopSidebarOpen((open) => !open)}
             >
-              <PanelLeft size={20} aria-hidden />
+              <SidebarSimpleIcon size={20} aria-hidden />
             </IconButton>
             {workspaceShortcuts}
             <IconButton
@@ -869,7 +872,7 @@ function WorkspaceApp({
               label="Settings"
               onClick={() => setSettings('general')}
             >
-              <Settings size={20} aria-hidden />
+              <GearIcon size={20} aria-hidden />
             </IconButton>
           </aside>
         )}
@@ -927,7 +930,7 @@ function WorkspaceApp({
                     aria-label={`Switch workspace: ${data.workspace.name}`}
                   >
                     <strong>TanChat</strong>
-                    <ChevronDown size={15} aria-hidden />
+                    <CaretDownIcon size={15} aria-hidden />
                   </Menu.Trigger>
                   <Menu.Portal>
                     <Menu.Positioner
@@ -951,7 +954,10 @@ function WorkspaceApp({
                           >
                             {item.name}
                             {item.id === data.workspace.id && (
-                              <Check size={15} aria-label="Current workspace" />
+                              <CheckIcon
+                                size={15}
+                                aria-label="Current workspace"
+                              />
                             )}
                           </Menu.Item>
                         ))}
@@ -973,7 +979,7 @@ function WorkspaceApp({
                   aria-controls="workspace-sidebar"
                   onClick={closeSidebar}
                 >
-                  <PanelLeft size={20} aria-hidden />
+                  <SidebarSimpleIcon size={20} aria-hidden />
                 </IconButton>
               )}
             </div>
@@ -1091,7 +1097,7 @@ function WorkspaceApp({
                 className="settings-button"
                 onClick={() => setSettings('general')}
               >
-                <Settings size={18} />
+                <GearIcon size={18} />
                 <span>Settings</span>
                 <span className="user-avatar">
                   {data.user.username.slice(0, 1).toUpperCase()}
@@ -1697,7 +1703,7 @@ function SettingsDialog({
                   }}
                 >
                   <Button type="submit" variant="secondary">
-                    <LogOut size={15} />
+                    <SignOutIcon size={15} />
                     Sign out
                   </Button>
                 </form>
@@ -2011,7 +2017,7 @@ function SettingsDialog({
             </p>
             {data.recipes.map((r) => (
               <div className="saved-action" key={r.id}>
-                <Bookmark size={18} />
+                <BookmarkSimpleIcon size={18} />
                 <div>
                   <strong>{r.title}</strong>
                   <p>{r.description}</p>
@@ -2025,7 +2031,7 @@ function SettingsDialog({
                       .then(() => setNotice('Command copied'))
                   }
                 >
-                  <Copy size={14} />
+                  <CopyIcon size={14} />
                   Copy command
                 </Button>
               </div>
@@ -2094,7 +2100,7 @@ function SettingsDialog({
         )}
         {notice && (
           <p className="success" role="status">
-            <Check size={15} />
+            <CheckIcon size={15} />
             {notice}
           </p>
         )}

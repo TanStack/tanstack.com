@@ -15,7 +15,11 @@ import {
 import { Collapsible } from '@base-ui/react/collapsible'
 import { Popover } from '@base-ui/react/popover'
 import { useNavigate } from '@tanstack/react-router'
-import { Search, Spool, X } from 'lucide-react'
+import {
+  ChatsCircleIcon,
+  MagnifyingGlassIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import type { ThreadListItem } from '../core/conversation-threads'
 import { filterConversationNames } from '../core/conversation-family'
 import type { WorkspaceBot } from '../core/bot-workspace'
@@ -55,7 +59,7 @@ export function ConversationNavigatorToggle() {
               : 'Show threads and conversations'
           }
         >
-          <Spool size={17} aria-hidden />
+          <ChatsCircleIcon size={17} aria-hidden />
         </IconButton>
       }
       aria-expanded={panel.open}
@@ -286,7 +290,7 @@ export function ConversationNavigator({
                   label="Close threads and conversations"
                   onClick={close}
                 >
-                  <X size={16} aria-hidden />
+                  <XIcon size={16} aria-hidden />
                 </IconButton>
               </div>
               {renderItems()}
@@ -338,7 +342,7 @@ export function ConversationNavigator({
                     className="conversation-card-close"
                     render={
                       <IconButton label="Close threads and conversations">
-                        <X size={16} aria-hidden />
+                        <XIcon size={16} aria-hidden />
                       </IconButton>
                     }
                   />
@@ -510,7 +514,7 @@ export function ConversationNavigatorItems({
               aria-expanded={searchOpen || !!query}
               onClick={() => setSearchOpen(true)}
             >
-              <Search size={16} aria-hidden />
+              <MagnifyingGlassIcon size={16} aria-hidden />
             </IconButton>
             {(searchOpen || !!query) && (
               <input

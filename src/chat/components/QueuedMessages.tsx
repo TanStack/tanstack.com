@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { TrashIcon } from '@phosphor-icons/react'
 import type { QueueCommand, QueueSnapshot } from '../core/conversation-queue'
 import type { RunModelSelection } from '../core/run-model'
 import { Button } from './ui/Button'
@@ -84,7 +84,7 @@ export function QueuedMessages({
                 })
               }
             >
-              <Trash2 size={15} aria-hidden />
+              <TrashIcon size={15} aria-hidden />
             </IconButton>
           </li>
         ))}

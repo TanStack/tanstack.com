@@ -8,7 +8,7 @@ import {
   type RefObject,
 } from 'react'
 import { Popover } from '@base-ui/react/popover'
-import { Info, X } from 'lucide-react'
+import { InfoIcon, XIcon } from '@phosphor-icons/react'
 import { IconButton } from './IconButton'
 import './conversation-card.css'
 import './conversation-details-card.css'
@@ -28,7 +28,7 @@ export function ConversationDetailsToggle() {
       ref={card.trigger}
       render={
         <IconButton label={card.open ? 'Hide details' : 'Show details'}>
-          <Info size={17} aria-hidden />
+          <InfoIcon size={17} aria-hidden />
         </IconButton>
       }
     />
@@ -141,7 +141,7 @@ export function ConversationDetailsCard({
                   className="conversation-card-close details-card-close"
                   render={
                     <IconButton label="Close details">
-                      <X size={16} aria-hidden />
+                      <XIcon size={16} aria-hidden />
                     </IconButton>
                   }
                 />

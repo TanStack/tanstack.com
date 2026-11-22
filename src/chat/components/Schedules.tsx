@@ -4,15 +4,15 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Temporal } from '@js-temporal/polyfill'
 import {
-  CirclePlay,
-  MessageSquare,
-  Pause,
-  Pencil,
-  Play,
-  Plus,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react'
+  ArrowsClockwiseIcon,
+  ChatCenteredIcon,
+  PauseIcon,
+  PencilSimpleIcon,
+  PlayCircleIcon,
+  PlayIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@phosphor-icons/react'
 import { z } from 'zod'
 import {
   scheduleCommandSchema,
@@ -553,14 +553,14 @@ export function ScheduleEntries({
                   }
                   onClick={() => act(record, 'run-now')}
                 >
-                  <CirclePlay size={16} aria-hidden />
+                  <PlayCircleIcon size={16} aria-hidden />
                 </IconButton>
                 <IconButton
                   label={`Edit ${record.spec.name}`}
                   disabled={disabled}
                   onClick={() => onEdit(record)}
                 >
-                  <Pencil size={15} aria-hidden />
+                  <PencilSimpleIcon size={15} aria-hidden />
                 </IconButton>
                 <IconButton
                   label={`${record.status === 'paused' ? 'Resume' : 'Pause'} ${record.spec.name}`}
@@ -570,9 +570,9 @@ export function ScheduleEntries({
                   }
                 >
                   {record.status === 'paused' ? (
-                    <Play size={15} aria-hidden />
+                    <PlayIcon size={15} aria-hidden />
                   ) : (
-                    <Pause size={15} aria-hidden />
+                    <PauseIcon size={15} aria-hidden />
                   )}
                 </IconButton>
                 <IconButton
@@ -581,7 +581,7 @@ export function ScheduleEntries({
                   disabled={disabled}
                   onClick={() => act(record, 'delete')}
                 >
-                  <Trash2 size={15} aria-hidden />
+                  <TrashIcon size={15} aria-hidden />
                 </IconButton>
               </div>
             )}
@@ -629,7 +629,7 @@ export function ScheduleEntries({
                         tooltip="Open run conversation"
                         onClick={() => onSelectMessage(messageId)}
                       >
-                        <MessageSquare size={16} aria-hidden />
+                        <ChatCenteredIcon size={16} aria-hidden />
                       </IconButton>
                     )}
                     {!readOnly && outstanding.has(run.status) && (
@@ -831,7 +831,7 @@ function SchedulePanel({
             }
           }}
         >
-          <RefreshCw size={16} aria-hidden />
+          <ArrowsClockwiseIcon size={16} aria-hidden />
         </IconButton>
         {!readOnly && (
           <button
@@ -840,7 +840,7 @@ function SchedulePanel({
             disabled={blocked || !snapshot || preferences.isPending}
             onClick={() => setEditor('new')}
           >
-            <Plus size={15} aria-hidden /> New schedule
+            <PlusIcon size={15} aria-hidden /> New schedule
           </button>
         )}
       </header>

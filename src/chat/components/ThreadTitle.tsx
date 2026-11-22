@@ -1,7 +1,7 @@
 import { ThreadLifecycle } from './ThreadLifecycle'
 import { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Check, Pencil, X } from 'lucide-react'
+import { CheckIcon, PencilSimpleIcon, XIcon } from '@phosphor-icons/react'
 import type { ThreadSummary } from '../core/conversation-threads'
 import { IconButton } from './IconButton'
 import { ApiError, useWorkspaceApi } from './WorkspaceApi'
@@ -164,7 +164,7 @@ function ThreadTitleEditor({
             label={pending ? 'Retry thread rename' : 'Save thread name'}
             disabled={saving || disabled || !ready || !draft.title.trim()}
           >
-            <Check size={14} aria-hidden />
+            <CheckIcon size={14} aria-hidden />
           </IconButton>
           <IconButton
             type="button"
@@ -172,7 +172,7 @@ function ThreadTitleEditor({
             disabled={saving || !!pending}
             onClick={finish}
           >
-            <X size={14} aria-hidden />
+            <XIcon size={14} aria-hidden />
           </IconButton>
         </form>
       ) : (
@@ -187,7 +187,7 @@ function ThreadTitleEditor({
               setError('')
             }}
           >
-            <Pencil size={14} aria-hidden />
+            <PencilSimpleIcon size={14} aria-hidden />
           </IconButton>
         </>
       )}

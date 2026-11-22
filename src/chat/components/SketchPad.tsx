@@ -8,7 +8,14 @@ import {
   type PointerEvent,
 } from 'react'
 import { Dialog } from '@base-ui/react/dialog'
-import { Eraser, PenLine, Redo2, Trash2, Undo2, X } from 'lucide-react'
+import {
+  ArrowUUpLeftIcon,
+  ArrowUUpRightIcon,
+  EraserIcon,
+  PenNibStraightIcon,
+  TrashIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import {
   appendSketchPoint,
   beginSketchStroke,
@@ -403,7 +410,7 @@ export function SketchPad({
               <Dialog.Close
                 render={
                   <IconButton label="Close drawing" disabled={exporting}>
-                    <X size={18} aria-hidden />
+                    <XIcon size={18} aria-hidden />
                   </IconButton>
                 }
                 disabled={exporting}
@@ -423,7 +430,7 @@ export function SketchPad({
                   setTool('pen')
                 }}
               >
-                <PenLine size={18} aria-hidden />
+                <PenNibStraightIcon size={18} aria-hidden />
               </IconButton>
               <IconButton
                 label="Eraser"
@@ -434,7 +441,7 @@ export function SketchPad({
                   setTool('eraser')
                 }}
               >
-                <Eraser size={18} aria-hidden />
+                <EraserIcon size={18} aria-hidden />
               </IconButton>
               <div
                 className="sketch-colors"
@@ -471,7 +478,7 @@ export function SketchPad({
                   disabled={exporting || (!history.position && !history.active)}
                   onClick={() => changeHistory(undoSketch)}
                 >
-                  <Undo2 size={18} aria-hidden />
+                  <ArrowUUpLeftIcon size={18} aria-hidden />
                 </IconButton>
                 <IconButton
                   label="Redo"
@@ -482,7 +489,7 @@ export function SketchPad({
                   }
                   onClick={() => changeHistory(redoSketch)}
                 >
-                  <Redo2 size={18} aria-hidden />
+                  <ArrowUUpRightIcon size={18} aria-hidden />
                 </IconButton>
                 <IconButton
                   label="Clear drawing"
@@ -493,7 +500,7 @@ export function SketchPad({
                     apply(clearSketch(historyRef.current))
                   }}
                 >
-                  <Trash2 size={18} aria-hidden />
+                  <TrashIcon size={18} aria-hidden />
                 </IconButton>
               </div>
             </div>

@@ -151,9 +151,9 @@ function Index() {
 
         <WhyTanStackSection />
 
-        <HomeSocialProofSection recentPosts={recentPosts} />
-
         <HomeCommunitySection />
+
+        <HomeSocialProofSection recentPosts={recentPosts} />
 
         <div className="h-4" />
         <HomeNewsletterSection />

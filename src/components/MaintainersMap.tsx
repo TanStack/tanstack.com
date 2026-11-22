@@ -29,8 +29,7 @@ import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
 const maxZoom = 128
-const mobileInitialScale = zoomStep
-const desktopInitialScale = initialView.scale * zoomStep
+const initialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
 const mobileZoomFade = 48
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
@@ -785,20 +784,14 @@ export function MaintainersMap({
 
   useLayoutEffect(() => {
     if (!host || !surface) return
-    const mobile = window.matchMedia(mobileViewport)
     const readBounds = () => {
       const width = host.clientWidth
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
       const height = host.clientHeight
-      const initialScale = mobile.matches
-        ? mobileInitialScale
-        : desktopInitialScale
-      const projectionHeight = Math.min(
-        height,
-        paintWidth / (initialScale * globeGlowDiameter),
-      )
       const paintHeight = surface.clientHeight
+      const projectionHeight =
+        Math.min(paintWidth, paintHeight) / (initialScale * globeGlowDiameter)
       return {
         width,
         height,
@@ -1103,17 +1096,14 @@ export function MaintainersMap({
               const fade = Math.min(
                 mobileZoomFade,
                 mobileZoomFade *
-                  Math.max(
-                    0,
-                    (current.scale - mobileInitialScale) / (zoomStep - 1),
-                  ),
+                  Math.max(0, (current.scale - initialScale) / (zoomStep - 1)),
               )
               const drawRadius = projectionHeight * current.scale * globeRadius
               const fadeAt = (overflow: number) =>
                 `${Math.max(0, Math.min(fade, overflow))}px`
               canvasSurface.style.setProperty(
-                '--globe-fade-bottom',
-                fadeAt(centerY + drawRadius - paintTop - paintHeight),
+                '--globe-fade-vertical',
+                fadeAt(drawRadius - paintHeight / 2),
               )
               canvasSurface.style.setProperty(
                 '--globe-fade-side',
@@ -1217,9 +1207,6 @@ export function MaintainersMap({
         wakeGlobe.current?.()
       })
     selection.call(behavior)
-    const initialScale = window.matchMedia(mobileViewport).matches
-      ? mobileInitialScale
-      : desktopInitialScale
     selection.call(behavior.transform, zoomIdentity.scale(initialScale))
     view.current.scale = initialScale
     return () => {
@@ -1261,8 +1248,9 @@ export function MaintainersMap({
             mask-image:
               linear-gradient(
                 to bottom,
-                black,
-                black calc(100% - var(--globe-fade-bottom, 0px)),
+                transparent,
+                black var(--globe-fade-vertical, 0px),
+                black calc(100% - var(--globe-fade-vertical, 0px)),
                 transparent
               ),
               linear-gradient(
@@ -1332,7 +1320,7 @@ export function MaintainersMap({
             <div
               ref={setSurface}
               data-globe-surface
-              className="absolute left-1/2 h-full w-[100cqw] -translate-x-1/2 sm:top-1/2 sm:h-[max(100%,100cqw)] sm:-translate-y-1/2"
+              className="absolute top-0 left-1/2 h-full w-[100cqw] -translate-x-1/2 sm:top-1/2 sm:h-[max(100%,100cqw)] sm:-translate-y-1/2"
             />
           </div>
           <div
@@ -1474,12 +1462,7 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
-              select(host).call(
-                behavior.scaleTo,
-                window.matchMedia(mobileViewport).matches
-                  ? mobileInitialScale
-                  : desktopInitialScale,
-              )
+              select(host).call(behavior.scaleTo, initialScale)
               target.current.theta = startingView.theta
               wakeGlobe.current?.()
             }}

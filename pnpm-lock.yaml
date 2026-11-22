@@ -351,9 +351,6 @@ importers:
       react-instantsearch:
         specifier: ^7.29.0
         version: 7.29.0(algoliasearch@5.50.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      remove-markdown:
-        specifier: ^0.6.3
-        version: 0.6.3
       resend:
         specifier: ^6.10.0
         version: 6.10.0
@@ -448,9 +445,6 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
-      '@types/remove-markdown':
-        specifier: ^0.3.4
-        version: 0.3.4
       '@types/tar-stream':
         specifier: ^3.1.4
         version: 3.1.4
@@ -4843,9 +4837,6 @@ packages:
   '@types/react@19.2.18':
     resolution: {integrity: sha512-AnzbBERsrLKtk2XSfTbYRLjQPdy116Sty4q+T+Bp3IC4l6jNBvreVPAHmpq9qhXQM7CXZPjLVmGMw9sy+hxQ3w==}
 
-  '@types/remove-markdown@0.3.4':
-    resolution: {integrity: sha512-i753EH/p02bw7bLlpfS/4CV1rdikbGiLabWyVsAvsFid3cA5RNU1frG7JycgY+NSnFwtoGlElvZVceCytecTDA==}
-
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
 
@@ -7729,9 +7720,6 @@ packages:
 
   remove-accents@0.5.0:
     resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
-
-  remove-markdown@0.6.3:
-    resolution: {integrity: sha512-Qvp2p0Q1irE7AaJO7QemJe04HdObHylJrG+q4hszvPlYp7q4EvfINpEIaIEFdB+3XTDp1h6fiyT60ae00gmRow==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -12894,8 +12882,6 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@types/remove-markdown@0.3.4': {}
-
   '@types/responselike@1.0.3':
     dependencies:
       '@types/node': 25.5.0
@@ -16090,8 +16076,6 @@ snapshots:
   regexparam@2.0.2: {}
 
   remove-accents@0.5.0: {}
-
-  remove-markdown@0.6.3: {}
 
   require-directory@2.1.1: {}
 

@@ -37,15 +37,12 @@ function ToastNotifications({ children }: ToastProviderProps) {
   const { add, toasts } = Toast.useToastManager()
 
   const notify = React.useCallback(
-    (content: React.ReactNode, { durationMs, id }: ToastOptions = {}) => {
-      const hasId = id !== undefined && id !== ''
-      const toastId = add({
+    (content: React.ReactNode, { durationMs, id }: ToastOptions = {}) =>
+      add({
         title: content,
         timeout: durationMs === Infinity ? 0 : durationMs,
-        id: hasId ? `${typeof id}:${id}` : undefined,
-      })
-      return hasId ? String(id) : toastId
-    },
+        id: id?.toString(),
+      }),
     [add],
   )
 

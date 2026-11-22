@@ -34,11 +34,6 @@ const mobileZoomFade = 48
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
-const entranceThreshold = 0.25
-const entranceDuration = 850
-const entranceRise = 56
-const entranceScale = 0.72
-const mobileEntranceScale = 0.93
 const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
@@ -850,7 +845,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     const container = host
     const instance = globe
     const canvasSurface = surface
-    const scene = container.querySelector<HTMLElement>('[data-globe-overlay]')
     const section = container.closest('section')
     const help = section?.querySelector('#maintainers-globe-help')
     const intro = section?.parentElement?.querySelector(':scope > header')
@@ -921,26 +915,17 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       passive: true,
     })
     visualViewport?.addEventListener('resize', updateViewport)
-    let visible = false
+    let nearViewport = false
     let anchors = new Map<string, Anchor>()
     let wasGlobeVisible = false
     let layoutMoving = true
     let wasIdle = true
-    let entranceVisible = false
-    let entered = container.hasAttribute('data-globe-entered')
-    let entrancePrepared = false
-    let entranceStart: number | undefined
-    if (scene) scene.style.transform = ''
-    if (entered) scene?.removeAttribute('inert')
     const observer = new IntersectionObserver(
       ([entry]) => {
-        visible = entry.isIntersecting
-        entranceVisible =
-          visible && entry.intersectionRatio >= entranceThreshold
-        if (!entranceVisible) entrancePrepared = false
+        nearViewport = entry.isIntersecting
         updateViewport()
       },
-      { threshold: [0, entranceThreshold] },
+      { rootMargin: '25%' },
     )
     observer.observe(host)
     const mobile = window.matchMedia(mobileViewport)
@@ -958,14 +943,8 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       if (elapsed >= frameInterval) {
         lastFrame = now
         const bounds = hostSize.current
-        const {
-          height,
-          centerY,
-          paintWidth,
-          paintHeight,
-          paintTop,
-          projectionHeight,
-        } = bounds
+        const { centerY, paintWidth, paintHeight, paintTop, projectionHeight } =
+          bounds
         const radius = projectionHeight * view.current.scale * globeRadius
         const globeTop = centerY - radius
         const globeBottom = centerY + radius
@@ -984,17 +963,16 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         const visibilityChanged = globeVisible !== wasGlobeVisible
         wasGlobeVisible = globeVisible
         if (
-          (visible || globeVisible || visibilityChanged) &&
+          (nearViewport || globeVisible || visibilityChanged) &&
           !document.hidden
         ) {
-          const preparing = entranceVisible && !entered
           const readingProfile = container.querySelector(
             '[data-globe-profile]:hover, [data-globe-profile]:focus-within',
           )
           const idle = !readingProfile && !interacting.current
           const autoRotate =
             globeVisible && !reducedMotion && !pausedRef.current
-          if (entered && autoRotate && idle) {
+          if (autoRotate && idle) {
             target.current.phi += Math.min(elapsed, 100) * 0.00015
           }
           const current = view.current,
@@ -1017,51 +995,28 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             viewportChanged ||
             visibilityChanged ||
             layoutMoving ||
-            (preparing && !profileNodes.current) ||
             (idle && !wasIdle)
           ) {
             const nodes = profileNodes.current ?? readProfileNodes(container)
             // The ClientOnly portraits may mount a frame after the pins.
             if (nodes.length === groupsRef.current.length)
               profileNodes.current = nodes
-            layoutMoving = placeProfiles(
-              nodes,
-              hostSize.current,
-              mobile.matches,
-              anchors,
-              profilePositions,
-              elapsed,
-              idle,
-              viewport,
-              globeVisible,
-            )
+            layoutMoving =
+              placeProfiles(
+                nodes,
+                hostSize.current,
+                mobile.matches,
+                anchors,
+                profilePositions,
+                elapsed,
+                idle,
+                viewport,
+                globeVisible,
+              ) || !profileNodes.current
             viewportChanged = false
           }
           wasIdle = idle
-          // Let the browser paint the hidden surface before revealing the scene.
-          const reveal =
-            preparing &&
-            profileNodes.current !== undefined &&
-            (entrancePrepared || reducedMotion)
-          if (preparing && profileNodes.current) entrancePrepared = true
-          const entering = entranceStart !== undefined
-          const progress =
-            entranceStart === undefined
-              ? Number(entered || reducedMotion)
-              : Math.min(1, (now - entranceStart) / entranceDuration)
-          const remaining = (1 - progress) ** 4
-          const startScale = mobile.matches
-            ? mobileEntranceScale
-            : entranceScale
-          const entryScale = 1 - (1 - startScale) * remaining
-          const offsetY = entranceRise * remaining
-          if ((entering || reveal) && scene) {
-            // Apply the camera's entrance motion to the interactive overlays.
-            scene.style.transform = remaining
-              ? `translateY(${offsetY}px) scale(${entryScale})`
-              : ''
-          }
-          if ((redraw || entering) && paintHeight > 0) {
+          if (redraw && paintHeight > 0) {
             if (
               mobile.matches &&
               (current.scale !== fadedScale || bounds !== fadedBounds)
@@ -1087,33 +1042,12 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             }
             const paintView = {
               ...current,
-              scale:
-                (current.scale * projectionHeight * entryScale) / paintHeight,
+              scale: (current.scale * projectionHeight) / paintHeight,
             }
-            instance.draw(
-              paintView,
-              paintWidth,
-              paintHeight,
-              offsetY +
-                (centerY - height / 2) * entryScale +
-                (height - paintHeight) / 2 -
-                paintTop,
-            )
-          }
-          if (progress === 1) entranceStart = undefined
-          if (reveal) {
-            entered = true
-            if (!reducedMotion) entranceStart = now
-            container.setAttribute('data-globe-entered', '')
-            scene?.removeAttribute('inert')
+            instance.draw(paintView, paintWidth, paintHeight)
           }
           dirty.current = false
-          keepAnimating =
-            autoRotate ||
-            entranceStart !== undefined ||
-            (preparing && !entered) ||
-            moving ||
-            layoutMoving
+          keepAnimating = autoRotate || moving || layoutMoving
         }
       }
       if (keepAnimating) requestFrame()
@@ -1242,18 +1176,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }
         }
-        @media (prefers-reduced-motion: no-preference) {
-          [data-globe-scene] { opacity: 0; }
-          [data-globe-entered] [data-globe-scene] {
-            opacity: 1;
-            animation: maintainer-globe-enter ${entranceDuration}ms cubic-bezier(0.16, 1, 0.3, 1);
-          }
-        }
-        @keyframes maintainer-globe-enter {
-          from { opacity: 0; }
-          25% { opacity: 1; }
-          to { opacity: 1; }
-        }
       `}</style>
       <div className="relative h-(--globe-height)">
         <div
@@ -1289,21 +1211,11 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           className="absolute inset-y-0 left-1/2 w-(--globe-width) -translate-x-1/2 outline-offset-4"
         >
           <div
-            data-globe-scene
-            className="pointer-events-none absolute inset-0 -z-10"
-          >
-            <div
-              ref={setSurface}
-              data-globe-surface
-              className="absolute inset-x-0 top-0 h-full sm:top-1/2 sm:h-(--globe-width) sm:-translate-y-1/2"
-            />
-          </div>
-          <div
-            data-globe-scene
-            data-globe-overlay
-            inert
-            className="absolute inset-0"
-          >
+            ref={setSurface}
+            data-globe-surface
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-full sm:top-1/2 sm:h-(--globe-width) sm:-translate-y-1/2"
+          />
+          <div className="absolute inset-0">
             <div className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing" />
             <svg
               aria-hidden="true"

@@ -1,0 +1,101 @@
+name: Bundle Size Comment
+
+on:
+  workflow_run:
+    workflows: [Bundle Size]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  comment:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: write
+    concurrency:
+      group: bundle-size-comment-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+    steps:
+      # A fork controls these artifacts. Read their numeric measurements as data only.
+      - name: Download bundle sizes
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          pattern: bundle-size-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/bundle-size
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Update pull request comment
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const { readFileSync, statSync } = require('node:fs')
+            const { join } = require('node:path')
+            const metrics = [
+              ['JavaScript', 'js'],
+              ['JavaScript (gzip)', 'jsGzip'],
+              ['CSS', 'css'],
+              ['CSS (gzip)', 'cssGzip'],
+            ]
+            function readReport(build) {
+              const file = join(process.env.RUNNER_TEMP, 'bundle-size', `bundle-size-${build}.json`)
+              if (statSync(file).size > 1024) throw new Error('Bundle size report is too large')
+              const report = JSON.parse(readFileSync(file, 'utf8'))
+              if (
+                !Number.isSafeInteger(report?.prNumber) || report.prNumber < 1 ||
+                typeof report.baseSha !== 'string' || !/^[a-f0-9]{40}$/.test(report.baseSha) ||
+                metrics.some(([, key]) => !Number.isSafeInteger(report.sizes?.[key]) || report.sizes[key] < 1)
+              ) throw new Error('Invalid bundle size report')
+              return report
+            }
+
+            const main = readReport('main')
+            const candidate = readReport('pr')
+            if (main.prNumber !== candidate.prNumber || main.baseSha !== candidate.baseSha) {
+              throw new Error('Bundle size reports refer to different builds')
+            }
+            const run = context.payload.workflow_run
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: main.prNumber })
+            if (
+              pr.state !== 'open' || pr.base.ref !== 'main' ||
+              pr.head.repo?.id !== run.head_repository?.id ||
+              pr.head.ref !== run.head_branch || pr.head.sha !== run.head_sha
+            ) return
+
+            const kib = (bytes) => `${(bytes / 1024).toFixed(2)} KiB`
+            const rows = metrics.map(([label, key]) => {
+              const before = main.sizes[key]
+              const after = candidate.sizes[key]
+              const delta = after - before
+              const sign = delta > 0 ? '+' : ''
+              const change = `${sign}${kib(delta)} (${sign}${(100 * delta / before).toFixed(2)}%)`
+              return `| ${label} | ${kib(before)} | ${kib(after)} | ${change} |`
+            })
+            const marker = /^<!-- bundle-size-report:(\d+) -->/
+            const body = [
+              `<!-- bundle-size-report:${run.run_number} -->`,
+              '### Client bundle size',
+              '',
+              '| Asset | Main | PR merge build | Change |',
+              '| --- | ---: | ---: | ---: |',
+              ...rows,
+              '',
+              `Compared with main at \`${main.baseSha.slice(0, 7)}\`. Gzip sizes are summed per file. [Build run](${run.html_url})`,
+            ].join('\n')
+
+            const issue = { ...context.repo, issue_number: pr.number }
+            for await (const { data: comments } of github.paginate.iterator(github.rest.issues.listComments, issue)) {
+              const previous = comments.find((comment) =>
+                comment.user?.login === 'github-actions[bot]' && marker.test(comment.body),
+              )
+              if (!previous) continue
+              const previousRun = Number(previous.body.match(marker)[1])
+              if (previousRun <= run.run_number && previous.body !== body) {
+                await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body })
+              }
+              return
+            }
+            await github.rest.issues.createComment({ ...issue, body })

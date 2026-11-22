@@ -1,0 +1,75 @@
+name: Bundle Size
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bundle-size-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Measure ${{ matrix.build }} bundle
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - build: main
+            ref: ${{ github.event.pull_request.base.sha }}
+          - build: pr
+            ref: ${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ matrix.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Tools
+        uses: tanstack/config/.github/setup@e4b48f16568324f76f467aa4c2aac2f05db632c3 # main
+      - name: Build
+        run: pnpm build
+      - name: Measure client assets
+        env:
+          REPORT_FILE: ${{ runner.temp }}/bundle-size-${{ matrix.build }}.json
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
+          import { extname, join } from 'node:path'
+          import { gzipSync } from 'node:zlib'
+
+          const sizes = { js: 0, jsGzip: 0, css: 0, cssGzip: 0 }
+          const entries = readdirSync('dist/client/assets', {
+            recursive: true,
+            withFileTypes: true,
+          })
+          for (const entry of entries) {
+            const extension = extname(entry.name).slice(1)
+            if (!entry.isFile() || (extension !== 'js' && extension !== 'css')) continue
+            const bytes = readFileSync(join(entry.parentPath, entry.name))
+            sizes[extension] += bytes.length
+            sizes[`${extension}Gzip`] += gzipSync(bytes).length
+          }
+          if (sizes.js === 0 || sizes.css === 0) {
+            throw new Error('Expected built JS and CSS in dist/client/assets')
+          }
+          writeFileSync(process.env.REPORT_FILE, JSON.stringify({
+            prNumber: Number(process.env.PR_NUMBER),
+            baseSha: process.env.BASE_SHA,
+            sizes,
+          }))
+          NODE
+      - name: Upload bundle sizes
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: bundle-size-${{ matrix.build }}
+          path: ${{ runner.temp }}/bundle-size-${{ matrix.build }}.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7

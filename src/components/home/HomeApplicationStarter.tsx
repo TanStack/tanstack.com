@@ -1,9 +1,6 @@
 import * as React from 'react'
-import { Hydrate } from '@tanstack/react-start'
-import { visible } from '@tanstack/react-start/hydration'
 
 import { ApplicationStarter } from '~/components/ApplicationStarter'
-import { HomeApplicationStarterFallback } from './HomeSectionFallbacks'
 
 const headlineStorageKey = 'tanstack-home-starter-headline-index'
 const headlines = [
@@ -15,17 +12,6 @@ const headlines = [
 ] as const
 
 export function HomeApplicationStarter() {
-  return (
-    <Hydrate
-      when={visible({ rootMargin: '0px' })}
-      fallback={<HomeApplicationStarterFallback />}
-    >
-      <RotatingHomeApplicationStarter />
-    </Hydrate>
-  )
-}
-
-function RotatingHomeApplicationStarter() {
   const [headlineIndex, setHeadlineIndex] = React.useState(0)
 
   React.useEffect(() => {
@@ -45,14 +31,6 @@ function RotatingHomeApplicationStarter() {
       headlineStorageKey,
       String((currentIndex + 1) % headlines.length),
     )
-
-    const section = document.getElementById('start-with-a-prompt')
-    if (section?.dataset.focusPrompt === 'true') {
-      const field = section.querySelector<HTMLTextAreaElement>('textarea')
-      field?.focus()
-      field?.select()
-      delete section.dataset.focusPrompt
-    }
   }, [])
 
   return (

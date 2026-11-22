@@ -1,7 +1,5 @@
 import { lazy, Suspense } from 'react'
 import { ClientOnly, createLink } from '@tanstack/react-router'
-import { Hydrate } from '@tanstack/react-start'
-import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react'
 import { Button } from '~/components/ds/ui'
 import { allMaintainers } from '~/libraries/maintainers'
@@ -14,28 +12,19 @@ const MaintainersMap = lazy(() =>
   })),
 )
 
+// Reserve the map, its help text line, and the gap between them.
 const globeFallback = (
-  <div aria-hidden="true" className="box-content h-(--globe-height) pb-16" />
+  <div
+    aria-hidden="true"
+    className="box-content h-(--globe-height) pb-[calc(1rem+1lh)] text-xs leading-relaxed"
+  />
 )
 
 export function HomeCommunitySection() {
   return (
-    <div className="@container mx-auto w-full max-w-(--breakpoint-lg) px-4 [--globe-width:calc(100cqw+2rem)] [--globe-height:calc(var(--globe-width)*1.25)] sm:[--globe-width:min(120cqw,calc(100vw-1rem))] sm:[--globe-height:calc(var(--globe-width)*0.875)]">
-      <Hydrate
-        when={visible({ rootMargin: '25%' })}
-        fallback={<div className="pt-16">{globeFallback}</div>}
-      >
-        <HomeCommunityContent />
-      </Hydrate>
-    </div>
-  )
-}
-
-function HomeCommunityContent() {
-  return (
     <section
       aria-labelledby="maintainers"
-      className="isolate flex flex-col gap-4"
+      className="@container isolate mx-auto flex w-full max-w-(--breakpoint-lg) flex-col gap-4 px-4 [--globe-width:calc(100cqw+2rem)] [--globe-height:calc(var(--globe-width)*1.25)] sm:[--globe-width:min(120cqw,calc(100vw-1rem))] sm:[--globe-height:calc(var(--globe-width)*0.875)]"
     >
       <header className="sm:mb-10 lg:-mt-6">
         <h2

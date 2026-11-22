@@ -1,0 +1,28 @@
+diff --git a/dist/NumberFlow-client-Cwo3BD4J.js b/dist/NumberFlow-client-Cwo3BD4J.js
+--- a/dist/NumberFlow-client-Cwo3BD4J.js
++++ b/dist/NumberFlow-client-Cwo3BD4J.js
+@@ -104,6 +104,10 @@
+         return null;
+     }
+     componentDidUpdate(_, __, didUpdate) {
++        if (isReact19 && this.el) {
++            // Redact writes an attribute instead of assigning this property.
++            this.el.data = this.props.data;
++        }
+         didUpdate?.();
+     }
+     handleRef(el) {
+diff --git a/dist/NumberFlow-client-BGPmzcXX.mjs b/dist/NumberFlow-client-BGPmzcXX.mjs
+--- a/dist/NumberFlow-client-BGPmzcXX.mjs
++++ b/dist/NumberFlow-client-BGPmzcXX.mjs
+@@ -81,6 +81,10 @@
+         return null;
+     }
+     componentDidUpdate(_, __, didUpdate) {
++        if (isReact19 && this.el) {
++            // Redact writes an attribute instead of assigning this property.
++            this.el.data = this.props.data;
++        }
+         didUpdate?.();
+     }
+     handleRef(el) {

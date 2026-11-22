@@ -18,6 +18,7 @@ overrides:
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
 patchedDependencies:
+  '@number-flow/react@0.6.2': 80306edd0e7c581978ecb77ebe3f0cfa98e3c0804130afe0df2a8ff3e1931b10
   '@tanstack/openai-base@0.10.11': d5a9a6775c599c7d626961820afdcb98df388773f78274c4e3708e30cddae5d3
   '@tanstack/router-core@1.171.34': f9187b6989d21f57e74b2e62f566350b92fda4efaa5af9a65ef5290137d5c27e
   postgres@3.4.8: 3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033
@@ -89,6 +90,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.31.0
         version: 1.31.0(@cfworker/json-schema@4.1.1)(zod@4.3.6)
+      '@number-flow/react':
+        specifier: ^0.6.2
+        version: 0.6.2(patch_hash=80306edd0e7c581978ecb77ebe3f0cfa98e3c0804130afe0df2a8ff3e1931b10)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@octokit/graphql':
         specifier: ^9.0.3
         version: 9.0.3
@@ -2159,6 +2163,12 @@ packages:
   '@noble/hashes@2.3.0':
     resolution: {integrity: sha512-oN+QwyX7VSHotibwubG3kpzbwKrfnyR6OOO+3Nk/53ADL7FmgHHz4TgrbaYKvvOw09u6QTx0oiH1cNCIOuN0CQ==}
     engines: {node: '>= 20.19.0'}
+
+  '@number-flow/react@0.6.2':
+    resolution: {integrity: sha512-WjZuV4aA+vhRCgCF+adGLgFVVAJ8vdvq6EchRT2FiBIgElTXtDOA3YgkcMr9UHpvpS9v4H70AB5wZv0D9jc3QA==}
+    peerDependencies:
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
 
   '@octokit/endpoint@11.0.3':
     resolution: {integrity: sha512-FWFlNxghg4HrXkD3ifYbS/IdL/mDHjh9QcsNyhQjN8dplUoZbejsdpmuqdA76nxj2xoWPs7p8uX2SNr9rYu0Ag==}
@@ -5755,6 +5765,9 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
+  esm-env@1.2.2:
+    resolution: {integrity: sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==}
+
   esprima@4.0.1:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
     engines: {node: '>=4'}
@@ -6953,6 +6966,9 @@ packages:
 
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
+
+  number-flow@0.6.2:
+    resolution: {integrity: sha512-MCnImG4Q5vPwhSXnov56nOuyyKn6LC+Qd7II1UiKc+ACRtug5iAtn0+CwXNxM38AC5lSowEY+oYEtZX2qMnUyw==}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -10037,6 +10053,13 @@ snapshots:
   '@noble/hashes@1.8.0': {}
 
   '@noble/hashes@2.3.0': {}
+
+  '@number-flow/react@0.6.2(patch_hash=80306edd0e7c581978ecb77ebe3f0cfa98e3c0804130afe0df2a8ff3e1931b10)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      esm-env: 1.2.2
+      number-flow: 0.6.2
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   '@octokit/endpoint@11.0.3':
     dependencies:
@@ -13810,6 +13833,8 @@ snapshots:
   escape-string-regexp@4.0.0:
     optional: true
 
+  esm-env@1.2.2: {}
+
   esprima@4.0.1: {}
 
   esrap@2.3.2:
@@ -15043,6 +15068,10 @@ snapshots:
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
+
+  number-flow@0.6.2:
+    dependencies:
+      esm-env: 1.2.2
 
   object-assign@4.1.1: {}
 

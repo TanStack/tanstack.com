@@ -1,5 +1,6 @@
 import { EraserIcon } from '@phosphor-icons/react/Eraser'
 import { BrainIcon } from '@phosphor-icons/react/Brain'
+import { ChartLineIcon } from '@phosphor-icons/react/ChartLine'
 import { ChartLineUpIcon } from '@phosphor-icons/react/ChartLineUp'
 import { ClipboardTextIcon } from '@phosphor-icons/react/ClipboardText'
 import { CrosshairIcon } from '@phosphor-icons/react/Crosshair'
@@ -10,12 +11,14 @@ import { GogglesIcon } from '@phosphor-icons/react/Goggles'
 import { HighlighterIcon } from '@phosphor-icons/react/Highlighter'
 import { MarkdownLogoIcon } from '@phosphor-icons/react/MarkdownLogo'
 import { PencilRulerIcon } from '@phosphor-icons/react/PencilRuler'
+import { PlugsConnectedIcon } from '@phosphor-icons/react/PlugsConnected'
 import { SealQuestionIcon } from '@phosphor-icons/react/SealQuestion'
 import { SlidersIcon } from '@phosphor-icons/react/Sliders'
 import { SmileyMeltingIcon } from '@phosphor-icons/react/SmileyMelting'
 import { SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
 import { TableIcon } from '@phosphor-icons/react/Table'
 import { TargetIcon } from '@phosphor-icons/react/Target'
+import { TerminalIcon } from '@phosphor-icons/react/Terminal'
 import { TerminalWindowIcon } from '@phosphor-icons/react/TerminalWindow'
 import { TimerIcon } from '@phosphor-icons/react/Timer'
 import { TrafficSignIcon } from '@phosphor-icons/react/TrafficSign'
@@ -48,6 +51,9 @@ export const libraryIcons: Record<string, Icon> = {
   cli: TerminalWindowIcon,
   intent: CrosshairIcon,
   ranger: SlidersIcon,
+  mcp: PlugsConnectedIcon,
+  'react-charts': ChartLineIcon,
+  'create-tsrouter-app': TerminalIcon,
 }
 
 /** Fallback icon for libraries without a specific mapping. */

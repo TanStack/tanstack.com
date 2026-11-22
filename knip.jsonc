@@ -40,7 +40,6 @@
         "src/components/Logo.tsx",
         "src/components/LogoColor.tsx",
         "src/components/LogoQueryGG.tsx",
-        "src/components/LogoQueryGGSmall.tsx",
         "src/components/MaintainersSection.tsx",
         "src/components/OptimizedImage.tsx",
         "src/components/PartnersSection.tsx",

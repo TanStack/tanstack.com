@@ -46,7 +46,7 @@ function HomeCommunityContent() {
             href="#maintainers"
             className="decoration-gray-400 hover:underline dark:decoration-gray-600"
           >
-            We&apos;re everywhere!
+            Who builds TanStack?
           </a>
         </h2>
       </header>

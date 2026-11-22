@@ -36,8 +36,6 @@ jobs:
       - name: Measure client assets
         env:
           REPORT_FILE: ${{ runner.temp }}/bundle-size-${{ matrix.build }}.json
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           node --input-type=module <<'NODE'
           import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -59,11 +57,7 @@ jobs:
           if (sizes.js === 0 || sizes.css === 0) {
             throw new Error('Expected built JS and CSS in dist/client/assets')
           }
-          writeFileSync(process.env.REPORT_FILE, JSON.stringify({
-            prNumber: Number(process.env.PR_NUMBER),
-            baseSha: process.env.BASE_SHA,
-            sizes,
-          }))
+          writeFileSync(process.env.REPORT_FILE, JSON.stringify(sizes))
           NODE
       - name: Upload bundle sizes
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -73,3 +67,82 @@ jobs:
           if-no-files-found: error
           overwrite: true
           retention-days: 7
+
+  comment:
+    name: Comment on bundle sizes
+    needs: build
+    if: >-
+      github.event.pull_request.head.repo.id == github.event.repository.id &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download bundle sizes
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          pattern: bundle-size-{main,pr}
+          merge-multiple: true
+          path: ${{ runner.temp }}/bundle-size
+      - name: Update pull request comment
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const { readFileSync } = require('node:fs')
+            const { join } = require('node:path')
+            const metrics = [
+              ['JavaScript', 'js'],
+              ['JavaScript (gzip)', 'jsGzip'],
+              ['CSS', 'css'],
+              ['CSS (gzip)', 'cssGzip'],
+            ]
+            function readSizes(build) {
+              const file = join(process.env.RUNNER_TEMP, 'bundle-size', `bundle-size-${build}.json`)
+              const sizes = JSON.parse(readFileSync(file, 'utf8'))
+              if (metrics.some(([, key]) => !Number.isSafeInteger(sizes?.[key]) || sizes[key] < 1)) {
+                throw new Error(`Invalid bundle sizes in ${file}`)
+              }
+              return sizes
+            }
+
+            const original = context.payload.pull_request
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: original.number })
+            if (pr.state !== 'open' || pr.base.ref !== 'main' || pr.head.sha !== original.head.sha) return
+
+            const main = readSizes('main')
+            const candidate = readSizes('pr')
+            const kib = (bytes) => `${(bytes / 1024).toFixed(2)} KiB`
+            const rows = metrics.map(([label, key]) => {
+              const before = main[key]
+              const after = candidate[key]
+              const delta = after - before
+              const sign = delta > 0 ? '+' : ''
+              const change = `${sign}${kib(delta)} (${sign}${(100 * delta / before).toFixed(2)}%)`
+              return `| ${label} | ${kib(before)} | ${kib(after)} | ${change} |`
+            })
+            const marker = /^<!-- bundle-size-report:(\d+) -->/
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const body = [
+              `<!-- bundle-size-report:${context.runNumber} -->`,
+              '### Client bundle size',
+              '',
+              '| Asset | Main | PR merge build | Change |',
+              '| --- | ---: | ---: | ---: |',
+              ...rows,
+              '',
+              `Compared with main at \`${original.base.sha.slice(0, 7)}\`. Gzip sizes are summed per file. [Build run](${runUrl})`,
+            ].join('\n')
+
+            const issue = { ...context.repo, issue_number: pr.number }
+            for await (const { data: comments } of github.paginate.iterator(github.rest.issues.listComments, issue)) {
+              const previous = comments.find((comment) =>
+                comment.user?.login === 'github-actions[bot]' && marker.test(comment.body),
+              )
+              if (!previous) continue
+              const previousRun = Number(previous.body.match(marker)[1])
+              if (previousRun <= context.runNumber && previous.body !== body) {
+                await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body })
+              }
+              return
+            }
+            await github.rest.issues.createComment({ ...issue, body })

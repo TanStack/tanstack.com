@@ -9,6 +9,7 @@ import type { PartnerPlacement } from '~/utils/analytics'
 
 type PartnersSponsorsContentProps = {
   analyticsPlacement: PartnerPlacement
+  previousLinkAlign?: 'center' | 'end'
 }
 
 type PartnersSponsorsSectionProps = {
@@ -45,6 +46,7 @@ function OssSponsorsBand() {
 
 export function PartnersSponsorsContent({
   analyticsPlacement,
+  previousLinkAlign = 'center',
 }: PartnersSponsorsContentProps) {
   return (
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -60,7 +62,9 @@ export function PartnersSponsorsContent({
         analyticsPlacement={analyticsPlacement}
         trailingBand={<OssSponsorsBand />}
       />
-      <div className="mt-6 flex justify-center">
+      <div
+        className={`mt-6 flex ${previousLinkAlign === 'end' ? 'justify-end' : 'justify-center'}`}
+      >
         <Link to="/partners" search={{ status: 'inactive' }}>
           <Button as="span" variant="subtle-link" color="gray">
             View Previous Partners

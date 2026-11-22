@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
 import {
   ArrowCounterClockwiseIcon,
@@ -18,20 +19,17 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import type { Maintainer } from '~/libraries/maintainers'
-import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 import { MaintainerAvatarImage } from './MaintainerAvatarImage'
-import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
+import { getVisitorLocation } from '~/utils/visitor-location.functions'
+import { createChartsGlobe } from './maintainersChartsGlobe'
 import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
 const maxZoom = 128
-const mobileInitialScale = zoomStep
-const desktopInitialScale = initialView.scale * zoomStep
+const initialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
-const mobileTopInset = 8
-const mobileCornerBleed = 6
 const mobileZoomFade = 48
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
@@ -45,7 +43,7 @@ const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
-const globeGlowDiameter = 0.92
+const globeGlowDiameter = 0.9
 const zoomControls = { width: 46, height: 171 }
 
 type View = typeof initialView
@@ -70,7 +68,6 @@ type ProfileViewport = {
   contentBottom: number
   helpTop: number
   helpBottom: number
-  filters: Array<{ left: number; right: number; top: number; bottom: number }>
 }
 
 type ProfileSize = { width: number; height: number }
@@ -209,7 +206,7 @@ function placeProfiles(
 ) {
   const gap = mobile ? 4 : 8
   const maxConnectorLength = mobile ? 48 : 72
-  const left = mobile ? 0 : viewportGutter
+  const left = mobile ? bounds.contentInset : viewportGutter
   const right = bounds.width - left
   const top = Math.max(viewport.contentTop, viewport.top)
   const badgeTop = Math.max(0, top)
@@ -246,7 +243,6 @@ function placeProfiles(
       top: viewport.helpTop,
       bottom: viewport.helpBottom,
     },
-    ...viewport.filters,
   ]
   const labels = nodes.flatMap(
     ({ id, card, line, pin, sizes, pendingImages }) => {
@@ -646,16 +642,10 @@ function placeProfiles(
 
 type MaintainersMapProps = {
   maintainers: Maintainer[]
-  selectedLibraries?: LibraryId[]
-  initialLocation: Parameters<typeof initialMaintainersView>[0]
 }
 
 function Key({ children }: { children: React.ReactNode }) {
-  return (
-    <kbd className="rounded border border-border-default px-1 py-0.5 font-sans text-[0.9em]">
-      {children}
-    </kbd>
-  )
+  return <kbd className="font-sans font-medium">{children}</kbd>
 }
 
 function GlobeAvatar({
@@ -684,11 +674,12 @@ function GlobeAvatar({
   )
 }
 
-export function MaintainersMap({
-  maintainers,
-  selectedLibraries,
-  initialLocation,
-}: MaintainersMapProps) {
+export function MaintainersMap({ maintainers }: MaintainersMapProps) {
+  const { data: initialLocation } = useSuspenseQuery({
+    queryKey: ['maintainers-globe', 'visitor-location'],
+    queryFn: () => getVisitorLocation().catch(() => null),
+    staleTime: Infinity,
+  })
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const [host, setHost] = useState((): HTMLDivElement | null => null)
   const [surface, setSurface] = useState((): HTMLDivElement | null => null)
@@ -756,15 +747,11 @@ export function MaintainersMap({
     for (const group of result) {
       const categories = new Set(
         group.members.map((member) => {
-          const library = [
-            ...(member.creatorOf ?? []),
-            ...(member.maintainerOf ?? []),
-            ...(member.contributorOf ?? []),
-            ...(member.consultantOf ?? []),
-          ].find(
-            (id) =>
-              !selectedLibraries?.length || selectedLibraries.includes(id),
-          )
+          const library =
+            member.creatorOf?.[0] ??
+            member.maintainerOf?.[0] ??
+            member.contributorOf?.[0] ??
+            member.consultantOf?.[0]
           return library ? categoryOf(library) : undefined
         }),
       )
@@ -775,62 +762,30 @@ export function MaintainersMap({
         : 'var(--color-text-secondary)'
     }
     return result
-  }, [maintainers, selectedLibraries, prefix, scale])
+  }, [maintainers, prefix, scale])
   const selected = groups.find((group) => group.id === selectedId)
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
 
   useLayoutEffect(() => {
     if (!host || !surface) return
-    const mobile = window.matchMedia(mobileViewport)
-    let landingWidth = 0
-    let landingHeight = 0
     const readBounds = () => {
       const width = host.clientWidth
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
-      let height = host.clientHeight
-      let centerY = height / 2
-      let mobilePaintTop = 0
-      let projectionHeight = Math.min(
-        height,
-        paintWidth / (desktopInitialScale * globeGlowDiameter),
-      )
-      if (mobile.matches) {
-        if (paintWidth !== landingWidth || window.scrollY === 0) {
-          landingWidth = paintWidth
-          landingHeight =
-            window.visualViewport?.height ??
-            document.documentElement.clientHeight
-        }
-        const pageTop = host.getBoundingClientRect().top + window.scrollY
-        mobilePaintTop = -Math.ceil(Math.max(0, pageTop))
-        host.style.setProperty('--globe-paint-top', `${mobilePaintTop}px`)
-        const halfWidth = paintWidth / 2 + mobileCornerBleed
-        // Fill the first viewport's corners, then reserve room for the entire globe.
-        const bottomDepth = Math.max(
-          halfWidth,
-          landingHeight - pageTop - mobileTopInset,
-        )
-        const radius = (bottomDepth ** 2 + halfWidth ** 2) / (2 * bottomDepth)
-        projectionHeight = radius / (mobileInitialScale * globeRadius)
-        centerY = mobileTopInset + radius
-        const globeHeight = Math.ceil(
-          centerY + radius * globeHaloScale + mobileTopInset,
-        )
-        if (height !== globeHeight)
-          host.style.setProperty('--globe-mobile-height', `${globeHeight}px`)
-        height = globeHeight
-      }
+      const height = host.clientHeight
       const paintHeight = surface.clientHeight
+      // The mobile surface is taller than the viewport-wide SVG's width so
+      // the globe fills its height and extends past its side edges.
+      const projectionHeight = paintHeight / (initialScale * globeGlowDiameter)
       return {
         width,
         height,
-        centerY,
+        centerY: height / 2,
         contentInset: (width - contentWidth) / 2,
         paintWidth,
         paintHeight,
-        paintTop: mobile.matches ? mobilePaintTop : (height - paintHeight) / 2,
+        paintTop: (height - paintHeight) / 2,
         projectionHeight,
       }
     }
@@ -899,8 +854,6 @@ export function MaintainersMap({
     const section = container.closest('section')
     const help = section?.querySelector('#maintainers-globe-help')
     const intro = section?.parentElement?.querySelector(':scope > header')
-    const filterControls =
-      section?.parentElement?.querySelectorAll('[data-globe-filter]') ?? []
     const navbarHeight =
       Number.parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue(
@@ -923,7 +876,7 @@ export function MaintainersMap({
     let fadedScale: number | undefined
     let fadedBounds: GlobeBounds | undefined
     const updateViewport = () => {
-      const { top, left, height } = container.getBoundingClientRect()
+      const { top, height } = container.getBoundingClientRect()
       const contentTop =
         (intro?.getBoundingClientRect().bottom ?? top) - top + viewportGutter
       const helpBounds = help?.getBoundingClientRect()
@@ -954,15 +907,6 @@ export function MaintainersMap({
         contentBottom,
         helpTop: (helpBounds?.top ?? 0) - top,
         helpBottom: (helpBounds?.bottom ?? 0) - top,
-        filters: Array.from(filterControls, (control) => {
-          const rect = control.getBoundingClientRect()
-          return {
-            top: rect.top - top,
-            bottom: rect.bottom - top,
-            left: rect.left - left,
-            right: rect.right - left,
-          }
-        }),
       }
       viewportChanged = true
       requestFrame()
@@ -1106,7 +1050,6 @@ export function MaintainersMap({
               ? Number(entered || reducedMotion)
               : Math.min(1, (now - entranceStart) / entranceDuration)
           const remaining = (1 - progress) ** 4
-          // Keep the mobile corners covered even at the start of the entrance.
           const startScale = mobile.matches
             ? mobileEntranceScale
             : entranceScale
@@ -1128,17 +1071,14 @@ export function MaintainersMap({
               const fade = Math.min(
                 mobileZoomFade,
                 mobileZoomFade *
-                  Math.max(
-                    0,
-                    (current.scale - mobileInitialScale) / (zoomStep - 1),
-                  ),
+                  Math.max(0, (current.scale - initialScale) / (zoomStep - 1)),
               )
               const drawRadius = projectionHeight * current.scale * globeRadius
               const fadeAt = (overflow: number) =>
                 `${Math.max(0, Math.min(fade, overflow))}px`
               canvasSurface.style.setProperty(
-                '--globe-fade-bottom',
-                fadeAt(centerY + drawRadius - paintTop - paintHeight),
+                '--globe-fade-vertical',
+                fadeAt(drawRadius - paintHeight / 2),
               )
               canvasSurface.style.setProperty(
                 '--globe-fade-side',
@@ -1242,9 +1182,6 @@ export function MaintainersMap({
         wakeGlobe.current?.()
       })
     selection.call(behavior)
-    const initialScale = window.matchMedia(mobileViewport).matches
-      ? mobileInitialScale
-      : desktopInitialScale
     selection.call(behavior.transform, zoomIdentity.scale(initialScale))
     view.current.scale = initialScale
     return () => {
@@ -1283,13 +1220,12 @@ export function MaintainersMap({
         }
         @media ${mobileViewport} {
           [data-globe-surface] {
-            top: var(--globe-paint-top, 0px);
-            height: calc(100% - var(--globe-paint-top, 0px));
             mask-image:
               linear-gradient(
                 to bottom,
-                black,
-                black calc(100% - var(--globe-fade-bottom, 0px)),
+                transparent,
+                black var(--globe-fade-vertical, 0px),
+                black calc(100% - var(--globe-fade-vertical, 0px)),
                 transparent
               ),
               linear-gradient(
@@ -1319,7 +1255,7 @@ export function MaintainersMap({
           to { opacity: 1; }
         }
       `}</style>
-      <div className="relative sm:aspect-[5/4]">
+      <div className="relative h-(--globe-height)">
         <div
           ref={setHost}
           role="application"
@@ -1350,7 +1286,7 @@ export function MaintainersMap({
             )
             invalidate()
           }}
-          className="relative h-[var(--globe-mobile-height,max(125cqw,66svh))] outline-offset-4 [overflow-anchor:none] sm:absolute sm:inset-y-0 sm:left-[calc(50%-50cqw)] sm:h-auto sm:w-[100cqw]"
+          className="absolute inset-y-0 left-1/2 w-(--globe-width) -translate-x-1/2 outline-offset-4"
         >
           <div
             data-globe-scene
@@ -1359,7 +1295,7 @@ export function MaintainersMap({
             <div
               ref={setSurface}
               data-globe-surface
-              className="absolute left-1/2 h-full w-[100cqw] -translate-x-1/2 sm:top-1/2 sm:h-[max(100%,100cqw)] sm:-translate-y-1/2"
+              className="absolute inset-x-0 top-0 h-full sm:top-1/2 sm:h-(--globe-width) sm:-translate-y-1/2"
             />
           </div>
           <div
@@ -1368,7 +1304,7 @@ export function MaintainersMap({
             inert
             className="absolute inset-0"
           >
-            <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing" />
+            <div className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing" />
             <svg
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 h-full w-full overflow-visible text-text-muted/60 dark:text-text-muted/50"
@@ -1501,12 +1437,7 @@ export function MaintainersMap({
             aria-label="Reset zoom and tilt"
             onClick={() => {
               if (!host) return
-              select(host).call(
-                behavior.scaleTo,
-                window.matchMedia(mobileViewport).matches
-                  ? mobileInitialScale
-                  : desktopInitialScale,
-              )
+              select(host).call(behavior.scaleTo, initialScale)
               target.current.theta = startingView.theta
               wakeGlobe.current?.()
             }}
@@ -1541,16 +1472,13 @@ export function MaintainersMap({
       </div>
       <p
         id="maintainers-globe-help"
-        className="relative z-20 min-h-8 rounded-lg border border-border-default bg-background-elevated px-3 py-2 text-xs leading-relaxed text-text-primary"
+        className="relative z-20 text-center text-xs leading-relaxed text-text-muted opacity-80"
       >
         <span className="hidden sm:inline sm:pointer-coarse:hidden">
-          Drag or <Key>Shift</Key>+arrows to rotate. Hold <Key>Ctrl</Key>/
-          <Key>⌘</Key> and scroll to zoom. Hover or focus a profile to pause,
-          select to see nearby maintainers, <Key>Esc</Key> to close.
+          Select to see nearby maintainers, <Key>Esc</Key> to close.
         </span>
         <span className="sm:hidden sm:pointer-coarse:inline">
-          Drag to rotate, pinch to zoom. Tap a profile to see nearby
-          maintainers.
+          Tap a profile to see nearby maintainers.
         </span>
       </p>
       {selected && (

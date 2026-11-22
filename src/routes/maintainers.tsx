@@ -1,52 +1,25 @@
 import { createFileRoute } from '@tanstack/react-router'
-import * as v from 'valibot'
-import { useState } from 'react'
 import * as React from 'react'
+import { CompactMaintainerCard } from '~/components/MaintainerCard'
 import {
-  XIcon,
-  FunnelIcon,
-  GridFourIcon,
-  GridNineIcon,
-  RowsIcon,
-} from '@phosphor-icons/react'
-import {
-  MaintainerCard,
-  CompactMaintainerCard,
-  MaintainerRowCard,
-} from '~/components/MaintainerCard'
-import { MaintainersMap } from '~/components/MaintainersMap'
+  MaintainersDirectoryFilters,
+  maintainersDirectorySearchSchema,
+} from '~/components/MaintainersDirectoryFilters'
 import { seo } from '~/utils/seo'
 import {
   allMaintainers,
   Maintainer,
   getPersonsMaintainerOf,
+  getMaintainersForLibraries,
   getRolePriorityForFilteredLibraries,
   getIsCoreMaintainerForFilteredLibraries,
   getRoleForFilteredLibraries,
 } from '~/libraries/maintainers'
-import { Library, libraries } from '~/libraries'
-import { libraryIdSchema } from '~/utils/schemas'
-import { getVisitorLocation } from '~/utils/visitor-location.functions'
-
-const viewModeSchema = v.picklist(['compact', 'full', 'row'])
-const groupBySchema = v.picklist(['none', 'core', 'library', 'role'])
-const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
-
-const searchSchema = v.object({
-  libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
-  viewMode: v.fallback(v.optional(viewModeSchema, 'full'), 'full'),
-  groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
-  sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),
-})
+import { libraries } from '~/libraries'
 
 export const Route = createFileRoute('/maintainers')({
-  loader: () => getVisitorLocation(),
-  headers: () => ({
-    'Cache-Control': 'private, no-store',
-    'Cloudflare-CDN-Cache-Control': 'no-store',
-  }),
   component: RouteComponent,
-  validateSearch: searchSchema,
+  validateSearch: maintainersDirectorySearchSchema,
   staticData: {
     includeSearchInCanonical: true,
   },
@@ -60,304 +33,17 @@ export const Route = createFileRoute('/maintainers')({
   }),
 })
 
-interface FilterProps {
-  selectedLibraries: Library['id'][] | undefined
-  viewMode: 'compact' | 'full' | 'row'
-  groupBy: 'none' | 'core' | 'library' | 'role'
-  sortBy: 'none' | 'name' | 'role' | 'contributions'
-  onLibrariesChange: (libraries: Library['id'][] | undefined) => void
-  onViewModeChange: (mode: 'compact' | 'full' | 'row') => void
-  onGroupByChange: (groupBy: 'none' | 'core' | 'library' | 'role') => void
-  onSortByChange: (sortBy: 'none' | 'name' | 'role' | 'contributions') => void
-  onClearAll: () => void
-}
-
-function MaintainersFilter({
-  selectedLibraries,
-  viewMode,
-  groupBy,
-  sortBy,
-  onLibrariesChange,
-  onViewModeChange,
-  onGroupByChange,
-  onSortByChange,
-  onClearAll,
-}: FilterProps) {
-  const [isOpen, setIsOpen] = useState(false)
-
-  const availableLibraries = libraries
-    .filter((lib) => lib.visible !== false)
-    .map((lib) => ({
-      id: lib.id,
-      name: lib.name,
-      bgStyle: lib.bgStyle,
-    }))
-
-  const toggleLibrary = (libraryId: Library['id']) => {
-    if (!selectedLibraries) {
-      onLibrariesChange([libraryId])
-      return
-    }
-
-    if (selectedLibraries.includes(libraryId)) {
-      const newLibraries = selectedLibraries.filter((id) => id !== libraryId)
-      onLibrariesChange(newLibraries.length > 0 ? newLibraries : undefined)
-    } else {
-      onLibrariesChange([...selectedLibraries, libraryId])
-    }
-  }
-
-  const clearFilters = () => {
-    onClearAll()
-    setIsOpen(false)
-  }
-
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (!target.closest('[data-filter-dropdown]')) {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('click', handleClickOutside)
-      return () => document.removeEventListener('click', handleClickOutside)
-    }
-  }, [isOpen])
-
-  const hasFilters =
-    (selectedLibraries && selectedLibraries.length > 0) ||
-    groupBy !== 'none' ||
-    sortBy !== 'none'
-  const filterCount =
-    (selectedLibraries?.length || 0) +
-    (groupBy !== 'none' ? 1 : 0) +
-    (sortBy !== 'none' ? 1 : 0)
-
-  return (
-    <div className="pointer-events-none relative z-20 [&_button]:pointer-events-auto">
-      <div className="relative flex items-center gap-3 flex-wrap">
-        {/* View Mode Toggle */}
-        <div
-          data-globe-filter
-          className="pointer-events-auto flex items-center bg-background-elevated border border-border-default dark:border-white/20 rounded-lg"
-        >
-          {(
-            [
-              {
-                mode: 'compact',
-                Icon: GridNineIcon,
-                title: 'Compact cards',
-                rounded: 'rounded-l-lg',
-              },
-              {
-                mode: 'full',
-                Icon: GridFourIcon,
-                title: 'Full cards',
-                rounded: '',
-              },
-              {
-                mode: 'row',
-                Icon: RowsIcon,
-                title: 'Row cards',
-                rounded: 'rounded-r-lg',
-              },
-            ] as const
-          ).map(({ mode, Icon, title, rounded }) => (
-            <button
-              key={mode}
-              onClick={() => onViewModeChange(mode)}
-              className={`p-2 ${rounded} transition-colors ${
-                viewMode === mode
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-              }`}
-              title={title}
-            >
-              <Icon className="w-5 h-5" />
-            </button>
-          ))}
-        </div>
-
-        {/* Filter dropdown trigger */}
-        <div
-          className="pointer-events-auto sm:relative"
-          data-filter-dropdown
-          data-globe-filter
-        >
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-background-elevated border border-border-default dark:border-white/20 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <FunnelIcon className="w-4 h-4" />
-            Filter & Sort
-            {hasFilters && (
-              <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">
-                {filterCount}
-              </span>
-            )}
-          </button>
-
-          {/* Dropdown menu */}
-          {isOpen && (
-            <div className="absolute top-full left-0 mt-2 w-full max-w-96 sm:w-96 bg-background-elevated border border-border-default dark:border-white/20 rounded-lg shadow-lg z-50">
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-text-primary">
-                    Filter & Sort Options
-                  </span>
-                  {hasFilters && (
-                    <button
-                      onClick={clearFilters}
-                      className="text-xs text-text-muted hover:text-text-primary transition-colors"
-                    >
-                      Clear All
-                    </button>
-                  )}
-                </div>
-
-                {/* Group By */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="groupBy"
-                    className="block text-xs font-medium text-text-secondary mb-2"
-                  >
-                    Group By
-                  </label>
-                  <select
-                    value={groupBy}
-                    onChange={(e) =>
-                      onGroupByChange(e.target.value as typeof groupBy)
-                    }
-                    className="w-full px-3 py-2 text-sm bg-background-surface border border-border-default rounded-md text-text-primary"
-                  >
-                    <option value="none">No Grouping</option>
-                    <option value="core">
-                      Core vs Maintainers vs Contributors
-                    </option>
-                    <option value="library">By Library</option>
-                    <option value="role">By Role</option>
-                  </select>
-                </div>
-
-                {/* Sort By */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="sortBy"
-                    className="block text-xs font-medium text-text-secondary mb-2"
-                  >
-                    Sort By
-                  </label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) =>
-                      onSortByChange(e.target.value as typeof sortBy)
-                    }
-                    className="w-full px-3 py-2 text-sm bg-background-surface border border-border-default rounded-md text-text-primary"
-                  >
-                    <option value="none">No Sorting</option>
-                    <option value="name">Name</option>
-                    <option value="role">Role/Level</option>
-                    <option value="contributions">Contributions</option>
-                  </select>
-                </div>
-
-                {/* Library filter */}
-                <div>
-                  <label
-                    htmlFor="libraryFilter"
-                    className="block text-xs font-medium text-text-secondary mb-2"
-                  >
-                    Filter by Libraries
-                  </label>
-                  <div className="fade-y fade-size-y-sm grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
-                    {availableLibraries.map((library) => {
-                      const isSelected =
-                        selectedLibraries?.includes(library.id) || false
-
-                      const bgStyle = library.bgStyle ?? 'bg-category-tooling'
-
-                      return (
-                        <button
-                          key={library.id}
-                          onClick={() => toggleLibrary(library.id)}
-                          className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                            isSelected
-                              ? `${bgStyle} text-white`
-                              : `${bgStyle}/30 text-text-primary hover:${bgStyle}/40`
-                          }`}
-                        >
-                          {library.name}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Current filter chips */}
-        <div className="flex flex-wrap gap-2">
-          {selectedLibraries?.map((libraryId) => {
-            const library = availableLibraries.find(
-              (lib) => lib.id === libraryId,
-            )
-            const bgStyle = library?.bgStyle ?? 'bg-category-tooling'
-
-            return (
-              <span
-                key={libraryId}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-text-primary ${bgStyle}/40`}
-              >
-                {library?.name || libraryId}
-                <button
-                  onClick={() => toggleLibrary(libraryId)}
-                  className="hover:bg-black/10 dark:hover:bg-white/10 rounded p-0.5 transition-colors"
-                >
-                  <XIcon className="w-3 h-3" />
-                </button>
-              </span>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function MaintainerGrid({
   maintainers,
-  viewMode,
   title,
-  stats,
 }: {
   maintainers: Maintainer[]
-  viewMode: 'compact' | 'full' | 'row'
-  title?: string
-  stats?: Array<{
-    username: string
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }>
+  title: string
 }) {
   return (
-    <div className="@container">
-      {title && <h3 className="text-2xl font-semibold mb-4">{title}</h3>}
-      <div
-        className={`transition-all duration-300 ${
-          viewMode === 'compact'
-            ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
-            : viewMode === 'row'
-              ? 'flex flex-col gap-4'
-              : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
-        }`}
-      >
+    <div>
+      {title && <h3 className="mb-4 text-2xl font-semibold">{title}</h3>}
+      <div className="grid grid-cols-3 gap-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {maintainers.map((maintainer, index) => (
           <div
             key={maintainer.github}
@@ -367,16 +53,7 @@ function MaintainerGrid({
               animation: 'fadeInUp 0.5s ease-out forwards',
             }}
           >
-            {viewMode === 'compact' ? (
-              <CompactMaintainerCard maintainer={maintainer} />
-            ) : viewMode === 'row' ? (
-              <MaintainerRowCard
-                maintainer={maintainer}
-                stats={stats?.find((s) => s.username === maintainer.github)}
-              />
-            ) : (
-              <MaintainerCard maintainer={maintainer} />
-            )}
+            <CompactMaintainerCard maintainer={maintainer} />
           </div>
         ))}
       </div>
@@ -385,53 +62,28 @@ function MaintainerGrid({
 }
 
 function RouteComponent() {
-  const initialLocation = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 
-  const updateFilters = (updates: {
-    libraries?: Library['id'][] | undefined
-    viewMode?: 'compact' | 'full' | 'row'
-    groupBy?: 'none' | 'core' | 'library' | 'role'
-    sortBy?: 'none' | 'name' | 'role' | 'contributions'
-  }) => {
+  const updateFilters = (updates: Partial<typeof search>) => {
     navigate({
-      search: {
-        ...search,
-        ...updates,
-      },
+      search: (previous) => ({ ...previous, ...updates }),
       replace: true,
     })
   }
 
-  // Filter maintainers based on selected criteria
   const filteredMaintainers = React.useMemo(() => {
-    let filtered = [...allMaintainers]
-
-    // Filter by libraries
-    if (search.libraries && search.libraries.length > 0) {
-      const selectedLibraries = search.libraries
-      filtered = filtered.filter((maintainer) => {
-        const maintainerLibraries = getPersonsMaintainerOf(maintainer)
-        return (
-          maintainerLibraries.some((lib) =>
-            selectedLibraries.includes(lib.id as Library['id']),
-          ) ||
-          maintainer.creatorOf?.some((lib) =>
-            selectedLibraries.includes(lib),
-          ) ||
-          maintainer.maintainerOf?.some((lib) =>
-            selectedLibraries.includes(lib),
-          ) ||
-          maintainer.contributorOf?.some((lib) =>
-            selectedLibraries.includes(lib),
-          ) ||
-          maintainer.consultantOf?.some((lib) =>
-            selectedLibraries.includes(lib),
-          )
-        )
-      })
-    }
+    const filtered = getMaintainersForLibraries(search.libraries).filter(
+      (maintainer) =>
+        (!search.frameworks?.length ||
+          search.frameworks.some((framework) =>
+            maintainer.frameworkExpertise?.includes(framework),
+          )) &&
+        (!search.specialties?.length ||
+          maintainer.specialties?.some((specialty) =>
+            search.specialties?.includes(specialty.toLowerCase()),
+          )),
+    )
 
     // Sort maintainers
     filtered.sort((a, b) => {
@@ -492,7 +144,7 @@ function RouteComponent() {
     })
 
     return filtered
-  }, [search.libraries, search.sortBy])
+  }, [search.libraries, search.frameworks, search.specialties, search.sortBy])
 
   // Group maintainers based on groupBy setting
   const groupedMaintainers = React.useMemo(() => {
@@ -654,7 +306,9 @@ function RouteComponent() {
 
   const hasResults = filteredMaintainers.length > 0
   const hasFilters =
-    (search.libraries && search.libraries.length > 0) ||
+    !!search.libraries?.length ||
+    !!search.frameworks?.length ||
+    !!search.specialties?.length ||
     search.groupBy !== 'none' ||
     search.sortBy !== 'none'
 
@@ -674,8 +328,8 @@ function RouteComponent() {
       `}</style>
 
       <div className="@container isolate flex min-h-screen max-w-full flex-col pt-4 md:pt-8">
-        <div className="mx-auto flex w-[calc(100%-2rem)] max-w-4xl flex-1 flex-col gap-6 md:w-[calc(100%-4rem)] md:gap-16">
-          <header className="relative z-20 -mb-2 rounded-lg border border-border-default bg-background-elevated p-4 md:-mb-12">
+        <div className="mx-auto flex w-[calc(100%-2rem)] max-w-4xl flex-1 flex-col gap-6 md:w-[calc(100%-4rem)] md:gap-8">
+          <header>
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
             <p className="text-lg mt-3 md:mt-4 text-gray-600 dark:text-gray-400">
               Meet the amazing developers who make TanStack possible through
@@ -683,22 +337,14 @@ function RouteComponent() {
             </p>
           </header>
 
-          <MaintainersFilter
-            selectedLibraries={search.libraries}
-            viewMode={search.viewMode}
-            groupBy={search.groupBy}
-            sortBy={search.sortBy}
-            onLibrariesChange={(libraries) => updateFilters({ libraries })}
-            onViewModeChange={(viewMode) => updateFilters({ viewMode })}
-            onGroupByChange={(groupBy) => updateFilters({ groupBy })}
-            onSortByChange={(sortBy) => updateFilters({ sortBy })}
-            onClearAll={() => navigate({ search: {}, replace: true })}
-          />
-
-          <MaintainersMap
-            initialLocation={initialLocation}
-            maintainers={filteredMaintainers}
-            selectedLibraries={search.libraries}
+          <MaintainersDirectoryFilters
+            search={search}
+            onChange={updateFilters}
+            clearAll={
+              hasFilters
+                ? () => navigate({ search: {}, replace: true })
+                : undefined
+            }
           />
 
           {hasResults ? (
@@ -707,15 +353,6 @@ function RouteComponent() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
                   Showing {filteredMaintainers.length} maintainer
                   {filteredMaintainers.length === 1 ? '' : 's'}
-                  {search.libraries && search.libraries.length > 0 && (
-                    <span>
-                      {' '}
-                      for{' '}
-                      <span className="font-medium">
-                        {search.libraries.join(', ')}
-                      </span>
-                    </span>
-                  )}
                 </p>
               )}
 
@@ -723,7 +360,6 @@ function RouteComponent() {
                 <MaintainerGrid
                   key={group.title || 'all'}
                   maintainers={group.maintainers}
-                  viewMode={search.viewMode}
                   title={group.title}
                 />
               ))}

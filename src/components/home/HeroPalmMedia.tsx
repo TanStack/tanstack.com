@@ -17,6 +17,7 @@ export function HeroPalmMedia() {
     >
       {/* Keep the palm aligned with the original 944 × 416 composition. */}
       <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
+        <div className="absolute inset-0 bg-[url('/images/hero-sky-grain.png')]" />
         {/* White pixels leave the CSS sky untouched, even between the moving fronds. */}
         <div className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)] mix-blend-multiply">
           <img

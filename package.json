@@ -214,7 +214,6 @@
     "playwright-core": "^1.62.1",
     "seroval": "1.5.4",
     "sharp": "0.34.5",
-    "source-map-explorer": "^2.5.3",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",

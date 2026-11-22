@@ -113,7 +113,6 @@
         "gray-matter",
         "iconv-lite",
         "parse5-parser-stream",
-        "source-map-explorer",
       ],
     },
     "desktop": {

@@ -29,18 +29,18 @@ test('the palm loop stays at 24 fps, matches its still, and fits the media budge
     path.join(repoRoot, 'public', motion),
   ).metadata()
   const poster = await sharp(path.join(repoRoot, 'public', still)).metadata()
-  // The excerpt plays at the source rate of 24 fps. WebP stores whole milliseconds.
+  // The source has 121 frames at 24 fps. WebP stores whole milliseconds.
   const delays = Array.from(
-    { length: 70 },
+    { length: 121 },
     (_, i) => Math.round(((i + 1) * 1000) / 24) - Math.round((i * 1000) / 24),
   )
   assert.deepEqual(animation.delay, delays)
   const assetSize = (file: string) =>
     fs.statSync(path.join(repoRoot, 'public', file)).size
+  // The MP4 and its posters transferred 1.91 MB in the mobile baseline.
   assert.ok(
-    assetSize(motion) + assetSize(still) <
-      assetSize('/images/hero-palm-motion.mp4'),
-    'both palm images together should be smaller than the original MP4',
+    assetSize(motion) + assetSize(still) < 1_900_000,
+    'the combined palm assets should stay under 1.90 MB',
   )
   assert.equal(animation.loop, 0)
   assert.ok(animation.hasAlpha && poster.hasAlpha)

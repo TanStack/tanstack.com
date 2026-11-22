@@ -40,6 +40,7 @@ export async function timeRequestWork<T>(
 export async function withDocsRequestTimings(
   request: Request,
   work: () => Promise<Response>,
+  scheduleMetricFlush?: (flush: () => Promise<boolean>) => void,
 ) {
   if (!/^\/[^/]+\/[^/]+\/docs\//.test(new URL(request.url).pathname))
     return work()
@@ -54,6 +55,21 @@ export async function withDocsRequestTimings(
   return storage.run(timings, async () => {
     const response = await work()
     const durationMs = performance.now() - timings.startedAt
+    if (scheduleMetricFlush && Sentry.isEnabled()) {
+      Sentry.metrics.distribution(
+        'docs.response.headers.duration',
+        durationMs,
+        {
+          unit: 'millisecond',
+          attributes: {
+            'http.response.status_code': response.status,
+            'docs.database_used': timings.databaseUsed,
+            'docs.first_request_on_worker': docsRequest === 1,
+          },
+        },
+      )
+      scheduleMetricFlush(() => Sentry.flush(2_000))
+    }
     const totals = new Map<string, number>()
     for (const entry of timings.entries)
       totals.set(entry.name, (totals.get(entry.name) ?? 0) + entry.durationMs)

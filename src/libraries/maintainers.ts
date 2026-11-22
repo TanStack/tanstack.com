@@ -881,6 +881,20 @@ export function getLibraryContributors(
     : contributors
 }
 
+export function getMaintainersForLibraries(libraryIds?: Library['id'][]) {
+  if (!libraryIds?.length) return allMaintainers
+
+  return allMaintainers.filter((maintainer) =>
+    libraryIds.some(
+      (id) =>
+        maintainer.creatorOf?.includes(id) ||
+        maintainer.maintainerOf?.includes(id) ||
+        maintainer.contributorOf?.includes(id) ||
+        maintainer.consultantOf?.includes(id),
+    ),
+  )
+}
+
 export function getPersonsCreatorOf(person: Maintainer): LibrarySlim[] {
   return person.creatorOf?.map((libraryId) => getLibrary(libraryId)) || []
 }

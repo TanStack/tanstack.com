@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { ClientOnly } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { geoDistance, select, zoom, zoomIdentity, type D3ZoomEvent } from 'd3'
 import {
   ArrowCounterClockwiseIcon,
@@ -22,7 +23,8 @@ import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 import { MaintainerAvatarImage } from './MaintainerAvatarImage'
-import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
+import { getVisitorLocation } from '~/utils/visitor-location.functions'
+import { createChartsGlobe } from './maintainersChartsGlobe'
 import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
@@ -30,8 +32,6 @@ const maxZoom = 128
 const mobileInitialScale = zoomStep
 const desktopInitialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
-const mobileTopInset = 8
-const mobileCornerBleed = 6
 const mobileZoomFade = 48
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
@@ -647,7 +647,6 @@ function placeProfiles(
 type MaintainersMapProps = {
   maintainers: Maintainer[]
   selectedLibraries?: LibraryId[]
-  initialLocation: Parameters<typeof initialMaintainersView>[0]
 }
 
 function Key({ children }: { children: React.ReactNode }) {
@@ -687,8 +686,12 @@ function GlobeAvatar({
 export function MaintainersMap({
   maintainers,
   selectedLibraries,
-  initialLocation,
 }: MaintainersMapProps) {
+  const { data: initialLocation } = useSuspenseQuery({
+    queryKey: ['maintainers-globe', 'visitor-location'],
+    queryFn: () => getVisitorLocation().catch(() => null),
+    staleTime: Infinity,
+  })
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const [host, setHost] = useState((): HTMLDivElement | null => null)
   const [surface, setSurface] = useState((): HTMLDivElement | null => null)
@@ -783,54 +786,27 @@ export function MaintainersMap({
   useLayoutEffect(() => {
     if (!host || !surface) return
     const mobile = window.matchMedia(mobileViewport)
-    let landingWidth = 0
-    let landingHeight = 0
     const readBounds = () => {
       const width = host.clientWidth
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
-      let height = host.clientHeight
-      let centerY = height / 2
-      let mobilePaintTop = 0
-      let projectionHeight = Math.min(
+      const height = host.clientHeight
+      const initialScale = mobile.matches
+        ? mobileInitialScale
+        : desktopInitialScale
+      const projectionHeight = Math.min(
         height,
-        paintWidth / (desktopInitialScale * globeGlowDiameter),
+        paintWidth / (initialScale * globeGlowDiameter),
       )
-      if (mobile.matches) {
-        if (paintWidth !== landingWidth || window.scrollY === 0) {
-          landingWidth = paintWidth
-          landingHeight =
-            window.visualViewport?.height ??
-            document.documentElement.clientHeight
-        }
-        const pageTop = host.getBoundingClientRect().top + window.scrollY
-        mobilePaintTop = -Math.ceil(Math.max(0, pageTop))
-        host.style.setProperty('--globe-paint-top', `${mobilePaintTop}px`)
-        const halfWidth = paintWidth / 2 + mobileCornerBleed
-        // Fill the first viewport's corners, then reserve room for the entire globe.
-        const bottomDepth = Math.max(
-          halfWidth,
-          landingHeight - pageTop - mobileTopInset,
-        )
-        const radius = (bottomDepth ** 2 + halfWidth ** 2) / (2 * bottomDepth)
-        projectionHeight = radius / (mobileInitialScale * globeRadius)
-        centerY = mobileTopInset + radius
-        const globeHeight = Math.ceil(
-          centerY + radius * globeHaloScale + mobileTopInset,
-        )
-        if (height !== globeHeight)
-          host.style.setProperty('--globe-mobile-height', `${globeHeight}px`)
-        height = globeHeight
-      }
       const paintHeight = surface.clientHeight
       return {
         width,
         height,
-        centerY,
+        centerY: height / 2,
         contentInset: (width - contentWidth) / 2,
         paintWidth,
         paintHeight,
-        paintTop: mobile.matches ? mobilePaintTop : (height - paintHeight) / 2,
+        paintTop: (height - paintHeight) / 2,
         projectionHeight,
       }
     }
@@ -1106,7 +1082,6 @@ export function MaintainersMap({
               ? Number(entered || reducedMotion)
               : Math.min(1, (now - entranceStart) / entranceDuration)
           const remaining = (1 - progress) ** 4
-          // Keep the mobile corners covered even at the start of the entrance.
           const startScale = mobile.matches
             ? mobileEntranceScale
             : entranceScale
@@ -1283,8 +1258,6 @@ export function MaintainersMap({
         }
         @media ${mobileViewport} {
           [data-globe-surface] {
-            top: var(--globe-paint-top, 0px);
-            height: calc(100% - var(--globe-paint-top, 0px));
             mask-image:
               linear-gradient(
                 to bottom,
@@ -1319,7 +1292,7 @@ export function MaintainersMap({
           to { opacity: 1; }
         }
       `}</style>
-      <div className="relative sm:aspect-[5/4]">
+      <div className="relative aspect-square sm:aspect-[5/4]">
         <div
           ref={setHost}
           role="application"
@@ -1350,7 +1323,7 @@ export function MaintainersMap({
             )
             invalidate()
           }}
-          className="relative h-[var(--globe-mobile-height,max(125cqw,66svh))] outline-offset-4 [overflow-anchor:none] sm:absolute sm:inset-y-0 sm:left-[calc(50%-50cqw)] sm:h-auto sm:w-[100cqw]"
+          className="absolute inset-y-0 left-[calc(50%-50cqw)] w-[100cqw] outline-offset-4"
         >
           <div
             data-globe-scene
@@ -1368,7 +1341,7 @@ export function MaintainersMap({
             inert
             className="absolute inset-0"
           >
-            <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing" />
+            <div className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing" />
             <svg
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 h-full w-full overflow-visible text-text-muted/60 dark:text-text-muted/50"
@@ -1549,7 +1522,7 @@ export function MaintainersMap({
           select to see nearby maintainers, <Key>Esc</Key> to close.
         </span>
         <span className="sm:hidden sm:pointer-coarse:inline">
-          Drag to rotate, pinch to zoom. Tap a profile to see nearby
+          Drag sideways to rotate, pinch to zoom. Tap a profile to see nearby
           maintainers.
         </span>
       </p>

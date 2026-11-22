@@ -56,7 +56,6 @@
         "src/components/StackBlitzEmbed.tsx",
         "src/components/StackBlitzSection.tsx",
         "src/components/Style.tsx",
-        "src/components/TocMobile.tsx",
         "src/components/UserFeedbackSection.tsx",
         "src/components/application-starter/CustomAddonDialog.tsx",
         "src/components/application-starter/CustomTemplateDialog.tsx",

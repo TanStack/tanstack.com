@@ -176,7 +176,8 @@ jobs:
               else if (before !== undefined) {
                 const delta = after - before
                 const sign = delta > 0 ? '+' : ''
-                change = `${sign}${kib(delta)} (${sign}${(100 * delta / before).toFixed(2)}%)`
+                const indicator = delta < 0 ? '🟢 ' : delta > 0 ? '🔴 ' : ''
+                change = `${indicator}${sign}${kib(delta)} (${sign}${(100 * delta / before).toFixed(2)}%)`
               }
               return `| ${label} | ${kib(before)} | ${kib(after)} | ${change} |`
             }

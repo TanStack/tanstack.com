@@ -1,11 +1,9 @@
-import { assign, setup } from 'xstate'
-
 /**
  * Progression State Machine
  *
  * Tracks game progression through phases and badge tiers.
  * This machine handles high-level game state transitions while
- * zustand continues to manage real-time game state (positions, health, etc.)
+ * the game store continues to manage real-time game state (positions, health, etc.)
  *
  * States:
  * - intro: Initial screen before starting
@@ -108,89 +106,23 @@ export type ProgressionEvent =
       highestBadge: BadgeTier
     }
 
-export const progressionMachine = setup({
-  types: {
-    context: {} as ProgressionContext,
-    events: {} as ProgressionEvent,
-  },
-  guards: {
-    allLibrariesDiscovered: ({ context }) =>
-      context.librariesDiscovered >= context.librariesTotal &&
-      context.librariesTotal > 0,
-    allPartnersDiscovered: ({ context }) =>
-      context.partnersDiscovered >= context.partnersTotal &&
-      context.partnersTotal > 0,
-    allShowcasesDiscovered: ({ context }) =>
-      context.showcasesDiscovered >= context.showcasesTotal &&
-      context.showcasesTotal > 0,
-    allCornersDiscovered: ({ context }) =>
-      context.cornersDiscovered >= context.cornersTotal &&
-      context.cornersTotal > 0,
-  },
-  actions: {
-    incrementLibraries: assign({
-      librariesDiscovered: ({ context }) => context.librariesDiscovered + 1,
-    }),
-    incrementPartners: assign({
-      partnersDiscovered: ({ context }) => context.partnersDiscovered + 1,
-    }),
-    incrementShowcases: assign({
-      showcasesDiscovered: ({ context }) => context.showcasesDiscovered + 1,
-    }),
-    incrementCorners: assign({
-      cornersDiscovered: ({ context }) => context.cornersDiscovered + 1,
-    }),
-    earnExplorerBadge: assign({
-      highestBadge: 'explorer' as BadgeTier,
-      newBadgeEarned: 'explorer' as BadgeTier,
-    }),
-    earnAdventurerBadge: assign({
-      highestBadge: 'adventurer' as BadgeTier,
-      newBadgeEarned: 'adventurer' as BadgeTier,
-    }),
-    earnChampionBadge: assign({
-      highestBadge: 'champion' as BadgeTier,
-      newBadgeEarned: 'champion' as BadgeTier,
-    }),
-    earnConquerorBadge: assign({
-      highestBadge: 'conqueror' as BadgeTier,
-      newBadgeEarned: 'conqueror' as BadgeTier,
-    }),
-    clearNewBadge: assign({
-      newBadgeEarned: null,
-    }),
-    setTotals: assign({
-      librariesTotal: ({ event }) =>
-        event.type === 'SET_TOTALS' ? event.libraries : 0,
-      partnersTotal: ({ event }) =>
-        event.type === 'SET_TOTALS' ? event.partners : 0,
-      showcasesTotal: ({ event }) =>
-        event.type === 'SET_TOTALS' ? event.showcases : 0,
-      cornersTotal: ({ event }) =>
-        event.type === 'SET_TOTALS' ? event.corners : 0,
-    }),
-    restoreProgress: assign(({ event }) => {
-      if (event.type !== 'RESTORE_PROGRESS') return {}
-      return {
-        librariesDiscovered: event.librariesDiscovered,
-        partnersDiscovered: event.partnersDiscovered,
-        showcasesDiscovered: event.showcasesDiscovered,
-        cornersDiscovered: event.cornersDiscovered,
-        highestBadge: event.highestBadge,
-      }
-    }),
-    resetProgress: assign({
-      highestBadge: 'none' as BadgeTier,
-      newBadgeEarned: null,
-      librariesDiscovered: 0,
-      partnersDiscovered: 0,
-      showcasesDiscovered: 0,
-      cornersDiscovered: 0,
-    }),
-  },
-}).createMachine({
-  id: 'progression',
-  initial: 'intro',
+type BattlePhase = 'partners' | 'showcase' | 'corners'
+
+export type ProgressionValue =
+  | 'intro'
+  | 'exploration'
+  | 'upgrading'
+  | { battle: BattlePhase }
+  | 'gameover'
+  | 'victory'
+
+export interface ProgressionState {
+  value: ProgressionValue
+  context: ProgressionContext
+}
+
+export const initialProgressionState: ProgressionState = {
+  value: 'intro',
   context: {
     highestBadge: 'none',
     newBadgeEarned: null,
@@ -203,176 +135,190 @@ export const progressionMachine = setup({
     cornersDiscovered: 0,
     cornersTotal: 0,
   },
-  on: {
-    SET_TOTALS: { actions: 'setTotals' },
-    DISMISS_BADGE: { actions: 'clearNewBadge' },
-    RESET: { target: '.intro', actions: 'resetProgress' },
-  },
-  states: {
-    intro: {
-      on: {
-        START_GAME: 'exploration',
-        // Allow restoring to any state
-        RESTORE_PROGRESS: [
-          {
-            guard: ({ event }) =>
-              event.type === 'RESTORE_PROGRESS' &&
-              event.highestBadge === 'conqueror',
-            target: 'victory',
-            actions: 'restoreProgress',
-          },
-          {
-            guard: ({ event }) =>
-              event.type === 'RESTORE_PROGRESS' &&
-              event.highestBadge === 'champion',
-            target: 'battle.corners',
-            actions: 'restoreProgress',
-          },
-          {
-            guard: ({ event }) =>
-              event.type === 'RESTORE_PROGRESS' &&
-              event.highestBadge === 'adventurer',
-            target: 'battle.showcase',
-            actions: 'restoreProgress',
-          },
-          {
-            guard: ({ event }) =>
-              event.type === 'RESTORE_PROGRESS' &&
-              event.highestBadge === 'explorer',
-            target: 'battle.partners',
-            actions: 'restoreProgress',
-          },
-          {
-            guard: ({ event }) =>
-              event.type === 'RESTORE_PROGRESS' &&
-              event.librariesDiscovered > 0,
-            target: 'exploration',
-            actions: 'restoreProgress',
-          },
-        ],
-      },
-    },
+}
 
-    exploration: {
-      description: 'Dinghy phase - discovering library islands',
-      on: {
-        DISCOVER_LIBRARY: [
-          {
-            guard: 'allLibrariesDiscovered',
-            target: 'upgrading',
-            actions: 'incrementLibraries',
-          },
-          { actions: 'incrementLibraries' },
-        ],
-      },
-    },
+const allLibrariesDiscovered = (context: ProgressionContext) =>
+  context.librariesDiscovered >= context.librariesTotal &&
+  context.librariesTotal > 0
+const allPartnersDiscovered = (context: ProgressionContext) =>
+  context.partnersDiscovered >= context.partnersTotal &&
+  context.partnersTotal > 0
+const allShowcasesDiscovered = (context: ProgressionContext) =>
+  context.showcasesDiscovered >= context.showcasesTotal &&
+  context.showcasesTotal > 0
+const allCornersDiscovered = (context: ProgressionContext) =>
+  context.cornersDiscovered >= context.cornersTotal && context.cornersTotal > 0
 
-    upgrading: {
-      description: 'Showing upgrade overlay - libraries complete',
-      entry: 'earnExplorerBadge',
-      on: {
-        UPGRADE_COMPLETE: 'battle.partners',
-      },
-    },
-
-    battle: {
-      description: 'Ship phase with combat',
-      initial: 'partners',
-      on: {
-        SHIP_DESTROYED: 'gameover',
-      },
-      states: {
-        partners: {
-          description: 'Discovering partner islands',
-          on: {
-            DISCOVER_PARTNER: [
-              {
-                guard: 'allPartnersDiscovered',
-                target: 'showcase',
-                actions: ['incrementPartners', 'earnAdventurerBadge'],
-              },
-              { actions: 'incrementPartners' },
-            ],
-            // Allow discovering other types without transition
-            DISCOVER_LIBRARY: { actions: 'incrementLibraries' },
-          },
-        },
-
-        showcase: {
-          description: 'Discovering showcase islands',
-          on: {
-            DISCOVER_SHOWCASE: [
-              {
-                guard: 'allShowcasesDiscovered',
-                target: 'corners',
-                actions: ['incrementShowcases', 'earnChampionBadge'],
-              },
-              { actions: 'incrementShowcases' },
-            ],
-            DISCOVER_PARTNER: { actions: 'incrementPartners' },
-            DISCOVER_LIBRARY: { actions: 'incrementLibraries' },
-          },
-        },
-
-        corners: {
-          description: 'Fighting corner bosses',
-          on: {
-            DISCOVER_CORNER: [
-              {
-                guard: 'allCornersDiscovered',
-                target: '#progression.victory',
-                actions: ['incrementCorners', 'earnConquerorBadge'],
-              },
-              { actions: 'incrementCorners' },
-            ],
-            DISCOVER_SHOWCASE: { actions: 'incrementShowcases' },
-            DISCOVER_PARTNER: { actions: 'incrementPartners' },
-            DISCOVER_LIBRARY: { actions: 'incrementLibraries' },
-          },
-        },
-      },
-    },
-
-    gameover: {
-      description: 'Ship destroyed',
-      on: {
-        RESPAWN: 'battle',
-      },
-    },
-
-    victory: {
-      description: 'All corners captured - game complete',
-      on: {
-        DISMISS_VICTORY: 'battle.corners',
-      },
-    },
-  },
+const earnBadge = (badge: BadgeTier) => ({
+  highestBadge: badge,
+  newBadgeEarned: badge,
 })
+
+/**
+ * Pure transition function. Guards are evaluated against the context
+ * before the event's increments are applied. Events that the current
+ * state doesn't handle return the same state object.
+ */
+export function transition(
+  state: ProgressionState,
+  event: ProgressionEvent,
+): ProgressionState {
+  const { value, context } = state
+
+  // Events handled from every state
+  switch (event.type) {
+    case 'SET_TOTALS':
+      return {
+        value,
+        context: {
+          ...context,
+          librariesTotal: event.libraries,
+          partnersTotal: event.partners,
+          showcasesTotal: event.showcases,
+          cornersTotal: event.corners,
+        },
+      }
+    case 'DISMISS_BADGE':
+      return { value, context: { ...context, newBadgeEarned: null } }
+    case 'RESET':
+      return {
+        value: 'intro',
+        context: {
+          ...context,
+          highestBadge: 'none',
+          newBadgeEarned: null,
+          librariesDiscovered: 0,
+          partnersDiscovered: 0,
+          showcasesDiscovered: 0,
+          cornersDiscovered: 0,
+        },
+      }
+  }
+
+  const libraries = {
+    ...context,
+    librariesDiscovered: context.librariesDiscovered + 1,
+  }
+  const partners = {
+    ...context,
+    partnersDiscovered: context.partnersDiscovered + 1,
+  }
+  const showcases = {
+    ...context,
+    showcasesDiscovered: context.showcasesDiscovered + 1,
+  }
+  const corners = {
+    ...context,
+    cornersDiscovered: context.cornersDiscovered + 1,
+  }
+
+  if (value === 'intro') {
+    if (event.type === 'START_GAME') return { value: 'exploration', context }
+    if (event.type === 'RESTORE_PROGRESS') {
+      const restored = {
+        ...context,
+        librariesDiscovered: event.librariesDiscovered,
+        partnersDiscovered: event.partnersDiscovered,
+        showcasesDiscovered: event.showcasesDiscovered,
+        cornersDiscovered: event.cornersDiscovered,
+        highestBadge: event.highestBadge,
+      }
+      // Allow restoring to any state
+      if (event.highestBadge === 'conqueror')
+        return { value: 'victory', context: restored }
+      if (event.highestBadge === 'champion')
+        return { value: { battle: 'corners' }, context: restored }
+      if (event.highestBadge === 'adventurer')
+        return { value: { battle: 'showcase' }, context: restored }
+      if (event.highestBadge === 'explorer')
+        return { value: { battle: 'partners' }, context: restored }
+      if (event.librariesDiscovered > 0)
+        return { value: 'exploration', context: restored }
+    }
+    return state
+  }
+
+  // Dinghy phase - discovering library islands
+  if (value === 'exploration') {
+    if (event.type === 'DISCOVER_LIBRARY') {
+      // Entering 'upgrading' earns the explorer badge
+      return allLibrariesDiscovered(context)
+        ? {
+            value: 'upgrading',
+            context: { ...libraries, ...earnBadge('explorer') },
+          }
+        : { value, context: libraries }
+    }
+    return state
+  }
+
+  // Showing upgrade overlay - libraries complete
+  if (value === 'upgrading') {
+    if (event.type === 'UPGRADE_COMPLETE')
+      return { value: { battle: 'partners' }, context }
+    return state
+  }
+
+  // Ship destroyed
+  if (value === 'gameover') {
+    if (event.type === 'RESPAWN')
+      return { value: { battle: 'partners' }, context }
+    return state
+  }
+
+  // All corners captured - game complete
+  if (value === 'victory') {
+    if (event.type === 'DISMISS_VICTORY')
+      return { value: { battle: 'corners' }, context }
+    return state
+  }
+
+  // Ship phase with combat
+  if (event.type === 'SHIP_DESTROYED') return { value: 'gameover', context }
+
+  const battle = value.battle
+  switch (event.type) {
+    case 'DISCOVER_LIBRARY':
+      return { value, context: libraries }
+    case 'DISCOVER_PARTNER':
+      return battle === 'partners' && allPartnersDiscovered(context)
+        ? {
+            value: { battle: 'showcase' },
+            context: { ...partners, ...earnBadge('adventurer') },
+          }
+        : { value, context: partners }
+    case 'DISCOVER_SHOWCASE':
+      if (battle === 'partners') return state
+      return battle === 'showcase' && allShowcasesDiscovered(context)
+        ? {
+            value: { battle: 'corners' },
+            context: { ...showcases, ...earnBadge('champion') },
+          }
+        : { value, context: showcases }
+    case 'DISCOVER_CORNER':
+      if (battle !== 'corners') return state
+      return allCornersDiscovered(context)
+        ? {
+            value: 'victory',
+            context: { ...corners, ...earnBadge('conqueror') },
+          }
+        : { value, context: corners }
+  }
+  return state
+}
 
 // Helper to get current phase string from state value
 export function getPhaseFromState(
-  stateValue: string | object,
+  stateValue: ProgressionValue,
 ): 'intro' | 'playing' | 'upgrading' | 'gameover' | 'victory' {
-  if (typeof stateValue === 'string') {
-    if (stateValue === 'intro') return 'intro'
-    if (stateValue === 'exploration') return 'playing'
-    if (stateValue === 'upgrading') return 'upgrading'
-    if (stateValue === 'gameover') return 'gameover'
-    if (stateValue === 'victory') return 'victory'
-  }
-  if (typeof stateValue === 'object' && 'battle' in stateValue) {
-    return 'playing'
-  }
-  return 'playing'
+  if (stateValue === 'exploration') return 'playing'
+  if (typeof stateValue === 'object') return 'playing'
+  return stateValue
 }
 
 // Helper to get battle sub-phase
 export function getBattlePhase(
-  stateValue: string | object,
-): 'partners' | 'showcase' | 'corners' | null {
-  if (typeof stateValue === 'object' && 'battle' in stateValue) {
-    return (stateValue as { battle: 'partners' | 'showcase' | 'corners' })
-      .battle
-  }
-  return null
+  stateValue: ProgressionValue,
+): BattlePhase | null {
+  return typeof stateValue === 'object' ? stateValue.battle : null
 }

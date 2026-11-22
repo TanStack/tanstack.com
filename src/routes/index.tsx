@@ -1,4 +1,3 @@
-import NumberFlow from '@number-flow/react'
 import { homepageScarfPixel } from '~/utils/analytics/scarf-pixels'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
@@ -22,6 +21,7 @@ import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
 import { HomeStatsFallback } from '~/components/home/HomeSectionFallbacks'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
+import { HomeStatNumber } from '~/components/home/HomeStatNumber'
 import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from '~/components/ds/ui'
@@ -738,12 +738,7 @@ function AdoptionProof() {
           },
           {
             label: 'github stars',
-            value:
-              starCount > 0 ? (
-                <NumberFlow value={starCount} locales="en-US" />
-              ) : (
-                '—'
-              ),
+            value: starCount > 0 ? <HomeStatNumber value={starCount} /> : '—',
           },
         ].map(({ label, value }) => (
           <div key={label} className="flex flex-col gap-1">

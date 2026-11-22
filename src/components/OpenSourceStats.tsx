@@ -1,4 +1,3 @@
-import NumberFlow from '@number-flow/react'
 import { useQuery } from '@tanstack/react-query'
 import {
   CalendarDotsIcon,
@@ -11,6 +10,7 @@ import {
   ossStatsQuery,
   recentDownloadsQuery,
 } from '~/queries/stats'
+import { HomeStatNumber } from '~/components/home/HomeStatNumber'
 import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import {
@@ -167,7 +167,7 @@ export default function OssStats({
       icon: <StarIcon weight="regular" />,
       value: hasStarCount ? (
         animate ? (
-          <NumberFlow value={starCount} locales="en-US" />
+          <HomeStatNumber value={starCount} />
         ) : (
           starCount.toLocaleString()
         )

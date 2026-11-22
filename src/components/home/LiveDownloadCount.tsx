@@ -1,5 +1,6 @@
-import NumberFlow, { type Format } from '@number-flow/react'
+import type { Format } from '@number-flow/react'
 import { useEffect, useState } from 'react'
+import { HomeStatNumber } from './HomeStatNumber'
 
 export function LiveDownloadCount({
   value,
@@ -35,9 +36,8 @@ export function LiveDownloadCount({
   const elapsedSeconds = Math.max(0, Math.floor((sampledAt - fetchedAt) / 1000))
 
   return (
-    <NumberFlow
+    <HomeStatNumber
       value={Math.round(value + (ratePerDay * elapsedSeconds) / 86_400)}
-      locales="en-US"
       format={format}
       transformTiming={{ duration: 450, easing: 'ease-out' }}
     />

@@ -109,7 +109,6 @@
         "@tanstack/react-start-client",
         "@types/hast",
         "@types/linkify-it",
-        "discord-interactions",
         "encoding-sniffer",
         "gray-matter",
         "iconv-lite",

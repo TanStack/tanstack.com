@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { IslandData } from '../utils/islandGenerator'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { CULL_DISTANCES } from '../hooks/useDistanceCulling'
 
 interface RockData {
@@ -174,7 +174,7 @@ export function OceanRocks({
 
   // Distance culling + gentle bob with waves
   useFrame((state) => {
-    const { boatPosition } = useGameStore.getState()
+    const { boatPosition } = gameStore.state
     const maxDistSq = CULL_DISTANCES.rock * CULL_DISTANCES.rock
     const time = state.clock.elapsedTime
 

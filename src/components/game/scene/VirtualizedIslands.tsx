@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { CULL_DISTANCES } from '../hooks/useDistanceCulling'
 import { Island } from './Island'
 import type { IslandData } from '../utils/islandGenerator'
@@ -15,7 +15,7 @@ export function VirtualizedIslands({ islands }: VirtualizedIslandsProps) {
   >([])
 
   useFrame(() => {
-    const { boatPosition, discoveredIslands } = useGameStore.getState()
+    const { boatPosition, discoveredIslands } = gameStore.state
     const maxDistSq = CULL_DISTANCES.island * CULL_DISTANCES.island
 
     const nowVisible: Array<{ island: IslandData; isDiscovered: boolean }> = []

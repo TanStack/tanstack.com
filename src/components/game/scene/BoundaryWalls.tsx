@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 const PLANE_SIZE = 100 // How far the boundary plane extends outward
 const PLANE_OPACITY = 0.6
@@ -18,7 +18,7 @@ function BoundaryPlane({ edge }: BoundaryPlaneProps) {
   useFrame((_, delta) => {
     if (!meshRef.current) return
     const material = meshRef.current.material as THREE.MeshBasicMaterial
-    const { boundaryEdges, worldBoundary, phase } = useGameStore.getState()
+    const { boundaryEdges, worldBoundary, phase } = gameStore.state
 
     // Hide when not playing
     if (phase !== 'playing') {

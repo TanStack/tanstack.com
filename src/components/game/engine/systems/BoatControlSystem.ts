@@ -1,4 +1,4 @@
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 import { findNearestIsland } from '../../utils/islandGenerator'
 import { checkIslandCollision, checkRockCollision } from '../../utils/collision'
 import { getPointerState } from '../../ui/TouchControls'
@@ -63,14 +63,14 @@ export class BoatControlSystem {
   }
 
   private handleKeyDown(e: KeyboardEvent): void {
+    const { shipStats } = gameStore.state
     const {
       setMovingForward,
       setMovingBackward,
       setTurningLeft,
       setTurningRight,
       fireCannon,
-      shipStats,
-    } = useGameStore.getState()
+    } = gameStore.actions
 
     if (e.code === 'ArrowUp' || e.code === 'KeyW') {
       e.preventDefault()
@@ -90,7 +90,7 @@ export class BoatControlSystem {
     }
     if (e.code === 'Space' && !e.repeat) {
       e.preventDefault()
-      const { purchasedBoosts } = useGameStore.getState()
+      const { purchasedBoosts } = gameStore.state
       // Track space held for gatling or rapid fire (auto-loader)
       if (shipStats.gatlingGuns || purchasedBoosts.rapidFire) {
         this.spaceHeld = true
@@ -105,7 +105,7 @@ export class BoatControlSystem {
       setMovingBackward,
       setTurningLeft,
       setTurningRight,
-    } = useGameStore.getState()
+    } = gameStore.actions
 
     if (e.code === 'ArrowUp' || e.code === 'KeyW') {
       setMovingForward(false)
@@ -125,7 +125,7 @@ export class BoatControlSystem {
   }
 
   update(delta: number): void {
-    const state = useGameStore.getState()
+    const state = gameStore.state
     const {
       boatPosition,
       boatRotation,
@@ -143,11 +143,9 @@ export class BoatControlSystem {
       shipStats,
       speedBoostEndTime,
       purchasedBoosts,
-      setBoatPosition,
-      setBoatRotation,
-      setBoatVelocity,
-      fireGatling,
     } = state
+    const { setBoatPosition, setBoatRotation, setBoatVelocity, fireGatling } =
+      gameStore.actions
 
     // Combine islands for collision in battle stage (includes partner, showcase, and corner islands)
     const allIslands =
@@ -162,7 +160,7 @@ export class BoatControlSystem {
 
     // Fire side cannons while space is held (auto-loader)
     if (this.spaceHeld && purchasedBoosts.rapidFire) {
-      const { fireCannon } = useGameStore.getState()
+      const { fireCannon } = gameStore.actions
       fireCannon()
     }
 
@@ -271,7 +269,7 @@ export class BoatControlSystem {
     }
 
     // Ship-to-ship collision (with AI ships)
-    const { otherPlayers } = useGameStore.getState()
+    const { otherPlayers } = gameStore.state
     const AI_SHIP_RADIUS = 1.2
     for (const ship of otherPlayers) {
       const dx = newX - ship.position[0]
@@ -312,8 +310,8 @@ export class BoatControlSystem {
     }
 
     // Boundary handling
-    const { worldBoundary, boundaryEdges, setBoundaryEdges } =
-      useGameStore.getState()
+    const { worldBoundary, boundaryEdges } = gameStore.state
+    const { setBoundaryEdges } = gameStore.actions
 
     const BOUNDARY_THRESHOLD = 2
     const atWest = newX <= -worldBoundary + BOUNDARY_THRESHOLD
@@ -352,12 +350,8 @@ export class BoatControlSystem {
 
     // Update nearby island detection (uses allIslands which includes partner islands in battle stage)
     const nearby = findNearestIsland(newPosition, allIslands, 10)
-    const {
-      nearbyIsland,
-      discoveryProgress,
-      setNearbyIsland,
-      setDiscoveryProgress,
-    } = useGameStore.getState()
+    const { nearbyIsland, discoveryProgress } = gameStore.state
+    const { setNearbyIsland, setDiscoveryProgress } = gameStore.actions
 
     if (nearby?.id !== nearbyIsland?.id) {
       setNearbyIsland(nearby)

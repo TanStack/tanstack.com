@@ -1,11 +1,12 @@
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useRef } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { useProgression } from './GameMachineProvider'
 
 /**
- * Hook that syncs zustand game state with the progression state machine.
+ * Hook that syncs game store state with the progression state machine.
  * This bridge allows the progression machine to track badge state while
- * zustand remains the source of truth for game logic.
+ * the game store remains the source of truth for game logic.
  */
 export function useProgressionSync() {
   const {
@@ -23,13 +24,13 @@ export function useProgressionSync() {
   const prevDiscoveredRef = useRef<Set<string>>(new Set())
   const prevPhaseRef = useRef<string>('')
 
-  // Get zustand state
-  const discoveredIslands = useGameStore((s) => s.discoveredIslands)
-  const phase = useGameStore((s) => s.phase)
-  const islands = useGameStore((s) => s.islands)
-  const expandedIslands = useGameStore((s) => s.expandedIslands)
-  const showcaseIslands = useGameStore((s) => s.showcaseIslands)
-  const cornerIslands = useGameStore((s) => s.cornerIslands)
+  // Get game store state
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const islands = useSelector(gameStore, (s) => s.islands)
+  const expandedIslands = useSelector(gameStore, (s) => s.expandedIslands)
+  const showcaseIslands = useSelector(gameStore, (s) => s.showcaseIslands)
+  const cornerIslands = useSelector(gameStore, (s) => s.cornerIslands)
 
   // Sync discoveries
   useEffect(() => {

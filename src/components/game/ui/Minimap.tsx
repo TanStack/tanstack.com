@@ -1,5 +1,6 @@
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore, type OtherPlayer } from '../hooks/useGameStore'
+import { gameStore, type OtherPlayer } from '../hooks/useGameStore'
 import { getLibraryColor } from '../utils/colors'
 
 // Minimap dimensions - diamond shape, responsive
@@ -23,14 +24,12 @@ import {
 } from '../engine/systems/AISystem'
 
 export function Minimap() {
-  const {
-    phase,
-    islands,
-    expandedIslands,
-    showcaseIslands,
-    cornerIslands,
-    discoveredIslands,
-  } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const islands = useSelector(gameStore, (s) => s.islands)
+  const expandedIslands = useSelector(gameStore, (s) => s.expandedIslands)
+  const showcaseIslands = useSelector(gameStore, (s) => s.showcaseIslands)
+  const cornerIslands = useSelector(gameStore, (s) => s.cornerIslands)
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
   const [minimapSize, setMinimapSize] = useState(getMinimapSize)
   const [boatState, setBoatState] = useState({
     x: 0,
@@ -58,7 +57,7 @@ export function Minimap() {
         worldBoundary,
         otherPlayers,
         showCollisionDebug,
-      } = useGameStore.getState()
+      } = gameStore.state
       setBoatState({
         x: boatPosition[0],
         z: boatPosition[2],

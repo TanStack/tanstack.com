@@ -1,3 +1,4 @@
+import { useSelector } from '@tanstack/react-store'
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
 import { useMachine } from '@xstate/react'
 import {
@@ -7,7 +8,7 @@ import {
   BADGE_INFO,
   type BadgeTier,
 } from './progressionMachine'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 interface ProgressionContextValue {
   // Machine state
@@ -36,7 +37,7 @@ interface ProgressionContextValue {
   dismissBadge: () => void
   reset: () => void
 
-  // Discovery actions (called by zustand sync)
+  // Discovery actions (called by game store sync)
   discoverLibrary: () => void
   discoverPartner: () => void
   discoverShowcase: () => void
@@ -48,11 +49,11 @@ const ProgressionContext = createContext<ProgressionContextValue | null>(null)
 export function GameMachineProvider({ children }: { children: ReactNode }) {
   const [state, send] = useMachine(progressionMachine)
 
-  // Get island counts from zustand
-  const islands = useGameStore((s) => s.islands)
-  const expandedIslands = useGameStore((s) => s.expandedIslands)
-  const showcaseIslands = useGameStore((s) => s.showcaseIslands)
-  const cornerIslands = useGameStore((s) => s.cornerIslands)
+  // Get island counts from the game store
+  const islands = useSelector(gameStore, (s) => s.islands)
+  const expandedIslands = useSelector(gameStore, (s) => s.expandedIslands)
+  const showcaseIslands = useSelector(gameStore, (s) => s.showcaseIslands)
+  const cornerIslands = useSelector(gameStore, (s) => s.cornerIslands)
 
   // Sync island totals when they change
   useEffect(() => {
@@ -85,15 +86,15 @@ export function GameMachineProvider({ children }: { children: ReactNode }) {
     send,
   ])
 
-  // Sync with zustand phase changes (for backward compatibility)
-  const zustandPhase = useGameStore((s) => s.phase)
-  const zustandStage = useGameStore((s) => s.stage)
-  const zustandShowcaseUnlocked = useGameStore((s) => s.showcaseUnlocked)
-  const zustandCornersUnlocked = useGameStore((s) => s.cornersUnlocked)
-  const zustandGameWon = useGameStore((s) => s.gameWon)
-  const discoveredIslands = useGameStore((s) => s.discoveredIslands)
+  // Sync with game store phase changes (for backward compatibility)
+  const gamePhase = useSelector(gameStore, (s) => s.phase)
+  const gameStage = useSelector(gameStore, (s) => s.stage)
+  const gameShowcaseUnlocked = useSelector(gameStore, (s) => s.showcaseUnlocked)
+  const gameCornersUnlocked = useSelector(gameStore, (s) => s.cornersUnlocked)
+  const gameWon = useSelector(gameStore, (s) => s.gameWon)
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
 
-  // Restore progress from zustand on mount
+  // Restore progress from the game store on mount
   useEffect(() => {
     // Count discovered by type
     let librariesDiscovered = 0
@@ -108,12 +109,12 @@ export function GameMachineProvider({ children }: { children: ReactNode }) {
       else if (id.startsWith('corner-')) cornersDiscovered++
     }
 
-    // Determine highest badge from zustand state
+    // Determine highest badge from game store state
     let highestBadge: BadgeTier = 'none'
-    if (zustandGameWon) highestBadge = 'conqueror'
-    else if (zustandCornersUnlocked) highestBadge = 'champion'
-    else if (zustandShowcaseUnlocked) highestBadge = 'adventurer'
-    else if (zustandStage === 'battle') highestBadge = 'explorer'
+    if (gameWon) highestBadge = 'conqueror'
+    else if (gameCornersUnlocked) highestBadge = 'champion'
+    else if (gameShowcaseUnlocked) highestBadge = 'adventurer'
+    else if (gameStage === 'battle') highestBadge = 'explorer'
 
     // Only restore if we have progress
     if (highestBadge !== 'none' || librariesDiscovered > 0) {
@@ -129,15 +130,15 @@ export function GameMachineProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Only on mount
 
-  // Sync zustand phase changes to machine (when zustand is source of truth)
+  // Sync game store phase changes to machine (when the game store is source of truth)
   useEffect(() => {
     const machinePhase = getPhaseFromState(state.value)
 
     // Sync gameover state
-    if (zustandPhase === 'gameover' && machinePhase !== 'gameover') {
+    if (gamePhase === 'gameover' && machinePhase !== 'gameover') {
       send({ type: 'SHIP_DESTROYED' })
     }
-  }, [zustandPhase, state.value, send])
+  }, [gamePhase, state.value, send])
 
   const phase = getPhaseFromState(state.value)
   const battlePhase = getBattlePhase(state.value)

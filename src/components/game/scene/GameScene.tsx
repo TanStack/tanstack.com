@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useRef, useState } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -11,7 +12,7 @@ import { VirtualizedCoins } from './VirtualizedCoins'
 import { BoundaryWalls } from './BoundaryWalls'
 import { AIShips } from './AIShips'
 import { Cannonballs } from './Cannonballs'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { useBoatControls } from '../hooks/useBoatControls'
 import { useAIOpponents } from '../hooks/useAIOpponents'
 import { IslandInfo3D } from './IslandInfo3D'
@@ -37,8 +38,8 @@ const ACTIVE_PARTNERS = partners
 
 // Floating info sign for nearby island with exit animation
 function NearbyIslandInfo() {
-  const nearbyIsland = useGameStore((s) => s.nearbyIsland)
-  const discoveredIslands = useGameStore((s) => s.discoveredIslands)
+  const nearbyIsland = useSelector(gameStore, (s) => s.nearbyIsland)
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
   const [displayedIsland, setDisplayedIsland] = useState<IslandData | null>(
     null,
   )
@@ -111,7 +112,7 @@ function IsometricCamera() {
 
   useFrame(() => {
     // Read directly from store to avoid component re-renders
-    const { boatPosition, phase, shipStats } = useGameStore.getState()
+    const { boatPosition, phase, shipStats } = gameStore.state
     if (phase !== 'playing') return
 
     // Update FOV based on fieldOfView upgrade (higher multiplier = wider FOV = zoomed out)
@@ -155,7 +156,7 @@ function SceneContent() {
 
   // Initialize game data and get islands
   useEffect(() => {
-    const state = useGameStore.getState()
+    const state = gameStore.state
     if (state.islands.length > 0) {
       setLocalIslands(state.islands)
       return
@@ -163,19 +164,19 @@ function SceneContent() {
 
     // Generate islands
     const generatedIslands = generateIslands(publicLibraries)
-    state.setIslands(generatedIslands)
+    gameStore.actions.setIslands(generatedIslands)
     const rockColliders = generateRockColliders(generatedIslands, 30, 140)
-    state.setRockColliders(rockColliders)
+    gameStore.actions.setRockColliders(rockColliders)
     const generatedCoins = generateCoins(generatedIslands)
-    state.setCoins(generatedCoins)
+    gameStore.actions.setCoins(generatedCoins)
     setLocalIslands(generatedIslands)
   }, [])
 
   // Check for battle stage expansion via interval
   useEffect(() => {
     const checkBattleStage = () => {
-      const { stage, expandedIslands, setExpandedIslands } =
-        useGameStore.getState()
+      const { stage, expandedIslands } = gameStore.state
+      const { setExpandedIslands } = gameStore.actions
       if (stage === 'battle' && expandedIslands.length === 0) {
         const partnerIslands = generateExpandedIslands(ACTIVE_PARTNERS)
         setExpandedIslands(partnerIslands)

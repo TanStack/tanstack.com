@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGameStore } from './useGameStore'
+import { gameStore } from './useGameStore'
 
 // Distance thresholds for different object types
 export const CULL_DISTANCES = {
@@ -23,7 +23,7 @@ export function useDistanceCulling(
   const visibleRef = useRef(true)
 
   useFrame(() => {
-    const { boatPosition } = useGameStore.getState()
+    const { boatPosition } = gameStore.state
     const dx = position[0] - boatPosition[0]
     const dz = position[2] - boatPosition[2]
     const distSq = dx * dx + dz * dz

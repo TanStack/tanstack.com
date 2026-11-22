@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import type { IslandData } from '../../utils/islandGenerator'
 import { COLORS, getLibraryColor } from '../../utils/colors'
 import { modelLoader } from '../loaders/ModelLoader'
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 // @ts-expect-error - troika-three-text has no types
 import { Text } from 'troika-three-text'
 
@@ -1257,7 +1257,7 @@ export class Islands {
       discoveryProgress,
       discoveredIslands,
       showCollisionDebug,
-    } = useGameStore.getState()
+    } = gameStore.state
 
     for (const [id, instance] of this.instances) {
       // Distance culling

@@ -1,7 +1,8 @@
+import { useSelector } from '@tanstack/react-store'
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 const CANNONBALL_RADIUS = 0.15
 const GRAVITY = -15
@@ -20,7 +21,7 @@ function Cannonball({ id }: { id: number }) {
   const meshRef = useRef<THREE.Mesh>(null)
 
   useFrame(() => {
-    const { cannonballs } = useGameStore.getState()
+    const { cannonballs } = gameStore.state
     const ball = cannonballs.find((c) => c.id === id)
 
     if (!ball || !meshRef.current) return
@@ -83,7 +84,8 @@ function SplashEffect({
 }
 
 export function Cannonballs() {
-  const { stage, cannonballs } = useGameStore()
+  const stage = useSelector(gameStore, (s) => s.stage)
+  const cannonballs = useSelector(gameStore, (s) => s.cannonballs)
   const splashEffects = useRef<
     Array<{ id: number; position: [number, number, number] }>
   >([])
@@ -92,13 +94,12 @@ export function Cannonballs() {
   useFrame((_, delta) => {
     if (stage !== 'battle') return
 
+    const { cannonballs, otherPlayers } = gameStore.state
     const {
-      cannonballs,
       updateCannonballs,
       removeCannonball: _removeCannonball,
-      otherPlayers,
       setOtherPlayers,
-    } = useGameStore.getState()
+    } = gameStore.actions
 
     const now = Date.now()
     const dt = Math.min(delta, 0.1)
@@ -149,7 +150,7 @@ export function Cannonballs() {
 
       // Check collision with player (AI cannonballs)
       if (ball.ownerId !== 'player') {
-        const { boatPosition } = useGameStore.getState()
+        const { boatPosition } = gameStore.state
         const dx = newX - boatPosition[0]
         const dz = newZ - boatPosition[2]
         const dist = Math.sqrt(dx * dx + dz * dz)
@@ -181,13 +182,14 @@ export function Cannonballs() {
 
     // Process hits - damage AI ships and player
     if (hitsToProcess.length > 0) {
-      const { boatHealth, setPhase } = useGameStore.getState()
+      const { boatHealth } = gameStore.state
+      const { setPhase } = gameStore.actions
 
       // Check for player hit
       const playerHit = hitsToProcess.find((h) => h.playerId === 'player')
       if (playerHit) {
         const newHealth = Math.max(0, boatHealth - 20)
-        useGameStore.setState({ boatHealth: newHealth })
+        gameStore.setState((state) => ({ ...state, boatHealth: newHealth }))
 
         // Check for game over
         if (newHealth <= 0) {

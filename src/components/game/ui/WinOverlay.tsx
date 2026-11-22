@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { Badge } from './BadgeOverlay'
 import { BADGE_INFO } from '../machines/GameMachineProvider'
 
 export function WinOverlay() {
-  const { gameWon } = useGameStore()
+  const gameWon = useSelector(gameStore, (s) => s.gameWon)
   const [animationStep, setAnimationStep] = useState(0)
   const [dismissed, setDismissed] = useState(false)
 

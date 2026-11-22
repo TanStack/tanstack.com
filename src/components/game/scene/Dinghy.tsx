@@ -2,7 +2,7 @@ import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { getWaveHeight } from './Ocean'
 
 interface DinghyProps {
@@ -71,7 +71,7 @@ export function Dinghy({ color = '#FFF5E6' }: DinghyProps) {
 
   // Animate dinghy with waves, wake, and paddles
   useFrame((state) => {
-    const { boatPosition, boatRotation, boatVelocity } = useGameStore.getState()
+    const { boatPosition, boatRotation, boatVelocity } = gameStore.state
 
     if (groupRef.current) {
       const time = state.clock.elapsedTime

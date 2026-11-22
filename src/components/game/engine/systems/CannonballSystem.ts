@@ -1,4 +1,4 @@
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 import type { Cannonballs } from '../entities/Cannonballs'
 
 const GRAVITY = -15
@@ -7,16 +7,9 @@ const HIT_RADIUS = 1.5
 
 export class CannonballSystem {
   update(delta: number, cannonballsEntity: Cannonballs): void {
-    const state = useGameStore.getState()
-    const {
-      cannonballs,
-      updateCannonballs,
-      otherPlayers,
-      setOtherPlayers,
-      boatPosition,
-      boatHealth,
-      setPhase,
-    } = state
+    const state = gameStore.state
+    const { cannonballs, otherPlayers, boatPosition, boatHealth } = state
+    const { updateCannonballs, setOtherPlayers, setPhase } = gameStore.actions
 
     const now = Date.now()
     const dt = Math.min(delta, 0.1)
@@ -82,7 +75,7 @@ export class CannonballSystem {
       const playerHit = hitsToProcess.find((h) => h.playerId === 'player')
       if (playerHit) {
         const newHealth = Math.max(0, boatHealth - 20)
-        useGameStore.setState({ boatHealth: newHealth })
+        gameStore.setState((state) => ({ ...state, boatHealth: newHealth }))
 
         if (newHealth <= 0) {
           setPhase('gameover')
@@ -101,7 +94,7 @@ export class CannonballSystem {
       // Count kills (ships that dropped to 0 health)
       const killedCount = updatedPlayers.filter((p) => p.health <= 0).length
       if (killedCount > 0) {
-        const { addKill } = useGameStore.getState()
+        const { addKill } = gameStore.actions
         for (let i = 0; i < killedCount; i++) {
           addKill()
         }

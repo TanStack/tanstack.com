@@ -1,8 +1,10 @@
+import { useSelector } from '@tanstack/react-store'
 import { useState, useEffect } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 export function IntroOverlay() {
-  const { phase, setPhase } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const { setPhase } = gameStore.actions
   const [showControls, setShowControls] = useState(true)
 
   // Auto-start the game immediately

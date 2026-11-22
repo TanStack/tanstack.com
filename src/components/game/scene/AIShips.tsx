@@ -1,8 +1,9 @@
+import { useSelector } from '@tanstack/react-store'
 import { useRef, useMemo, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { CULL_DISTANCES } from '../hooks/useDistanceCulling'
 import { getWaveHeight } from './Ocean'
 
@@ -43,7 +44,7 @@ function AIShip({ id, color }: AIShipProps) {
   }, [scene, color])
 
   useFrame((state) => {
-    const { otherPlayers } = useGameStore.getState()
+    const { otherPlayers } = gameStore.state
     const player = otherPlayers.find((p) => p.id === id)
 
     if (!player || !groupRef.current) return
@@ -98,12 +99,13 @@ function AIShip({ id, color }: AIShipProps) {
 }
 
 export function AIShips() {
-  const { stage, otherPlayers } = useGameStore()
+  const stage = useSelector(gameStore, (s) => s.stage)
+  const otherPlayers = useSelector(gameStore, (s) => s.otherPlayers)
   const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set())
 
   // Distance culling for AI ships
   useFrame(() => {
-    const { boatPosition, otherPlayers } = useGameStore.getState()
+    const { boatPosition, otherPlayers } = gameStore.state
     const maxDistSq = CULL_DISTANCES.ship * CULL_DISTANCES.ship
 
     const newVisible = new Set<string>()

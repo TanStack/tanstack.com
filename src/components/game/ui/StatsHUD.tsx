@@ -1,5 +1,6 @@
+import { useSelector } from '@tanstack/react-store'
 import { useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { getUpgradeTier, hasUnlock, type UpgradeType } from '../utils/upgrades'
 import { ArrowCounterClockwiseIcon } from '@phosphor-icons/react'
 
@@ -62,7 +63,11 @@ function UnlockRow({ icon, label, unlocked }: UnlockRowProps) {
 }
 
 export function StatsHUD() {
-  const { stage, unlockedUpgrades, kills, deaths, startOver } = useGameStore()
+  const stage = useSelector(gameStore, (s) => s.stage)
+  const unlockedUpgrades = useSelector(gameStore, (s) => s.unlockedUpgrades)
+  const kills = useSelector(gameStore, (s) => s.kills)
+  const deaths = useSelector(gameStore, (s) => s.deaths)
+  const { startOver } = gameStore.actions
   const [showConfirm, setShowConfirm] = useState(false)
 
   // Only show in battle mode

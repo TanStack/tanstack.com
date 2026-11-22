@@ -1,5 +1,6 @@
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { getLibraryColor } from '../utils/colors'
 
 const SIZE = 50
@@ -8,7 +9,9 @@ const RADIUS = (SIZE - STROKE_WIDTH) / 2
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 export function DiscoveryProgress() {
-  const { phase, nearbyIsland, discoveredIslands } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const nearbyIsland = useSelector(gameStore, (s) => s.nearbyIsland)
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
   const [progress, setProgress] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -17,7 +20,7 @@ export function DiscoveryProgress() {
 
     const interval = setInterval(() => {
       const { discoveryProgress, nearbyIsland, discoveredIslands } =
-        useGameStore.getState()
+        gameStore.state
 
       // Only show for undiscovered islands
       const shouldShow =

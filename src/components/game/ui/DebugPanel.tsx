@@ -1,6 +1,7 @@
+import { useSelector } from '@tanstack/react-store'
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import {
   PARTNER_UPGRADE_ORDER,
   SHOWCASE_UPGRADE_ORDER,
@@ -31,31 +32,29 @@ export function DebugPanel() {
     }
   }, [canAccess])
 
-  const {
-    phase,
-    stage,
-    islands: _islands,
-    expandedIslands,
-    showcaseIslands,
-    showcaseUnlocked,
-    cornersUnlocked,
-    cornerIslands: _cornerIslands,
-    coins: _coins,
-    discoveredIslands,
-    coinsCollected: _coinsCollected,
-    unlockedUpgrades: _unlockedUpgrades,
-    shipStats: _shipStats,
-    boatHealth: _boatHealth,
-    showCollisionDebug,
-    setShowCollisionDebug,
-    debugZoomOut,
-    setDebugZoomOut,
-  } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const stage = useSelector(gameStore, (s) => s.stage)
+  const _islands = useSelector(gameStore, (s) => s.islands)
+  const expandedIslands = useSelector(gameStore, (s) => s.expandedIslands)
+  const showcaseIslands = useSelector(gameStore, (s) => s.showcaseIslands)
+  const showcaseUnlocked = useSelector(gameStore, (s) => s.showcaseUnlocked)
+  const cornersUnlocked = useSelector(gameStore, (s) => s.cornersUnlocked)
+  const _cornerIslands = useSelector(gameStore, (s) => s.cornerIslands)
+  const _coins = useSelector(gameStore, (s) => s.coins)
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
+  const _coinsCollected = useSelector(gameStore, (s) => s.coinsCollected)
+  const _unlockedUpgrades = useSelector(gameStore, (s) => s.unlockedUpgrades)
+  const _shipStats = useSelector(gameStore, (s) => s.shipStats)
+  const _boatHealth = useSelector(gameStore, (s) => s.boatHealth)
+  const showCollisionDebug = useSelector(gameStore, (s) => s.showCollisionDebug)
+  const debugZoomOut = useSelector(gameStore, (s) => s.debugZoomOut)
+  const { setShowCollisionDebug, setDebugZoomOut } = gameStore.actions
 
   if (!canAccess) return null
 
   const discoverAllIslands = () => {
-    const { islands, discoverIsland } = useGameStore.getState()
+    const { islands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     // Discover all but don't trigger upgrade (skip last one)
     islands.slice(0, -1).forEach((island) => {
       discoverIsland(island.id)
@@ -63,7 +62,8 @@ export function DebugPanel() {
   }
 
   const discoverLastIsland = () => {
-    const { islands, discoverIsland } = useGameStore.getState()
+    const { islands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     const lastIsland = islands[islands.length - 1]
     if (lastIsland) {
       discoverIsland(lastIsland.id)
@@ -71,7 +71,8 @@ export function DebugPanel() {
   }
 
   const collectCoins = (count: number) => {
-    const { coins, collectCoin } = useGameStore.getState()
+    const { coins } = gameStore.state
+    const { collectCoin } = gameStore.actions
     const uncollected = coins.filter((c) => !c.collected)
     uncollected.slice(0, count).forEach((coin) => {
       collectCoin(coin.id)
@@ -79,21 +80,22 @@ export function DebugPanel() {
   }
 
   const skipToPlaying = () => {
-    useGameStore.setState({ phase: 'playing' })
+    gameStore.setState((state) => ({ ...state, phase: 'playing' }))
   }
 
   const skipToBattle = () => {
-    useGameStore.setState({
+    gameStore.setState((state) => ({
+      ...state,
       phase: 'playing',
       stage: 'battle',
       boatType: 'ship',
       worldBoundary: 180,
-    })
+    }))
   }
 
   const discoverNextPartner = () => {
-    const { expandedIslands, discoveredIslands, discoverIsland } =
-      useGameStore.getState()
+    const { expandedIslands, discoveredIslands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     const partnerIslands = expandedIslands.filter((i) => i.type === 'partner')
     const undiscovered = partnerIslands.find(
       (i) => !discoveredIslands.has(i.id),
@@ -104,7 +106,8 @@ export function DebugPanel() {
   }
 
   const discoverAllPartners = () => {
-    const { expandedIslands, discoverIsland } = useGameStore.getState()
+    const { expandedIslands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     const partnerIslands = expandedIslands.filter((i) => i.type === 'partner')
     partnerIslands.forEach((island) => {
       discoverIsland(island.id)
@@ -112,8 +115,8 @@ export function DebugPanel() {
   }
 
   const discoverNextShowcase = () => {
-    const { showcaseIslands, discoveredIslands, discoverIsland } =
-      useGameStore.getState()
+    const { showcaseIslands, discoveredIslands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     const undiscovered = showcaseIslands.find(
       (i) => !discoveredIslands.has(i.id),
     )
@@ -123,8 +126,8 @@ export function DebugPanel() {
   }
 
   const discoverNextCorner = () => {
-    const { cornerIslands, discoveredIslands, discoverIsland } =
-      useGameStore.getState()
+    const { cornerIslands, discoveredIslands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     const undiscovered = cornerIslands.find((i) => !discoveredIslands.has(i.id))
     if (undiscovered) {
       discoverIsland(undiscovered.id)
@@ -132,35 +135,42 @@ export function DebugPanel() {
   }
 
   const discoverAllCorners = () => {
-    const { cornerIslands, discoverIsland } = useGameStore.getState()
+    const { cornerIslands } = gameStore.state
+    const { discoverIsland } = gameStore.actions
     cornerIslands.forEach((island) => {
       discoverIsland(island.id)
     })
   }
 
   const grantNextUpgrade = () => {
-    const { unlockedUpgrades, applyShipUpgrade } = useGameStore.getState()
+    const { unlockedUpgrades } = gameStore.state
+    const { applyShipUpgrade } = gameStore.actions
     const nextUpgrade = UPGRADE_ORDER[unlockedUpgrades.length]
     if (nextUpgrade) {
       applyShipUpgrade(nextUpgrade)
-      useGameStore.setState({ lastUnlockedUpgrade: nextUpgrade })
+      gameStore.setState((state) => ({
+        ...state,
+        lastUnlockedUpgrade: nextUpgrade,
+      }))
     }
   }
 
   const grantAllUpgrades = () => {
-    const { applyShipUpgrade } = useGameStore.getState()
+    const { applyShipUpgrade } = gameStore.actions
     UPGRADE_ORDER.forEach((upgrade) => {
       applyShipUpgrade(upgrade)
     })
   }
 
   const takeDamage = (amount: number) => {
-    const { boatHealth, setBoatHealth } = useGameStore.getState()
+    const { boatHealth } = gameStore.state
+    const { setBoatHealth } = gameStore.actions
     setBoatHealth(Math.max(0, boatHealth - amount))
   }
 
   const healFull = () => {
-    const { shipStats, setBoatHealth } = useGameStore.getState()
+    const { shipStats } = gameStore.state
+    const { setBoatHealth } = gameStore.actions
     setBoatHealth(shipStats.maxHealth)
   }
 
@@ -313,7 +323,7 @@ export function DebugPanel() {
           </button>
 
           <button
-            onClick={() => useGameStore.getState().reset()}
+            onClick={() => gameStore.actions.reset()}
             className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
           >
             Reset Game

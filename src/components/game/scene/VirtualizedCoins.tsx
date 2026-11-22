@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useGameStore, type CoinData } from '../hooks/useGameStore'
+import { gameStore, type CoinData } from '../hooks/useGameStore'
 
 const RENDER_DISTANCE = 50
 
@@ -45,7 +45,7 @@ export function VirtualizedCoins() {
   const [visibleCoins, setVisibleCoins] = useState<CoinData[]>([])
 
   useFrame(() => {
-    const { coins, boatPosition } = useGameStore.getState()
+    const { coins, boatPosition } = gameStore.state
 
     // Filter to nearby uncollected coins
     const nowVisible = coins.filter((coin) => {

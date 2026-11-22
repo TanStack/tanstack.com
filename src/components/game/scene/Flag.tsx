@@ -1,7 +1,7 @@
 import { useRef, useState, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 interface FlagProps {
   position: [number, number, number]
@@ -138,7 +138,7 @@ export function Flag({
     if (!groupRef.current || !flagGroupRef.current) return
 
     const { nearbyIsland, discoveryProgress, discoveredIslands } =
-      useGameStore.getState()
+      gameStore.state
     const isNearby = nearbyIsland?.id === islandId
     const isDiscovered = discoveredIslands.has(islandId)
 

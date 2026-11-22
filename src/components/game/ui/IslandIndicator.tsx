@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 export function IslandIndicator() {
-  const { phase, stage } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const stage = useSelector(gameStore, (s) => s.stage)
   const [indicator, setIndicator] = useState<{
     screenX: number
     screenY: number
@@ -18,8 +20,7 @@ export function IslandIndicator() {
     }
 
     const interval = setInterval(() => {
-      const { boatPosition, discoveredIslands, islands } =
-        useGameStore.getState()
+      const { boatPosition, discoveredIslands, islands } = gameStore.state
 
       // Find closest undiscovered island
       let closest: { id: string; position: [number, number, number] } | null =

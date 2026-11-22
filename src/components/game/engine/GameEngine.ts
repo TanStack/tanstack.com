@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { useGameStore } from '../hooks/useGameStore'
+import type { Subscription } from '@tanstack/react-store'
+import { gameStore } from '../hooks/useGameStore'
 import { preloadModels } from './loaders/ModelLoader'
 import { preloadGameFonts } from './loaders/FontLoader'
 import { Sky } from './entities/Sky'
@@ -64,7 +65,7 @@ export class GameEngine {
   private camera: THREE.PerspectiveCamera
   private clock: THREE.Clock
   private animationFrameId: number | null = null
-  private unsubscribers: Array<() => void> = []
+  private unsubscribers: Array<Subscription> = []
   private isDisposed = false
   private isPaused = false
   private raycaster = new THREE.Raycaster()
@@ -206,7 +207,7 @@ export class GameEngine {
     this.scene.add(this.aiDebug.group)
 
     // Initialize boat model
-    const { boatType } = useGameStore.getState()
+    const { boatType } = gameStore.state
     this.boat.setBoatType(boatType)
 
     // Setup subscriptions
@@ -334,34 +335,34 @@ export class GameEngine {
   }
 
   private initializeGameData(): void {
-    const state = useGameStore.getState()
+    const state = gameStore.state
 
     if (state.islands.length === 0) {
       // Generate islands
       const generatedIslands = generateIslands(publicLibraries)
-      state.setIslands(generatedIslands)
+      gameStore.actions.setIslands(generatedIslands)
 
       // Generate rock colliders
       const rockColliders = generateRockColliders(generatedIslands, 30, 140)
-      state.setRockColliders(rockColliders)
+      gameStore.actions.setRockColliders(rockColliders)
 
       // Generate coins
       const generatedCoins = generateCoins(generatedIslands)
-      state.setCoins(generatedCoins)
+      gameStore.actions.setCoins(generatedCoins)
     }
 
     // Initialize entities with data
-    const islands = useGameStore.getState().islands
+    const islands = gameStore.state.islands
     this.islands.setIslands(islands, [])
     this.oceanRocks.generate(islands, 30, 140)
-    this.coins.setCoins(useGameStore.getState().coins)
+    this.coins.setCoins(gameStore.state.coins)
 
     // Set ocean island gradients
     this.updateOceanIslandPositions(islands, [], [])
   }
 
   private setupSubscriptions(): void {
-    const initialState = useGameStore.getState()
+    const initialState = gameStore.state
 
     // Handle loading directly into battle stage (page reload while in battle)
     console.log('[Game Init] State:', {
@@ -375,9 +376,9 @@ export class GameEngine {
       // Generate expanded islands if needed
       if (initialState.expandedIslands.length === 0) {
         const partnerIslands = generateExpandedIslands(ACTIVE_PARTNERS)
-        initialState.setExpandedIslands(partnerIslands)
+        gameStore.actions.setExpandedIslands(partnerIslands)
       }
-      const expandedIslands = useGameStore.getState().expandedIslands
+      const expandedIslands = gameStore.state.expandedIslands
 
       // Generate showcase islands if showcase was unlocked
       const showcaseIslands = initialState.showcaseIslands
@@ -385,7 +386,7 @@ export class GameEngine {
       let cornerIslands = initialState.cornerIslands
       if (initialState.cornersUnlocked && cornerIslands.length === 0) {
         cornerIslands = generateCornerIslands()
-        initialState.setCornerIslands(cornerIslands)
+        gameStore.actions.setCornerIslands(cornerIslands)
       }
 
       if (initialState.showcaseUnlocked && showcaseIslands.length === 0) {
@@ -404,7 +405,7 @@ export class GameEngine {
               '[Game Init] Generated showcase islands:',
               generated.length,
             )
-            initialState.setShowcaseIslands(generated)
+            gameStore.actions.setShowcaseIslands(generated)
             this.islands.setIslands(
               initialState.islands,
               expandedIslands,
@@ -455,7 +456,7 @@ export class GameEngine {
           initialState.coins,
           allIslands,
         )
-        initialState.setCoins(expandedCoins)
+        gameStore.actions.setCoins(expandedCoins)
       }
 
       // Set boat type
@@ -486,7 +487,7 @@ export class GameEngine {
     let prevCornersUnlocked = initialState.cornersUnlocked
 
     this.unsubscribers.push(
-      useGameStore.subscribe((state) => {
+      gameStore.subscribe((state) => {
         // Phase change (detect reset - going back to intro)
         if (state.phase !== prevPhase) {
           const wasReset = prevPhase !== 'intro' && state.phase === 'intro'
@@ -521,9 +522,9 @@ export class GameEngine {
           if (state.stage === 'battle') {
             if (state.expandedIslands.length === 0) {
               const partnerIslands = generateExpandedIslands(ACTIVE_PARTNERS)
-              state.setExpandedIslands(partnerIslands)
+              gameStore.actions.setExpandedIslands(partnerIslands)
             }
-            const expandedIslands = useGameStore.getState().expandedIslands
+            const expandedIslands = gameStore.state.expandedIslands
             this.islands.setIslands(
               state.islands,
               expandedIslands,
@@ -546,7 +547,7 @@ export class GameEngine {
               ...state.showcaseIslands,
             ]
             const expandedCoins = generateExpandedCoins(state.coins, allIslands)
-            state.setCoins(expandedCoins)
+            gameStore.actions.setCoins(expandedCoins)
 
             this.aiSystem.spawn(6)
           }
@@ -568,7 +569,7 @@ export class GameEngine {
           )
 
           // Expand world boundary for showcase zone
-          state.setWorldBoundary(520)
+          gameStore.actions.setWorldBoundary(520)
 
           // Spawn tough outer rim AIs for the showcase zone
           this.aiSystem.spawn(8, true)
@@ -585,8 +586,8 @@ export class GameEngine {
                   generated.length,
                 )
                 // Get fresh state for current islands
-                const currentState = useGameStore.getState()
-                currentState.setShowcaseIslands(generated)
+                const currentState = gameStore.state
+                gameStore.actions.setShowcaseIslands(generated)
 
                 // Update islands entity with showcase islands
                 this.islands.setIslands(
@@ -627,7 +628,7 @@ export class GameEngine {
 
           // Generate corner islands
           const cornerIslands = generateCornerIslands()
-          state.setCornerIslands(cornerIslands)
+          gameStore.actions.setCornerIslands(cornerIslands)
 
           // Spawn corner boss AIs
           this.aiSystem.spawnCornerBosses()
@@ -674,7 +675,7 @@ export class GameEngine {
             // Delay spawn slightly to let state settle
             setTimeout(() => {
               // Get fresh state to check unlock status
-              const currentState = useGameStore.getState()
+              const currentState = gameStore.state
               this.aiSystem.spawn(6)
               // Spawn outer rim AIs if showcase is unlocked
               if (currentState.showcaseUnlocked) {
@@ -733,7 +734,7 @@ export class GameEngine {
   }
 
   private update(delta: number, time: number): void {
-    const state = useGameStore.getState()
+    const state = gameStore.state
 
     // Always update sky and ocean animation
     this.sky.update(time)
@@ -748,7 +749,7 @@ export class GameEngine {
       this.cameraSystem.update(delta, time)
 
       // Respawn coins that have been collected for long enough
-      useGameStore.getState().respawnCoins()
+      gameStore.actions.respawnCoins()
 
       if (state.stage === 'battle') {
         this.aiSystem.update(delta)
@@ -756,8 +757,8 @@ export class GameEngine {
         this.aiDebug.update()
 
         // Health regeneration
-        const { boatHealth, shipStats, purchasedBoosts, setBoatHealth } =
-          useGameStore.getState()
+        const { boatHealth, shipStats, purchasedBoosts } = gameStore.state
+        const { setBoatHealth } = gameStore.actions
         const totalMaxHealth =
           shipStats.maxHealth + purchasedBoosts.permHealth * 25
         if (boatHealth < totalMaxHealth && shipStats.healthRegen > 0) {
@@ -937,7 +938,7 @@ export class GameEngine {
 
     // Re-initialize with current game data
     const { islands, expandedIslands, showcaseIslands, cornerIslands } =
-      useGameStore.getState()
+      gameStore.state
     this.islands.setIslands(
       islands,
       expandedIslands,
@@ -952,7 +953,7 @@ export class GameEngine {
     this.stop()
 
     // Cleanup subscriptions
-    this.unsubscribers.forEach((unsub) => unsub())
+    this.unsubscribers.forEach((sub) => sub.unsubscribe())
     this.unsubscribers = []
 
     // Cleanup systems

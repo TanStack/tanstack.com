@@ -1,5 +1,6 @@
+import { useSelector } from '@tanstack/react-store'
 import { useRef, useEffect, useCallback } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 // Track if a 3D object was clicked (set by R3F event handlers)
 let clickedOn3DObject = false
@@ -20,7 +21,7 @@ export function getPointerState() {
 }
 
 export function TouchControls() {
-  const { phase } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
   const isActiveRef = useRef(false)
 
   const handleStart = useCallback((clientX: number, clientY: number) => {

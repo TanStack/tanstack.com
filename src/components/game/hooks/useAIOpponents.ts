@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGameStore, type OtherPlayer, type Cannonball } from './useGameStore'
+import { gameStore, type OtherPlayer, type Cannonball } from './useGameStore'
 
 const AI_SHIP_COLORS = [
   '#e74c3c', // Red
@@ -86,7 +86,7 @@ function createAICannonball(
 }
 
 export function useAIOpponents() {
-  const { setOtherPlayers } = useGameStore.getState()
+  const { setOtherPlayers } = gameStore.actions
 
   // Store AI state (not in global store to avoid re-renders)
   const aiStates = useRef<Map<string, AIState>>(new Map())
@@ -96,7 +96,7 @@ export function useAIOpponents() {
   useEffect(() => {
     // Check stage inside effect, subscribe via interval to avoid re-render loop
     const checkAndInit = () => {
-      const { stage, otherPlayers, worldBoundary } = useGameStore.getState()
+      const { stage, otherPlayers, worldBoundary } = gameStore.state
 
       // Reset initialized flag if we're in battle but have no AI ships (restart scenario)
       if (
@@ -141,7 +141,7 @@ export function useAIOpponents() {
       islands,
       worldBoundary,
       cannonballs,
-    } = useGameStore.getState()
+    } = gameStore.state
     if (phase !== 'playing' || stage !== 'battle') return
     const dt = Math.min(delta, 0.1)
 
@@ -307,12 +307,16 @@ export function useAIOpponents() {
 
     // Update store with new positions and any new cannonballs
     if (newCannonballs.length > 0) {
-      useGameStore.setState({
+      gameStore.setState((state) => ({
+        ...state,
         otherPlayers: updatedPlayers,
         cannonballs: [...cannonballs, ...newCannonballs],
-      })
+      }))
     } else {
-      useGameStore.setState({ otherPlayers: updatedPlayers })
+      gameStore.setState((state) => ({
+        ...state,
+        otherPlayers: updatedPlayers,
+      }))
     }
   })
 }

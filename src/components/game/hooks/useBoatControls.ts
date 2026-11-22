@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGameStore } from './useGameStore'
+import { gameStore } from './useGameStore'
 import { findNearestIsland } from '../utils/islandGenerator'
 import { checkIslandCollision, checkRockCollision } from '../utils/collision'
 import { getPointerState } from '../ui/TouchControls'
@@ -74,7 +74,7 @@ export function useBoatControls() {
     setTurningRight,
     setNearbyIsland,
     discoverIsland,
-  } = useGameStore.getState()
+  } = gameStore.actions
 
   // Track if space is held for gatling
   const spaceHeldRef = useRef(false)
@@ -102,7 +102,8 @@ export function useBoatControls() {
       // e.repeat is true when key is held down and auto-repeating
       if (e.code === 'Space' && !e.repeat) {
         e.preventDefault()
-        const { shipStats, fireCannon } = useGameStore.getState()
+        const { shipStats } = gameStore.state
+        const { fireCannon } = gameStore.actions
         // Only set held ref if gatling is unlocked (for continuous fire)
         if (shipStats.gatlingGuns) {
           spaceHeldRef.current = true
@@ -158,11 +159,10 @@ export function useBoatControls() {
       rockColliders,
       coins,
       coinsCollected,
-      collectCoin,
       shipStats,
-      fireGatling,
       speedBoostEndTime,
-    } = useGameStore.getState()
+    } = gameStore.state
+    const { collectCoin, fireGatling } = gameStore.actions
 
     if (phase !== 'playing') return
 
@@ -310,8 +310,8 @@ export function useBoatControls() {
     }
 
     // Get dynamic world boundary from store
-    const { worldBoundary, boundaryEdges, setBoundaryEdges } =
-      useGameStore.getState()
+    const { worldBoundary, boundaryEdges } = gameStore.state
+    const { setBoundaryEdges } = gameStore.actions
 
     // Clamp to world boundary and detect which edges are hit
     const BOUNDARY_THRESHOLD = 2 // How close to boundary to show wall
@@ -353,12 +353,9 @@ export function useBoatControls() {
 
     // Check for nearby islands (uses allIslands which includes partner islands in battle stage)
     const nearby = findNearestIsland(newPosition, allIslands, 10)
-    const {
-      nearbyIsland,
-      discoveryProgress,
-      discoveredIslands,
-      setDiscoveryProgress,
-    } = useGameStore.getState()
+    const { nearbyIsland, discoveryProgress, discoveredIslands } =
+      gameStore.state
+    const { setDiscoveryProgress } = gameStore.actions
 
     if (nearby?.id !== nearbyIsland?.id) {
       setNearbyIsland(nearby)

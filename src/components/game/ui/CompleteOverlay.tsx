@@ -1,5 +1,6 @@
+import { useSelector } from '@tanstack/react-store'
 import { Link } from '@tanstack/react-router'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import {
   TrophyIcon,
   ArrowCounterClockwiseIcon,
@@ -7,7 +8,8 @@ import {
 } from '@phosphor-icons/react'
 
 export function CompleteOverlay() {
-  const { phase, reset, setPhase } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const { reset, setPhase } = gameStore.actions
 
   if (phase !== 'complete') return null
 

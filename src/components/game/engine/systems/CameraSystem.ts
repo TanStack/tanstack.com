@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 
 const BASE_FOV = 20
 const _DEBUG_ZOOM_HEIGHT = 400
@@ -26,7 +26,7 @@ export class CameraSystem {
   }
 
   update(_delta: number, _time: number): void {
-    const { boatPosition, shipStats, debugZoomOut } = useGameStore.getState()
+    const { boatPosition, shipStats, debugZoomOut } = gameStore.state
 
     // Debug zoom out mode - bird's eye view of entire map
     if (debugZoomOut) {

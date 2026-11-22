@@ -1,11 +1,12 @@
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 import type { Coins } from '../entities/Coins'
 
 const COIN_COLLECT_RADIUS = 1.5
 
 export class CoinSystem {
   update(_delta: number, _coinsEntity: Coins): void {
-    const { boatPosition, coins, collectCoin } = useGameStore.getState()
+    const { boatPosition, coins } = gameStore.state
+    const { collectCoin } = gameStore.actions
 
     for (const coin of coins) {
       if (coin.collected) continue

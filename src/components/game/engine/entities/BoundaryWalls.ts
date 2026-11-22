@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 
 const PLANE_SIZE = 100
 const PLANE_OPACITY = 0.6
@@ -42,7 +42,7 @@ export class BoundaryWalls {
   }
 
   update(delta: number): void {
-    const { boundaryEdges, worldBoundary, phase } = useGameStore.getState()
+    const { boundaryEdges, worldBoundary, phase } = gameStore.state
 
     for (const plane of this.planes) {
       // Hide when not playing

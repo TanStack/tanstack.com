@@ -1,12 +1,11 @@
 /**
  * ApplicationStarter Store (v2)
  *
- * Local state management for the new applicationStarter using Zustand.
+ * Local state management for the new applicationStarter using TanStack Store.
  * No external CTA dependencies.
  */
 
-import { create } from 'zustand'
-import { subscribeWithSelector } from 'zustand/middleware'
+import { createStore, useSelector } from '@tanstack/react-store'
 import type {
   FeatureId,
   FeatureInfo,
@@ -24,7 +23,7 @@ import { TEMPLATES } from '~/application-starter/templates'
 
 type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun'
 
-interface ApplicationStarterState {
+type ApplicationStarterState = {
   // Project configuration
   projectName: string
   framework: FrameworkId
@@ -54,271 +53,39 @@ interface ApplicationStarterState {
 
   // UI state
   integrationSearch: string
-
-  // Actions
-  setProjectName: (name: string) => void
-  setFramework: (framework: FrameworkId) => void
-  setTailwind: (enabled: boolean) => void
-  toggleFeature: (id: FeatureId) => void
-  setFeatureOption: (
-    featureId: FeatureId,
-    optionKey: string,
-    value: unknown,
-  ) => void
-  setFeatures: (features: Array<FeatureId>) => void
-  selectExample: (id: FeatureId | null) => void
-  setPackageManager: (pm: PackageManager) => void
-  setSkipInstall: (skip: boolean) => void
-  setSkipGit: (skip: boolean) => void
-  addCustomIntegration: (integration: IntegrationCompiled) => void
-  removeCustomIntegration: (id: string) => void
-  setCustomTemplate: (template: CustomTemplateCompiled | null) => void
-  setIntegrationSearch: (search: string) => void
-  setTemplate: (id: string | null) => void
-  applyStarterRecipe: (recipe: ApplicationStarterRecipe) => Promise<void>
-  loadFeatures: () => Promise<void>
-  reset: () => void
-
-  // Derived state helpers
-  hasFeature: (id: FeatureId) => boolean
-  getFeatureInfo: (id: FeatureId) => FeatureInfo | undefined
-  getExampleInfo: (id: FeatureId) => FeatureInfo | undefined
-  getDefinition: () => ProjectDefinition
-  isFeatureLockedByExample: (id: FeatureId) => boolean
 }
 
-const initialState = {
+const initialState: ApplicationStarterState = {
   projectName: 'my-tanstack-app',
-  framework: 'react' as FrameworkId,
+  framework: 'react',
   tailwind: true,
-  features: [] as Array<FeatureId>,
-  featureOptions: {} as Record<string, Record<string, unknown>>,
-  selectedExample: null as FeatureId | null,
-  selectedTemplate: 'blank' as string | null,
-  packageManager: 'pnpm' as PackageManager,
+  features: [],
+  featureOptions: {},
+  selectedExample: null,
+  selectedTemplate: 'blank',
+  packageManager: 'pnpm',
   skipInstall: false,
   skipGit: false,
-  customIntegrations: [] as Array<IntegrationCompiled>,
-  customTemplate: null as CustomTemplateCompiled | null,
-  availableFeatures: [] as Array<FeatureInfo>,
-  availableExamples: [] as Array<FeatureInfo>,
+  customIntegrations: [],
+  customTemplate: null,
+  availableFeatures: [],
+  availableExamples: [],
   integrationSearch: '',
   featuresLoaded: false,
 }
 
-export const useApplicationStarterStore = create<ApplicationStarterState>()(
-  subscribeWithSelector((set, get) => ({
-    ...initialState,
+export const applicationStarterStore = createStore(
+  initialState,
+  ({ setState, get }) => {
+    const set = (partial: Partial<ApplicationStarterState>) =>
+      setState((prev) => ({ ...prev, ...partial }))
 
-    setProjectName: (name) => set({ projectName: name }),
+    const actions = {
+      setProjectName: (name: string) => set({ projectName: name }),
 
-    setFramework: (framework) => {
-      set({
-        framework,
-        features: [],
-        featureOptions: {},
-        selectedExample: null,
-        selectedTemplate: 'blank',
-        availableFeatures: [],
-        availableExamples: [],
-        featuresLoaded: false,
-      })
-      get().loadFeatures()
-    },
-
-    setTailwind: (enabled) => {
-      const { features, availableFeatures } = get()
-      if (!enabled) {
-        const filtered = features.filter((id) => {
-          const feature = availableFeatures.find((f) => f.id === id)
-          return !feature?.requiresTailwind
-        })
-        set({ tailwind: enabled, features: filtered })
-      } else {
-        set({ tailwind: enabled })
-      }
-    },
-
-    toggleFeature: (id) => {
-      const {
-        features,
-        availableFeatures,
-        selectedExample,
-        availableExamples,
-      } = get()
-
-      // Check if this feature is locked by selected example
-      if (selectedExample) {
-        const example = availableExamples.find((e) => e.id === selectedExample)
-        if (example?.requires.includes(id)) {
-          return // Can't toggle features locked by example
-        }
-      }
-
-      const isSelected = features.includes(id)
-
-      if (isSelected) {
-        const toRemove = new Set([id])
-        for (const f of availableFeatures) {
-          if (f.requires.includes(id) && features.includes(f.id)) {
-            toRemove.add(f.id)
-          }
-        }
-        set({ features: features.filter((f) => !toRemove.has(f)) })
-      } else {
-        const feature = availableFeatures.find((f) => f.id === id)
-        if (!feature) return
-
-        const exclusiveConflicts = new Set<FeatureId>()
-        if (feature.exclusive.length > 0) {
-          for (const existingId of features) {
-            const existing = availableFeatures.find((f) => f.id === existingId)
-            if (
-              existing?.exclusive.some((e) => feature.exclusive.includes(e))
-            ) {
-              exclusiveConflicts.add(existingId)
-            }
-          }
-        }
-
-        if (exclusiveConflicts.size > 0) {
-          const withoutConflicts = features.filter(
-            (f) => !exclusiveConflicts.has(f),
-          )
-          set({
-            features: [...withoutConflicts, ...feature.requires, id],
-          })
-        } else {
-          const newFeatures = new Set([...features, ...feature.requires, id])
-          set({ features: Array.from(newFeatures) })
-        }
-      }
-    },
-
-    setFeatureOption: (featureId, optionKey, value) => {
-      const { featureOptions } = get()
-      set({
-        featureOptions: {
-          ...featureOptions,
-          [featureId]: {
-            ...featureOptions[featureId],
-            [optionKey]: value,
-          },
-        },
-      })
-    },
-
-    setFeatures: (features) => set({ features }),
-
-    selectExample: (id) => {
-      const { availableExamples, features } = get()
-
-      if (id === null) {
-        // Deselecting example - remove its locked dependencies from features
-        const currentExample = get().selectedExample
-        if (currentExample) {
-          const example = availableExamples.find((e) => e.id === currentExample)
-          if (example) {
-            const lockedFeatures = new Set(example.requires)
-            set({
-              selectedExample: null,
-              features: features.filter((f) => !lockedFeatures.has(f)),
-            })
-            return
-          }
-        }
-        set({ selectedExample: null })
-        return
-      }
-
-      const example = availableExamples.find((e) => e.id === id)
-      if (!example) return
-
-      // Add example's required features (locked)
-      const newFeatures = new Set([...features, ...example.requires])
-
-      set({
-        selectedExample: id,
-        features: Array.from(newFeatures),
-      })
-    },
-
-    setPackageManager: (pm) => set({ packageManager: pm }),
-    setSkipInstall: (skip) => set({ skipInstall: skip }),
-    setSkipGit: (skip) => set({ skipGit: skip }),
-
-    addCustomIntegration: (integration) => {
-      const { customIntegrations, features, availableFeatures } = get()
-      if (customIntegrations.some((i) => i.id === integration.id)) return
-
-      const featureInfo: FeatureInfo = {
-        id: integration.id,
-        name: integration.name,
-        description: integration.description,
-        category: 'other',
-        requires: integration.dependsOn ?? [],
-        exclusive: [],
-        hasOptions: !!integration.options,
-        link: integration.link,
-        color: '#8B5CF6',
-        requiresTailwind: integration.tailwind === false ? true : undefined,
-      }
-
-      set({
-        customIntegrations: [...customIntegrations, integration],
-        availableFeatures: [...availableFeatures, featureInfo],
-        features: [...features, integration.id],
-      })
-    },
-
-    removeCustomIntegration: (id) => {
-      const { customIntegrations, features, availableFeatures } = get()
-      set({
-        customIntegrations: customIntegrations.filter((i) => i.id !== id),
-        availableFeatures: availableFeatures.filter((f) => f.id !== id),
-        features: features.filter((f) => f !== id),
-      })
-    },
-
-    setCustomTemplate: (template) => {
-      set({ customTemplate: template })
-    },
-
-    setIntegrationSearch: (search) => {
-      set({ integrationSearch: search })
-    },
-
-    setTemplate: (id) => {
-      const template = TEMPLATES.find((t) => t.id === id)
-      if (!template) return
-
-      const { availableFeatures, availableExamples } = get()
-
-      // Filter to only features that exist in current framework
-      const validFeatures = template.features.filter((f) =>
-        availableFeatures.some((af) => af.id === f),
-      )
-
-      const example = template.exampleId
-        ? availableExamples.find((e) => e.id === template.exampleId)
-        : undefined
-      const exampleLockedFeatures = example?.requires ?? []
-      const featuresWithExampleDeps = Array.from(
-        new Set([...validFeatures, ...exampleLockedFeatures]),
-      ).filter((f) => availableFeatures.some((af) => af.id === f))
-
-      set({
-        selectedTemplate: id,
-        features: featuresWithExampleDeps,
-        featureOptions: {},
-        selectedExample: example?.id ?? null,
-      })
-    },
-
-    applyStarterRecipe: async (recipe) => {
-      if (get().framework !== recipe.framework) {
+      setFramework: (framework: FrameworkId): void => {
         set({
-          framework: recipe.framework,
+          framework,
           features: [],
           featureOptions: {},
           selectedExample: null,
@@ -327,141 +94,365 @@ export const useApplicationStarterStore = create<ApplicationStarterState>()(
           availableExamples: [],
           featuresLoaded: false,
         })
-        await get().loadFeatures()
-      } else if (!get().featuresLoaded) {
-        await get().loadFeatures()
-      }
+        actions.loadFeatures()
+      },
 
-      const { availableFeatures, availableExamples, projectName } = get()
-      const validFeatures = getRecipeApplicationStarterFeatures(recipe).filter(
-        (featureId) =>
-          availableFeatures.some((feature) => feature.id === featureId),
-      )
+      setTailwind: (enabled: boolean) => {
+        const { features, availableFeatures } = get()
+        if (!enabled) {
+          const filtered = features.filter((id) => {
+            const feature = availableFeatures.find((f) => f.id === id)
+            return !feature?.requiresTailwind
+          })
+          set({ tailwind: enabled, features: filtered })
+        } else {
+          set({ tailwind: enabled })
+        }
+      },
 
-      const recipeTemplateIsExample = isCliTemplateId(recipe.template)
-      const exampleLockedFeatures = recipeTemplateIsExample
-        ? (availableExamples.find((e) => e.id === recipe.template)?.requires ??
-          [])
-        : []
+      toggleFeature: (id: FeatureId) => {
+        const {
+          features,
+          availableFeatures,
+          selectedExample,
+          availableExamples,
+        } = get()
 
-      // featureOptions are valid for any add-on the project will end up with —
-      // either explicitly chosen features or those locked by the selected example.
-      const optionEligibleFeatures = new Set([
-        ...validFeatures,
-        ...exampleLockedFeatures,
-      ])
-      const nextFeatureOptions = Object.fromEntries(
-        Object.entries(recipe.featureOptions).filter(([featureId]) =>
-          optionEligibleFeatures.has(featureId),
-        ),
-      )
-
-      set({
-        projectName: recipe.projectName ?? projectName,
-        tailwind: recipe.tailwind,
-        features: validFeatures,
-        featureOptions: nextFeatureOptions,
-        selectedExample: recipeTemplateIsExample ? recipe.template! : null,
-        selectedTemplate: recipeTemplateIsExample
-          ? null
-          : (recipe.template ?? null),
-        packageManager: recipe.packageManager,
-        skipInstall: false,
-        skipGit: false,
-      })
-    },
-
-    loadFeatures: async () => {
-      try {
-        if (import.meta.env.SSR) {
-          throw new Error(
-            'Application Starter features are only loaded in the browser',
+        // Check if this feature is locked by selected example
+        if (selectedExample) {
+          const example = availableExamples.find(
+            (e) => e.id === selectedExample,
           )
+          if (example?.requires.includes(id)) {
+            return // Can't toggle features locked by example
+          }
         }
 
-        const { framework } = get()
-        const { getFeaturesHandler } =
-          await import('~/application-starter/api/features')
-        const data = await getFeaturesHandler(framework)
+        const isSelected = features.includes(id)
+
+        if (isSelected) {
+          const toRemove = new Set([id])
+          for (const f of availableFeatures) {
+            if (f.requires.includes(id) && features.includes(f.id)) {
+              toRemove.add(f.id)
+            }
+          }
+          set({ features: features.filter((f) => !toRemove.has(f)) })
+        } else {
+          const feature = availableFeatures.find((f) => f.id === id)
+          if (!feature) return
+
+          const exclusiveConflicts = new Set<FeatureId>()
+          if (feature.exclusive.length > 0) {
+            for (const existingId of features) {
+              const existing = availableFeatures.find(
+                (f) => f.id === existingId,
+              )
+              if (
+                existing?.exclusive.some((e) => feature.exclusive.includes(e))
+              ) {
+                exclusiveConflicts.add(existingId)
+              }
+            }
+          }
+
+          if (exclusiveConflicts.size > 0) {
+            const withoutConflicts = features.filter(
+              (f) => !exclusiveConflicts.has(f),
+            )
+            set({
+              features: [...withoutConflicts, ...feature.requires, id],
+            })
+          } else {
+            const newFeatures = new Set([...features, ...feature.requires, id])
+            set({ features: Array.from(newFeatures) })
+          }
+        }
+      },
+
+      setFeatureOption: (
+        featureId: FeatureId,
+        optionKey: string,
+        value: unknown,
+      ) => {
+        const { featureOptions } = get()
         set({
-          availableFeatures: data.features,
-          availableExamples: data.examples || [],
-          featuresLoaded: true,
+          featureOptions: {
+            ...featureOptions,
+            [featureId]: {
+              ...featureOptions[featureId],
+              [optionKey]: value,
+            },
+          },
         })
-        // Apply blank template after features load to set default features
-        get().setTemplate('blank')
-      } catch (error) {
-        console.error('Failed to load features:', error)
-        set({ featuresLoaded: true })
-      }
-    },
+      },
 
-    reset: () => set(initialState),
+      setFeatures: (features: Array<FeatureId>) => set({ features }),
 
-    hasFeature: (id) => get().features.includes(id),
+      selectExample: (id: FeatureId | null) => {
+        const { availableExamples, features } = get()
 
-    getFeatureInfo: (id) => get().availableFeatures.find((f) => f.id === id),
+        if (id === null) {
+          // Deselecting example - remove its locked dependencies from features
+          const currentExample = get().selectedExample
+          if (currentExample) {
+            const example = availableExamples.find(
+              (e) => e.id === currentExample,
+            )
+            if (example) {
+              const lockedFeatures = new Set(example.requires)
+              set({
+                selectedExample: null,
+                features: features.filter((f) => !lockedFeatures.has(f)),
+              })
+              return
+            }
+          }
+          set({ selectedExample: null })
+          return
+        }
 
-    getExampleInfo: (id) => get().availableExamples.find((e) => e.id === id),
+        const example = availableExamples.find((e) => e.id === id)
+        if (!example) return
 
-    getDefinition: () => ({
-      name: get().projectName,
-      framework: get().framework,
-      features: get().features,
-      featureOptions: get().featureOptions,
-      selectedExample: get().selectedExample ?? undefined,
-    }),
+        // Add example's required features (locked)
+        const newFeatures = new Set([...features, ...example.requires])
 
-    isFeatureLockedByExample: (id) => {
-      const { selectedExample, availableExamples } = get()
-      if (!selectedExample) return false
-      const example = availableExamples.find((e) => e.id === selectedExample)
-      return example?.requires.includes(id) ?? false
-    },
-  })),
+        set({
+          selectedExample: id,
+          features: Array.from(newFeatures),
+        })
+      },
+
+      setPackageManager: (pm: PackageManager) => set({ packageManager: pm }),
+      setSkipInstall: (skip: boolean) => set({ skipInstall: skip }),
+      setSkipGit: (skip: boolean) => set({ skipGit: skip }),
+
+      addCustomIntegration: (integration: IntegrationCompiled) => {
+        const { customIntegrations, features, availableFeatures } = get()
+        if (customIntegrations.some((i) => i.id === integration.id)) return
+
+        const featureInfo: FeatureInfo = {
+          id: integration.id,
+          name: integration.name,
+          description: integration.description,
+          category: 'other',
+          requires: integration.dependsOn ?? [],
+          exclusive: [],
+          hasOptions: !!integration.options,
+          link: integration.link,
+          color: '#8B5CF6',
+          requiresTailwind: integration.tailwind === false ? true : undefined,
+        }
+
+        set({
+          customIntegrations: [...customIntegrations, integration],
+          availableFeatures: [...availableFeatures, featureInfo],
+          features: [...features, integration.id],
+        })
+      },
+
+      removeCustomIntegration: (id: string) => {
+        const { customIntegrations, features, availableFeatures } = get()
+        set({
+          customIntegrations: customIntegrations.filter((i) => i.id !== id),
+          availableFeatures: availableFeatures.filter((f) => f.id !== id),
+          features: features.filter((f) => f !== id),
+        })
+      },
+
+      setCustomTemplate: (template: CustomTemplateCompiled | null) => {
+        set({ customTemplate: template })
+      },
+
+      setIntegrationSearch: (search: string) => {
+        set({ integrationSearch: search })
+      },
+
+      setTemplate: (id: string | null) => {
+        const template = TEMPLATES.find((t) => t.id === id)
+        if (!template) return
+
+        const { availableFeatures, availableExamples } = get()
+
+        // Filter to only features that exist in current framework
+        const validFeatures = template.features.filter((f) =>
+          availableFeatures.some((af) => af.id === f),
+        )
+
+        const example = template.exampleId
+          ? availableExamples.find((e) => e.id === template.exampleId)
+          : undefined
+        const exampleLockedFeatures = example?.requires ?? []
+        const featuresWithExampleDeps = Array.from(
+          new Set([...validFeatures, ...exampleLockedFeatures]),
+        ).filter((f) => availableFeatures.some((af) => af.id === f))
+
+        set({
+          selectedTemplate: id,
+          features: featuresWithExampleDeps,
+          featureOptions: {},
+          selectedExample: example?.id ?? null,
+        })
+      },
+
+      applyStarterRecipe: async (
+        recipe: ApplicationStarterRecipe,
+      ): Promise<void> => {
+        if (get().framework !== recipe.framework) {
+          set({
+            framework: recipe.framework,
+            features: [],
+            featureOptions: {},
+            selectedExample: null,
+            selectedTemplate: 'blank',
+            availableFeatures: [],
+            availableExamples: [],
+            featuresLoaded: false,
+          })
+          await actions.loadFeatures()
+        } else if (!get().featuresLoaded) {
+          await actions.loadFeatures()
+        }
+
+        const { availableFeatures, availableExamples, projectName } = get()
+        const validFeatures = getRecipeApplicationStarterFeatures(
+          recipe,
+        ).filter((featureId) =>
+          availableFeatures.some((feature) => feature.id === featureId),
+        )
+
+        const recipeTemplateIsExample = isCliTemplateId(recipe.template)
+        const exampleLockedFeatures = recipeTemplateIsExample
+          ? (availableExamples.find((e) => e.id === recipe.template)
+              ?.requires ?? [])
+          : []
+
+        // featureOptions are valid for any add-on the project will end up with —
+        // either explicitly chosen features or those locked by the selected example.
+        const optionEligibleFeatures = new Set([
+          ...validFeatures,
+          ...exampleLockedFeatures,
+        ])
+        const nextFeatureOptions = Object.fromEntries(
+          Object.entries(recipe.featureOptions).filter(([featureId]) =>
+            optionEligibleFeatures.has(featureId),
+          ),
+        )
+
+        set({
+          projectName: recipe.projectName ?? projectName,
+          tailwind: recipe.tailwind,
+          features: validFeatures,
+          featureOptions: nextFeatureOptions,
+          selectedExample: recipeTemplateIsExample ? recipe.template! : null,
+          selectedTemplate: recipeTemplateIsExample
+            ? null
+            : (recipe.template ?? null),
+          packageManager: recipe.packageManager,
+          skipInstall: false,
+          skipGit: false,
+        })
+      },
+
+      loadFeatures: async (): Promise<void> => {
+        try {
+          if (import.meta.env.SSR) {
+            throw new Error(
+              'Application Starter features are only loaded in the browser',
+            )
+          }
+
+          const { framework } = get()
+          const { getFeaturesHandler } =
+            await import('~/application-starter/api/features')
+          const data = await getFeaturesHandler(framework)
+          set({
+            availableFeatures: data.features,
+            availableExamples: data.examples || [],
+            featuresLoaded: true,
+          })
+          // Apply blank template after features load to set default features
+          actions.setTemplate('blank')
+        } catch (error) {
+          console.error('Failed to load features:', error)
+          set({ featuresLoaded: true })
+        }
+      },
+
+      reset: () => set(initialState),
+
+      hasFeature: (id: FeatureId) => get().features.includes(id),
+
+      getFeatureInfo: (id: FeatureId) =>
+        get().availableFeatures.find((f) => f.id === id),
+
+      getExampleInfo: (id: FeatureId) =>
+        get().availableExamples.find((e) => e.id === id),
+
+      getDefinition: (): ProjectDefinition => ({
+        name: get().projectName,
+        framework: get().framework,
+        features: get().features,
+        featureOptions: get().featureOptions,
+        selectedExample: get().selectedExample ?? undefined,
+      }),
+
+      isFeatureLockedByExample: (id: FeatureId) => {
+        const { selectedExample, availableExamples } = get()
+        if (!selectedExample) return false
+        const example = availableExamples.find((e) => e.id === selectedExample)
+        return example?.requires.includes(id) ?? false
+      },
+    }
+
+    return actions
+  },
 )
 
 // Selector hooks for common patterns
 export const useProjectName = () =>
-  useApplicationStarterStore((s) => s.projectName)
-export const useFramework = () => useApplicationStarterStore((s) => s.framework)
-export const useTailwind = () => useApplicationStarterStore((s) => s.tailwind)
-export const useFeatures = () => useApplicationStarterStore((s) => s.features)
+  useSelector(applicationStarterStore, (s) => s.projectName)
+export const useFramework = () =>
+  useSelector(applicationStarterStore, (s) => s.framework)
+export const useTailwind = () =>
+  useSelector(applicationStarterStore, (s) => s.tailwind)
+export const useFeatures = () =>
+  useSelector(applicationStarterStore, (s) => s.features)
 export const useFeatureOptions = () =>
-  useApplicationStarterStore((s) => s.featureOptions)
+  useSelector(applicationStarterStore, (s) => s.featureOptions)
 export const useSelectedExample = () =>
-  useApplicationStarterStore((s) => s.selectedExample)
+  useSelector(applicationStarterStore, (s) => s.selectedExample)
 export const usePackageManager = () =>
-  useApplicationStarterStore((s) => s.packageManager)
+  useSelector(applicationStarterStore, (s) => s.packageManager)
 export const useSkipInstall = () =>
-  useApplicationStarterStore((s) => s.skipInstall)
-export const useSkipGit = () => useApplicationStarterStore((s) => s.skipGit)
+  useSelector(applicationStarterStore, (s) => s.skipInstall)
+export const useSkipGit = () =>
+  useSelector(applicationStarterStore, (s) => s.skipGit)
 export const useAvailableFeatures = () =>
-  useApplicationStarterStore((s) => s.availableFeatures)
+  useSelector(applicationStarterStore, (s) => s.availableFeatures)
 export const useAvailableExamples = () =>
-  useApplicationStarterStore((s) => s.availableExamples)
+  useSelector(applicationStarterStore, (s) => s.availableExamples)
 export const useFeaturesLoaded = () =>
-  useApplicationStarterStore((s) => s.featuresLoaded)
+  useSelector(applicationStarterStore, (s) => s.featuresLoaded)
 export const useCustomIntegrations = () =>
-  useApplicationStarterStore((s) => s.customIntegrations)
+  useSelector(applicationStarterStore, (s) => s.customIntegrations)
 export const useCustomTemplate = () =>
-  useApplicationStarterStore((s) => s.customTemplate)
+  useSelector(applicationStarterStore, (s) => s.customTemplate)
 export const useIntegrationSearch = () =>
-  useApplicationStarterStore((s) => s.integrationSearch)
+  useSelector(applicationStarterStore, (s) => s.integrationSearch)
 export const useSelectExample = () =>
-  useApplicationStarterStore((s) => s.selectExample)
+  applicationStarterStore.actions.selectExample
 export const useSelectedTemplate = () =>
-  useApplicationStarterStore((s) => s.selectedTemplate)
+  useSelector(applicationStarterStore, (s) => s.selectedTemplate)
 
 // Feature state with exclusive/requirement analysis
 export function useFeatureState(id: FeatureId) {
-  const features = useApplicationStarterStore((s) => s.features)
-  const tailwind = useApplicationStarterStore((s) => s.tailwind)
-  const availableFeatures = useApplicationStarterStore(
+  const features = useSelector(applicationStarterStore, (s) => s.features)
+  const tailwind = useSelector(applicationStarterStore, (s) => s.tailwind)
+  const availableFeatures = useSelector(
+    applicationStarterStore,
     (s) => s.availableFeatures,
-  )
-  const isFeatureLockedByExample = useApplicationStarterStore(
-    (s) => s.isFeatureLockedByExample,
   )
 
   const feature = availableFeatures.find((f) => f.id === id)
@@ -477,7 +468,8 @@ export function useFeatureState(id: FeatureId) {
   }
 
   const selected = features.includes(id)
-  const lockedByExample = isFeatureLockedByExample(id)
+  const lockedByExample =
+    applicationStarterStore.actions.isFeatureLockedByExample(id)
 
   // Check if disabled due to Tailwind requirement
   const needsTailwind = feature.requiresTailwind && !tailwind

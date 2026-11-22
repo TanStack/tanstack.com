@@ -5,6 +5,7 @@
  * Uses proper theme support.
  */
 
+import { useSelector } from '@tanstack/react-store'
 import {
   createContext,
   useEffect,
@@ -13,7 +14,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useSearch } from '@tanstack/react-router'
-import { useApplicationStarterStore } from './store'
+import { applicationStarterStore } from './store'
 import { normalizeFrameworkId } from '~/application-starter/frameworks'
 
 interface ApplicationStarterContextValue {
@@ -33,8 +34,11 @@ export function ApplicationStarterProvider({
 }: ApplicationStarterProviderProps) {
   const [ready, setReady] = useState(false)
   const search = useSearch({ strict: false }) as { framework?: string }
-  const loadFeatures = useApplicationStarterStore((s) => s.loadFeatures)
-  const featuresLoaded = useApplicationStarterStore((s) => s.featuresLoaded)
+  const loadFeatures = applicationStarterStore.actions.loadFeatures
+  const featuresLoaded = useSelector(
+    applicationStarterStore,
+    (s) => s.featuresLoaded,
+  )
   const initializedRef = useRef(false)
 
   // Set framework from URL before loading features (only once on mount)
@@ -44,9 +48,10 @@ export function ApplicationStarterProvider({
 
     // Set framework directly in store without triggering loadFeatures
     if (search.framework) {
-      useApplicationStarterStore.setState({
+      applicationStarterStore.setState((prev) => ({
+        ...prev,
         framework: normalizeFrameworkId(search.framework),
-      })
+      }))
     }
     loadFeatures()
   }, [loadFeatures, search.framework])

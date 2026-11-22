@@ -2,14 +2,21 @@
  * TemplatePicker - Preset template selection for common app types
  */
 
+import { useSelector } from '@tanstack/react-store'
 import { twMerge } from 'tailwind-merge'
 import { TEMPLATES } from '~/application-starter/templates'
-import { useApplicationStarterStore } from './store'
+import { applicationStarterStore } from './store'
 
 export function TemplatePicker() {
-  const selectedTemplate = useApplicationStarterStore((s) => s.selectedTemplate)
-  const setTemplate = useApplicationStarterStore((s) => s.setTemplate)
-  const featuresLoaded = useApplicationStarterStore((s) => s.featuresLoaded)
+  const selectedTemplate = useSelector(
+    applicationStarterStore,
+    (s) => s.selectedTemplate,
+  )
+  const setTemplate = applicationStarterStore.actions.setTemplate
+  const featuresLoaded = useSelector(
+    applicationStarterStore,
+    (s) => s.featuresLoaded,
+  )
 
   return (
     <div className="p-4 pb-0">

@@ -8,6 +8,7 @@
  * Partner features use the shared partner placement policy within categories.
  */
 
+import { useSelector } from '@tanstack/react-store'
 import { useState, useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -19,7 +20,7 @@ import {
 } from '@phosphor-icons/react'
 import { matchSorter } from 'match-sorter'
 import {
-  useApplicationStarterStore,
+  applicationStarterStore,
   useFeatureState,
   useAvailableFeatures,
   useAvailableExamples,
@@ -371,8 +372,8 @@ interface FeatureCardProps {
 }
 
 function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
-  const toggleFeature = useApplicationStarterStore((s) => s.toggleFeature)
-  const getFeatureInfo = useApplicationStarterStore((s) => s.getFeatureInfo)
+  const toggleFeature = applicationStarterStore.actions.toggleFeature
+  const getFeatureInfo = applicationStarterStore.actions.getFeatureInfo
   const { selected, enabled, disabledReason, exclusiveConflict, requiredBy } =
     useFeatureState(feature.id)
 
@@ -488,9 +489,14 @@ interface FeatureOptionsProps {
 }
 
 export function FeatureOptions({ featureId }: FeatureOptionsProps) {
-  const feature = useApplicationStarterStore((s) => s.getFeatureInfo(featureId))
-  const featureOptions = useApplicationStarterStore((s) => s.featureOptions)
-  const setFeatureOption = useApplicationStarterStore((s) => s.setFeatureOption)
+  const feature = useSelector(applicationStarterStore, (s) =>
+    s.availableFeatures.find((f) => f.id === featureId),
+  )
+  const featureOptions = useSelector(
+    applicationStarterStore,
+    (s) => s.featureOptions,
+  )
+  const setFeatureOption = applicationStarterStore.actions.setFeatureOption
 
   if (!feature || !feature.options || feature.options.length === 0) {
     return null
@@ -562,7 +568,7 @@ export function FeatureOptions({ featureId }: FeatureOptionsProps) {
 function ExamplePicker() {
   const examples = useAvailableExamples()
   const selectedExample = useSelectedExample()
-  const selectExample = useApplicationStarterStore((s) => s.selectExample)
+  const selectExample = applicationStarterStore.actions.selectExample
   const [isOpen, setIsOpen] = useState(true)
 
   if (examples.length === 0) return null

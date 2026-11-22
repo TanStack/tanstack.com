@@ -14,7 +14,7 @@ import {
   XIcon,
   QuestionIcon,
 } from '@phosphor-icons/react'
-import { useApplicationStarterStore, useCustomTemplate } from './store'
+import { applicationStarterStore, useCustomTemplate } from './store'
 import type { CustomTemplateCompiled } from '~/application-starter/api'
 
 interface CustomTemplateDialogProps {
@@ -27,9 +27,7 @@ export function CustomTemplateDialog({ onClose }: CustomTemplateDialogProps) {
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<CustomTemplateCompiled | null>(null)
 
-  const setCustomTemplate = useApplicationStarterStore(
-    (s) => s.setCustomTemplate,
-  )
+  const setCustomTemplate = applicationStarterStore.actions.setCustomTemplate
 
   const handleLoad = async () => {
     if (!url.trim()) {
@@ -180,9 +178,7 @@ export function CustomTemplateDialog({ onClose }: CustomTemplateDialogProps) {
 export function CustomTemplateSection() {
   const [isOpen, setIsOpen] = useState(false)
   const customTemplate = useCustomTemplate()
-  const setCustomTemplate = useApplicationStarterStore(
-    (s) => s.setCustomTemplate,
-  )
+  const setCustomTemplate = applicationStarterStore.actions.setCustomTemplate
 
   if (customTemplate) {
     return (
@@ -261,9 +257,7 @@ export function CustomTemplateItem({
   onToggle: () => void
 }) {
   const customTemplate = useCustomTemplate()
-  const setCustomTemplate = useApplicationStarterStore(
-    (s) => s.setCustomTemplate,
-  )
+  const setCustomTemplate = applicationStarterStore.actions.setCustomTemplate
 
   if (customTemplate) {
     return (

@@ -7,7 +7,7 @@
 export { ApplicationStarterProvider } from './ApplicationStarterProvider'
 export { FeaturePicker, FeatureOptions } from './FeaturePicker'
 export {
-  useApplicationStarterStore,
+  applicationStarterStore,
   useProjectName,
   useFeatures,
   useAvailableFeatures,

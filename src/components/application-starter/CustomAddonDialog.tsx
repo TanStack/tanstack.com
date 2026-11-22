@@ -15,7 +15,7 @@ import {
   ArrowSquareOutIcon,
   QuestionIcon,
 } from '@phosphor-icons/react'
-import { useApplicationStarterStore, useTailwind } from './store'
+import { applicationStarterStore, useTailwind } from './store'
 import type { IntegrationCompiled } from '~/application-starter/api'
 
 interface CustomAddonDialogProps {
@@ -28,9 +28,8 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<IntegrationCompiled | null>(null)
 
-  const addCustomIntegration = useApplicationStarterStore(
-    (s) => s.addCustomIntegration,
-  )
+  const addCustomIntegration =
+    applicationStarterStore.actions.addCustomIntegration
   const tailwind = useTailwind()
 
   const handleLoad = async () => {

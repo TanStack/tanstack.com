@@ -1,6 +1,7 @@
+import { useSelector } from '@tanstack/react-store'
 import { useCallback, useMemo, useState } from 'react'
 import { QuestionIcon, XIcon } from '@phosphor-icons/react'
-import { useApplicationStarterStore } from './store'
+import { applicationStarterStore } from './store'
 import { useApplicationStarterUrl } from './useApplicationStarterUrl'
 import {
   ApplicationStarterSummaryPanel,
@@ -23,22 +24,35 @@ export function ApplicationStarterWorkspace() {
     useState(false)
   const [latestStarterResult, setLatestStarterResult] =
     useState<ApplicationStarterResult | null>(null)
-  const features = useApplicationStarterStore((state) => state.features)
-  const featureOptions = useApplicationStarterStore(
+  const features = useSelector(
+    applicationStarterStore,
+    (state) => state.features,
+  )
+  const featureOptions = useSelector(
+    applicationStarterStore,
     (state) => state.featureOptions,
   )
-  const framework = useApplicationStarterStore((state) => state.framework)
-  const packageManager = useApplicationStarterStore(
+  const framework = useSelector(
+    applicationStarterStore,
+    (state) => state.framework,
+  )
+  const packageManager = useSelector(
+    applicationStarterStore,
     (state) => state.packageManager,
   )
-  const projectName = useApplicationStarterStore((state) => state.projectName)
-  const selectedTemplate = useApplicationStarterStore(
+  const projectName = useSelector(
+    applicationStarterStore,
+    (state) => state.projectName,
+  )
+  const selectedTemplate = useSelector(
+    applicationStarterStore,
     (state) => state.selectedTemplate,
   )
-  const tailwind = useApplicationStarterStore((state) => state.tailwind)
-  const applyStarterRecipe = useApplicationStarterStore(
-    (state) => state.applyStarterRecipe,
+  const tailwind = useSelector(
+    applicationStarterStore,
+    (state) => state.tailwind,
   )
+  const applyStarterRecipe = applicationStarterStore.actions.applyStarterRecipe
   const summary = useApplicationStarterSummaryData()
   const { notify } = useToast()
   const displayedSummary = useMemo(
@@ -111,7 +125,7 @@ export function ApplicationStarterWorkspace() {
       await applyStarterRecipe(result.recipe)
       setLastGeneratedApplicationStarterSignature(
         createApplicationStarterSignatureFromStore(
-          useApplicationStarterStore.getState(),
+          applicationStarterStore.state,
         ),
       )
       setIsPromptDirtySinceGenerate(false)
@@ -244,7 +258,7 @@ function createApplicationStarterSignature({
 }
 
 function createApplicationStarterSignatureFromStore(
-  state: ReturnType<typeof useApplicationStarterStore.getState>,
+  state: typeof applicationStarterStore.state,
 ) {
   return createApplicationStarterSignature({
     featureOptions: state.featureOptions,

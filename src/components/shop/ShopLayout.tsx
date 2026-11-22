@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { CartDrawer } from './CartDrawer'
-import { useCartDrawerStore } from './cartDrawerStore'
+import { useSelector } from '@tanstack/react-store'
+import { cartDrawerStore } from './cartDrawerStore'
 
 type ShopLayoutProps = {
   children: React.ReactNode
@@ -16,7 +17,7 @@ export function ShopLayout({ children }: ShopLayoutProps) {
 }
 
 function ShopCartDrawer() {
-  const open = useCartDrawerStore((s) => s.open)
-  const setOpen = useCartDrawerStore((s) => s.setOpen)
+  const open = useSelector(cartDrawerStore, (s) => s.open)
+  const { setOpen } = cartDrawerStore.actions
   return <CartDrawer open={open} onOpenChange={setOpen} />
 }

@@ -86,12 +86,9 @@ export function Doc({
   const localCurrentFramework = useLocalCurrentFramework()
   const currentFramework = React.useMemo(() => {
     const fw =
-      frameworkProp ||
-      paramsFramework ||
-      localCurrentFramework.currentFramework ||
-      'react'
+      frameworkProp || paramsFramework || localCurrentFramework || 'react'
     return typeof fw === 'string' ? fw.toLowerCase() : fw
-  }, [frameworkProp, paramsFramework, localCurrentFramework.currentFramework])
+  }, [frameworkProp, paramsFramework, localCurrentFramework])
 
   const isTocVisible = shouldRenderToc && headings.length > 1
 

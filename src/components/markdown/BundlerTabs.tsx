@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Tabs, type TabDefinition } from './Tabs'
+import { useSelector } from '@tanstack/react-store'
 import { createPersistedEnumStore } from './usePersistedEnumStore'
 import {
   BUNDLERS,
@@ -28,8 +29,8 @@ export function BundlerTabs({
 }: BundlerTabsProps) {
   bundlerStore.useHydrate()
 
-  const activeBundler = bundlerStore((s) => s.value)
-  const setBundler = bundlerStore((s) => s.setValue)
+  const activeBundler = useSelector(bundlerStore.store, (s) => s.value)
+  const setBundler = bundlerStore.store.actions.setValue
 
   const childrenArray = React.Children.toArray(children)
 

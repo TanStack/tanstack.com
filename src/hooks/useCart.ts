@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
+import { cartDrawerStore } from '~/components/shop/cartDrawerStore'
 import {
   applyOptimisticAddToCart,
   cartHasLines,
@@ -68,7 +68,7 @@ function settleWhenIdle(qc: ReturnType<typeof useQueryClient>) {
 }
 
 function openDrawerIfCartHasLines(cart: CartDetail | null | undefined) {
-  if (cartHasLines(cart)) useCartDrawerStore.getState().openDrawer()
+  if (cartHasLines(cart)) cartDrawerStore.actions.openDrawer()
 }
 
 /**

@@ -2,7 +2,7 @@ import { Link, useLocation } from '@tanstack/react-router'
 import { ShoppingCartIcon } from '@phosphor-icons/react/ShoppingCart'
 import { twMerge } from 'tailwind-merge'
 import { useCart } from '~/hooks/useCart'
-import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
+import { cartDrawerStore } from '~/components/shop/cartDrawerStore'
 
 const badgeClasses = twMerge(
   'absolute -top-1 -right-1 min-w-[1.125rem] h-[1.125rem] px-1',
@@ -34,7 +34,7 @@ const buttonClasses = twMerge(
 export function NavbarCartButton() {
   const { pathname } = useLocation()
   const { totalQuantity } = useCart()
-  const openDrawer = useCartDrawerStore((s) => s.openDrawer)
+  const { openDrawer } = cartDrawerStore.actions
   const onShopRoute = pathname === '/shop' || pathname.startsWith('/shop/')
 
   if (!onShopRoute && totalQuantity === 0) return null

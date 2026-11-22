@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { create } from 'zustand'
+import { createStore, useSelector } from '@tanstack/react-store'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { TagIcon } from '@phosphor-icons/react/Tag'
 import { Select, SelectOption } from './Select'
@@ -26,19 +26,18 @@ export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   )
 }
 
-// Let's use zustand to wrap the local storage logic. This way
+// Let's use TanStack Store to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
 // components if we need to.
-const useLocalCurrentVersion = create<{
-  currentVersion?: string
-  setCurrentVersion: (version: string) => void
-}>((set) => ({
-  currentVersion: getLocalStorageItem('version') || undefined,
-  setCurrentVersion: (version: string) => {
-    setLocalStorageItem('version', version)
-    set({ currentVersion: version })
-  },
-}))
+const localCurrentVersionStore = createStore(
+  { currentVersion: getLocalStorageItem('version') || undefined },
+  ({ setState }) => ({
+    setCurrentVersion: (version: string) => {
+      setLocalStorageItem('version', version)
+      setState(() => ({ currentVersion: version }))
+    },
+  }),
+)
 
 /**
  * Use framework in URL path
@@ -52,9 +51,13 @@ function useCurrentVersion(versions: string[]) {
     strict: false,
   })
 
-  const localCurrentVersion = useLocalCurrentVersion()
+  const localCurrentVersion = useSelector(
+    localCurrentVersionStore,
+    (s) => s.currentVersion,
+  )
+  const { setCurrentVersion } = localCurrentVersionStore.actions
 
-  let version = paramsVersion || localCurrentVersion.currentVersion || 'latest'
+  let version = paramsVersion || localCurrentVersion || 'latest'
 
   version = versions.includes(version) ? version : 'latest'
 
@@ -63,20 +66,20 @@ function useCurrentVersion(versions: string[]) {
       navigate({
         params: { version } as never,
       })
-      localCurrentVersion.setCurrentVersion(version)
+      setCurrentVersion(version)
     },
-    [localCurrentVersion, navigate],
+    [navigate, setCurrentVersion],
   )
 
   React.useEffect(() => {
     // Set the version in localStorage if it doesn't exist
-    if (!localCurrentVersion.currentVersion) {
-      localCurrentVersion.setCurrentVersion(version)
+    if (!localCurrentVersion) {
+      setCurrentVersion(version)
     }
 
     // Set the version in localStorage if it doesn't match the URL
-    if (paramsVersion && paramsVersion !== localCurrentVersion.currentVersion) {
-      localCurrentVersion.setCurrentVersion(paramsVersion)
+    if (paramsVersion && paramsVersion !== localCurrentVersion) {
+      setCurrentVersion(paramsVersion)
     }
   })
 

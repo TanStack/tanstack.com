@@ -42,7 +42,6 @@
         "src/components/PartnersSection.tsx",
         "src/components/PartnershipCallout.tsx",
         "src/components/QueryGGBanner.tsx",
-        "src/components/StackBlitzEmbed.tsx",
         "src/components/UserFeedbackSection.tsx",
         "src/components/application-starter/CustomAddonDialog.tsx",
         "src/components/application-starter/CustomTemplateDialog.tsx",

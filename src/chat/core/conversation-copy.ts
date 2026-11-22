@@ -111,29 +111,6 @@ export type BranchRecord =
   | BranchEvidenceRecord
   | BranchRetryRecord
   | BranchActionEvidenceRecord
-export interface ConversationSourceRef {
-  workspaceId: string
-  botId: string
-  conversationId?: string
-  messageId: string
-  toolCallId?: string
-  resultId?: string
-  digest: string
-}
-export interface BranchProvenance {
-  operationId: string
-  sourceBotId: string
-  sourceConversationId: string
-  sourceEpoch: string
-  sourceRevision: number
-  sourceMessageId: string | null
-  sourceMessageDigest: string | null
-  sourceMessagePosition?: 'before'
-  prefixDigest: string
-  copiedAt: number
-  copySchemaVersion: 1 | 2
-  kind: CopyKind
-}
 export function canonicalCopyJson(value: unknown): string {
   if (value === null || typeof value !== 'object')
     return JSON.stringify(value) ?? 'null'

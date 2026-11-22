@@ -28,8 +28,8 @@ import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
 const initialScale = initialView.scale * zoomStep
-const maxZoom = initialScale * 1.2
-const mobileViewport = '(max-width: 639px)'
+const mobileMaxZoom = initialScale * 1.2
+const mobileViewport = '(width < 40rem)'
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
@@ -37,6 +37,10 @@ const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
+const globeAtmosphereDiameter = 2 * globeRadius * globeHaloScale
+const desktopProjectionDiameter = 0.9
+const desktopMaxZoom =
+  (initialScale * desktopProjectionDiameter) / globeAtmosphereDiameter
 const zoomControls = { width: 46, height: 171 }
 
 type View = typeof initialView
@@ -685,6 +689,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   > | null>(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [scale, setScale] = useState(initialView.scale)
+  const [maxZoom, setMaxZoom] = useState(desktopMaxZoom)
   const [selectedId, setSelectedId] = useState('')
   const [paused, setPaused] = useState(false)
   const [behavior] = useState(() => zoom<HTMLDivElement, unknown>())
@@ -766,18 +771,20 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
 
   useLayoutEffect(() => {
     if (!host || !surface) return
-    const readBounds = () => {
+    const mobile = window.matchMedia(mobileViewport)
+    const updateBounds = () => {
       const width = host.clientWidth
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
       const height = host.clientHeight
       const paintHeight = surface.clientHeight
-      // Fit the atmosphere inside the visible globe area at maximum zoom.
-      const fittedDiameter =
-        Math.min(paintWidth, paintHeight, height) - 2 * viewportGutter
-      const projectionHeight =
-        fittedDiameter / (2 * globeRadius * globeHaloScale * maxZoom)
-      return {
+      const limit = mobile.matches ? mobileMaxZoom : desktopMaxZoom
+      // Keep the desktop starting diameter. On mobile, fit to the smaller edge.
+      const projectionHeight = mobile.matches
+        ? (Math.min(paintWidth, paintHeight) - 2 * viewportGutter) /
+          (globeAtmosphereDiameter * mobileMaxZoom)
+        : paintHeight / (initialScale * desktopProjectionDiameter)
+      hostSize.current = {
         width,
         height,
         centerY: height / 2,
@@ -787,14 +794,16 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         paintTop: (height - paintHeight) / 2,
         projectionHeight,
       }
-    }
-    hostSize.current = readBounds()
-    const instance = createChartsGlobe(surface)
-    setGlobe(instance)
-    const updateBounds = () => {
-      hostSize.current = readBounds()
+      behavior.scaleExtent([1, limit])
+      setMaxZoom(limit)
+      view.current.scale = Math.min(view.current.scale, limit)
+      if (target.current.scale > limit)
+        select(host).call(behavior.scaleTo, limit)
       invalidate()
     }
+    updateBounds()
+    const instance = createChartsGlobe(surface)
+    setGlobe(instance)
     const resize = new ResizeObserver(updateBounds)
     resize.observe(host)
     resize.observe(surface)
@@ -817,7 +826,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       instance.destroy()
       surface.replaceChildren()
     }
-  }, [host, surface, invalidate])
+  }, [host, surface, behavior, invalidate])
 
   useLayoutEffect(() => {
     groupsRef.current = groups
@@ -1040,7 +1049,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     const selection = select(host)
     let previous = zoomIdentity
     behavior
-      .scaleExtent([1, maxZoom])
       .extent((): [[number, number], [number, number]] => [
         [0, 0],
         [host.clientWidth, host.clientHeight],
@@ -1155,7 +1163,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           <div
             ref={setSurface}
             data-globe-surface
-            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-full sm:top-1/2 sm:h-(--globe-width) sm:-translate-y-1/2"
+            className="pointer-events-none absolute inset-0 -z-10"
           />
           <div className="absolute inset-0">
             <div className="absolute inset-0 touch-pan-y cursor-grab active:cursor-grabbing" />

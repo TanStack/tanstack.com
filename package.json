@@ -91,8 +91,6 @@
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
     "@sentry/browser": "^10.47.0",
     "@sentry/node": "^10.47.0",
     "@sentry/tanstackstart-react": "^10.47.0",

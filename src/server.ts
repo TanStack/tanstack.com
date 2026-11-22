@@ -93,6 +93,11 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
+  const contentType = headers.get('content-type')?.split(';')[0].trim()
+  if (contentType === 'text/html') {
+    headers.set('Document-Policy', 'js-profiling')
+  }
+
   if (isFrameEmbeddingAllowed(url.pathname)) {
     headers.delete('X-Frame-Options')
   }

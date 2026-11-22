@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import assert from 'node:assert/strict'
+import { EventEmitter, once } from 'node:events'
 import fs from 'node:fs'
 import path from 'node:path'
 import { test } from 'node:test'
@@ -9,12 +10,32 @@ import { renderToString } from 'react-dom/server'
 import { chromium } from 'playwright-core'
 import { build } from 'esbuild'
 import sharp from 'sharp'
-import { HeroPalmMedia } from '../src/components/home/HeroPalmMedia'
+import { createServer } from 'vite'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
 const motion = '/images/hero-palm-cutout.webp'
-const still = '/images/hero-palm-cutout-still.webp'
-const serverMarkup = renderToString(createElement(HeroPalmMedia))
+const motionFile = path.join(repoRoot, 'public', motion)
+const stillFile = path.join(
+  repoRoot,
+  'src/components/home/hero-palm-cutout-still.webp',
+)
+const stillPrefix = 'data:image/webp;base64,'
+const vite = await createServer({
+  root: repoRoot,
+  configFile: false,
+  resolve: { alias: { '~': path.join(repoRoot, 'src') } },
+  server: { middlewareMode: true, ws: false, watch: null },
+})
+const serverMarkup = await (async () => {
+  try {
+    const { HeroPalmMedia } = await vite.ssrLoadModule(
+      '/src/components/home/HeroPalmMedia.tsx',
+    )
+    return renderToString(createElement(HeroPalmMedia))
+  } finally {
+    await vite.close()
+  }
+})()
 const chromePath = [
   process.env.CHROME_BIN,
   process.env.CHROME_PATH,
@@ -25,52 +46,45 @@ const chromePath = [
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
 test('the palm loop stays at 24 fps, matches its still, and fits the media budget', async () => {
-  const animation = await sharp(
-    path.join(repoRoot, 'public', motion),
-  ).metadata()
-  const poster = await sharp(path.join(repoRoot, 'public', still)).metadata()
+  const animation = await sharp(motionFile).metadata()
+  const poster = await sharp(stillFile).metadata()
   // The source has 121 frames at 24 fps. WebP stores whole milliseconds.
   const delays = Array.from(
     { length: 121 },
     (_, i) => Math.round(((i + 1) * 1000) / 24) - Math.round((i * 1000) / 24),
   )
   assert.deepEqual(animation.delay, delays)
-  const assetSize = (file: string) =>
-    fs.statSync(path.join(repoRoot, 'public', file)).size
   // The MP4 and its posters transferred 1.91 MB in the mobile baseline.
   assert.ok(
-    assetSize(motion) + assetSize(still) < 1_900_000,
+    fs.statSync(motionFile).size + fs.statSync(stillFile).size < 1_900_000,
     'the combined palm assets should stay under 1.90 MB',
   )
   assert.equal(animation.loop, 0)
   assert.ok(animation.hasAlpha && poster.hasAlpha)
   assert.equal(animation.width, poster.width)
   assert.equal(animation.height, poster.height)
-  const firstFrame = await sharp(path.join(repoRoot, 'public', motion))
-    .ensureAlpha()
-    .raw()
-    .toBuffer()
-  const stillFrame = await sharp(path.join(repoRoot, 'public', still))
-    .ensureAlpha()
-    .raw()
-    .toBuffer()
+  const firstFrame = await sharp(motionFile).ensureAlpha().raw().toBuffer()
+  const stillFrame = await sharp(stillFile).ensureAlpha().raw().toBuffer()
   assert.ok(
     firstFrame.equals(stillFrame),
     'the still must match the first frame',
   )
 })
 
-test('the server preloads the first frame for everyone and motion when requested', () => {
-  assert.doesNotMatch(serverMarkup, /<video\b|<summary\b|<button\b/)
-  const preloads = serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
-  assert.equal(preloads.length, 2)
-  const poster = preloads.find((tag) => tag.includes(`href="${still}"`))
-  const animation = preloads.find((tag) => tag.includes(`href="${motion}"`))
-  assert.ok(poster && animation)
-  assert.doesNotMatch(poster, /media=/)
-  assert.match(animation, /media="\(prefers-reduced-motion: no-preference\)"/)
-  assert.match(poster, /fetchPriority="high"/i)
-  assert.match(animation, /fetchPriority="high"/i)
+test('the server inlines one visible still and preloads motion when allowed', () => {
+  assert.doesNotMatch(serverMarkup, /<source\b|<video\b/)
+  assert.equal(serverMarkup.match(/<img\b/g)?.length, 1)
+  assert.ok(
+    serverMarkup.includes(
+      `src="${stillPrefix}${fs.readFileSync(stillFile, 'base64')}"`,
+    ),
+  )
+  const [preload, ...extraPreloads] =
+    serverMarkup.match(/<link[^>]+rel="preload"[^>]*>/g) ?? []
+  assert.ok(preload)
+  assert.equal(extraPreloads.length, 0)
+  assert.ok(preload.includes(`href="${motion}"`))
+  assert.match(preload, /media="\(prefers-reduced-motion: no-preference\)"/)
 })
 
 test(
@@ -93,6 +107,7 @@ test(
         loader: 'tsx',
       },
       alias: { '~': path.join(repoRoot, 'src') },
+      loader: { '.webp': 'dataurl' },
       bundle: true,
       format: 'iife',
       platform: 'browser',
@@ -100,18 +115,22 @@ test(
     })
     const browser = await chromium.launch({ executablePath: chromePath })
     t.after(() => browser.close())
+    const context = await browser.newContext()
 
     async function openHero(
       width: number,
       reduced = false,
-      failOnce = new Set<string>(),
+      failAnimation = false,
     ) {
-      const page = await browser.newPage({
-        viewport: { width, height: 844 },
+      const page = await context.newPage()
+      await page.setViewportSize({ width, height: 844 })
+      await page.emulateMedia({
         reducedMotion: reduced ? 'reduce' : 'no-preference',
       })
       const requests: string[] = []
-      await page.route('http://hero.test/**', (route) => {
+      const animation = new EventEmitter()
+      const animationGate = once(animation, 'release')
+      await page.route('http://hero.test/**', async (route) => {
         const url = new URL(route.request().url())
         if (url.pathname === '/') {
           return route.fulfill({
@@ -120,55 +139,71 @@ test(
           })
         }
         requests.push(url.pathname)
-        if (failOnce.delete(url.pathname)) return route.abort()
+        await animationGate
+        if (failAnimation) return route.abort()
         return route.fulfill({
           path: path.join(repoRoot, 'public', url.pathname),
         })
       })
-      await page.goto('http://hero.test/')
+      await page.goto('http://hero.test/', { waitUntil: 'domcontentloaded' })
       const hydrate = async () => {
         await page.addScriptTag({ content: bundle.outputFiles[0].text })
         await page.waitForFunction(
           () => document.documentElement.dataset.hydrated === 'true',
         )
       }
-      const waitForImage = (source: string) =>
-        page.waitForFunction((part) => {
-          const img = document.querySelector('picture img')
-          return (
-            img instanceof HTMLImageElement &&
-            img.complete &&
-            img.naturalWidth > 0 &&
-            img.currentSrc.includes(part)
-          )
-        }, source)
-      return { page, requests, hydrate, waitForImage }
+      return {
+        page,
+        requests,
+        hydrate,
+        still: page.locator(`img[src^="${stillPrefix}"]`),
+        motion: page.locator(`img[src="${motion}"]`),
+        releaseAnimation: () => animation.emit('release'),
+      }
     }
 
     for (const width of [390, 844, 1024, 1512]) {
       const hero = await openHero(width)
-      await hero.waitForImage(motion)
-      assert.deepEqual([...hero.requests].sort(), [still, motion].sort())
-      assert.equal(await hero.page.locator('picture img').isVisible(), true)
+      await hero.still.waitFor({ state: 'visible' })
+      assert.ok(
+        await hero.still.evaluate(
+          (image) => image instanceof HTMLImageElement && image.naturalWidth,
+        ),
+      )
       await hero.hydrate()
-      assert.deepEqual([...hero.requests].sort(), [still, motion].sort())
+      await hero.motion.waitFor({ state: 'attached' })
+      assert.equal(await hero.motion.isHidden(), true)
+      assert.equal(await hero.still.isVisible(), true)
+      hero.releaseAnimation()
+      await hero.motion.waitFor({ state: 'visible' })
+      assert.deepEqual(hero.requests, [motion])
+      assert.equal(await hero.still.isHidden(), true)
       await hero.page.close()
     }
 
     const reduced = await openHero(390, true)
-    await reduced.waitForImage(still)
+    reduced.releaseAnimation()
+    await reduced.still.waitFor({ state: 'visible' })
     await reduced.hydrate()
-    assert.deepEqual(reduced.requests, [still])
+    assert.equal(await reduced.motion.count(), 0)
+    assert.deepEqual(reduced.requests, [])
     await reduced.page.emulateMedia({ reducedMotion: 'no-preference' })
-    await reduced.waitForImage(motion)
+    await reduced.motion.waitFor({ state: 'visible' })
     await reduced.page.emulateMedia({ reducedMotion: 'reduce' })
-    await reduced.waitForImage(still)
+    await reduced.still.waitFor({ state: 'visible' })
+    assert.equal(await reduced.motion.isHidden(), true)
     await reduced.page.close()
 
-    const failed = await openHero(1512, false, new Set([motion]))
+    const failed = await openHero(1512, false, true)
     await failed.hydrate()
-    await failed.waitForImage(still)
-    assert.ok(failed.requests.includes(motion))
+    await failed.motion.waitFor({ state: 'attached' })
+    const requestFailed = failed.page.waitForEvent('requestfailed', (request) =>
+      request.url().endsWith(motion),
+    )
+    failed.releaseAnimation()
+    await requestFailed
+    assert.equal(await failed.motion.isHidden(), true)
+    assert.equal(await failed.still.isVisible(), true)
     await failed.page.close()
   },
 )

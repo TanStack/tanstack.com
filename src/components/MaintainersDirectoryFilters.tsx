@@ -1,8 +1,15 @@
+import { Popover } from '@base-ui/react/popover'
 import { Select } from '@base-ui/react/select'
-import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react'
+import {
+  CaretDownIcon,
+  CheckIcon,
+  FunnelIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 import * as v from 'valibot'
 import { libraries } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
+import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { allMaintainers } from '~/libraries/maintainers'
 import { libraryIdSchema } from '~/utils/schemas'
 
@@ -68,7 +75,7 @@ function FilterSelect<
   'multiple' | 'value' | 'onValueChange'
 > & {
   label: string
-  choices: ReadonlyArray<{ value: TValue; label: string }>
+  choices: ReadonlyArray<{ value: TValue; label: string; icon?: Icon }>
 }) {
   const selectionCount = Array.isArray(selection.value)
     ? selection.value.length
@@ -101,16 +108,23 @@ function FilterSelect<
           >
             <Select.Popup className="flex max-h-[min(20rem,var(--available-height))] max-w-(--available-width) min-w-(--anchor-width) flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated shadow-lg outline-none">
               <Select.List className="min-h-0 overflow-y-auto overscroll-contain p-1">
-                {choices.map(({ value, label }) => (
+                {choices.map(({ value, label, icon: ItemIcon }) => (
                   <Select.Item
                     key={value}
                     value={value}
-                    className="relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-2 pl-7 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
+                    className="relative flex min-h-8 cursor-pointer items-center rounded-md py-1.5 pr-7 pl-2 text-sm text-text-primary outline-none data-highlighted:bg-surface-state-hover pointer-coarse:min-h-11"
                   >
-                    <Select.ItemIndicator className="absolute left-2 flex">
+                    {ItemIcon && (
+                      <ItemIcon
+                        size={16}
+                        className="mr-2 shrink-0 text-text-muted"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <Select.ItemText>{label}</Select.ItemText>
+                    <Select.ItemIndicator className="absolute right-2 flex">
                       <CheckIcon size={14} aria-hidden="true" />
                     </Select.ItemIndicator>
-                    <Select.ItemText>{label}</Select.ItemText>
                   </Select.Item>
                 ))}
               </Select.List>
@@ -138,73 +152,101 @@ export function MaintainersDirectoryFilters({
     .map(({ id, name }) => ({
       value: id,
       label: name.replace(/^TanStack /, ''),
+      icon: libraryIcons[id] ?? fallbackLibraryIcon,
     }))
+
+  const hasAdvancedFilters =
+    !!search.frameworks?.length ||
+    !!search.specialties?.length ||
+    search.groupBy !== 'none' ||
+    search.sortBy !== 'none'
 
   return (
     <section
       aria-label="Filter and sort maintainers"
-      className="border-b border-border-subtle pb-4"
+      className="flex items-end justify-between gap-2 border-b border-border-subtle pb-4"
     >
-      <div className="fade-x fade-size-x-[1rem] -mx-4 overflow-x-auto overscroll-x-contain px-4 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 md:mask-none! [&::-webkit-scrollbar]:hidden">
-        <div className="grid min-w-[42rem] grid-cols-5 gap-2">
-          <FilterSelect
-            label="Libraries"
-            choices={libraryChoices}
-            multiple
-            value={search.libraries ?? []}
-            onValueChange={(libraries) =>
-              onChange({ libraries: libraries.length ? libraries : undefined })
-            }
-          />
-          <FilterSelect
-            label="Frameworks"
-            choices={frameworkChoices}
-            multiple
-            value={search.frameworks ?? []}
-            onValueChange={(frameworks) =>
-              onChange({
-                frameworks: frameworks.length ? frameworks : undefined,
-              })
-            }
-          />
-          <FilterSelect
-            label="Specialties"
-            choices={specialtyChoices}
-            multiple
-            value={search.specialties ?? []}
-            onValueChange={(specialties) =>
-              onChange({
-                specialties: specialties.length ? specialties : undefined,
-              })
-            }
-          />
-          <FilterSelect
-            label="Group by"
-            choices={groupByChoices}
-            value={search.groupBy}
-            onValueChange={(groupBy) =>
-              onChange({ groupBy: groupBy ?? 'none' })
-            }
-          />
-          <FilterSelect
-            label="Sort by"
-            choices={sortByChoices}
-            value={search.sortBy}
-            onValueChange={(sortBy) => onChange({ sortBy: sortBy ?? 'none' })}
-          />
-        </div>
+      <div className="w-48 min-w-0">
+        <FilterSelect
+          label="Libraries"
+          choices={libraryChoices}
+          multiple
+          value={search.libraries ?? []}
+          onValueChange={(libraries) =>
+            onChange({ libraries: libraries.length ? libraries : undefined })
+          }
+        />
       </div>
-      {clearAll && (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={clearAll}
-            className="min-h-9 text-sm text-text-muted underline-offset-2 hover:text-text-primary hover:underline"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
+      <Popover.Root>
+        <Popover.Trigger
+          aria-label={
+            hasAdvancedFilters ? 'Filter and sort (active)' : 'Filter and sort'
+          }
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border-default bg-background-surface text-text-primary transition-colors hover:border-border-strong focus-visible:border-border-focus focus-visible:outline-none data-popup-open:bg-surface-state-hover pointer-coarse:size-11"
+        >
+          <FunnelIcon
+            size={18}
+            weight={hasAdvancedFilters ? 'fill' : 'regular'}
+            aria-hidden="true"
+          />
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner align="end" sideOffset={4} className="z-[1190]">
+            <Popover.Popup className="w-72 max-w-(--available-width) rounded-lg border border-border-default bg-background-elevated shadow-lg outline-none">
+              <Popover.Title className="sr-only">Filter and sort</Popover.Title>
+              <div className="grid max-h-(--available-height) gap-3 overflow-y-auto overscroll-contain p-3">
+                <FilterSelect
+                  label="Frameworks"
+                  choices={frameworkChoices}
+                  multiple
+                  value={search.frameworks ?? []}
+                  onValueChange={(frameworks) =>
+                    onChange({
+                      frameworks: frameworks.length ? frameworks : undefined,
+                    })
+                  }
+                />
+                <FilterSelect
+                  label="Specialties"
+                  choices={specialtyChoices}
+                  multiple
+                  value={search.specialties ?? []}
+                  onValueChange={(specialties) =>
+                    onChange({
+                      specialties: specialties.length ? specialties : undefined,
+                    })
+                  }
+                />
+                <FilterSelect
+                  label="Group by"
+                  choices={groupByChoices}
+                  value={search.groupBy}
+                  onValueChange={(groupBy) =>
+                    onChange({ groupBy: groupBy ?? 'none' })
+                  }
+                />
+                <FilterSelect
+                  label="Sort by"
+                  choices={sortByChoices}
+                  value={search.sortBy}
+                  onValueChange={(sortBy) =>
+                    onChange({ sortBy: sortBy ?? 'none' })
+                  }
+                />
+                {clearAll && (
+                  <button
+                    type="button"
+                    onClick={clearAll}
+                    className="min-h-9 justify-self-end px-2 text-sm text-text-muted underline-offset-2 hover:text-text-primary hover:underline pointer-coarse:min-h-11"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
     </section>
   )
 }

@@ -38,12 +38,51 @@ test('forwards the visitor IP and user agent, without queries or cookies', () =>
   assert.ok(!event.url.includes('secret'))
 })
 
+function consentCookie(measurement: boolean) {
+  const choice = {
+    version: 3,
+    categories: {
+      measurement: {
+        value: measurement,
+        confirmedAt: Date.now() - 1000,
+        basis: { kind: 'choice-v1', fingerprint: 'test' },
+      },
+    },
+  }
+  return `c15t=${encodeURIComponent(JSON.stringify(choice))}`
+}
+
+const browser = {
+  'sec-fetch-dest': 'document',
+  'sec-fetch-mode': 'navigate',
+  'user-agent': 'Mozilla/5.0',
+}
+
+test('browser requests count only after the visitor allows Analytics', () => {
+  assert.equal(
+    createScarfServerRequest(incoming('/', browser), content()),
+    null,
+  )
+  assert.equal(
+    createScarfServerRequest(
+      incoming('/', { ...browser, cookie: consentCookie(false) }),
+      content(),
+    ),
+    null,
+  )
+  assert.ok(
+    createScarfServerRequest(
+      incoming('/', { ...browser, cookie: consentCookie(true) }),
+      content(),
+    ),
+  )
+  // Crawlers and agents send no Sec-Fetch headers and no consent cookie.
+  assert.ok(createScarfServerRequest(incoming('/'), content()))
+})
+
 test('browser requests stay in the server request dataset, never page_view or pixels', () => {
   const event = createScarfServerRequest(
-    incoming('/', {
-      'sec-fetch-dest': 'document',
-      'user-agent': 'Mozilla/5.0',
-    }),
+    incoming('/', { ...browser, cookie: consentCookie(true) }),
     content(),
   )
   assert.ok(event)

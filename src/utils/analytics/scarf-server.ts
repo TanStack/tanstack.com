@@ -1,3 +1,17 @@
+import { readRequestConsent } from '@c15t/core/server'
+
+// Only browsers send Sec-Fetch-* headers. A browser visitor is counted once
+// they allow Analytics in the consent banner. Crawlers and agents carry no
+// consent cookie, and they stay in the dataset.
+function browserWithoutConsent(request: Request) {
+  if (!request.headers.has('sec-fetch-mode')) return false
+  const { state } = readRequestConsent({
+    adapter: 'tanstack.com',
+    request: { url: request.url, headers: request.headers },
+  })
+  return state.initialRecords?.choice?.categories.measurement?.value !== true
+}
+
 // Server requests and browser page views are separate measurements. Never emit
 // page_view here or add these counts to pixel views to calculate unique visitors.
 export function createScarfServerRequest(request: Request, response: Response) {
@@ -9,7 +23,8 @@ export function createScarfServerRequest(request: Request, response: Response) {
     !response.ok ||
     !clientIp ||
     request.headers.get('dnt') === '1' ||
-    request.headers.get('sec-gpc') === '1'
+    request.headers.get('sec-gpc') === '1' ||
+    browserWithoutConsent(request)
   ) {
     return null
   }

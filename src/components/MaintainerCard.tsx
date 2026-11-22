@@ -224,7 +224,7 @@ function MaintainerSocialLinks({
     <div
       className={
         variant === 'card'
-          ? 'flex flex-wrap items-center justify-center gap-4 sm:gap-6'
+          ? 'flex flex-wrap items-center justify-center gap-2'
           : 'flex flex-wrap items-center gap-x-2 gap-y-2 pt-1 text-gray-400 sm:gap-x-4 dark:text-gray-500'
       }
     >

@@ -1,16 +1,18 @@
 import * as React from 'react'
 import { preload } from 'react-dom'
 import { Squircle } from '~/components/Squircle'
+import { useMediaQuery } from '~/utils/useMediaQuery'
+import still from './hero-palm-cutout-still.webp?inline'
 
 const motion = '/images/hero-palm-cutout.webp'
-const still = '/images/hero-palm-cutout-still.webp'
 const allowMotion = '(prefers-reduced-motion: no-preference)'
 
 export function HeroPalmMedia() {
-  preload(still, { as: 'image', fetchPriority: 'high' })
-  preload(motion, { as: 'image', fetchPriority: 'high', media: allowMotion })
+  preload(motion, { as: 'image', type: 'image/webp', media: allowMotion })
 
-  const [motionFailed, setMotionFailed] = React.useState(false)
+  const permitsMotion = useMediaQuery(allowMotion)
+  const [motionReady, setMotionReady] = React.useState(false)
+  const showMotion = permitsMotion && motionReady
 
   return (
     <Squircle
@@ -20,38 +22,26 @@ export function HeroPalmMedia() {
       {/* Keep the palm aligned with the original 944 × 416 composition. */}
       <div className="home-palm-sky relative aspect-[944/416] w-[max(100cqw,calc(100cqh*944/416))]">
         <div className="absolute bottom-0 left-[calc(100%*360/944)] w-[calc(100%*260/944)]">
+          {/* Keep the inlined first frame visible during the animation request. */}
           <img
             src={still}
             alt=""
             width={260}
             height={348}
-            fetchPriority="high"
-            className="block h-auto w-full"
+            hidden={showMotion}
+            className="h-auto w-full"
           />
-          <picture className="absolute inset-0 motion-reduce:hidden">
-            {!motionFailed && (
-              <source type="image/webp" media={allowMotion} srcSet={motion} />
-            )}
+          {(permitsMotion || motionReady) && (
             <img
-              src={still}
+              src={motion}
               alt=""
               width={260}
               height={348}
-              fetchPriority="high"
-              ref={(image) => {
-                // A failed request can finish before hydration attaches onError.
-                if (
-                  image?.complete &&
-                  !image.naturalWidth &&
-                  image.currentSrc.endsWith(motion)
-                ) {
-                  setMotionFailed(true)
-                }
-              }}
-              onError={() => setMotionFailed(true)}
-              className="block h-auto w-full"
+              hidden={!showMotion}
+              onLoad={() => setMotionReady(true)}
+              className="h-auto w-full"
             />
-          </picture>
+          )}
         </div>
       </div>
     </Squircle>

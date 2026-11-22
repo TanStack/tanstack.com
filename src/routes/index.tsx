@@ -397,7 +397,7 @@ function cubicAngle(
 function WhyTanStackSection() {
   return (
     <section className="px-4 md:mx-auto">
-      <div className="mx-auto max-w-[960px] py-16 lg:py-20">
+      <div className="mx-auto max-w-[960px] pt-4 pb-16 lg:pt-8 lg:pb-20">
         <h3 className="text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
           Why TanStack?
         </h3>

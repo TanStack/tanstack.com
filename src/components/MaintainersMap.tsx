@@ -43,7 +43,7 @@ const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
-const globeGlowDiameter = 0.92
+const globeGlowDiameter = 0.9
 const zoomControls = { width: 46, height: 171 }
 
 type View = typeof initialView
@@ -206,7 +206,7 @@ function placeProfiles(
 ) {
   const gap = mobile ? 4 : 8
   const maxConnectorLength = mobile ? 48 : 72
-  const left = mobile ? 0 : viewportGutter
+  const left = mobile ? bounds.contentInset : viewportGutter
   const right = bounds.width - left
   const top = Math.max(viewport.contentTop, viewport.top)
   const badgeTop = Math.max(0, top)
@@ -775,8 +775,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       const paintWidth = surface.clientWidth
       const height = host.clientHeight
       const paintHeight = surface.clientHeight
-      const projectionHeight =
-        Math.min(paintWidth, paintHeight) / (initialScale * globeGlowDiameter)
+      // The mobile surface is taller than the viewport-wide SVG's width so
+      // the globe fills its height and extends past its side edges.
+      const projectionHeight = paintHeight / (initialScale * globeGlowDiameter)
       return {
         width,
         height,
@@ -1254,7 +1255,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           to { opacity: 1; }
         }
       `}</style>
-      <div className="relative aspect-square sm:aspect-[5/4]">
+      <div className="relative h-(--globe-height)">
         <div
           ref={setHost}
           role="application"
@@ -1285,7 +1286,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             )
             invalidate()
           }}
-          className="absolute inset-y-0 left-[calc(50%-50cqw)] w-[100cqw] outline-offset-4"
+          className="absolute inset-y-0 left-1/2 w-(--globe-width) -translate-x-1/2 outline-offset-4"
         >
           <div
             data-globe-scene
@@ -1294,7 +1295,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             <div
               ref={setSurface}
               data-globe-surface
-              className="absolute top-0 left-1/2 h-full w-[100cqw] -translate-x-1/2 sm:top-1/2 sm:h-[max(100%,100cqw)] sm:-translate-y-1/2"
+              className="absolute inset-x-0 top-0 h-full sm:top-1/2 sm:h-(--globe-width) sm:-translate-y-1/2"
             />
           </div>
           <div

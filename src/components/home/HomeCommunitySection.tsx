@@ -15,23 +15,19 @@ const MaintainersMap = lazy(() =>
 )
 
 const globeFallback = (
-  <div aria-hidden="true" className="pb-16">
-    <div className="aspect-square sm:aspect-[5/4]" />
-  </div>
+  <div aria-hidden="true" className="box-content h-(--globe-height) pb-16" />
 )
 
 export function HomeCommunitySection() {
   return (
-    <Hydrate
-      when={visible({ rootMargin: '25%' })}
-      fallback={
-        <div className="mx-auto max-w-(--breakpoint-lg) px-4 pt-16">
-          {globeFallback}
-        </div>
-      }
-    >
-      <HomeCommunityContent />
-    </Hydrate>
+    <div className="@container mx-auto w-full max-w-(--breakpoint-lg) px-4 [--globe-width:calc(100cqw+2rem)] [--globe-height:calc(var(--globe-width)*1.25)] sm:[--globe-width:min(120cqw,calc(100vw-1rem))] sm:[--globe-height:calc(var(--globe-width)*0.875)]">
+      <Hydrate
+        when={visible({ rootMargin: '25%' })}
+        fallback={<div className="pt-16">{globeFallback}</div>}
+      >
+        <HomeCommunityContent />
+      </Hydrate>
+    </div>
   )
 }
 
@@ -39,9 +35,9 @@ function HomeCommunityContent() {
   return (
     <section
       aria-labelledby="maintainers"
-      className="@container isolate mx-auto w-full max-w-(--breakpoint-lg) space-y-4 px-4"
+      className="isolate flex flex-col gap-4"
     >
-      <header className="lg:-translate-y-4">
+      <header className="sm:mb-10 lg:-mt-6">
         <h2
           id="maintainers"
           className="scroll-mt-24 text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]"
@@ -50,7 +46,7 @@ function HomeCommunityContent() {
             href="#maintainers"
             className="decoration-gray-400 hover:underline dark:decoration-gray-600"
           >
-            We&apos;re Everywhere!
+            We&apos;re everywhere!
           </a>
         </h2>
       </header>

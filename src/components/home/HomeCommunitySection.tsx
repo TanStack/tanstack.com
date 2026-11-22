@@ -24,7 +24,7 @@ export function HomeCommunitySection() {
   return (
     <section
       aria-labelledby="maintainers"
-      className="@container isolate mx-auto flex w-full max-w-(--breakpoint-lg) flex-col gap-4 px-4 [--globe-width:calc(100cqw+2rem)] [--globe-height:calc(var(--globe-width)*1.25)] sm:[--globe-width:min(120cqw,calc(100vw-1rem))] sm:[--globe-height:calc(var(--globe-width)*0.875)]"
+      className="@container isolate mx-auto flex w-full max-w-(--breakpoint-lg) flex-col gap-4 px-4 [--globe-width:calc(100cqw+2rem)] [--globe-ratio:1.25] [--globe-height:min(calc(var(--globe-width)*var(--globe-ratio)),calc(100svh-var(--navbar-height)))] sm:[--globe-width:min(120cqw,calc(100vw-1rem))] sm:[--globe-ratio:0.875]"
     >
       <header className="sm:mb-10 lg:-mt-6">
         <h2

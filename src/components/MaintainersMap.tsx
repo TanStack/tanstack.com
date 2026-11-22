@@ -23,14 +23,13 @@ import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 import { MaintainerAvatarImage } from './MaintainerAvatarImage'
 import { getVisitorLocation } from '~/utils/visitor-location.functions'
-import { createChartsGlobe } from './maintainersChartsGlobe'
+import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
 import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
-const maxZoom = 128
 const initialScale = initialView.scale * zoomStep
+const maxZoom = initialScale * 1.2
 const mobileViewport = '(max-width: 639px)'
-const mobileZoomFade = 48
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
@@ -38,7 +37,6 @@ const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
-const globeGlowDiameter = 0.9
 const zoomControls = { width: 46, height: 171 }
 
 type View = typeof initialView
@@ -774,9 +772,11 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       const paintWidth = surface.clientWidth
       const height = host.clientHeight
       const paintHeight = surface.clientHeight
-      // The mobile surface is taller than the viewport-wide SVG's width so
-      // the globe fills its height and extends past its side edges.
-      const projectionHeight = paintHeight / (initialScale * globeGlowDiameter)
+      // Fit the atmosphere inside the visible globe area at maximum zoom.
+      const fittedDiameter =
+        Math.min(paintWidth, paintHeight, height) - 2 * viewportGutter
+      const projectionHeight =
+        fittedDiameter / (2 * globeRadius * globeHaloScale * maxZoom)
       return {
         width,
         height,
@@ -845,10 +845,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
   }, [])
 
   useEffect(() => {
-    if (!host || !globe || !surface) return
+    if (!host || !globe) return
     const container = host
     const instance = globe
-    const canvasSurface = surface
     const section = container.closest('section')
     const help = section?.querySelector('#maintainers-globe-help')
     const intro = section?.parentElement?.querySelector(':scope > header')
@@ -870,15 +869,12 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     }
     wakeGlobe.current = requestFrame
     const visualViewport = window.visualViewport
-    let fadeOffset: number | undefined
-    let fadedScale: number | undefined
-    let fadedBounds: GlobeBounds | undefined
     const updateViewport = () => {
       const { top, height } = container.getBoundingClientRect()
       const contentTop =
         (intro?.getBoundingClientRect().bottom ?? top) - top + viewportGutter
       const helpBounds = help?.getBoundingClientRect()
-      // Keep the zoomed paint and floating profiles clear of the next section.
+      // Keep floating profiles clear of the next section.
       const nextContent =
         help?.nextElementSibling ?? section?.nextElementSibling
       const contentBottom =
@@ -887,14 +883,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           top + height) -
         top -
         viewportGutter
-      const nextFadeOffset = contentBottom - height / 2
-      if (fadeOffset !== nextFadeOffset) {
-        fadeOffset = nextFadeOffset
-        canvasSurface.style.setProperty(
-          '--globe-fade-offset',
-          `${fadeOffset}px`,
-        )
-      }
       const screenTop = visualViewport?.offsetTop ?? 0
       const screenHeight =
         visualViewport?.height ?? document.documentElement.clientHeight
@@ -1021,29 +1009,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           }
           wasIdle = idle
           if (redraw && paintHeight > 0) {
-            if (
-              mobile.matches &&
-              (current.scale !== fadedScale || bounds !== fadedBounds)
-            ) {
-              fadedScale = current.scale
-              fadedBounds = bounds
-              const fade = Math.min(
-                mobileZoomFade,
-                mobileZoomFade *
-                  Math.max(0, (current.scale - initialScale) / (zoomStep - 1)),
-              )
-              const drawRadius = projectionHeight * current.scale * globeRadius
-              const fadeAt = (overflow: number) =>
-                `${Math.max(0, Math.min(fade, overflow))}px`
-              canvasSurface.style.setProperty(
-                '--globe-fade-vertical',
-                fadeAt(drawRadius - paintHeight / 2),
-              )
-              canvasSurface.style.setProperty(
-                '--globe-fade-side',
-                fadeAt(drawRadius - paintWidth / 2),
-              )
-            }
             const paintView = {
               ...current,
               scale: (current.scale * projectionHeight) / paintHeight,
@@ -1068,7 +1033,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       cancelAnimationFrame(frame)
       wakeGlobe.current = undefined
     }
-  }, [host, globe, surface, reducedMotion, profilePositions, invalidate])
+  }, [host, globe, reducedMotion, profilePositions, invalidate])
 
   useEffect(() => {
     if (!host) return
@@ -1149,33 +1114,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       className="relative space-y-4 [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-border-strong"
     >
       <style>{`
-        [data-globe-surface] {
-          mask-image: linear-gradient(
-            to bottom,
-            black calc(50% + var(--globe-fade-offset) - 4rem),
-            transparent calc(50% + var(--globe-fade-offset))
-          );
-        }
-        @media ${mobileViewport} {
-          [data-globe-surface] {
-            mask-image:
-              linear-gradient(
-                to bottom,
-                transparent,
-                black var(--globe-fade-vertical, 0px),
-                black calc(100% - var(--globe-fade-vertical, 0px)),
-                transparent
-              ),
-              linear-gradient(
-                to right,
-                transparent,
-                black var(--globe-fade-side, 0px),
-                black calc(100% - var(--globe-fade-side, 0px)),
-                transparent
-              );
-            mask-composite: intersect;
-          }
-        }
         @keyframes maintainer-location-pulse {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }

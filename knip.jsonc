@@ -34,7 +34,6 @@
         "src/components/BlogSearchFilter.tsx",
         "src/components/BottomCTA.tsx",
         "src/components/DocFeedbackContext.tsx",
-        "src/components/DocsCalloutNewsletter.tsx",
         "src/components/FrameworkIconTabs.tsx",
         "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",

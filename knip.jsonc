@@ -48,7 +48,6 @@
         "src/components/game/ui/DiscoveryProgress.tsx",
         "src/components/icons/BaseballCapIcon.tsx",
         "src/components/icons/YinYangIcon.tsx",
-        "src/components/landing/HotkeysShortcut.client.tsx",
         "src/components/landing/LandingCodeExampleCard.tsx",
         "src/components/landing/codeExamples.ts",
         "src/components/npm-stats/index.ts",

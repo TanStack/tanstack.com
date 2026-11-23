@@ -2109,7 +2109,11 @@ function SearchResultsToggle() {
 
 function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
   const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+  const {
+    items: hits,
+    isLastPage,
+    showMore,
+  } = useInfiniteHits<AlgoliaHit>({
     transformItems: dedupeSearchHitsByPage,
   })
   const sentinelRef = React.useRef<HTMLDivElement>(null)

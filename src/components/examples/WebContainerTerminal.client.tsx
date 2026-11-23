@@ -284,7 +284,7 @@ export function WebContainerProcessTerminalPanel({
 function renderProcessOutput(
   terminal: Terminal,
   output: { generation: number; offset: number; value: string },
-  renderedOutputRef: React.MutableRefObject<{
+  renderedOutputRef: React.RefObject<{
     end: number
     generation: number
   }>,

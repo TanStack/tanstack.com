@@ -332,13 +332,18 @@ export const progressionMachine = setup({
             DISCOVER_LIBRARY: { actions: 'incrementLibraries' },
           },
         },
+
+        // Remembers the sub-phase the ship was destroyed in
+        history: {
+          type: 'history',
+        },
       },
     },
 
     gameover: {
       description: 'Ship destroyed',
       on: {
-        RESPAWN: 'battle',
+        RESPAWN: 'battle.history',
       },
     },
 

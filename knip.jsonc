@@ -18,7 +18,6 @@
       "vite": { "config": [] },
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
-        "src/chat/components/marketing-welcome.css",
         "src/chat/components/ui/Switch.tsx",
         "src/chat/components/ui/TextInput.tsx",
         "src/chat/components/ui/switch.css",

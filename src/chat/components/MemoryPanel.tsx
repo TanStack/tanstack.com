@@ -310,7 +310,7 @@ function MemoryContents({
             setError('')
           }}
         >
-          <PlusIcon size={16} />
+          <PlusIcon aria-hidden size={16} />
         </IconButton>
       </div>
       <label className="memory-recall">
@@ -465,7 +465,7 @@ function MemoryContents({
                       label={`View original source for ${item.title}`}
                       onClick={() => onSourceMessage(item.sourceMessageId!)}
                     >
-                      <ChatCenteredIcon size={15} />
+                      <ChatCenteredIcon aria-hidden size={15} />
                     </IconButton>
                   )}
                   <IconButton
@@ -480,7 +480,7 @@ function MemoryContents({
                       setError('')
                     }}
                   >
-                    <PencilSimpleIcon size={15} />
+                    <PencilSimpleIcon aria-hidden size={15} />
                   </IconButton>
                   <IconButton
                     label={`Forget ${item.title}`}
@@ -490,7 +490,7 @@ function MemoryContents({
                       setForget(item)
                     }}
                   >
-                    <TrashIcon size={15} />
+                    <TrashIcon aria-hidden size={15} />
                   </IconButton>
                 </div>
                 <p>{item.body}</p>

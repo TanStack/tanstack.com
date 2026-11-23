@@ -294,14 +294,14 @@ function SessionPanel({
                 label="Open commands"
                 onClick={() => onOpen('commands')}
               >
-                <TerminalWindowIcon size={16} />
+                <TerminalWindowIcon aria-hidden size={16} />
               </IconButton>
               {workspacePreviewsEnabled && (
                 <IconButton
                   label="Open workspace preview"
                   onClick={() => onOpen('preview')}
                 >
-                  <MonitorIcon size={16} />
+                  <MonitorIcon aria-hidden size={16} />
                 </IconButton>
               )}
             </div>
@@ -348,9 +348,9 @@ function SessionPanel({
               }
             >
               {mode === 'commands' ? (
-                <MonitorIcon size={16} />
+                <MonitorIcon aria-hidden size={16} />
               ) : (
-                <TerminalWindowIcon size={16} />
+                <TerminalWindowIcon aria-hidden size={16} />
               )}
             </IconButton>
           )}
@@ -359,7 +359,7 @@ function SessionPanel({
             disabled={!owners || !!busy}
             onClick={() => void act('refresh', () => owners!.inspect(identity))}
           >
-            <ArrowClockwiseIcon size={15} />
+            <ArrowClockwiseIcon aria-hidden size={15} />
           </IconButton>
         </div>
       </header>
@@ -610,7 +610,7 @@ function SessionPanel({
                           })
                         }
                       >
-                        <SquareIcon size={14} />
+                        <SquareIcon aria-hidden size={14} />
                       </IconButton>
                     </div>
                   )}
@@ -699,7 +699,7 @@ function SessionPanel({
                       })
                     }
                   >
-                    <TextAlignLeftIcon size={16} />
+                    <TextAlignLeftIcon aria-hidden size={16} />
                   </IconButton>
                   <IconButton
                     label={`Close preview ${shortId(preview.id)}`}
@@ -711,7 +711,7 @@ function SessionPanel({
                       })
                     }
                   >
-                    <XIcon size={16} />
+                    <XIcon aria-hidden size={16} />
                   </IconButton>
                 </div>
               </div>
@@ -771,7 +771,7 @@ function SessionPanel({
                       })
                     }
                   >
-                    <CursorIcon size={16} />
+                    <CursorIcon aria-hidden size={16} />
                   </IconButton>
                 </form>
                 <pre aria-label="Preview text">{preview.data.text}</pre>

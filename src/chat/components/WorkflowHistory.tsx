@@ -307,7 +307,7 @@ function WorkflowHistoryItem({
             disabled={stop.isPending}
             onClick={() => stop.mutate()}
           >
-            <SquareIcon size={14} />
+            <SquareIcon aria-hidden size={14} />
           </IconButton>
           {stop.isPending && <span role="status">Stopping…</span>}
           {stop.isSuccess && <span role="status">Stop requested.</span>}
@@ -381,7 +381,7 @@ export function WorkflowHistory({
             })
           }}
         >
-          <ArrowsClockwiseIcon size={14} />
+          <ArrowsClockwiseIcon aria-hidden size={14} />
         </IconButton>
       </header>
       <WorkflowStart

@@ -125,7 +125,7 @@ export function ExecutionSessionHistory({
             if (sessionId) void record.refetch()
           }}
         >
-          <ArrowClockwiseIcon size={15} />
+          <ArrowClockwiseIcon aria-hidden size={15} />
         </IconButton>
       </div>
       {list.isError && (

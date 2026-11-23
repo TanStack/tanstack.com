@@ -27,7 +27,7 @@ export function PackageIdentity({
           onError={() => setFailedUrl(iconUrl)}
         />
       ) : (
-        <CubeFocusIcon size={24} />
+        <CubeFocusIcon aria-hidden size={24} />
       )}
     </span>
   )

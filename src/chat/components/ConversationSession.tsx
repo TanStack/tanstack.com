@@ -1380,7 +1380,7 @@ export function ConversationSession({
                           disabled={busy || readOnly}
                           onClick={() => void approve(a, true)}
                         >
-                          <PlayIcon size={14} />
+                          <PlayIcon aria-hidden size={14} />
                           {a.workspace
                             ? a.workspace.operation.type === 'write_file'
                               ? 'Approve and write'
@@ -1538,7 +1538,7 @@ export function ConversationSession({
             error ||
             (!turns.length && (h?.error || chat.error))) && (
             <div className="error" role="alert">
-              <WarningCircleIcon size={17} />
+              <WarningCircleIcon aria-hidden size={17} />
               {(!retryEditing && pendingSend.error) ||
                 error ||
                 (!turns.length && (h?.error || chat.error?.message))}
@@ -1813,7 +1813,7 @@ export function ConversationSession({
                         void stopResponse().catch((e) => setError(e.message))
                       }
                     >
-                      <SquareIcon size={16} />
+                      <SquareIcon aria-hidden size={16} />
                     </button>
                   )}
                   {(!busy ||
@@ -1854,9 +1854,9 @@ export function ConversationSession({
                           aria-hidden
                         />
                       ) : pendingSend.pending ? (
-                        <ArrowCounterClockwiseIcon size={20} />
+                        <ArrowCounterClockwiseIcon aria-hidden size={20} />
                       ) : (
-                        <ArrowUpIcon size={20} />
+                        <ArrowUpIcon aria-hidden size={20} />
                       )}
                     </button>
                   )}

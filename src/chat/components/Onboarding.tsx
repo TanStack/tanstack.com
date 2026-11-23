@@ -302,7 +302,7 @@ function OnboardingForm({
                 disabled={frozen}
                 onClick={() => setUseCase(null)}
               >
-                <XIcon size={15} />
+                <XIcon aria-hidden size={15} />
               </IconButton>
             )}
           </div>

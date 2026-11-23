@@ -31,7 +31,6 @@
         "src/components/DocFeedbackContext.tsx",
         "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",
-        "src/components/Logo.tsx",
         "src/components/LogoQueryGG.tsx",
         "src/components/MaintainersSection.tsx",
         "src/components/OptimizedImage.tsx",

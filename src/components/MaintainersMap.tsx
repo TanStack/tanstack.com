@@ -30,7 +30,9 @@ import { initialMaintainersView, initialView } from './maintainersGlobeView'
 
 const zoomStep = 1.5
 const desktopInitialScale = initialView.scale * zoomStep
-const mobileMaxZoom = desktopInitialScale * 1.2
+const mobileInitialScale = desktopInitialScale * 1.2
+// Leave 20% zoom-in headroom above the mobile starting size.
+const mobileMaxZoom = mobileInitialScale * 1.2
 const mobileViewport = '(width < 40rem)'
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
@@ -47,7 +49,7 @@ const zoomControls = { width: 46, height: 171 }
 
 function getInitialScale() {
   return window.matchMedia(mobileViewport).matches
-    ? mobileMaxZoom
+    ? mobileInitialScale
     : desktopInitialScale
 }
 
@@ -775,7 +777,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       const limit = mobile.matches ? mobileMaxZoom : desktopMaxZoom
       // At the mobile default, crop 3% of the viewport width from each side.
       const projectionHeight = mobile.matches
-        ? (width * 1.06) / (2 * globeRadius * mobileMaxZoom)
+        ? (width * 1.06) / (2 * globeRadius * mobileInitialScale)
         : height / (desktopInitialScale * desktopProjectionDiameter)
       hostSize.current = {
         width,

@@ -19,7 +19,6 @@
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
         "src/chat/preferences.functions.ts",
-        "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",
         "src/components/Logo.tsx",
         "src/components/MaintainersSection.tsx",

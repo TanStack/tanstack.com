@@ -19,10 +19,6 @@
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
         "src/chat/components/marketing-welcome.css",
-        "src/chat/components/ui/Switch.tsx",
-        "src/chat/components/ui/TextInput.tsx",
-        "src/chat/components/ui/switch.css",
-        "src/chat/components/ui/text-input.css",
         "src/chat/components/useHomeFavorites.ts",
         "src/chat/message-references.ts",
         "src/chat/preferences.functions.ts",

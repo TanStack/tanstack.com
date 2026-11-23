@@ -29,7 +29,6 @@
         "src/utils/cookies.server.ts",
         "src/utils/oauth.server.ts",
         "src/utils/oauthMcp.functions.ts",
-        "src/utils/showcase.client.ts",
       ],
       "ignoreDependencies": [
         "@tanstack/react-start-client",

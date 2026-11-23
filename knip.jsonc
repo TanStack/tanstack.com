@@ -19,7 +19,6 @@
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
         "src/chat/preferences.functions.ts",
-        "src/components/DocFeedbackContext.tsx",
         "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",
         "src/components/Logo.tsx",
@@ -28,7 +27,6 @@
         "src/components/OptimizedImage.tsx",
         "src/components/PartnershipCallout.tsx",
         "src/components/QueryGGBanner.tsx",
-        "src/components/UserFeedbackSection.tsx",
         "src/components/application-starter/CustomTemplateDialog.tsx",
         "src/components/application-starter/FeaturePicker.tsx",
         "src/components/application-starter/index.ts",
@@ -63,7 +61,6 @@
         "src/server/sponsors.ts",
         "src/utils/auth.client.ts",
         "src/utils/cookies.server.ts",
-        "src/utils/docFeedback.client.ts",
         "src/utils/oauth.server.ts",
         "src/utils/oauthMcp.functions.ts",
         "src/utils/showcase.client.ts",

@@ -60,9 +60,6 @@ type GlobeBounds = {
   height: number
   centerY: number
   contentInset: number
-  paintWidth: number
-  paintHeight: number
-  paintTop: number
   projectionHeight: number
 }
 
@@ -223,15 +220,13 @@ function placeProfiles(
   const showOffscreenBadges =
     bounds.height - visibleTop >=
     Math.min(offscreenBadgeMinRemaining, bounds.height / 4)
-  const { paintTop } = bounds
-  const paintBottom = paintTop + bounds.paintHeight
   const pinTop = Math.max(
     viewport.contentTop,
     visibleTop,
-    mobile ? paintTop : -Infinity,
+    mobile ? 0 : -Infinity,
   )
   const pinBottom = mobile
-    ? Math.min(paintBottom, visibleBottom)
+    ? Math.min(bounds.height, visibleBottom)
     : visibleBottom
   const contentRight = bounds.width - bounds.contentInset
   const ui = [
@@ -250,7 +245,7 @@ function placeProfiles(
         anchor.visible &&
         anchor.y >= viewport.contentTop &&
         anchor.y + viewportGutter <= viewport.contentBottom &&
-        (!mobile || (anchor.y >= paintTop && anchor.y <= paintBottom))
+        (!mobile || (anchor.y >= 0 && anchor.y <= bounds.height))
           ? 'visible'
           : 'hidden'
       if (pin.style.visibility !== pinVisibility)
@@ -716,9 +711,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     height: 0,
     centerY: 0,
     contentInset: 0,
-    paintWidth: 0,
-    paintHeight: 0,
-    paintTop: 0,
     projectionHeight: 0,
   })
 
@@ -779,22 +771,17 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     const updateBounds = () => {
       const width = host.clientWidth
       const contentWidth = host.parentElement?.clientWidth ?? width
-      const paintWidth = surface.clientWidth
       const height = host.clientHeight
-      const paintHeight = surface.clientHeight
       const limit = mobile.matches ? mobileMaxZoom : desktopMaxZoom
       // At the mobile default, crop 3% of the viewport width from each side.
       const projectionHeight = mobile.matches
-        ? (paintWidth * 1.06) / (2 * globeRadius * mobileMaxZoom)
-        : paintHeight / (desktopInitialScale * desktopProjectionDiameter)
+        ? (width * 1.06) / (2 * globeRadius * mobileMaxZoom)
+        : height / (desktopInitialScale * desktopProjectionDiameter)
       hostSize.current = {
         width,
         height,
         centerY: height / 2,
         contentInset: (width - contentWidth) / 2,
-        paintWidth,
-        paintHeight,
-        paintTop: (height - paintHeight) / 2,
         projectionHeight,
       }
       behavior.scaleExtent([1, limit])
@@ -809,7 +796,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     setGlobe(instance)
     const resize = new ResizeObserver(updateBounds)
     resize.observe(host)
-    resize.observe(surface)
     window.addEventListener('resize', updateBounds)
     const updateTheme = () => {
       const dark = document.documentElement.classList.contains('dark')
@@ -940,18 +926,15 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       if (elapsed >= frameInterval) {
         lastFrame = now
         const bounds = hostSize.current
-        const { centerY, paintWidth, paintHeight, paintTop, projectionHeight } =
-          bounds
+        const { centerY, width, height, projectionHeight } = bounds
         const radius = projectionHeight * view.current.scale * globeRadius
         const globeTop = centerY - radius
         const globeBottom = centerY + radius
         const visibleGlobeTop = mobile.matches
-          ? Math.max(paintTop, globeTop)
+          ? Math.max(0, globeTop)
           : globeTop
         const visibleGlobeBottom = Math.min(
-          mobile.matches
-            ? Math.min(paintTop + paintHeight, globeBottom)
-            : globeBottom,
+          mobile.matches ? Math.min(height, globeBottom) : globeBottom,
           viewport.contentBottom,
         )
         const globeVisible =
@@ -1031,12 +1014,12 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
             viewportChanged = false
           }
           wasIdle = idle
-          if (redraw && paintHeight > 0) {
+          if (redraw && height > 0) {
             const paintView = {
               ...current,
-              scale: (current.scale * projectionHeight) / paintHeight,
+              scale: (current.scale * projectionHeight) / height,
             }
-            instance.draw(paintView, paintWidth, paintHeight)
+            instance.draw(paintView, width, height)
           }
           dirty.current = false
           keepAnimating = autoRotate || moving || layoutMoving
@@ -1180,7 +1163,6 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
         >
           <div
             ref={setSurface}
-            data-globe-surface
             className="pointer-events-none absolute inset-0 -z-10"
           />
           <div className="absolute inset-0">

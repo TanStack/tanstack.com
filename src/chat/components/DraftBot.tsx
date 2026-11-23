@@ -517,7 +517,7 @@ export function DraftBot({
                     : referencedFiles))
               }
             >
-              <ArrowUpIcon size={20} />
+              <ArrowUpIcon aria-hidden size={20} />
             </button>
           </div>
         </form>

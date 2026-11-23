@@ -2337,7 +2337,7 @@ function SectionManager({
                   onClick={() => setEditing(null)}
                   disabled={mutation.busy}
                 >
-                  <XIcon size={16} />
+                  <XIcon aria-hidden size={16} />
                 </button>
               </form>
             ) : (
@@ -2367,7 +2367,7 @@ function SectionManager({
                       setEditing(null)
                     }}
                   >
-                    <XIcon size={16} />
+                    <XIcon aria-hidden size={16} />
                   </button>
                 </div>
               </>

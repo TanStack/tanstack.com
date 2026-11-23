@@ -458,7 +458,7 @@ export function CommandPaletteProvider({
                   <div className="command-input-row">
                     {page ? (
                       <IconButton label="Back" onClick={back} disabled={busy}>
-                        <ArrowLeftIcon size={18} />
+                        <ArrowLeftIcon aria-hidden size={18} />
                       </IconButton>
                     ) : (
                       <MagnifyingGlassIcon size={19} aria-hidden />
@@ -481,7 +481,7 @@ export function CommandPaletteProvider({
                     <Dialog.Close
                       render={
                         <IconButton label="Close search" disabled={busy}>
-                          <XIcon size={17} />
+                          <XIcon aria-hidden size={17} />
                         </IconButton>
                       }
                     />
@@ -648,13 +648,13 @@ function PaletteInput({
     >
       <div className="command-input-row">
         <IconButton label="Back" onClick={onBack} disabled={busy}>
-          <ArrowLeftIcon size={18} />
+          <ArrowLeftIcon aria-hidden size={18} />
         </IconButton>
         <Dialog.Title>{page.title}</Dialog.Title>
         <Dialog.Close
           render={
             <IconButton label="Close search" disabled={busy}>
-              <XIcon size={17} />
+              <XIcon aria-hidden size={17} />
             </IconButton>
           }
         />

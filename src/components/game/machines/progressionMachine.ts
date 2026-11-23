@@ -113,18 +113,20 @@ export const progressionMachine = setup({
     context: {} as ProgressionContext,
     events: {} as ProgressionEvent,
   },
+  // Guards run before the transition's increment action, so they check
+  // whether this discovery is the last one.
   guards: {
     allLibrariesDiscovered: ({ context }) =>
-      context.librariesDiscovered >= context.librariesTotal &&
+      context.librariesDiscovered + 1 >= context.librariesTotal &&
       context.librariesTotal > 0,
     allPartnersDiscovered: ({ context }) =>
-      context.partnersDiscovered >= context.partnersTotal &&
+      context.partnersDiscovered + 1 >= context.partnersTotal &&
       context.partnersTotal > 0,
     allShowcasesDiscovered: ({ context }) =>
-      context.showcasesDiscovered >= context.showcasesTotal &&
+      context.showcasesDiscovered + 1 >= context.showcasesTotal &&
       context.showcasesTotal > 0,
     allCornersDiscovered: ({ context }) =>
-      context.cornersDiscovered >= context.cornersTotal &&
+      context.cornersDiscovered + 1 >= context.cornersTotal &&
       context.cornersTotal > 0,
   },
   actions: {
@@ -330,13 +332,18 @@ export const progressionMachine = setup({
             DISCOVER_LIBRARY: { actions: 'incrementLibraries' },
           },
         },
+
+        // Remembers the sub-phase the ship was destroyed in
+        history: {
+          type: 'history',
+        },
       },
     },
 
     gameover: {
       description: 'Ship destroyed',
       on: {
-        RESPAWN: 'battle',
+        RESPAWN: 'battle.history',
       },
     },
 

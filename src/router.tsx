@@ -35,24 +35,6 @@ if (typeof document !== 'undefined') {
       if (consumeStaleAppRecovery(hint.originalException)) {
         return null
       }
-      // Filter out errors from third-party ad tech scripts (e.g. Publift's
-      // Fuse Platform ftUtils.js) that are not actionable by us.
-      const frames = event.exception?.values?.flatMap(
-        (v) => v.stacktrace?.frames ?? [],
-      )
-      if (
-        frames &&
-        frames.length > 0 &&
-        frames.every((frame) => {
-          const filename = frame.filename ?? ''
-          return (
-            filename.includes('ftUtils.js') ||
-            filename.includes('fuseplatform.net')
-          )
-        })
-      ) {
-        return null
-      }
       return event
     },
   })

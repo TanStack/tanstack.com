@@ -1,6 +1,7 @@
 import { useSelector } from '@tanstack/react-store'
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
 import { useMachine } from '@xstate/react'
+import { publicLibraries } from '~/libraries'
 import {
   progressionMachine,
   getPhaseFromState,
@@ -103,7 +104,9 @@ export function GameMachineProvider({ children }: { children: ReactNode }) {
     let cornersDiscovered = 0
 
     for (const id of discoveredIslands) {
-      if (id.startsWith('library-')) librariesDiscovered++
+      // Library islands use the bare library id, with no prefix
+      if (publicLibraries.some((library) => library.id === id))
+        librariesDiscovered++
       else if (id.startsWith('partner-')) partnersDiscovered++
       else if (id.startsWith('showcase-')) showcasesDiscovered++
       else if (id.startsWith('corner-')) cornersDiscovered++

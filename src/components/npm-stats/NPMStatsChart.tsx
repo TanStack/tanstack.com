@@ -1668,7 +1668,14 @@ function EmbedChartAction({
     embedConfig.hasTimelineRange,
   )
   const [lockWidth, setLockWidth] = React.useState(false)
-  const [iframeHeight, setIframeHeight] = React.useState(420)
+  // Keep the raw text so the field can be cleared and retyped; only the
+  // value used in the iframe code is clamped.
+  const [iframeHeightInput, setIframeHeightInput] = React.useState('420')
+  const parsedIframeHeight = Number(iframeHeightInput)
+  const iframeHeight =
+    iframeHeightInput !== '' && Number.isFinite(parsedIframeHeight)
+      ? Math.max(240, Math.min(1200, parsedIframeHeight))
+      : 420
   const [copiedTarget, setCopiedTarget] = React.useState<
     'iframe' | 'url' | null
   >(null)
@@ -1735,13 +1742,12 @@ function EmbedChartAction({
                 className="w-16 rounded border border-gray-500/20 bg-gray-50 px-1.5 py-1 text-right font-mono text-[11px] outline-none focus:border-blue-500 dark:bg-gray-900"
                 max={1200}
                 min={240}
-                onChange={(event) => {
-                  const nextHeight = Number(event.currentTarget.value)
-                  if (!Number.isFinite(nextHeight)) return
-                  setIframeHeight(Math.max(240, Math.min(1200, nextHeight)))
-                }}
+                onBlur={() => setIframeHeightInput(String(iframeHeight))}
+                onChange={(event) =>
+                  setIframeHeightInput(event.currentTarget.value)
+                }
                 type="number"
-                value={iframeHeight}
+                value={iframeHeightInput}
               />
             </label>
           </div>

@@ -4,10 +4,10 @@ This guide covers the runnable examples on TanStack.com. For other Markdown feat
 
 ## Choose a runtime
 
-| Example | Runtime | Configuration |
-| --- | --- | --- |
-| Code fences grouped in a docs page | Browser esbuild compiler and sandboxed iframe | Fence metadata, optional `/package.json` |
-| Repository example without a `runtime` setting | Same browser compiler, with an explicit entry file | `src/utils/client-example-config.ts` |
+| Example                                                | Runtime                                                             | Configuration                                             |
+| ------------------------------------------------------ | ------------------------------------------------------------------- | --------------------------------------------------------- |
+| Code fences grouped in a docs page                     | Browser esbuild compiler and sandboxed iframe                       | Fence metadata, optional `/package.json`                  |
+| Repository example without a `runtime` setting         | Same browser compiler, with an explicit entry file                  | `src/utils/client-example-config.ts`                      |
 | Repository example with `runtime.type: 'webcontainer'` | WebContainer running install and dev-server commands in the browser | Repository files and `src/utils/client-example-config.ts` |
 
 StackBlitz and CodeSandbox tabs open separate services. Their behavior is not defined by this guide.
@@ -28,7 +28,9 @@ export default function App() {
 ```
 
 ```css group=counter file=/src/styles.css collapsed
-button { padding: 1rem; }
+button {
+  padding: 1rem;
+}
 ```
 
 ```json group=counter file=/package.json collapsed
@@ -41,13 +43,13 @@ button { padding: 1rem; }
 ```
 ````
 
-| Metadata | Rule |
-| --- | --- |
-| `group=counter` | Required on every fence. 1 to 64 ASCII letters, digits, underscores, or hyphens, starting with a letter or digit. |
+| Metadata            | Rule                                                                                                                                |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `group=counter`     | Required on every fence. 1 to 64 ASCII letters, digits, underscores, or hyphens, starting with a letter or digit.                   |
 | `file=/src/App.tsx` | Required, unique within the group, and an absolute normalized file path. No backslashes, `..`, repeated slashes, or trailing slash. |
-| `entry` | Required on exactly one file. That file does not have to come first. |
-| `env=react` | Required on the entry file only. See the environment table below. |
-| `collapsed` | Optional on support files. Places their source under “Support files” in the static view. The file still belongs to the workspace. |
+| `entry`             | Required on exactly one file. That file does not have to come first.                                                                |
+| `env=react`         | Required on the entry file only. See the environment table below.                                                                   |
+| `collapsed`         | Optional on support files. Places their source under “Support files” in the static view. The file still belongs to the workspace.   |
 
 Values can be unquoted, single quoted, or double quoted. `entry` and `collapsed` also accept `=true`, but not `=false`. Do not repeat metadata keys or collapse the entry file. `/__tanstack-example-entry.ts` is reserved for the generated mounting code.
 
@@ -59,13 +61,13 @@ Invalid group metadata leaves the affected code as static code blocks. A valid g
 
 Every Markdown entry needs a default export. The environment supplies mounting code and creates `#root` if needed.
 
-| `env` | Default export |
-| --- | --- |
-| `client` | A DOM Node, value, or function. A function receives the output element and may return a value or a promise. Nodes are appended, objects render as JSON, other values render as text. `null` and `undefined` render nothing. |
-| `react` | A React component, mounted with React DOM `createRoot`. |
-| `charts` | A chart definition, passed to `mountChart` with height `320`. |
-| `charts-react` | A React component, mounted the same way as `react`. |
-| `charts-octane` | An Octane component, rendered with Octane `createRoot`. |
+| `env`           | Default export                                                                                                                                                                                                              |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `client`        | A DOM Node, value, or function. A function receives the output element and may return a value or a promise. Nodes are appended, objects render as JSON, other values render as text. `null` and `undefined` render nothing. |
+| `react`         | A React component, mounted with React DOM `createRoot`.                                                                                                                                                                     |
+| `charts`        | A chart definition, passed to `mountChart` with height `320`.                                                                                                                                                               |
+| `charts-react`  | A React component, mounted the same way as `react`.                                                                                                                                                                         |
+| `charts-octane` | An Octane component, rendered with Octane `createRoot`.                                                                                                                                                                     |
 
 Repository workspaces are created without an environment wrapper. Their configured entry must mount the app itself, for example with `createRoot(document.getElementById('root')!)`. A default export alone does not mount a repository example.
 

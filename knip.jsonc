@@ -18,7 +18,6 @@
       "vite": { "config": [] },
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
-        "src/chat/components/useHomeFavorites.ts",
         "src/chat/preferences.functions.ts",
         "src/chat/server/semantic-history.ts",
         "src/components/DocFeedbackContext.tsx",

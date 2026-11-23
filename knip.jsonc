@@ -19,7 +19,6 @@
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
         "src/chat/preferences.functions.ts",
-        "src/components/OptimizedImage.tsx",
         "src/components/icons/BaseballCapIcon.tsx",
         "src/mcp/oauth.server.ts",
         "src/server/blog.ts",

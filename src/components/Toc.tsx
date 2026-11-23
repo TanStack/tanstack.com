@@ -67,10 +67,9 @@ export function Toc({ headings, activeHeadings, currentFramework }: TocProps) {
                 behavior: 'smooth',
               }}
             >
-              <span
-                className="block break-words overflow-hidden"
-                dangerouslySetInnerHTML={{ __html: heading.text }}
-              />
+              <span className="block break-words overflow-hidden">
+                {heading.text}
+              </span>
             </Link>
           </li>
         ))}

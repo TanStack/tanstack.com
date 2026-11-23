@@ -26,7 +26,6 @@
         "src/chat/components/useHomeFavorites.ts",
         "src/chat/message-references.ts",
         "src/chat/preferences.functions.ts",
-        "src/chat/server/semantic-history.ts",
         "src/chat/skill-identifiers.ts",
         "src/components/DocFeedbackContext.tsx",
         "src/components/Gam.tsx",

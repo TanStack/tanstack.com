@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type SubmitEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowCounterClockwiseIcon, ArrowLeftIcon } from '@phosphor-icons/react'
 import {
@@ -87,7 +87,7 @@ export function KodyMail({
   })
   useEffect(() => setSelectedId(null), [inboxId, query])
 
-  function search(event: FormEvent) {
+  function search(event: SubmitEvent) {
     event.preventDefault()
     const next = draft.trim()
     if (next.length > 200) return

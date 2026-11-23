@@ -24,7 +24,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type FormEvent,
+  type SubmitEvent,
   type ReactNode,
   type RefObject,
 } from 'react'
@@ -757,7 +757,7 @@ export function ConversationSession({
     !!busy,
     visible,
   )
-  async function send(e?: FormEvent, text = input) {
+  async function send(e?: SubmitEvent, text = input) {
     e?.preventDefault()
     if (readOnly || sending || !pendingSend.ready) return
     if (pendingSend.pending) {

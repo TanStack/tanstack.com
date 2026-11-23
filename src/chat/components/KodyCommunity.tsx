@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeftIcon,
@@ -77,7 +77,7 @@ export function KodyCommunity({
     retry: false as const,
   })
   const detail = useQuery({ ...detailOptions(selected), enabled: !!selected })
-  function submit(event: FormEvent) {
+  function submit(event: SubmitEvent) {
     event.preventDefault()
     if (draft.trim() === query) void search.refetch()
     else setQuery(draft.trim())

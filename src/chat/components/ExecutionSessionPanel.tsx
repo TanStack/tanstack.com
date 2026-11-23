@@ -6,7 +6,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type FormEvent,
+  type SyntheticEvent,
 } from 'react'
 import {
   ArrowClockwiseIcon,
@@ -247,7 +247,7 @@ function SessionPanel({
     }
     await act(parsed.data.type, () => owners!.enqueue(identity, parsed.data))
   }
-  function processCommand(type: 'run' | 'spawn', event: FormEvent) {
+  function processCommand(type: 'run' | 'spawn', event: SyntheticEvent) {
     event.preventDefault()
     let values: unknown
     try {

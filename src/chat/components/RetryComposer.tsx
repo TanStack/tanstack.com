@@ -1,5 +1,5 @@
 import { LoadingState } from './ui/LoadingState'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type SubmitEvent } from 'react'
 import { Popover } from '@base-ui/react/popover'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -313,7 +313,7 @@ export function RetryComposer({
     onSent,
     draft.editor,
   ])
-  async function send(event?: FormEvent) {
+  async function send(event?: SubmitEvent) {
     event?.preventDefault()
     if (
       unavailable ||

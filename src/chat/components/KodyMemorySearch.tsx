@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   kodyMemoryChangeSchema,
@@ -342,7 +342,7 @@ export function KodyMemorySearch({
     refetchIntervalInBackground: false,
     retry: false,
   })
-  function submit(event: FormEvent) {
+  function submit(event: SubmitEvent) {
     event.preventDefault()
     const input = draft.trim()
     if (!input || input.length > 200) {

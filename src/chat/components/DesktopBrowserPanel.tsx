@@ -3,7 +3,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type FormEvent,
+  type SubmitEvent,
 } from 'react'
 import {
   ArrowClockwiseIcon,
@@ -125,7 +125,7 @@ export function DesktopBrowserPanel({
     state?.appZoomPercent,
   ])
 
-  const navigate = (event: FormEvent<HTMLFormElement>) => {
+  const navigate = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!host || !address.trim()) return
     setEditing(false)

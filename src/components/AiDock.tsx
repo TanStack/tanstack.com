@@ -1962,7 +1962,7 @@ function InputBar({
     onAskAISubmit(trimmedQuery)
   }, [canAsk, onAskAISubmit, refine, setSearchQuery, trimmedQuery])
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault()
 
     submitQuestion()

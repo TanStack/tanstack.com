@@ -18,15 +18,8 @@
       "vite": { "config": [] },
       // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
       "ignoreFiles": [
-        "src/chat/components/marketing-welcome.css",
-        "src/chat/components/ui/Switch.tsx",
-        "src/chat/components/ui/TextInput.tsx",
-        "src/chat/components/ui/switch.css",
-        "src/chat/components/ui/text-input.css",
-        "src/chat/message-references.ts",
         "src/chat/preferences.functions.ts",
         "src/chat/server/semantic-history.ts",
-        "src/chat/skill-identifiers.ts",
         "src/components/DocFeedbackContext.tsx",
         "src/components/Gam.tsx",
         "src/components/LandingCommunitySection.tsx",

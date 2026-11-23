@@ -3,8 +3,7 @@ import * as React from 'react'
 import styles from './ToastProvider.module.css'
 
 type ToastOptions = {
-  durationMs?: number
-  id?: number | string
+  id?: string
 }
 
 type ToastContextValue = {
@@ -37,11 +36,10 @@ function ToastNotifications({ children }: ToastProviderProps) {
   const { add, toasts } = Toast.useToastManager()
 
   const notify = React.useCallback(
-    (content: React.ReactNode, { durationMs, id }: ToastOptions = {}) =>
+    (content: React.ReactNode, { id }: ToastOptions = {}) =>
       add({
         title: content,
-        timeout: durationMs === Infinity ? 0 : durationMs,
-        id: id?.toString(),
+        id,
       }),
     [add],
   )

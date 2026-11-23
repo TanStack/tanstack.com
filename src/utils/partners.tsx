@@ -1327,17 +1327,13 @@ const codeRabbit = ((): Partner => {
     canonicalHref: 'https://www.coderabbit.ai/',
     resources: [
       {
-        kind: 'announcement',
-        label: 'TanStack + CodeRabbit partnership',
-        href: '/blog/coderabbit-partnership',
-      },
-      {
         kind: 'documentation',
         label: 'CodeRabbit quickstart',
         href: 'https://docs.coderabbit.ai/getting-started/quickstart',
       },
     ],
-    status: 'active' as const,
+    status: 'inactive' as const,
+    endDate: 'Aug 2026',
     lastReviewedAt: currentPartnerReviewDate,
     relatedProducts: [],
     startDate: 'Aug 2025',
@@ -1720,7 +1716,7 @@ const kody: Partner = {
 }
 
 export const partners = [
-  codeRabbit,
+  ...(codeRabbit.status === 'active' ? [codeRabbit] : []),
   cloudflare,
   lovable,
   vercel,

@@ -47,7 +47,6 @@ We plan to cut 1.0 shortly after collecting RC feedback. Expect a few small RC i
 
 We’re fortunate to build alongside an incredible lineup of partners whose support keeps TanStack open and moving fast:
 
-- [Code Rabbit](https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack)
 - [Cloudflare](https://www.cloudflare.com?utm_source=tanstack)
 - [AG Grid](https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable)
 - [Netlify](https://netlify.com?utm_source=tanstack)

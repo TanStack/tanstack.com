@@ -1962,7 +1962,7 @@ function InputBar({
     onAskAISubmit(trimmedQuery)
   }, [canAsk, onAskAISubmit, refine, setSearchQuery, trimmedQuery])
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault()
 
     submitQuestion()
@@ -2109,7 +2109,11 @@ function SearchResultsToggle() {
 
 function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
   const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+  const {
+    items: hits,
+    isLastPage,
+    showMore,
+  } = useInfiniteHits<AlgoliaHit>({
     transformItems: dedupeSearchHitsByPage,
   })
   const sentinelRef = React.useRef<HTMLDivElement>(null)

@@ -93,6 +93,11 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
+  const contentType = headers.get('content-type')?.split(';')[0].trim()
+  if (contentType === 'text/html') {
+    headers.set('Document-Policy', 'js-profiling')
+  }
+
   if (isFrameEmbeddingAllowed(url.pathname)) {
     headers.delete('X-Frame-Options')
   }
@@ -317,21 +322,27 @@ export default {
     }
     return runWithHostRuntimeEnv(env, () =>
       runWithHostRuntimeContext(context, () =>
-        withDocsRequestTimings(request, async () => {
-          const response = finalizeDocsHtmlHeaders(
-            request,
-            await server.fetch(request),
-          )
-          if (import.meta.env.PROD && import.meta.env.MODE !== 'staging') {
-            const scarfRequest = createScarfServerRequest(request, response)
-            if (scarfRequest) {
-              scheduleHostRuntimeTask(() =>
-                sendScarfServerRequest(scarfRequest),
-              )
+        withDocsRequestTimings(
+          request,
+          async () => {
+            const response = finalizeDocsHtmlHeaders(
+              request,
+              await server.fetch(request),
+            )
+            if (import.meta.env.PROD && import.meta.env.MODE !== 'staging') {
+              const scarfRequest = createScarfServerRequest(request, response)
+              if (scarfRequest) {
+                scheduleHostRuntimeTask(() =>
+                  sendScarfServerRequest(scarfRequest),
+                )
+              }
             }
-          }
-          return response
-        }),
+            return response
+          },
+          import.meta.env.MODE === 'staging'
+            ? undefined
+            : scheduleHostRuntimeTask,
+        ),
       ),
     )
   },

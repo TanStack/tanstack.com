@@ -19,7 +19,7 @@ import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
 import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
 import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
-import '~/styles/app.css'
+import '~/styles/site.css'
 import {
   canonicalUrl,
   getCanonicalPath,

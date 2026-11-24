@@ -45,6 +45,8 @@ import renderBlackSvg from '~/images/render-black.svg'
 import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import kodyOutlinedSvg from '~/images/kody-outlined.svg'
+import kodyWhiteSvg from '~/images/kody-white.svg'
 import scarfSvg from '~/images/scarf.svg'
 import {
   getPartnerPlacementContext,
@@ -86,7 +88,7 @@ export type PartnerResource = {
 
 type ApplicationStarterPartnerTier = 1 | 2 | 3
 
-const currentPartnerReviewDate = '2026-07-21'
+const currentPartnerReviewDate = '2026-11-18'
 
 export const partnerUniqueConstraints = ['auth-provider', 'hosting'] as const
 export type PartnerUniqueConstraint = (typeof partnerUniqueConstraints)[number]
@@ -878,7 +880,7 @@ const sentry = ((): Partner => {
       dark: sentryWordMarkLightSvg,
     },
     llmDescription:
-      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and an alpha TanStack Start React SDK.',
+      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and a beta TanStack Start React SDK.',
     category: 'monitoring',
     content: (
       <>
@@ -1325,17 +1327,13 @@ const codeRabbit = ((): Partner => {
     canonicalHref: 'https://www.coderabbit.ai/',
     resources: [
       {
-        kind: 'announcement',
-        label: 'TanStack + CodeRabbit partnership',
-        href: '/blog/coderabbit-partnership',
-      },
-      {
         kind: 'documentation',
         label: 'CodeRabbit quickstart',
         href: 'https://docs.coderabbit.ai/getting-started/quickstart',
       },
     ],
-    status: 'active' as const,
+    status: 'inactive' as const,
+    endDate: 'Aug 2026',
     lastReviewedAt: currentPartnerReviewDate,
     relatedProducts: [],
     startDate: 'Aug 2025',
@@ -1678,8 +1676,47 @@ const scarf = ((): Partner => {
   }
 })()
 
+const kody: Partner = {
+  name: 'Kody',
+  id: 'kody',
+  href: 'https://kody.codes/?utm_source=tanstack&utm_medium=partner-page&utm_campaign=tanstack-partnership-2026-11&utm_content=partners-logo',
+  canonicalHref: 'https://kody.codes/',
+  resources: [
+    {
+      kind: 'announcement',
+      label: 'TanStack + Kody partnership',
+      href: '/blog/kody-partnership',
+    },
+    {
+      kind: 'documentation',
+      label: 'Connect your agent to Kody',
+      href: 'https://kody.codes/docs/connect-your-agent?utm_source=tanstack&utm_medium=partner-page&utm_campaign=tanstack-partnership-2026-11&utm_content=connect-first-agent',
+    },
+  ],
+  status: 'active',
+  lastReviewedAt: '2026-11-17',
+  tier: 'bronze',
+  category: 'ai',
+  tagline: 'Cloud tools for AI agents',
+  image: { light: kodyOutlinedSvg, dark: kodyWhiteSvg },
+  llmDescription:
+    'Kody gives AI agents access to shared memory, credentials, and reusable packages across sessions.',
+  applicationStarterPromptInstructions: [
+    'For projects that need persistent agent workflows, use the Kody documentation to connect the chosen agent.',
+  ],
+  content: (
+    <>
+      <div className="text-xs">
+        Give your agent tools it can use again. Kody stores the packages,
+        credentials, and context your agent needs between sessions.
+      </div>
+      <LearnMoreButton />
+    </>
+  ),
+}
+
 export const partners = [
-  codeRabbit,
+  ...(codeRabbit.status === 'active' ? [codeRabbit] : []),
   cloudflare,
   lovable,
   vercel,
@@ -1703,6 +1740,7 @@ export const partners = [
   nozzle,
   speakeasy,
   scarf,
+  kody,
 ] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([

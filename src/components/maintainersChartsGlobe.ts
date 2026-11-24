@@ -57,7 +57,6 @@ export const globeHaloScale = 1.075
 
 export function createChartsGlobe(container: HTMLDivElement) {
   let view: GlobeView
-  let offsetY = 0
   let dark = false
   let markers: GlobeMarker[] = []
   const runtime = createChartRuntime()
@@ -69,7 +68,7 @@ export function createChartsGlobe(container: HTMLDivElement) {
     render: ({ chart }) => {
       const { phi, theta, scale } = view
       const centerX = chart.width / 2
-      const centerY = chart.height / 2 + offsetY
+      const centerY = chart.height / 2
       const pixels = (chart.height / 2) * scale
       const radius = pixels * 0.8
       const cosPhi = Math.cos(phi)
@@ -188,10 +187,9 @@ export function createChartsGlobe(container: HTMLDivElement) {
     setMarkers(nextMarkers: GlobeMarker[]) {
       markers = nextMarkers
     },
-    draw(nextView: GlobeView, width: number, height: number, nextOffsetY = 0) {
+    draw(nextView: GlobeView, width: number, height: number) {
       if (width < 1 || height < 1) return
       view = nextView
-      offsetY = nextOffsetY
       const scene = runtime.render(charts[dark ? 1 : 0], { width, height })
       surface.render(scene, renderOptions)
     },

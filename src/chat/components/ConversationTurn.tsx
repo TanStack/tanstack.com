@@ -1,14 +1,14 @@
 import type { UIMessage, ToolResultPart, ToolCallPart } from '@tanstack/ai'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
-  ChevronRight,
-  Clock3,
-  FileCode2,
-  GitFork,
-  Link2,
-  Pencil,
-  RotateCcw,
-} from 'lucide-react'
+  ArrowCounterClockwiseIcon,
+  CaretRightIcon,
+  ClockIcon,
+  FileCodeIcon,
+  GitForkIcon,
+  LinkIcon,
+  PencilSimpleIcon,
+} from '@phosphor-icons/react'
 import { MessageMarkdown } from './MessageMarkdown'
 import { ToolCallDetails } from './ToolCallDetails'
 import type { Approval } from '../core/types'
@@ -228,7 +228,7 @@ export function ConversationTurn({
     getMessageLink && (
       <CopyButton
         label="Copy message link"
-        icon={<Link2 size={14} aria-hidden />}
+        icon={<LinkIcon size={14} aria-hidden />}
         text={() => new URL(getMessageLink(id), window.location.href).href}
       />
     )
@@ -249,7 +249,7 @@ export function ConversationTurn({
         }
         onClick={() => onFork(id)}
       >
-        <GitFork size={14} aria-hidden />
+        <GitForkIcon size={14} aria-hidden />
       </IconButton>
     )
   const retryRequest = (edit: boolean) =>
@@ -268,9 +268,9 @@ export function ConversationTurn({
         onClick={() => onRetry(turn.prompt!.id)}
       >
         {edit ? (
-          <Pencil size={14} aria-hidden />
+          <PencilSimpleIcon size={14} aria-hidden />
         ) : (
-          <RotateCcw size={14} aria-hidden />
+          <ArrowCounterClockwiseIcon size={14} aria-hidden />
         )}
       </IconButton>
     )
@@ -304,13 +304,13 @@ export function ConversationTurn({
           <div className="message-content">
             {readScheduledRunOrigin(turn.prompt) && (
               <span className="scheduled-origin">
-                <Clock3 size={12} aria-hidden />
+                <ClockIcon size={12} aria-hidden />
                 Scheduled
               </span>
             )}
             {readDelegatedRunOrigin(turn.prompt) && (
               <span className="scheduled-origin">
-                <GitFork size={12} aria-hidden />
+                <GitForkIcon size={12} aria-hidden />
                 Delegated task
               </span>
             )}
@@ -400,10 +400,10 @@ export function ConversationTurn({
                             ? 'Stopped'
                             : 'Activity'}
               </span>
-              <ChevronRight
+              <CaretRightIcon
                 className="turn-activity-chevron"
                 size={14}
-                strokeWidth={1.5}
+                weight="light"
                 aria-hidden
               />
               {duration !== undefined && (!running || duration > 30_000) && (
@@ -521,7 +521,7 @@ export function ConversationTurn({
                 />
                 <CopyButton
                   label="Copy Markdown"
-                  icon={<FileCode2 size={14} aria-hidden />}
+                  icon={<FileCodeIcon size={14} aria-hidden />}
                   text={responseMarkdown}
                 />
               </>

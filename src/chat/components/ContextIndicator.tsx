@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { Popover } from '@base-ui/react/popover'
-import { CircleGauge, X } from 'lucide-react'
+import { GaugeIcon, XIcon } from '@phosphor-icons/react'
 import type { UsageStep } from '../core/usage'
 import { IconButton } from './IconButton'
 import { PortalContainer } from './PortalContainer'
@@ -188,7 +188,7 @@ export function ContextIndicator({
       <Popover.Trigger
         render={
           <IconButton className="context-indicator" label="Context details">
-            <CircleGauge size={16} aria-hidden />
+            <GaugeIcon size={16} aria-hidden />
           </IconButton>
         }
       />
@@ -209,7 +209,7 @@ export function ContextIndicator({
               <Popover.Close
                 render={
                   <IconButton label="Close context details">
-                    <X size={16} aria-hidden />
+                    <XIcon size={16} aria-hidden />
                   </IconButton>
                 }
               />

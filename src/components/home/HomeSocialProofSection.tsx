@@ -1,11 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { Hydrate } from '@tanstack/react-start'
-import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRightIcon } from '@phosphor-icons/react'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
-import { Button, Skeleton, SkeletonGroup } from '~/components/ds/ui'
+import { Button } from '~/components/ds/ui'
 import { PartnersSponsorsContent } from '~/components/PartnersSponsorsSection'
-import { PartnersGridSkeleton } from '~/components/PartnersGrid'
 import type { RecentPost } from '~/utils/blog.functions'
 
 type HomeSocialProofSectionProps = {
@@ -16,51 +13,11 @@ export function HomeSocialProofSection({
   recentPosts,
 }: HomeSocialProofSectionProps) {
   return (
-    <Hydrate
-      when={visible({ rootMargin: '25%' })}
-      fallback={<SocialProofSkeleton />}
-    >
-      <HomeSocialProofContent recentPosts={recentPosts} />
-    </Hydrate>
-  )
-}
-
-function SocialProofSkeleton() {
-  return (
-    <SkeletonGroup label="Loading partners and posts" className="space-y-24">
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <Skeleton className="h-10 w-40 mb-6" />
-        <PartnersGridSkeleton />
-      </div>
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <Skeleton className="mb-3 ml-1 h-4 w-48" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={`post-skeleton-${index}`}
-              className="rounded-xl corner-squircle p-2"
-            >
-              <Skeleton className="aspect-video rounded-lg corner-squircle" />
-              <div className="px-0.5 pt-2.5">
-                <Skeleton className="h-5 w-5/6" />
-                <Skeleton className="mt-3 h-3 w-2/3" />
-                <div className="mt-4 space-y-2">
-                  <Skeleton className="h-3" />
-                  <Skeleton className="h-3" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </SkeletonGroup>
-  )
-}
-
-function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
-  return (
     <div className="space-y-24">
-      <PartnersSponsorsContent analyticsPlacement="home_grid" />
+      <PartnersSponsorsContent
+        analyticsPlacement="home_grid"
+        previousLinkAlign="end"
+      />
 
       {recentPosts.length > 0 && (
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -80,7 +37,7 @@ function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
               <BlogPostCard key={post.slug} post={post} />
             ))}
           </div>
-          <div className="flex justify-center mt-6">
+          <div className="mt-6 flex justify-end">
             <Button as={Link} to="/blog" variant="subtle-link" color="gray">
               View All Posts
               <ArrowRightIcon />

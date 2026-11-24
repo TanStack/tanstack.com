@@ -470,8 +470,8 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['TypeScript', 'Backport', 'Test'],
     social: {
       twitter: 'https://x.com/manudeli_',
-      bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
       linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
+      website: 'https://manudeli.kr',
     },
   },
   {
@@ -879,6 +879,20 @@ export function getLibraryContributors(
   return includeMaintainers
     ? [...new Set([...maintainers, ...contributors])]
     : contributors
+}
+
+export function getMaintainersForLibraries(libraryIds?: Library['id'][]) {
+  if (!libraryIds?.length) return allMaintainers
+
+  return allMaintainers.filter((maintainer) =>
+    libraryIds.some(
+      (id) =>
+        maintainer.creatorOf?.includes(id) ||
+        maintainer.maintainerOf?.includes(id) ||
+        maintainer.contributorOf?.includes(id) ||
+        maintainer.consultantOf?.includes(id),
+    ),
+  )
 }
 
 export function getPersonsCreatorOf(person: Maintainer): LibrarySlim[] {

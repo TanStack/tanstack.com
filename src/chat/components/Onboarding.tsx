@@ -1,7 +1,7 @@
 import { LoadingState } from './ui/LoadingState'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { X } from 'lucide-react'
+import { XIcon } from '@phosphor-icons/react'
 import {
   onboardingInputSchema,
   onboardingSchema,
@@ -302,7 +302,7 @@ function OnboardingForm({
                 disabled={frozen}
                 onClick={() => setUseCase(null)}
               >
-                <X size={15} />
+                <XIcon aria-hidden size={15} />
               </IconButton>
             )}
           </div>

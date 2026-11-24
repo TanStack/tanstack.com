@@ -43,6 +43,12 @@ const partnerGuidance: Record<
   string,
   { whyGreat: string; whyTanStack: string }
 > = {
+  kody: {
+    whyGreat:
+      'Save a workflow as a Kody package and your agent can call it again with the same credentials and context.',
+    whyTanStack:
+      'A team maintaining a TanStack app can use Kody to share release or issue-triage workflows across its coding agents.',
+  },
   scarf: {
     whyGreat:
       'Scarf connects software downloads, documentation visits, and product telemetry with the companies adopting an open source project.',
@@ -101,7 +107,7 @@ const partnerGuidance: Record<
     whyGreat:
       'Sentry turns production issues into actionable debugging data instead of just error logs, especially once tracing and replay are in the mix.',
     whyTanStack:
-      'That matters for TanStack apps with richer client behavior, and Sentry already documents TanStack Router support plus an alpha TanStack Start React SDK.',
+      'That matters for TanStack apps with richer client behavior, and Sentry already documents TanStack Router support plus a beta TanStack Start React SDK.',
   },
   fireship: {
     whyGreat:

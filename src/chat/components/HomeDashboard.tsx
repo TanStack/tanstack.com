@@ -5,7 +5,13 @@ import { IconButton } from './IconButton'
 import { useEffect, useRef, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-import { ArrowRight, ArrowUpRight, ChevronRight, Search, X } from 'lucide-react'
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  CaretRightIcon,
+  MagnifyingGlassIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { z } from 'zod'
 import { kodyAccountSchema } from '../core/kody-account'
 import { skillSummarySchema } from '../core/skills'
@@ -376,7 +382,7 @@ export function HomeDashboard({
             </span>
           )}
         </span>
-        <ChevronRight size={15} className="home-entry-arrow" aria-hidden />
+        <CaretRightIcon size={15} className="home-entry-arrow" aria-hidden />
       </>
     )
     return (
@@ -468,7 +474,7 @@ export function HomeDashboard({
           {target !== 'conversations' &&
             resourceLink(
               target,
-              <ArrowRight
+              <ArrowRightIcon
                 size={17}
                 aria-label={`Browse ${homeResources[target].label}`}
               />,
@@ -483,7 +489,7 @@ export function HomeDashboard({
             <p>{homeResources[target].description}</p>
             <span>
               Open {homeResources[target].label.toLowerCase()}{' '}
-              <ArrowRight size={15} aria-hidden />
+              <ArrowRightIcon size={15} aria-hidden />
             </span>
           </Link>
         )}
@@ -621,7 +627,7 @@ export function HomeDashboard({
             target="_blank"
             rel="noreferrer"
           >
-            Resolve in Kody <ArrowUpRight size={14} aria-hidden />
+            Resolve in Kody <ArrowUpRightIcon size={14} aria-hidden />
           </a>
         )}
       </article>
@@ -635,7 +641,7 @@ export function HomeDashboard({
           {section && selected && (
             <nav className="home-breadcrumb" aria-label="Breadcrumb">
               {resourceLink(section, homeResources[section].label)}
-              <ChevronRight size={13} aria-hidden />
+              <CaretRightIcon size={13} aria-hidden />
               <span>{selected.name}</span>
             </nav>
           )}
@@ -745,7 +751,7 @@ export function HomeDashboard({
               {inventories[section] && canBrowseInventory(section) && (
                 <>
                   <label className="home-search">
-                    <Search size={17} aria-hidden />
+                    <MagnifyingGlassIcon size={17} aria-hidden />
                     <input
                       type="search"
                       aria-label={`Search ${homeResources[section].label.toLowerCase()}`}
@@ -774,7 +780,7 @@ export function HomeDashboard({
                           })
                         }
                       >
-                        <X size={15} />
+                        <XIcon aria-hidden size={15} />
                       </button>
                     )}
                   </label>

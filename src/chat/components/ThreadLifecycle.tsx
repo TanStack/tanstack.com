@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Archive, ArchiveRestore, RotateCcw } from 'lucide-react'
+import {
+  ArchiveIcon,
+  ArrowCounterClockwiseIcon,
+  TrayArrowUpIcon,
+} from '@phosphor-icons/react'
 import type { ThreadSummary } from '../core/conversation-threads'
 import { IconButton } from './IconButton'
 import { ApiError, useWorkspaceApi } from './WorkspaceApi'
@@ -115,11 +119,11 @@ export function ThreadLifecycle({
         onClick={() => void change()}
       >
         {retry ? (
-          <RotateCcw size={14} aria-hidden />
+          <ArrowCounterClockwiseIcon size={14} aria-hidden />
         ) : thread.archivedAt === null ? (
-          <Archive size={14} aria-hidden />
+          <ArchiveIcon size={14} aria-hidden />
         ) : (
-          <ArchiveRestore size={14} aria-hidden />
+          <TrayArrowUpIcon size={14} aria-hidden />
         )}
       </IconButton>
       {error && (

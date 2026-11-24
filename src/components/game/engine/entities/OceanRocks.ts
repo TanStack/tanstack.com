@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import type { IslandData } from '../../utils/islandGenerator'
-import { CULL_DISTANCES } from '../../hooks/useDistanceCulling'
 
 interface RockData {
   localPosition: THREE.Vector3
@@ -177,7 +176,7 @@ export class OceanRocks {
   }
 
   update(time: number, boatPosition: [number, number, number]): void {
-    const maxDistSq = CULL_DISTANCES.rock * CULL_DISTANCES.rock
+    const maxDistSq = 60 ** 2
 
     for (let gi = 0; gi < this.rockGroups.length; gi++) {
       const rockGroup = this.rockGroups[gi]

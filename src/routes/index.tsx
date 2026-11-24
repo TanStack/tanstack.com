@@ -18,11 +18,12 @@ import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
+import { HomeStatNumber } from '~/components/home/HomeStatNumber'
+import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useQuery } from '@tanstack/react-query'
-import { Button, Eyebrow } from '~/components/ds/ui'
+import { Button } from '~/components/ds/ui'
 import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
-import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
@@ -32,13 +33,24 @@ import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
-    const [, , recentPosts] = await Promise.all([
+    const npmStatsQuery = homepageNpmStatsSummaryQuery()
+    const [stats, npmSummary, recentPosts] = await Promise.all([
       queryClient.ensureQueryData(ossStatsQuery()),
-      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
+      queryClient.ensureQueryData(npmStatsQuery),
       fetchRecentPosts(),
     ])
 
-    return { recentPosts }
+    return {
+      recentPosts,
+      initialStats: {
+        totalDownloads: npmSummary?.totalDownloads ?? stats.npm?.totalDownloads,
+        weeklyDownloads: npmSummary?.weeklyDownloads,
+        weeklyRatePerDay: npmSummary?.weeklyRatePerDay,
+        npmStatsFetchedAt:
+          queryClient.getQueryState(npmStatsQuery.queryKey)?.dataUpdatedAt ?? 0,
+        starCount: stats.github?.starCount,
+      },
+    }
   },
   head: () => ({
     meta: seo({
@@ -57,7 +69,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const { recentPosts } = Route.useLoaderData()
+  const { initialStats, recentPosts } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
   const startWithPrompt = (e: React.MouseEvent) => {
@@ -65,12 +77,8 @@ function Index() {
     const section = document.getElementById('start-with-a-prompt')
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     const field = section?.querySelector<HTMLTextAreaElement>('textarea')
-    if (field) {
-      field.focus()
-      field.select()
-    } else if (section) {
-      section.dataset.focusPrompt = 'true'
-    }
+    field?.focus({ preventScroll: true })
+    field?.select()
   }
 
   return (
@@ -78,19 +86,13 @@ function Index() {
       <Scarf id={homepageScarfPixel} path="/" />
       <main className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
-              headline bottom-left, description + CTA bottom-right. The photo is
+          {/* Hero — Figma node 802:2027. Full-bleed palm and sky:
+              headline bottom-left, description + CTA bottom-right. The sky is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
-            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
-                the URL bar mid-scroll, visibly stretching the hero. */}
-            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
-              {/* The parent supplies the 4px frame shared by the hero and stats.
-                  This wrapper clips the image to the inner radius so the <img>
-                  fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
-                  the Cloudflare transform resolves against the production origin,
-                  so a newly-added asset 404s until deployed. */}
+          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1 md:grid md:h-[calc(100svh-var(--navbar-height))] md:min-h-min md:grid-rows-[minmax(min-content,1fr)_auto]">
+            {/* The small viewport height keeps the hero stable as mobile browser chrome collapses. */}
+            <div className="group relative isolate flex flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] max-md:h-[calc(100svh-var(--navbar-height))] max-md:max-h-[720px] max-md:min-h-[560px] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
               <HeroPalmMedia />
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
                 The{' '}
@@ -106,10 +108,10 @@ function Index() {
                   applications that work naturally for developers and reliably
                   for agents
                 </p>
-                {/* The photo is always light, so scope the CTAs to the DS
+                {/* The sky is always light, so scope the CTAs to the DS
                     light mode — the Buttons then render as their standard DS
                     light-mode selves (no per-button color overrides). */}
-                <div className="ds-mode-light flex flex-wrap items-center gap-2">
+                <div className="ds-mode-light -ml-2 flex flex-wrap items-center gap-2 sm:-ml-9 md:ml-0">
                   <Button
                     as="a"
                     href="/libraries"
@@ -142,8 +144,8 @@ function Index() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-center px-2.5 py-6">
-              <HomeStatsSection />
+            <div className="flex flex-col px-4 py-6 sm:px-1 md:flex-row md:items-center md:justify-center md:px-2.5">
+              <HomeStatsSection initialStats={initialStats} />
             </div>
           </div>
           <div
@@ -156,9 +158,9 @@ function Index() {
 
         <WhyTanStackSection />
 
-        <HomeSocialProofSection recentPosts={recentPosts} />
-
         <HomeCommunitySection />
+
+        <HomeSocialProofSection recentPosts={recentPosts} />
 
         <div className="h-4" />
         <HomeNewsletterSection />
@@ -170,12 +172,10 @@ function Index() {
 type PrincipleProof = 'adapters' | 'types' | 'adoption' | 'portable'
 
 type WhyTanStackPrinciple = {
-  label: string
   title: string
   body: string
   Icon: Icon
   accentClassName: string
-  eyebrowClassName: string
   iconClassName: string
   proof: PrincipleProof
 }
@@ -205,45 +205,37 @@ type AdapterGraphCurve = {
 // terracotta-400 #c3502b); the DS token wins per the design-system-first rule.
 const whyTanStackPrinciples = [
   {
-    label: 'Portable core',
     title: 'Framework Agnostic',
     body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
     Icon: StackIcon,
     accentClassName: 'from-blue-500 to-cyan-500',
-    eyebrowClassName: 'text-category-ui',
     iconClassName:
       'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
     proof: 'adapters',
   },
   {
-    label: 'Compile-time contracts',
     title: 'Type-Safe by Design',
     body: 'Built with TypeScript from the ground up, providing incredible autocomplete and safety across your entire data-fetching and state management stack.',
     Icon: CodeIcon,
     accentClassName: 'from-emerald-500 to-teal-500',
-    eyebrowClassName: 'text-ds-green-400',
     iconClassName:
       'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
     proof: 'types',
   },
   {
-    label: 'Real workloads',
     title: 'Production-Grade',
     body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
     Icon: LightningIcon,
     accentClassName: 'from-orange-500 to-red-500',
-    eyebrowClassName: 'text-ds-terracotta-400',
     iconClassName:
       'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
     proof: 'adoption',
   },
   {
-    label: 'Independent tools',
     title: 'No Vendor Lock-in',
     body: "Open source and independent. We aren't beholden to any single cloud provider or framework team, ensuring the best tools for the community.",
     Icon: ShieldIcon,
     accentClassName: 'from-purple-500 to-pink-500',
-    eyebrowClassName: 'text-ds-purple-400',
     iconClassName:
       'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300',
     proof: 'portable',
@@ -406,28 +398,16 @@ function cubicAngle(
 /**
  * The "Why TanStack?" principles stack — Figma 478:1734.
  *
- * Geometry follows the design frame: a 960px column, each feature card 313px
- * tall (233px of content inside 40px padding), with the copy column and the
- * proof panel separated by a 48px gutter. The description sits bottom-right of
- * its column, which is what produces the stepped rhythm down the stack.
+ * On desktop, the stack is 960px wide. Each card has 233px of content with
+ * 24px of padding above and below and a 70px gap between the two columns.
  */
 function WhyTanStackSection() {
   return (
     <section className="px-4 md:mx-auto">
-      <div className="mx-auto max-w-[960px] py-16 lg:py-20">
-        {/* section-header — 478:1737 */}
-        <div className="flex flex-col items-center gap-12 text-center">
-          <Eyebrow tone="warning">Principles</Eyebrow>
-          <div className="flex flex-col items-center gap-4">
-            <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
-              Why TanStack?
-            </h3>
-            <p className="max-w-[376px] text-base leading-[1.45] text-gray-600 dark:text-gray-400">
-              Our libraries are built around real products and the developers
-              shipping them.
-            </p>
-          </div>
-        </div>
+      <div className="mx-auto max-w-[960px] pt-4 pb-16 lg:pt-8 lg:pb-20">
+        <h3 className="text-center text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
+          Why TanStack?
+        </h3>
 
         {/* features-stack — 478:1742 */}
         <ol className="mt-2 rounded-[20px]">
@@ -435,7 +415,7 @@ function WhyTanStackSection() {
             <li
               key={principle.title}
               className={twMerge(
-                'flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
+                'flex flex-col gap-4 py-4 sm:gap-8 sm:py-6 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
                 index < whyTanStackPrinciples.length - 1 &&
                   'border-b border-gray-200 dark:border-gray-800',
               )}
@@ -443,15 +423,10 @@ function WhyTanStackSection() {
               {/* copy column — 478:1745. Everything is left-aligned to the
                   card edge; at desktop sizes the title and description stay
                   grouped at the center of the 233px proof panel. */}
-              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
-                <div className="flex w-full flex-col gap-2">
-                  <Eyebrow className={principle.eyebrowClassName}>
-                    {principle.label}
-                  </Eyebrow>
-                  <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
-                    {principle.title}
-                  </h4>
-                </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-2 sm:gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
+                <h4 className="mt-3 text-2xl font-black leading-tight text-gray-950 sm:mt-0 dark:text-white">
+                  {principle.title}
+                </h4>
                 <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">
                   {principle.body}
                 </p>
@@ -495,7 +470,7 @@ function WhyTanStackSection() {
  */
 function PrinciplePanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px]">
+    <div className="flex w-full shrink-0 items-center justify-center sm:h-[233px] lg:w-[460px] [&>div]:w-full">
       {children}
     </div>
   )
@@ -552,7 +527,7 @@ function FrameworkAdapterGraph({
     // width, so the graph fills whatever slot it lands in without restating the
     // ancestors' padding. The 1.35 cap is the ratio the fixed 460px `lg` slot
     // was designed around.
-    <div className="@container flex w-full justify-center">
+    <div className="@container flex w-full justify-center py-4 sm:py-0">
       <div
         ref={rootRef}
         aria-hidden="true"
@@ -699,33 +674,28 @@ function PrincipleProof({
   }
 
   if (proof === 'adoption') {
-    return <AdoptionProof accentClassName={accentClassName} />
+    return <AdoptionProof />
   }
 
   return <IndependenceProof accentClassName={accentClassName} />
 }
 
-/**
- * Production-Grade proof: the live npm download odometer already prefetched by
- * the route loader, plus weekly volume and stars. Real numbers rather than
- * adjectives — the point of the principle is scale.
- */
-function AdoptionProof({ accentClassName }: { accentClassName: string }) {
-  const { data: summary } = useQuery(homepageNpmStatsSummaryQuery())
+function AdoptionProof() {
+  const { initialStats } = Route.useLoaderData()
+  const { data: summary, dataUpdatedAt } = useQuery(
+    homepageNpmStatsSummaryQuery(),
+  )
   const { data: stats } = useQuery(ossStatsQuery())
 
-  const totalDownloads = summary?.totalDownloads ?? 0
-  const weeklyDownloads = summary?.weeklyDownloads ?? 0
-  const starCount = stats?.github?.starCount ?? 0
-
-  // npm can be slow, rate-limited, or down — showing a literal 0 would claim
-  // this library has no users. Fall back to a placeholder instead.
-  const format = (value: number) => (value > 0 ? value.toLocaleString() : '—')
-
-  const counterRef = useNpmDownloadCounter({
-    totalDownloads,
-    ratePerDay: summary?.weeklyRatePerDay ?? 0,
-  })
+  const totalDownloads =
+    summary?.totalDownloads ?? initialStats.totalDownloads ?? 0
+  const weeklyDownloads =
+    summary?.weeklyDownloads ?? initialStats.weeklyDownloads ?? 0
+  const starCount = stats?.github?.starCount ?? initialStats.starCount ?? 0
+  const liveDownloads = {
+    ratePerDay: summary?.weeklyRatePerDay ?? initialStats.weeklyRatePerDay ?? 0,
+    fetchedAt: dataUpdatedAt || initialStats.npmStatsFetchedAt,
+  }
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -733,29 +703,36 @@ function AdoptionProof({ accentClassName }: { accentClassName: string }) {
         <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
           npm downloads
         </span>
-        <span
-          // The odometer writes into this node directly; only hand it over
-          // once there is a real number for it to count from.
-          ref={totalDownloads > 0 ? counterRef : undefined}
-          className={twMerge(
-            'bg-linear-to-r bg-clip-text font-mono text-3xl font-black tabular-nums text-transparent sm:text-4xl',
-            accentClassName,
+        <span className="font-mono text-3xl font-black tabular-nums text-orange-700 sm:text-4xl dark:text-orange-400">
+          {totalDownloads > 0 ? (
+            <LiveDownloadCount value={totalDownloads} {...liveDownloads} />
+          ) : (
+            '—'
           )}
-        >
-          {format(totalDownloads)}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-6 font-mono">
         {[
-          ['per week', weeklyDownloads],
-          ['github stars', starCount],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="flex flex-col gap-1">
+          {
+            label: 'per week',
+            value:
+              weeklyDownloads > 0 ? (
+                <LiveDownloadCount value={weeklyDownloads} {...liveDownloads} />
+              ) : (
+                '—'
+              ),
+          },
+          {
+            label: 'github stars',
+            value: starCount > 0 ? <HomeStatNumber value={starCount} /> : '—',
+          },
+        ].map(({ label, value }) => (
+          <div key={label} className="flex flex-col gap-1">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
               {label}
             </span>
             <span className="text-xl font-black tabular-nums text-gray-700 dark:text-gray-300">
-              {format(Number(value))}
+              {value}
             </span>
           </div>
         ))}

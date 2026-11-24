@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Download } from 'lucide-react'
+import { DownloadSimpleIcon } from '@phosphor-icons/react'
 import type { RetryDraftDocument } from '../core/retry-draft'
 import { CopyButton } from './CopyButton'
 import { IconButton } from './IconButton'
@@ -54,7 +54,7 @@ export function RetryDraftRecovery({
           }
         }}
       >
-        <Download size={14} aria-hidden />
+        <DownloadSimpleIcon size={14} aria-hidden />
       </IconButton>
       <button
         type="button"

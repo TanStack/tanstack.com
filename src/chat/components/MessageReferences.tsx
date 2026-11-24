@@ -1,5 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { BookOpen, MessageCircle, Package, Plug, Wrench } from 'lucide-react'
+import {
+  BookOpenIcon,
+  ChatCircleIcon,
+  PackageIcon,
+  PlugIcon,
+  WrenchIcon,
+} from '@phosphor-icons/react'
 import type { MessageReference } from '../core/message-references'
 import { referenceKey } from '../core/message-references'
 import { defaultWorkspaceSearch } from '../core/navigation'
@@ -20,15 +26,15 @@ export function MessageReferences({
       {items.map((item) => (
         <li key={referenceKey(item)}>
           {item.kind === 'skill' ? (
-            <BookOpen size={14} aria-hidden />
+            <BookOpenIcon size={14} aria-hidden />
           ) : item.kind === 'plugin' ? (
-            <Package size={14} aria-hidden />
+            <PackageIcon size={14} aria-hidden />
           ) : item.kind === 'conversation' ? (
-            <MessageCircle size={14} aria-hidden />
+            <ChatCircleIcon size={14} aria-hidden />
           ) : item.kind === 'tool' ? (
-            <Wrench size={14} aria-hidden />
+            <WrenchIcon size={14} aria-hidden />
           ) : (
-            <Plug size={14} aria-hidden />
+            <PlugIcon size={14} aria-hidden />
           )}
           {item.kind === 'conversation' && workspaceId ? (
             <Link

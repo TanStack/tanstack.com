@@ -2,20 +2,20 @@ import { useDebugDetails } from './useDebugDetails'
 import type { UIMessage } from '@tanstack/ai'
 import type { ReactNode } from 'react'
 import {
-  Building2,
-  Monitor,
-  Cloud,
-  Cpu,
-  History,
-  CircleDot,
-  MessageSquare,
-  ChevronRight,
-  Clock3,
-  ShieldCheck,
-  Link2,
-  ListOrdered,
-  type LucideIcon,
-} from 'lucide-react'
+  BuildingsIcon,
+  CaretRightIcon,
+  ChatCenteredIcon,
+  ClockCounterClockwiseIcon,
+  ClockIcon,
+  CloudIcon,
+  CpuIcon,
+  LinkIcon,
+  ListNumbersIcon,
+  MonitorIcon,
+  RecordIcon,
+  ShieldCheckIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 import type { Approval, Trace } from '../core/types'
 import type { PendingTask } from '../core/tasks'
 import type { QueueSnapshot } from '../core/conversation-queue'
@@ -73,7 +73,7 @@ function SummaryRow({
   label,
   value,
 }: {
-  icon: LucideIcon
+  icon: Icon
   label: string
   value: string
 }) {
@@ -178,26 +178,30 @@ export function ConversationDetails({
               <h3>Environment</h3>
               <dl>
                 <SummaryRow
-                  icon={Building2}
+                  icon={BuildingsIcon}
                   label="Workspace"
                   value={environment.workspaceName}
                 />
-                <SummaryRow icon={Monitor} label="Interface" value="Browser" />
                 <SummaryRow
-                  icon={Cloud}
+                  icon={MonitorIcon}
+                  label="Interface"
+                  value="Browser"
+                />
+                <SummaryRow
+                  icon={CloudIcon}
                   label="Runtime"
                   value={
                     environment.fixture ? 'Local preview' : 'Cloudflare Workers'
                   }
                 />
                 <SummaryRow
-                  icon={Cpu}
+                  icon={CpuIcon}
                   label="Request model"
                   value={`${environment.provider || 'Not recorded'}${environment.model.trim() ? ` / ${environment.model}` : ''}`}
                 />
                 {model && (
                   <SummaryRow
-                    icon={History}
+                    icon={ClockCounterClockwiseIcon}
                     label="Last recorded model"
                     value={`${model.provider} / ${model.model ?? 'Not recorded'}`}
                   />
@@ -208,17 +212,17 @@ export function ConversationDetails({
           <section>
             <h3>Conversation</h3>
             <dl>
-              <SummaryRow icon={CircleDot} label="Status" value={status} />
+              <SummaryRow icon={RecordIcon} label="Status" value={status} />
               {taskOutcome && (
                 <SummaryRow
-                  icon={MessageSquare}
+                  icon={ChatCenteredIcon}
                   label="Task outcome"
                   value={taskOutcome}
                 />
               )}
               {!!history.queue?.items.length && (
                 <SummaryRow
-                  icon={ListOrdered}
+                  icon={ListNumbersIcon}
                   label="Queue"
                   value={`${history.queue.items.length} queued${history.queue.paused ? ' · Paused' : ''}`}
                 />
@@ -236,15 +240,15 @@ export function ConversationDetails({
                 title={requestText}
                 onClick={() => onSelectMessage(requestId)}
               >
-                <MessageSquare size={17} aria-hidden />
+                <ChatCenteredIcon size={17} aria-hidden />
                 <span>{requestText}</span>
-                <ChevronRight size={15} aria-hidden />
+                <CaretRightIcon size={15} aria-hidden />
               </button>
             )}
           </section>
           {[
-            { title: 'Approval needed', items: pending, icon: ShieldCheck },
-            { title: 'Running actions', items: running, icon: Clock3 },
+            { title: 'Approval needed', items: pending, icon: ShieldCheckIcon },
+            { title: 'Running actions', items: running, icon: ClockIcon },
           ]
             .filter((group) => group.items.length)
             .map((group) => (
@@ -281,7 +285,7 @@ export function ConversationDetails({
               <ul>
                 {environment.connections.map((connection, index) => (
                   <li className="details-summary-item" key={index}>
-                    <Link2 size={17} aria-hidden />
+                    <LinkIcon size={17} aria-hidden />
                     <span title={connection.label}>{connection.label}</span>
                     {!connection.enabled && <small>Disabled</small>}
                   </li>

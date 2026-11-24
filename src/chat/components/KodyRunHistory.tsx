@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 import {
@@ -80,7 +80,7 @@ export function KodyRunHistory({ accountScope }: { accountScope: string }) {
         .map((run) => [run.id, run]) ?? [],
     ).values(),
   )
-  function findRun(event: FormEvent) {
+  function findRun(event: SubmitEvent) {
     event.preventDefault()
     const parsed = z.uuid().safeParse(runIdInput.trim())
     if (!parsed.success) {

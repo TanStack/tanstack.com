@@ -8,7 +8,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from 'react'
-import { X } from 'lucide-react'
+import { XIcon } from '@phosphor-icons/react'
 import { PortalContainer } from '../PortalContainer'
 import { IconButton } from '../IconButton'
 import './modal.css'
@@ -83,7 +83,7 @@ export function Modal({
                 disabled={busy}
                 onClick={() => setOpen(false)}
               >
-                <X size={16} aria-hidden />
+                <XIcon size={16} aria-hidden />
               </IconButton>
             </div>
             {children}

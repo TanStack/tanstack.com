@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useRef, useState, type SubmitEvent } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   kodyServerAddResultSchema,
@@ -19,7 +19,7 @@ export function KodyAddServer({ userId }: { userId: string }) {
   const pending = useRef<KodyServerAdd | null>(null)
   const locked = useRef(false)
 
-  async function add(event: FormEvent<HTMLFormElement>) {
+  async function add(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (locked.current) return
     const parsed = kodyServerAddSchema.safeParse({

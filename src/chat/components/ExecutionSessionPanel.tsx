@@ -6,17 +6,17 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type FormEvent,
+  type SyntheticEvent,
 } from 'react'
 import {
-  Monitor,
-  MousePointer,
-  RotateCw,
-  ScanText,
-  Square,
-  SquareTerminal,
-  X,
-} from 'lucide-react'
+  ArrowClockwiseIcon,
+  CursorIcon,
+  MonitorIcon,
+  SquareIcon,
+  TerminalWindowIcon,
+  TextAlignLeftIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { executionOwnerKey } from '../client/execution-owner'
 import {
   executionOperationSchema,
@@ -247,7 +247,7 @@ function SessionPanel({
     }
     await act(parsed.data.type, () => owners!.enqueue(identity, parsed.data))
   }
-  function processCommand(type: 'run' | 'spawn', event: FormEvent) {
+  function processCommand(type: 'run' | 'spawn', event: SyntheticEvent) {
     event.preventDefault()
     let values: unknown
     try {
@@ -294,14 +294,14 @@ function SessionPanel({
                 label="Open commands"
                 onClick={() => onOpen('commands')}
               >
-                <SquareTerminal size={16} />
+                <TerminalWindowIcon aria-hidden size={16} />
               </IconButton>
               {workspacePreviewsEnabled && (
                 <IconButton
                   label="Open workspace preview"
                   onClick={() => onOpen('preview')}
                 >
-                  <Monitor size={16} />
+                  <MonitorIcon aria-hidden size={16} />
                 </IconButton>
               )}
             </div>
@@ -348,9 +348,9 @@ function SessionPanel({
               }
             >
               {mode === 'commands' ? (
-                <Monitor size={16} />
+                <MonitorIcon aria-hidden size={16} />
               ) : (
-                <SquareTerminal size={16} />
+                <TerminalWindowIcon aria-hidden size={16} />
               )}
             </IconButton>
           )}
@@ -359,7 +359,7 @@ function SessionPanel({
             disabled={!owners || !!busy}
             onClick={() => void act('refresh', () => owners!.inspect(identity))}
           >
-            <RotateCw size={15} />
+            <ArrowClockwiseIcon aria-hidden size={15} />
           </IconButton>
         </div>
       </header>
@@ -610,7 +610,7 @@ function SessionPanel({
                           })
                         }
                       >
-                        <Square size={14} />
+                        <SquareIcon aria-hidden size={14} />
                       </IconButton>
                     </div>
                   )}
@@ -699,7 +699,7 @@ function SessionPanel({
                       })
                     }
                   >
-                    <ScanText size={16} />
+                    <TextAlignLeftIcon aria-hidden size={16} />
                   </IconButton>
                   <IconButton
                     label={`Close preview ${shortId(preview.id)}`}
@@ -711,7 +711,7 @@ function SessionPanel({
                       })
                     }
                   >
-                    <X size={16} />
+                    <XIcon aria-hidden size={16} />
                   </IconButton>
                 </div>
               </div>
@@ -771,7 +771,7 @@ function SessionPanel({
                       })
                     }
                   >
-                    <MousePointer size={16} />
+                    <CursorIcon aria-hidden size={16} />
                   </IconButton>
                 </form>
                 <pre aria-label="Preview text">{preview.data.text}</pre>

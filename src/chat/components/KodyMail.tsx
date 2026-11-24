@@ -1,6 +1,6 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type SubmitEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, RotateCcw } from 'lucide-react'
+import { ArrowCounterClockwiseIcon, ArrowLeftIcon } from '@phosphor-icons/react'
 import {
   kodyMailDetailSchema,
   kodyMailInboxesSchema,
@@ -87,7 +87,7 @@ export function KodyMail({
   })
   useEffect(() => setSelectedId(null), [inboxId, query])
 
-  function search(event: FormEvent) {
+  function search(event: SubmitEvent) {
     event.preventDefault()
     const next = draft.trim()
     if (next.length > 200) return
@@ -105,7 +105,7 @@ export function KodyMail({
               label="Back to messages"
               onClick={() => setSelectedId(null)}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
           </div>
           {detail.isPending && <p role="status">Loading message…</p>}
@@ -188,7 +188,7 @@ export function KodyMail({
                 void messages.refetch()
               }}
             >
-              <RotateCcw size={16} aria-hidden />
+              <ArrowCounterClockwiseIcon size={16} aria-hidden />
             </IconButton>
           </div>
           {inboxes.isPending && <p role="status">Loading inboxes…</p>}

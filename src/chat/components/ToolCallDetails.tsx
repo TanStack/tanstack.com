@@ -1,6 +1,6 @@
 import { CodeBlock } from './MessageMarkdown'
 import type { ToolCallPart, ToolResultPart } from '@tanstack/ai'
-import { ChevronRight, Link2 } from 'lucide-react'
+import { CaretRightIcon, LinkIcon } from '@phosphor-icons/react'
 import type { Approval } from '../core/types'
 import type { ToolReceipt } from '../core/conversation-copy'
 import { historicalReceiptStatus } from './HistoricalReceipts'
@@ -171,8 +171,8 @@ export function ToolCallDetails({
       onToggle={(event) => onOpenChange?.(event.currentTarget.open)}
     >
       <summary>
-        <ChevronRight size={14} className="tool-chevron" aria-hidden="true" />
-        <Link2 size={13} aria-hidden="true" />
+        <CaretRightIcon size={14} className="tool-chevron" aria-hidden="true" />
+        <LinkIcon size={13} aria-hidden="true" />
         <span className="tool-label">{approval?.title ?? label}</span>
         <span
           className={`tool-status${(historical ? historicalState === 'error' || !!result?.error : failed) || approval?.status === 'error' ? ' failed' : ''}`}

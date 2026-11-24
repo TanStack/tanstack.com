@@ -12,6 +12,7 @@ export type BlogPostHeadData = {
   authors: Array<string>
   description: string
   isUnpublished: boolean
+  unlisted?: boolean
   published: string
   slug: string
   socialImage?: string
@@ -102,7 +103,7 @@ export function getBlogPostHead(post: BlogPostHeadData | undefined) {
         title: `${post.title} | TanStack Blog`,
         description: post.description,
         image: post.socialImage,
-        noindex: post.isUnpublished,
+        noindex: post.isUnpublished || post.unlisted,
         ogType: 'article',
         articlePublishedTime: post.published,
         articleModifiedTime: post.updated,

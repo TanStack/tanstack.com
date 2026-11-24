@@ -31,18 +31,25 @@ export function sortBlogCardPosts(posts: Array<BlogCardPost>) {
 }
 
 /**
- * Returns published blog posts (not drafts, not future-dated),
+ * Returns listed, published blog posts,
  * sorted by publish date descending (newest first).
  */
 export function getPublishedPosts(): Post[] {
   return allPosts
-    .filter((post) => !post.draft && isPublishedDateReleased(post.published))
+    .filter(
+      (post) =>
+        !post.unlisted &&
+        !post.draft &&
+        isPublishedDateReleased(post.published),
+    )
     .sort((a, b) => b.published.localeCompare(a.published))
 }
 
 export function getVisiblePosts(): Post[] {
   if (import.meta.env.DEV) {
-    return [...allPosts].sort((a, b) => b.published.localeCompare(a.published))
+    return allPosts
+      .filter((post) => !post.unlisted)
+      .sort((a, b) => b.published.localeCompare(a.published))
   }
 
   return getPublishedPosts()

@@ -6,15 +6,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Menu } from '@base-ui/react/menu'
 import { Tooltip } from '@base-ui/react/tooltip'
 import {
-  Code,
-  Download,
-  Eye,
-  File as FileIcon,
-  GitCompareArrows,
-  RotateCw,
-  Upload,
-  X,
-} from 'lucide-react'
+  ArrowClockwiseIcon,
+  CodeIcon,
+  DownloadSimpleIcon,
+  EyeIcon,
+  FileIcon,
+  GitDiffIcon,
+  UploadSimpleIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import {
   isPreviewImage,
   isTextFile,
@@ -321,7 +321,7 @@ function FileLibrary({
               disabled={busy}
               onClick={() => choose()}
             >
-              <Upload size={15} aria-hidden /> Upload
+              <UploadSimpleIcon size={15} aria-hidden /> Upload
             </Button>
           </>
         )}
@@ -330,7 +330,7 @@ function FileLibrary({
           disabled={query.isFetching}
           onClick={() => void query.refetch()}
         >
-          <RotateCw size={15} aria-hidden />
+          <ArrowClockwiseIcon size={15} aria-hidden />
         </IconButton>
       </div>
       {!readOnly && (
@@ -408,7 +408,7 @@ function FileLibrary({
                       label={`Cancel upload of ${file.name}`}
                       onClick={() => controllers.current.get(file.id)?.abort()}
                     >
-                      <X size={15} aria-hidden />
+                      <XIcon size={15} aria-hidden />
                     </IconButton>
                   ) : (
                     <IconButton
@@ -420,7 +420,7 @@ function FileLibrary({
                           : choose(file.id)
                       }
                     >
-                      <RotateCw size={15} aria-hidden />
+                      <ArrowClockwiseIcon size={15} aria-hidden />
                     </IconButton>
                   ))
                 )}
@@ -447,7 +447,7 @@ function FileDownload({ name, url }: { name: string; url: string }) {
         link.click()
       }}
     >
-      <Download size={16} aria-hidden />
+      <DownloadSimpleIcon size={16} aria-hidden />
     </IconButton>
   )
 }
@@ -640,7 +640,7 @@ function FileCompareMenu({
             />
           }
         >
-          <GitCompareArrows size={16} aria-hidden />
+          <GitDiffIcon size={16} aria-hidden />
         </Tooltip.Trigger>
         <Tooltip.Portal container={container}>
           <Tooltip.Positioner
@@ -740,7 +740,7 @@ function FileActions({
             label={`View source of ${saved.name}`}
             onClick={() => onSource(saved.id)}
           >
-            <Code size={16} aria-hidden />
+            <CodeIcon size={16} aria-hidden />
           </IconButton>
         )}
       {mode === 'source' &&
@@ -752,7 +752,7 @@ function FileActions({
             label={`Preview ${saved.name}`}
             onClick={() => onPreview(saved.id)}
           >
-            <Eye size={16} aria-hidden />
+            <EyeIcon size={16} aria-hidden />
           </IconButton>
         )}
       {isTextFile(saved.mediaType) && resource.data?.text !== undefined && (

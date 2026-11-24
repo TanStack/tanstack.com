@@ -1,16 +1,16 @@
 import { LoadingState } from './ui/LoadingState'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type SubmitEvent } from 'react'
 import { Popover } from '@base-ui/react/popover'
 import { useQuery } from '@tanstack/react-query'
 import {
-  ArrowUp,
-  Check,
-  Copy,
-  Download,
-  LoaderCircle,
-  RotateCcw,
-  X,
-} from 'lucide-react'
+  ArrowCounterClockwiseIcon,
+  ArrowUpIcon,
+  CheckIcon,
+  CopyIcon,
+  DownloadSimpleIcon,
+  SpinnerGapIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import type { ConversationDestination } from '../core/conversation-destination'
 import type { RetryAttemptView } from '../core/conversation-retry'
 import {
@@ -313,7 +313,7 @@ export function RetryComposer({
     onSent,
     draft.editor,
   ])
-  async function send(event?: FormEvent) {
+  async function send(event?: SubmitEvent) {
     event?.preventDefault()
     if (
       unavailable ||
@@ -432,7 +432,7 @@ export function RetryComposer({
             }
             onClick={onDismiss}
           >
-            <X size={16} aria-hidden />
+            <XIcon size={16} aria-hidden />
           </IconButton>
         )}
       </div>
@@ -503,16 +503,16 @@ export function RetryComposer({
             }}
           >
             {copied ? (
-              <Check size={16} aria-hidden />
+              <CheckIcon size={16} aria-hidden />
             ) : (
-              <Copy size={16} aria-hidden />
+              <CopyIcon size={16} aria-hidden />
             )}
           </IconButton>
           <IconButton
             label="Download unsaved draft with file and reference identities"
             onClick={downloadDraft}
           >
-            <Download size={16} aria-hidden />
+            <DownloadSimpleIcon size={16} aria-hidden />
           </IconButton>
           {draft.error && (
             <details>
@@ -686,16 +686,16 @@ export function RetryComposer({
                   }}
                 >
                   {copied ? (
-                    <Check size={16} aria-hidden />
+                    <CheckIcon size={16} aria-hidden />
                   ) : (
-                    <Copy size={16} aria-hidden />
+                    <CopyIcon size={16} aria-hidden />
                   )}
                 </IconButton>
                 <IconButton
                   label="Download saved draft with file and reference identities"
                   onClick={downloadDraft}
                 >
-                  <Download size={16} aria-hidden />
+                  <DownloadSimpleIcon size={16} aria-hidden />
                 </IconButton>
                 <button
                   type="button"
@@ -744,15 +744,15 @@ export function RetryComposer({
                   }
                 >
                   {pending.busy ? (
-                    <LoaderCircle
+                    <SpinnerGapIcon
                       size={20}
                       className="animate-spin"
                       aria-hidden
                     />
                   ) : pending.pending ? (
-                    <RotateCcw size={20} aria-hidden />
+                    <ArrowCounterClockwiseIcon size={20} aria-hidden />
                   ) : (
-                    <ArrowUp size={20} aria-hidden />
+                    <ArrowUpIcon size={20} aria-hidden />
                   )}
                 </button>
               )

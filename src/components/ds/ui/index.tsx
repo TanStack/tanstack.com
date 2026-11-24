@@ -939,7 +939,7 @@ export function Breadcrumbs({
                   resetScroll={false}
                   hashScrollIntoView={{ behavior: 'smooth' }}
                 >
-                  <span dangerouslySetInnerHTML={{ __html: heading.text }} />
+                  <span>{heading.text}</span>
                 </Link>
               </DropdownItem>
             ))}

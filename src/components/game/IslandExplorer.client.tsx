@@ -2,6 +2,7 @@
 // Uses vanilla Three.js engine for better performance
 
 import { useState } from 'react'
+import './IslandExplorer.css'
 
 import { VanillaGameScene } from './scene/VanillaGameScene'
 import { IntroOverlay } from './ui/IntroOverlay'
@@ -64,39 +65,41 @@ export default function IslandExplorer() {
   return (
     <GameMachineProvider>
       <ProgressionSync />
-      <div className="relative w-full h-[calc(100dvh-var(--navbar-height))] bg-sky-500">
-        {/* Loading overlay */}
-        {isLoading && <LoadingOverlay />}
+      <div className="island-explorer">
+        <div className="relative w-full h-[calc(100dvh-var(--navbar-height))] bg-sky-500">
+          {/* Loading overlay */}
+          {isLoading && <LoadingOverlay />}
 
-        {/* 3D Scene */}
-        <div className="absolute inset-0">
-          <VanillaGameScene onLoadingChange={setIsLoading} />
+          {/* 3D Scene */}
+          <div className="absolute inset-0">
+            <VanillaGameScene onLoadingChange={setIsLoading} />
+          </div>
+
+          {/* Vignette overlay for depth */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, transparent 40%, rgba(0,20,40,0.3) 100%)',
+            }}
+          />
+
+          {/* UI Overlays */}
+          <IntroOverlay />
+          <UpgradeOverlay />
+          <CompleteOverlay />
+          <GameOverOverlay />
+          <WinOverlay />
+          <BadgeOverlay />
+          <GameHUD />
+          <StatsHUD />
+          <Minimap />
+          <IslandIndicator />
+          <CompassIndicator />
+          <TouchControls />
+          <Shop />
+          <DebugPanel />
         </div>
-
-        {/* Vignette overlay for depth */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, transparent 40%, rgba(0,20,40,0.3) 100%)',
-          }}
-        />
-
-        {/* UI Overlays */}
-        <IntroOverlay />
-        <UpgradeOverlay />
-        <CompleteOverlay />
-        <GameOverOverlay />
-        <WinOverlay />
-        <BadgeOverlay />
-        <GameHUD />
-        <StatsHUD />
-        <Minimap />
-        <IslandIndicator />
-        <CompassIndicator />
-        <TouchControls />
-        <Shop />
-        <DebugPanel />
       </div>
     </GameMachineProvider>
   )

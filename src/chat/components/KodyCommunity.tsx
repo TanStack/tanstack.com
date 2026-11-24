@@ -1,6 +1,12 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, ArrowUpRight, GitFork, Search, Star } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  ArrowUpRightIcon,
+  GitForkIcon,
+  MagnifyingGlassIcon,
+  StarIcon,
+} from '@phosphor-icons/react'
 import {
   kodyCommunityDetailSchema,
   kodyCommunitySearchSchema,
@@ -71,7 +77,7 @@ export function KodyCommunity({
     retry: false as const,
   })
   const detail = useQuery({ ...detailOptions(selected), enabled: !!selected })
-  function submit(event: FormEvent) {
+  function submit(event: SubmitEvent) {
     event.preventDefault()
     if (draft.trim() === query) void search.refetch()
     else setQuery(draft.trim())
@@ -80,7 +86,7 @@ export function KodyCommunity({
     return (
       <article className="package-detail-page">
         <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
-          <ArrowLeft size={15} />
+          <ArrowLeftIcon aria-hidden size={15} />
           All packages
         </Button>
         <header className="package-detail-heading">
@@ -98,7 +104,7 @@ export function KodyCommunity({
             rel="noreferrer"
           >
             Open in Kody
-            <ArrowUpRight size={16} />
+            <ArrowUpRightIcon aria-hidden size={16} />
           </a>
         </header>
         <p className="package-description">{selected.description}</p>
@@ -133,7 +139,7 @@ export function KodyCommunity({
     <div className="package-browser">
       <h2>Kody Marketplace</h2>
       <form className="package-search" onSubmit={submit}>
-        <Search size={18} aria-hidden />
+        <MagnifyingGlassIcon size={18} aria-hidden />
         <input
           aria-label="Search Kody packages"
           placeholder="Search packages, tools, and services"
@@ -204,7 +210,7 @@ export function KodyCommunity({
                   onClick={() => setCategory(group)}
                 >
                   See all {group}
-                  <ArrowUpRight size={14} />
+                  <ArrowUpRightIcon aria-hidden size={14} />
                 </Button>
               </header>
             )}
@@ -275,7 +281,7 @@ function PackageMetadata({
           <span
             aria-label={`${item.rating.toFixed(1)} out of 5, ${item.ratingCount ?? 0} ratings`}
           >
-            <Star size={13} />
+            <StarIcon aria-hidden size={13} />
             {item.rating.toFixed(1)}
             {item.ratingCount !== undefined && ` (${item.ratingCount})`}
           </span>
@@ -283,7 +289,7 @@ function PackageMetadata({
           <span>No ratings yet</span>
         )}
         <span>
-          <GitFork size={13} />
+          <GitForkIcon aria-hidden size={13} />
           {item.forkCount} {item.forkCount === 1 ? 'fork' : 'forks'}
         </span>
         {item.version && <span>v{item.version}</span>}

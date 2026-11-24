@@ -24,7 +24,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type FormEvent,
+  type SubmitEvent,
   type ReactNode,
   type RefObject,
 } from 'react'
@@ -32,14 +32,14 @@ import { useChat, type SubscribeConnectionAdapter } from '@tanstack/ai-react'
 import { Popover } from '@base-ui/react/popover'
 import { durableStreamConnection } from '@durable-streams/tanstack-ai-transport'
 import {
-  ArrowUp,
-  LoaderCircle,
-  CircleAlert,
-  Play,
-  RotateCcw,
-  Shield,
-  Square,
-} from 'lucide-react'
+  ArrowCounterClockwiseIcon,
+  ArrowUpIcon,
+  PlayIcon,
+  ShieldIcon,
+  SpinnerGapIcon,
+  SquareIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react'
 import { ApiError, useWorkspaceApi } from './WorkspaceApi'
 import type { Bootstrap, History } from './App'
 import type { ConversationDestination } from '../core/conversation-destination'
@@ -757,7 +757,7 @@ export function ConversationSession({
     !!busy,
     visible,
   )
-  async function send(e?: FormEvent, text = input) {
+  async function send(e?: SubmitEvent, text = input) {
     e?.preventDefault()
     if (readOnly || sending || !pendingSend.ready) return
     if (pendingSend.pending) {
@@ -1305,7 +1305,7 @@ export function ConversationSession({
                   <ActionCard
                     key={a.id}
                     title={a.title}
-                    icon={<Shield aria-hidden />}
+                    icon={<ShieldIcon aria-hidden />}
                   >
                     {a.workspace ? (
                       <>
@@ -1380,7 +1380,7 @@ export function ConversationSession({
                           disabled={busy || readOnly}
                           onClick={() => void approve(a, true)}
                         >
-                          <Play size={14} />
+                          <PlayIcon aria-hidden size={14} />
                           {a.workspace
                             ? a.workspace.operation.type === 'write_file'
                               ? 'Approve and write'
@@ -1538,7 +1538,7 @@ export function ConversationSession({
             error ||
             (!turns.length && (h?.error || chat.error))) && (
             <div className="error" role="alert">
-              <CircleAlert size={17} />
+              <WarningCircleIcon aria-hidden size={17} />
               {(!retryEditing && pendingSend.error) ||
                 error ||
                 (!turns.length && (h?.error || chat.error?.message))}
@@ -1813,7 +1813,7 @@ export function ConversationSession({
                         void stopResponse().catch((e) => setError(e.message))
                       }
                     >
-                      <Square size={16} />
+                      <SquareIcon aria-hidden size={16} />
                     </button>
                   )}
                   {(!busy ||
@@ -1848,15 +1848,15 @@ export function ConversationSession({
                       }
                     >
                       {sending ? (
-                        <LoaderCircle
+                        <SpinnerGapIcon
                           size={20}
                           className="animate-spin"
                           aria-hidden
                         />
                       ) : pendingSend.pending ? (
-                        <RotateCcw size={20} />
+                        <ArrowCounterClockwiseIcon aria-hidden size={20} />
                       ) : (
-                        <ArrowUp size={20} />
+                        <ArrowUpIcon aria-hidden size={20} />
                       )}
                     </button>
                   )}

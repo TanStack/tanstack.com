@@ -86,8 +86,9 @@ function PartnersSponsorsSkeleton() {
       label="Loading partners"
       className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto"
     >
-      <Skeleton className="mb-6 h-10 w-40" />
+      <Skeleton className="mb-6 h-9 w-32" />
       <PartnersGridSkeleton />
+      <Skeleton className="mx-auto mt-6 h-9 w-64" />
     </SkeletonGroup>
   )
 }

@@ -1,1 +1,1 @@
-pnpm husky
+pnpm exec lint-staged

@@ -131,6 +131,7 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
       headerImage: post.headerImage,
       socialImage: post.socialImage,
       isUnpublished,
+      unlisted: post.unlisted,
       headerVideo: post.headerVideo,
       headerVideoCaptions: post.headerVideoCaptions,
       library: post.library,

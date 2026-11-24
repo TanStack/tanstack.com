@@ -15,7 +15,7 @@ import { useToast } from './ToastProvider'
 import { CheckIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
-import { FormEvent, useMemo, useState } from 'react'
+import { SubmitEvent, useMemo, useState } from 'react'
 
 // Filter to only show libraries with proper configuration
 const selectableLibraries = libraries.filter(
@@ -122,7 +122,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
     )
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault()
 
     if (selectedLibraries.length === 0) {

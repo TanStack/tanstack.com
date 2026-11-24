@@ -116,32 +116,6 @@ export function sample(arr: any[], random = Math.random()) {
 }
 
 /**
- * Sorts an array by a computed value. Undefined values are ordered last and
- * numeric strings are coerced to numbers for intuitive sorting.
- */
-export function sortBy<T>(arr: T[], accessor: (d: T) => any = (d) => d): T[] {
-  return arr
-    .map((d: any, i: any) => [d, i])
-    .sort(([a, ai], [b, bi]) => {
-      a = accessor(a)
-      b = accessor(b)
-
-      if (typeof a === 'undefined') {
-        if (typeof b === 'undefined') {
-          return 0
-        }
-        return 1
-      }
-
-      a = isNumericString(a) ? Number(a) : a
-      b = isNumericString(b) ? Number(b) : b
-
-      return a === b ? ai - bi : a > b ? 1 : -1
-    })
-    .map((d: any) => d[0])
-}
-
-/**
  * Returns true if the string fully represents a number (no extra characters).
  */
 export function isNumericString(str: string): boolean {
@@ -200,21 +174,6 @@ export function multiSortBy<T>(
  */
 export function removeLeadingSlash(path: string): string {
   return path.replace(/^\//, '')
-}
-
-/**
- * Measures and logs the execution time of the provided function and returns
- * its result. Works with both sync and async functions.
- */
-export async function logTime<T>(
-  lable: string,
-  fn: () => T,
-): Promise<T extends Promise<infer U> ? U : T> {
-  const start = performance.now()
-  const result = await fn()
-  const end = performance.now()
-  console.log(`${lable}: ${(end - start).toLocaleString()} ms`)
-  return result as any
 }
 
 export const THEME_COLORS = {

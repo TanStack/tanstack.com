@@ -1097,7 +1097,7 @@ function WorkspaceApp({
                 className="settings-button"
                 onClick={() => setSettings('general')}
               >
-                <GearIcon size={18} />
+                <GearIcon aria-hidden size={18} />
                 <span>Settings</span>
                 <span className="user-avatar">
                   {data.user.username.slice(0, 1).toUpperCase()}
@@ -1703,7 +1703,7 @@ function SettingsDialog({
                   }}
                 >
                   <Button type="submit" variant="secondary">
-                    <SignOutIcon size={15} />
+                    <SignOutIcon aria-hidden size={15} />
                     Sign out
                   </Button>
                 </form>
@@ -2017,7 +2017,7 @@ function SettingsDialog({
             </p>
             {data.recipes.map((r) => (
               <div className="saved-action" key={r.id}>
-                <BookmarkSimpleIcon size={18} />
+                <BookmarkSimpleIcon aria-hidden size={18} />
                 <div>
                   <strong>{r.title}</strong>
                   <p>{r.description}</p>
@@ -2031,7 +2031,7 @@ function SettingsDialog({
                       .then(() => setNotice('Command copied'))
                   }
                 >
-                  <CopyIcon size={14} />
+                  <CopyIcon aria-hidden size={14} />
                   Copy command
                 </Button>
               </div>
@@ -2100,7 +2100,7 @@ function SettingsDialog({
         )}
         {notice && (
           <p className="success" role="status">
-            <CheckIcon size={15} />
+            <CheckIcon aria-hidden size={15} />
             {notice}
           </p>
         )}

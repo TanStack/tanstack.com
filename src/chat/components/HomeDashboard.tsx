@@ -780,7 +780,7 @@ export function HomeDashboard({
                           })
                         }
                       >
-                        <XIcon size={15} />
+                        <XIcon aria-hidden size={15} />
                       </button>
                     )}
                   </label>

@@ -174,7 +174,7 @@ export function SandboxBrowser({
     onAnnotationModeChange?.(active)
   }
 
-  function submitAddress(event: React.FormEvent<HTMLFormElement>) {
+  function submitAddress(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     const next = address.trim()
     if (!next) {

@@ -140,7 +140,11 @@ function CommandSearchInput({
 
 function CommandSearchResults() {
   const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+  const {
+    items: hits,
+    isLastPage,
+    showMore,
+  } = useInfiniteHits<AlgoliaHit>({
     transformItems: dedupeSearchHitsByPage,
   })
   const sentinelRef = React.useRef<HTMLDivElement>(null)

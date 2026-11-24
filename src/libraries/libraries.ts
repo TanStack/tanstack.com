@@ -711,7 +711,7 @@ export const db: LibrarySlim = {
   tagline: 'The reactive client-first store for your API',
   description:
     'TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥',
-  badge: 'beta',
+  badge: 'RC',
   repo: 'tanstack/db',
   frameworks: ['react', 'vue', 'angular', 'solid', 'svelte', 'vanilla'],
   corePackageName: '@tanstack/db',

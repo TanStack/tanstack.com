@@ -2,6 +2,8 @@
 
 This page covers the markdown features supported in TanStack docs and the preferred workflow for future redirects.
 
+For runnable examples, supported packages, configuration, and runtime limits, see the [Maintainer Sandbox Guide](./sandboxes-info.md).
+
 ## Redirects
 
 For new page moves or consolidations, keep the canonical page and list old URLs in frontmatter with `redirect_from`.

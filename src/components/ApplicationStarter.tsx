@@ -1121,7 +1121,7 @@ export function ApplicationStarter({
                             onComplete={completeHomePayoff}
                           />
                         ) : !hasInput ? (
-                          <span className="font-ds-display text-sm font-extralight text-gray-500 dark:text-[#8f8f98]">
+                          <span className="hidden font-ds-display text-sm font-extralight text-gray-500 sm:inline dark:text-[#8f8f98]">
                             Press Shift + Enter
                           </span>
                         ) : (

@@ -1,6 +1,6 @@
 import { useWorkspaceSearch } from './useWorkspaceSearch'
 import { useMobileBack } from './mobile-back'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { LoadingState } from './ui/LoadingState'
 import { motion, useReducedMotion } from 'motion/react'
 import { useUiTransition } from './ui/motion'
@@ -520,7 +520,7 @@ function RoutedConversation({
                     })
                   }
                 >
-                  <ArrowLeft size={14} aria-hidden />
+                  <ArrowLeftIcon size={14} aria-hidden />
                   <span>{entry.title}</span>
                 </button>
               ))}

@@ -2,7 +2,11 @@ import { LoadingState } from './ui/LoadingState'
 import { SelectField } from './SelectField'
 import { useId, useRef, useState } from 'react'
 import { Popover } from '@base-ui/react/popover'
-import { Check, ChevronDown, RefreshCw } from 'lucide-react'
+import {
+  ArrowsClockwiseIcon,
+  CaretDownIcon,
+  CheckIcon,
+} from '@phosphor-icons/react'
 import type { RunModelSelection } from '../core/run-model'
 import { IconButton } from './IconButton'
 import { resolveRunModelChoice, type RunModelController } from './useRunModel'
@@ -79,7 +83,7 @@ export function RunModelPicker({
           aria-describedby={error ? errorId : undefined}
         >
           <span>{label}</span>
-          <ChevronDown size={13} aria-hidden />
+          <CaretDownIcon size={13} aria-hidden />
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner
@@ -106,7 +110,7 @@ export function RunModelPicker({
                   disabled={model.refreshing}
                   onClick={() => void model.refetch()}
                 >
-                  <RefreshCw size={15} aria-hidden />
+                  <ArrowsClockwiseIcon size={15} aria-hidden />
                 </IconButton>
               </div>
               <div className="run-model-options">
@@ -151,7 +155,7 @@ export function RunModelPicker({
                               )
                             )}
                           </span>
-                          {active && <Check size={15} aria-hidden />}
+                          {active && <CheckIcon size={15} aria-hidden />}
                         </button>
                       )
                     })}

@@ -1,0 +1,88 @@
+diff --git a/dist/cjs/scroll-restoration.cjs b/dist/cjs/scroll-restoration.cjs
+index 68f9970..83afe0d 100644
+--- a/dist/cjs/scroll-restoration.cjs
++++ b/dist/cjs/scroll-restoration.cjs
+@@ -112,7 +112,10 @@ function setupScrollRestoration(router, force) {
+ 	}
+ 	if (scroll.r) return;
+ 	scroll.r = true;
++	let hasRendered = false;
+ 	router.subscribe("onRendered", (event) => {
++		const isInitialHydration = !hasRendered && event.fromLocation === event.toLocation;
++		hasRendered = true;
+ 		const behavior = router.options.scrollRestorationBehavior;
+ 		const scrollToTopSelectors = router.options.scrollToTopSelectors;
+ 		const shouldResetScroll = scroll.n;
+@@ -178,7 +181,11 @@ function setupScrollRestoration(router, force) {
+ 						left: 0,
+ 						behavior
+ 					};
+-					if (!windowRestored) scrollTo(scrollOptions);
++					if (!windowRestored) {
++						if (isInitialHydration) {
++							if (scroll.e && (scrollX !== 0 || scrollY !== 0)) trackedScrollTargets.add(document);
++						} else scrollTo(scrollOptions);
++					}
+ 					if (scrollToTopElements) for (const element of scrollToTopElements) element.scrollTo(scrollOptions);
+ 				}
+ 			}
+diff --git a/dist/esm/scroll-restoration.js b/dist/esm/scroll-restoration.js
+index 73d95a6..0659d4f 100644
+--- a/dist/esm/scroll-restoration.js
++++ b/dist/esm/scroll-restoration.js
+@@ -112,7 +112,10 @@ function setupScrollRestoration(router, force) {
+ 	}
+ 	if (scroll.r) return;
+ 	scroll.r = true;
++	let hasRendered = false;
+ 	router.subscribe("onRendered", (event) => {
++		const isInitialHydration = !hasRendered && event.fromLocation === event.toLocation;
++		hasRendered = true;
+ 		const behavior = router.options.scrollRestorationBehavior;
+ 		const scrollToTopSelectors = router.options.scrollToTopSelectors;
+ 		const shouldResetScroll = scroll.n;
+@@ -178,7 +181,11 @@ function setupScrollRestoration(router, force) {
+ 						left: 0,
+ 						behavior
+ 					};
+-					if (!windowRestored) scrollTo(scrollOptions);
++					if (!windowRestored) {
++						if (isInitialHydration) {
++							if (scroll.e && (scrollX !== 0 || scrollY !== 0)) trackedScrollTargets.add(document);
++						} else scrollTo(scrollOptions);
++					}
+ 					if (scrollToTopElements) for (const element of scrollToTopElements) element.scrollTo(scrollOptions);
+ 				}
+ 			}
+diff --git a/src/scroll-restoration.ts b/src/scroll-restoration.ts
+index 972da92..61002e5 100644
+--- a/src/scroll-restoration.ts
++++ b/src/scroll-restoration.ts
+@@ -247,7 +247,12 @@ export function setupScrollRestoration(router: AnyRouter, force?: boolean) {
+   scroll.r = true
+ 
+   // Restore destination scroll after the new route has rendered.
++  let hasRendered = false
+   router.subscribe('onRendered', (event) => {
++    // The adapters use the same location for both ends of the hydration event.
++    const isInitialHydration =
++      !hasRendered && event.fromLocation === event.toLocation
++    hasRendered = true
+     const behavior = router.options.scrollRestorationBehavior
+     const scrollToTopSelectors = router.options.scrollToTopSelectors
+     const shouldResetScroll = scroll.n
+@@ -358,7 +363,13 @@ export function setupScrollRestoration(router: AnyRouter, force?: boolean) {
+           }
+ 
+           if (!windowRestored) {
+-            scrollTo(scrollOptions)
++            if (isInitialHydration) {
++              if (scroll.e && (scrollX !== 0 || scrollY !== 0)) {
++                trackedScrollTargets.add(document)
++              }
++            } else {
++              scrollTo(scrollOptions)
++            }
+           }
+           if (scrollToTopElements) {
+             for (const element of scrollToTopElements) {

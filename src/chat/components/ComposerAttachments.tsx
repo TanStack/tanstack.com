@@ -1,5 +1,10 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { File as FileIcon, Paperclip, RotateCw, X } from 'lucide-react'
+import {
+  ArrowClockwiseIcon,
+  FileIcon,
+  PaperclipIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { IconButton } from './IconButton'
 import { SketchPad } from './SketchPad'
 import type { RunModelController } from './useRunModel'
@@ -105,7 +110,7 @@ export function ComposerAttachments({
           }
           onClick={() => choose()}
         >
-          <Paperclip size={17} aria-hidden />
+          <PaperclipIcon size={17} aria-hidden />
         </IconButton>
       )}
       {!!attachments.items.length && (
@@ -141,7 +146,7 @@ export function ComposerAttachments({
                       : attachments.retry(item.id)
                   }
                 >
-                  <RotateCw size={14} aria-hidden />
+                  <ArrowClockwiseIcon size={14} aria-hidden />
                 </IconButton>
               )}
               <IconButton
@@ -149,7 +154,7 @@ export function ComposerAttachments({
                 disabled={disabled}
                 onClick={() => attachments.remove(item.id)}
               >
-                <X size={14} aria-hidden />
+                <XIcon size={14} aria-hidden />
               </IconButton>
             </li>
           ))}

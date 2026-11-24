@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronRight } from 'lucide-react'
+import { CaretRightIcon } from '@phosphor-icons/react'
 import { kodyRunSchema } from '../core/kody-run'
 import { useWorkspaceApi } from './WorkspaceApi'
 
@@ -61,7 +61,7 @@ export function KodyRunDetails({
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary>
-        <ChevronRight size={13} aria-hidden="true" />
+        <CaretRightIcon size={13} aria-hidden="true" />
         {summary ?? 'Kody run'}
       </summary>
       <div className="kody-run-body">

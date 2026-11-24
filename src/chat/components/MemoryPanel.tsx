@@ -9,7 +9,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { z } from 'zod'
-import { MessageSquare, Pencil, Plus, Trash2 } from 'lucide-react'
+import {
+  ChatCenteredIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@phosphor-icons/react'
 import {
   memoryCommandSchema,
   memoryRecordSchema,
@@ -305,7 +310,7 @@ function MemoryContents({
             setError('')
           }}
         >
-          <Plus size={16} />
+          <PlusIcon aria-hidden size={16} />
         </IconButton>
       </div>
       <label className="memory-recall">
@@ -460,7 +465,7 @@ function MemoryContents({
                       label={`View original source for ${item.title}`}
                       onClick={() => onSourceMessage(item.sourceMessageId!)}
                     >
-                      <MessageSquare size={15} />
+                      <ChatCenteredIcon aria-hidden size={15} />
                     </IconButton>
                   )}
                   <IconButton
@@ -475,7 +480,7 @@ function MemoryContents({
                       setError('')
                     }}
                   >
-                    <Pencil size={15} />
+                    <PencilSimpleIcon aria-hidden size={15} />
                   </IconButton>
                   <IconButton
                     label={`Forget ${item.title}`}
@@ -485,7 +490,7 @@ function MemoryContents({
                       setForget(item)
                     }}
                   >
-                    <Trash2 size={15} />
+                    <TrashIcon aria-hidden size={15} />
                   </IconButton>
                 </div>
                 <p>{item.body}</p>

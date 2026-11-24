@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Boxes } from 'lucide-react'
+import { CubeFocusIcon } from '@phosphor-icons/react'
 import './package-browser.css'
 
 export function packageName(name: string) {
@@ -27,7 +27,7 @@ export function PackageIdentity({
           onError={() => setFailedUrl(iconUrl)}
         />
       ) : (
-        <Boxes size={24} strokeWidth={1.7} />
+        <CubeFocusIcon aria-hidden size={24} />
       )}
     </span>
   )

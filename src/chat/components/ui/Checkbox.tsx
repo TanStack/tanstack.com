@@ -1,5 +1,5 @@
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox'
-import { Check, Minus } from 'lucide-react'
+import { CheckIcon, MinusIcon } from '@phosphor-icons/react'
 import './checkbox.css'
 export function Checkbox({
   className,
@@ -12,9 +12,9 @@ export function Checkbox({
     >
       <BaseCheckbox.Indicator>
         {props.indeterminate ? (
-          <Minus size={12} aria-hidden />
+          <MinusIcon size={12} aria-hidden />
         ) : (
-          <Check size={12} aria-hidden />
+          <CheckIcon size={12} aria-hidden />
         )}
       </BaseCheckbox.Indicator>
     </BaseCheckbox.Root>

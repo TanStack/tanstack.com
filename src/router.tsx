@@ -4,6 +4,7 @@ import { routeTree } from './routeTree.gen'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
+import { browserProfilingIntegration } from '@sentry/browser'
 import * as Sentry from '@sentry/tanstackstart-react'
 import {
   installStaleAppReloadHandlers,
@@ -20,8 +21,11 @@ if (typeof document !== 'undefined') {
     dsn: 'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
     enabled: import.meta.env.PROD && import.meta.env.MODE !== 'staging',
     sendDefaultPii: true,
+    integrations: [browserProfilingIntegration()],
     // Performance Monitoring
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
+    profileSessionSampleRate: 1.0,
+    profileLifecycle: 'trace',
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
     beforeSend(event, hint) {
@@ -29,24 +33,6 @@ if (typeof document !== 'undefined') {
       // Only suppress the exact error that triggered a reload. Errors during
       // the reload cooldown still need reporting.
       if (consumeStaleAppRecovery(hint.originalException)) {
-        return null
-      }
-      // Filter out errors from third-party ad tech scripts (e.g. Publift's
-      // Fuse Platform ftUtils.js) that are not actionable by us.
-      const frames = event.exception?.values?.flatMap(
-        (v) => v.stacktrace?.frames ?? [],
-      )
-      if (
-        frames &&
-        frames.length > 0 &&
-        frames.every((frame) => {
-          const filename = frame.filename ?? ''
-          return (
-            filename.includes('ftUtils.js') ||
-            filename.includes('fuseplatform.net')
-          )
-        })
-      ) {
         return null
       }
       return event

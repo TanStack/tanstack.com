@@ -1,0 +1,44 @@
+{
+  "$schema": "https://unpkg.com/knip@6.32.0/schema-jsonc.json",
+  "include": ["files", "dependencies", "devDependencies"],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "content-collections.ts",
+        "src/{router.tsx,start.ts}",
+        "src/routes/**/*.{ts,tsx}",
+        "!src/routes/**/-*",
+        "src/workers/{chat,chat-recovery,og,starter}.ts",
+        "public/tanchat-sw.js",
+        "scripts/**/*.{js,mjs,ts}",
+        "{tests,harness-tests}/**/*.test.{ts,tsx}",
+      ],
+      "project": ["src/**/*.{js,jsx,ts,tsx,css}"],
+      // Analyze vite.config.ts without executing it through Knip's config loader.
+      "vite": { "config": [] },
+      // Existing findings at adoption. Delete entries as the corresponding code is cleaned up.
+      "ignoreFiles": [
+        "src/chat/preferences.functions.ts",
+        "src/mcp/oauth.server.ts",
+        "src/server/blog.ts",
+        "src/server/runtime/ejs-compat.server.ts",
+        "src/server/sponsors.ts",
+        "src/utils/cookies.server.ts",
+        "src/utils/oauth.server.ts",
+        "src/utils/oauthMcp.functions.ts",
+      ],
+      "ignoreDependencies": [
+        "@tanstack/react-start-client",
+        "@types/hast",
+        "@types/linkify-it",
+        "encoding-sniffer",
+        "gray-matter",
+        "iconv-lite",
+        "parse5-parser-stream",
+      ],
+    },
+    "desktop": {
+      "entry": ["builder.config.mjs", "preload.cjs", "*.test.mjs"],
+    },
+  },
+}

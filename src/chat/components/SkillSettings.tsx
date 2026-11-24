@@ -5,7 +5,12 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Menu } from '@base-ui/react/menu'
 import { Tooltip } from '@base-ui/react/tooltip'
-import { ArrowLeft, Download, MoreHorizontal, Upload } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  DotsThreeIcon,
+  DownloadSimpleIcon,
+  UploadSimpleIcon,
+} from '@phosphor-icons/react'
 import { z } from 'zod'
 import {
   maxSkillImportBytes,
@@ -431,7 +436,7 @@ function PrivateSkillSettings({ userId }: { userId: string }) {
                 requestAnimationFrame(() => searchField.current?.focus())
               }}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
             <strong>{externalPreview.name}</strong>
           </div>
@@ -452,7 +457,7 @@ function PrivateSkillSettings({ userId }: { userId: string }) {
                 requestAnimationFrame(() => searchField.current?.focus())
               }}
             >
-              <ArrowLeft size={16} aria-hidden />
+              <ArrowLeftIcon size={16} aria-hidden />
             </IconButton>
             <strong>
               {editor.source
@@ -467,7 +472,7 @@ function PrivateSkillSettings({ userId }: { userId: string }) {
                 disabled={disabled}
                 onClick={() => void exportSkill(editor.source!)}
               >
-                <Download size={16} aria-hidden />
+                <DownloadSimpleIcon size={16} aria-hidden />
               </IconButton>
             )}
           </div>
@@ -633,7 +638,7 @@ function PrivateSkillSettings({ userId }: { userId: string }) {
               disabled={disabled}
               onClick={() => picker.current?.click()}
             >
-              <Upload size={16} aria-hidden />
+              <UploadSimpleIcon size={16} aria-hidden />
             </IconButton>
             <input
               ref={picker}
@@ -714,7 +719,7 @@ function PrivateSkillSettings({ userId }: { userId: string }) {
                               />
                             }
                           >
-                            <MoreHorizontal size={17} aria-hidden />
+                            <DotsThreeIcon size={17} aria-hidden />
                           </Tooltip.Trigger>
                           <Tooltip.Portal container={portalContainer}>
                             <Tooltip.Positioner

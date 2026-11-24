@@ -1,0 +1,89 @@
+.viewport {
+  --toast-gap: 8px;
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10000;
+  width: 24rem;
+  height: var(--toast-frontmost-height, 0px);
+  pointer-events: none;
+  outline: none;
+}
+
+.toast {
+  --toast-y: calc(-1 * var(--toast-index) * var(--toast-gap));
+  --toast-scale: calc(1 - 0.05 * var(--toast-index));
+  position: absolute;
+  bottom: 0;
+  z-index: calc(3 - var(--toast-index));
+  width: 100%;
+  height: var(--toast-frontmost-height, auto);
+  overflow-wrap: anywhere;
+  pointer-events: auto;
+  touch-action: pan-y;
+  transform: translateY(var(--toast-y)) scale(var(--toast-scale));
+  transform-origin: bottom center;
+  transition:
+    transform 250ms,
+    opacity 250ms,
+    height 250ms;
+}
+
+.toast[data-expanded] {
+  --toast-y: calc(
+    -1 * (var(--toast-offset-y) + var(--toast-index) * var(--toast-gap))
+  );
+  --toast-scale: 1;
+  height: var(--toast-height, auto);
+}
+
+/* Keep hover active as the pointer crosses the gap between expanded toasts. */
+.toast[data-expanded]::after {
+  position: absolute;
+  right: 0;
+  bottom: calc(-1 * var(--toast-gap) - 1px);
+  left: 0;
+  height: calc(var(--toast-gap) + 1px);
+  content: '';
+}
+
+.toast[data-swiping] {
+  transition: none;
+}
+
+.toast[data-starting-style],
+.toast[data-ending-style] {
+  opacity: 0;
+  transform: translateY(calc(var(--toast-y) + 100%)) scale(var(--toast-scale));
+}
+
+.toast[data-ending-style][data-swipe-direction='right'] {
+  transform: translate(
+    calc(var(--toast-swipe-movement-x) + 100%),
+    var(--toast-y)
+  );
+}
+
+.toast[data-limited] {
+  visibility: hidden;
+}
+
+.toast[data-ending-style] {
+  pointer-events: none;
+}
+
+.content[data-behind]:not([data-expanded]) {
+  opacity: 0;
+}
+
+@media (max-width: 600px) {
+  .viewport {
+    width: calc(100% - 2rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: none;
+  }
+}

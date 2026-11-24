@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { File as FileIcon } from 'lucide-react'
+import { FileIcon } from '@phosphor-icons/react'
 import type { MessageAttachment } from '../core/message-attachments'
 import { defaultWorkspaceSearch } from '../core/navigation'
 import { useWorkspaceApi } from './WorkspaceApi'

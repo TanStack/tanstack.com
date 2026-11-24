@@ -10,7 +10,7 @@ export function set3DObjectClicked() {
   }, 100)
 }
 
-// Pointer state - shared with useBoatControls via module scope
+// Pointer state read by the boat control system.
 let pointerActive = false
 let pointerX = 0
 let pointerY = 0

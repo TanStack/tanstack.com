@@ -1,7 +1,7 @@
 import { Button } from './ui/Button'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { CornerDownRight, Square } from 'lucide-react'
+import { ArrowElbowDownRightIcon, SquareIcon } from '@phosphor-icons/react'
 import {
   delegatedTaskLabel,
   type DelegatedTasksSnapshot,
@@ -143,7 +143,7 @@ export function DelegatedTasks({
                     })
                   }
                 >
-                  <CornerDownRight size={14} aria-hidden />
+                  <ArrowElbowDownRightIcon size={14} aria-hidden />
                   <span title={task.objective}>{task.objective}</span>
                 </button>
               ) : (
@@ -162,7 +162,7 @@ export function DelegatedTasks({
                   disabled={stopping.includes(task.id)}
                   onClick={() => void stop(task.id)}
                 >
-                  <Square size={14} aria-hidden />
+                  <SquareIcon size={14} aria-hidden />
                 </IconButton>
               )}
             </li>

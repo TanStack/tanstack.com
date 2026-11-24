@@ -29,11 +29,6 @@ import { workerIsolation } from './scripts/worker-isolation-vite'
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
 const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
-const shouldUseSentryPlugin =
-  process.env.NODE_ENV === 'production' &&
-  Boolean(process.env.SENTRY_AUTH_TOKEN)
-const shouldBuildSourcemaps =
-  shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 const SITE_URL = process.env.STAGING_SITE_URL || 'https://tanstack.com'
 const localDocsDevToken = isDev ? randomUUID() : ''
 
@@ -172,7 +167,6 @@ const serverBundledClientPackages = [
   '@tanstack/react-pacer',
   '@tanstack/react-table',
   'zustand',
-  /^@fingerprintjs\//,
 ]
 
 const routerSsrPackages = [
@@ -218,6 +212,19 @@ function chatBuildId() {
 
 export default defineConfig(async ({ command, mode }) => {
   const localEnv = { ...loadEnv(mode, __dirname, ''), ...process.env }
+  const isProductionBuild = command === 'build' && mode === 'production'
+  const cloudflareBranch = process.env.WORKERS_CI_BRANCH
+  const sentryAuthToken =
+    isProductionBuild && (!cloudflareBranch || cloudflareBranch === 'main')
+      ? localEnv.SENTRY_AUTH_TOKEN
+      : undefined
+  const shouldBuildSourcemaps =
+    Boolean(sentryAuthToken) || localEnv.BUILD_SOURCEMAPS === 'true'
+  if (isProductionBuild && cloudflareBranch === 'main' && !sentryAuthToken) {
+    console.warn(
+      '[Sentry] Source map upload skipped. Set SENTRY_AUTH_TOKEN in Cloudflare Workers Builds.',
+    )
+  }
   const useRemoteAi = Boolean(localEnv.CLOUDFLARE_API_TOKEN)
   const egress = command === 'serve' ? await startLocalMcpEgress() : undefined
   const config: UserConfig = {
@@ -265,6 +272,9 @@ export default defineConfig(async ({ command, mode }) => {
         : undefined,
     },
     environments: {
+      client: {
+        build: { sourcemap: shouldBuildSourcemaps ? 'hidden' : false },
+      },
       ssr: {
         optimizeDeps: {
           // Resolve SSR dependencies through Redact instead of a separate prebundle.
@@ -294,7 +304,6 @@ export default defineConfig(async ({ command, mode }) => {
         'postgres',
         // CTA packages use execa which has a broken unicorn-magic dependency
         '@tanstack/create',
-        'discord-interactions',
         // Don't pre-bundle CLI so we always get fresh changes during dev
         ...(isDev ? ['@tanstack/cli'] : []),
       ],
@@ -500,7 +509,6 @@ export default defineConfig(async ({ command, mode }) => {
               '@tanstack/react-start/server',
               'uploadthing/server',
               /^@modelcontextprotocol\/sdk\/server\//,
-              'discord-interactions',
             ],
           },
         },
@@ -521,16 +529,6 @@ export default defineConfig(async ({ command, mode }) => {
       viteReact(),
       chatIsolation(),
       workerIsolation(),
-
-      ...(shouldUseSentryPlugin
-        ? [
-            sentryTanstackStart({
-              authToken: process.env.SENTRY_AUTH_TOKEN,
-              org: 'tanstack',
-              project: 'tanstack-com',
-            }),
-          ]
-        : []),
       contentCollections(),
       tailwindcss(),
       ...(process.env.ANALYZE
@@ -541,6 +539,14 @@ export default defineConfig(async ({ command, mode }) => {
               defaultSizes: 'stat',
             }),
           ]
+        : []),
+      ...(sentryAuthToken
+        ? sentryTanstackStart({
+            authToken: sentryAuthToken,
+            org: 'tanstack',
+            project: 'tanstack-com',
+            autoInstrumentMiddleware: false,
+          })
         : []),
     ],
   }

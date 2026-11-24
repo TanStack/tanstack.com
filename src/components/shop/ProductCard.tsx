@@ -136,6 +136,11 @@ export function ProductCard({
                 }
               />
             ))}
+            {swatches.length > 0 ? (
+              <span className="sr-only">
+                Colors: {swatches.map((s) => s.name).join(', ')}
+              </span>
+            ) : null}
           </div>
 
           {/* Quick View — hover only */}

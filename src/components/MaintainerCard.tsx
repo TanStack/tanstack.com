@@ -161,7 +161,7 @@ const MaintainerSocialIcons: Record<
   ),
   website: (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="2 2 20 20"
       className="w-5 h-5"
       fill="currentColor"
       aria-hidden="true"
@@ -191,7 +191,7 @@ function MaintainerSocialLinks({
   const socialEntries =
     variant === 'card'
       ? [
-          ...Object.entries(maintainer.social || {}).slice(0, 2),
+          ...Object.entries(maintainer.social || {}),
           ['github', `https://github.com/${maintainer.github}`],
         ]
       : Object.entries({
@@ -224,7 +224,7 @@ function MaintainerSocialLinks({
     <div
       className={
         variant === 'card'
-          ? 'flex flex-wrap items-center justify-center gap-4 sm:gap-6'
+          ? 'flex flex-wrap items-center justify-center gap-2'
           : 'flex flex-wrap items-center gap-x-2 gap-y-2 pt-1 text-gray-400 sm:gap-x-4 dark:text-gray-500'
       }
     >

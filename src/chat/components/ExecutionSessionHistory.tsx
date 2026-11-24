@@ -2,7 +2,7 @@ import { LoadingState } from './ui/LoadingState'
 import { SelectField } from './SelectField'
 import { useId, useMemo, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { RotateCw } from 'lucide-react'
+import { ArrowClockwiseIcon } from '@phosphor-icons/react'
 import {
   createExecutionHttp,
   ExecutionHttpError,
@@ -125,7 +125,7 @@ export function ExecutionSessionHistory({
             if (sessionId) void record.refetch()
           }}
         >
-          <RotateCw size={15} />
+          <ArrowClockwiseIcon aria-hidden size={15} />
         </IconButton>
       </div>
       {list.isError && (

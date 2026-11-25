@@ -6,7 +6,6 @@ export interface Maintainer {
   avatar: string
   github: string
   location?: {
-    name: string
     latitude: number
     longitude: number
   }
@@ -59,7 +58,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/tannerlinsley.png',
     github: 'tannerlinsley',
     location: {
-      name: 'Syracuse, Utah, US',
       latitude: 41.045,
       longitude: -112.094,
     },
@@ -96,7 +94,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/tkdodo.png',
     github: 'tkdodo',
     location: {
-      name: 'Vienna, Austria',
       latitude: 48.2082,
       longitude: 16.3738,
     },
@@ -115,7 +112,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/crutchcorn.png',
     github: 'crutchcorn',
     location: {
-      name: 'Sacramento, California, US',
       latitude: 38.5816,
       longitude: -121.4944,
     },
@@ -135,7 +131,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/schiller-manuel.png',
     github: 'schiller-manuel',
     location: {
-      name: 'Munich, Germany',
       latitude: 48.137154,
       longitude: 11.576124,
     },
@@ -153,7 +148,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/AlemTuzlak.png',
     github: 'AlemTuzlak',
     location: {
-      name: 'Sarajevo, Bosnia and Herzegovina',
       latitude: 43.84864,
       longitude: 18.35644,
     },
@@ -174,7 +168,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/kevinvandy.png',
     github: 'kevinvandy',
     location: {
-      name: 'Lincoln, Nebraska, US',
       latitude: 40.739,
       longitude: -96.682,
     },
@@ -198,7 +191,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/jherr.png',
     github: 'jherr',
     location: {
-      name: 'Happy Valley, Oregon, US',
       latitude: 45.4462,
       longitude: -122.53,
     },
@@ -213,7 +205,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/KyleAMathews.png',
     github: 'KyleAMathews',
     location: {
-      name: 'Salt Lake City, Utah, US',
       latitude: 40.78,
       longitude: -111.911,
     },
@@ -227,7 +218,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/seancassiere.png',
     github: 'seancassiere',
     location: {
-      name: 'Wellington, New Zealand',
       latitude: -41.2866,
       longitude: 174.7756,
     },
@@ -245,7 +235,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/birkskyum.png',
     github: 'birkskyum',
     location: {
-      name: 'Zürich, Switzerland',
       latitude: 47.3769,
       longitude: 8.5417,
     },
@@ -263,7 +252,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/sheraff.png',
     github: 'sheraff',
     location: {
-      name: 'Paris, France',
       latitude: 48.8566,
       longitude: 2.3522,
     },
@@ -281,7 +269,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/beaussan.png',
     github: 'beaussan',
     location: {
-      name: 'Lille, France',
       latitude: 50.62925,
       longitude: 3.057256,
     },
@@ -301,7 +288,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/chorobin.png',
     github: 'chorobin',
     location: {
-      name: 'Czech Republic',
       latitude: 50.0755,
       longitude: 14.4378,
     },
@@ -319,7 +305,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/piecyk.png',
     github: 'piecyk',
     location: {
-      name: 'Rzeszów, Poland',
       latitude: 50.0412,
       longitude: 21.9991,
     },
@@ -333,7 +318,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/samwillis.png',
     github: 'samwillis',
     location: {
-      name: 'Stamford, UK',
       latitude: 52.6538,
       longitude: -0.48,
     },
@@ -346,7 +330,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/sukvvon.png',
     github: 'sukvvon',
     location: {
-      name: 'Seoul, Republic of Korea',
       latitude: 37.5665,
       longitude: 126.978,
     },
@@ -364,7 +347,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/theVedanta.png',
     github: 'theVedanta',
     location: {
-      name: 'Tuscaloosa, Alabama, US',
       latitude: 33.2098,
       longitude: -87.5692,
     },
@@ -382,7 +364,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/Balastrong.png',
     github: 'Balastrong',
     location: {
-      name: 'Italy',
       latitude: 41.9028,
       longitude: 12.4964,
     },
@@ -400,7 +381,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/ephem.png',
     github: 'ephem',
     location: {
-      name: 'Stockholm, Sweden',
       latitude: 59.3293,
       longitude: 18.0686,
     },
@@ -418,7 +398,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/aadito123.png',
     github: 'aadito123',
     location: {
-      name: 'Hong Kong',
       latitude: 22.3193,
       longitude: 114.1694,
     },
@@ -433,7 +412,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/harry-whorlow.png',
     github: 'harry-whorlow',
     location: {
-      name: 'Berlin, Germany',
       latitude: 52.52,
       longitude: 13.4049,
     },
@@ -449,7 +427,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/LeCarbonator.png',
     github: 'LeCarbonator',
     location: {
-      name: 'Sargans, Switzerland',
       latitude: 47.047444,
       longitude: 9.439917,
     },
@@ -461,7 +438,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/manudeli.png',
     github: 'manudeli',
     location: {
-      name: 'Seoul, Republic of Korea',
       latitude: 37.5665,
       longitude: 126.978,
     },
@@ -480,7 +456,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
     location: {
-      name: 'Vancouver, Canada',
       latitude: 49.2827,
       longitude: -123.1207,
     },
@@ -515,7 +490,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/lachlancollins.png',
     github: 'lachlancollins',
     location: {
-      name: 'Australia',
       latitude: -35.2809,
       longitude: 149.13,
     },
@@ -538,7 +512,6 @@ export const allMaintainers: Maintainer[] = [
       'https://cdn.bsky.app/img/avatar/plain/did:plc:gtnigsmgu7jyrc4tnkvn62qw/bafkreiceysbj4o6jrbbniudtwj3tcsns6rvwcxyjsqiaumeojurwbkki5a@jpeg',
     github: 'riccardoperra',
     location: {
-      name: 'Italy',
       latitude: 41.9028,
       longitude: 12.4964,
     },
@@ -557,7 +530,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/benjavicente.png',
     github: 'benjavicente',
     location: {
-      name: 'Chile',
       latitude: -33.4489,
       longitude: -70.6693,
     },
@@ -576,7 +548,6 @@ export const allMaintainers: Maintainer[] = [
     name: 'Tom Beckenham',
     github: 'tombeckenham',
     location: {
-      name: 'Sydney, Australia',
       latitude: -33.8688,
       longitude: 151.2093,
     },
@@ -592,7 +563,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/brenelz.png',
     github: 'brenelz',
     location: {
-      name: 'Winnipeg, Manitoba, Canada',
       latitude: 49.8951,
       longitude: -97.1384,
     },
@@ -610,7 +580,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/brhx.png',
     github: 'brhx',
     location: {
-      name: 'Leeds, UK',
       latitude: 53.8008,
       longitude: -1.5491,
     },
@@ -628,7 +597,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/arnoud-dv.png',
     github: 'arnoud-dv',
     location: {
-      name: 'Utrecht, Netherlands',
       latitude: 52.0907,
       longitude: 5.1214,
     },
@@ -664,7 +632,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/ardeora.png',
     github: 'ardeora',
     location: {
-      name: 'Bloomington, Indiana, US',
       latitude: 39.1653,
       longitude: -86.5264,
     },
@@ -683,7 +650,6 @@ export const allMaintainers: Maintainer[] = [
     frameworkExpertise: ['svelte', 'solid', 'vue'],
     github: 'Mokshit06',
     location: {
-      name: 'San Francisco, California, US',
       latitude: 37.7749,
       longitude: -122.4194,
     },
@@ -696,7 +662,6 @@ export const allMaintainers: Maintainer[] = [
     name: 'Walker Lockard',
     github: 'walker-tx',
     location: {
-      name: 'Fort Worth, Texas, US',
       latitude: 32.7555,
       longitude: -97.3308,
     },
@@ -721,7 +686,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/DamianOsipiuk.png',
     github: 'DamianOsipiuk',
     location: {
-      name: 'Warsaw, Poland',
       latitude: 52.2297,
       longitude: 21.0122,
     },
@@ -742,7 +706,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/kevin-dp.png',
     github: 'kevin-dp',
     location: {
-      name: 'Brussels, Belgium',
       latitude: 50.8503,
       longitude: 4.3517,
     },
@@ -755,7 +718,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/shrutikapoor08.png',
     github: 'shrutikapoor08',
     location: {
-      name: 'Seattle, Washington, US',
       latitude: 47.6062,
       longitude: -122.3321,
     },
@@ -773,7 +735,6 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/nlynzaad.png',
     github: 'nlynzaad',
     location: {
-      name: 'South Africa',
       latitude: -25.7479,
       longitude: 28.2293,
     },
@@ -791,7 +752,6 @@ export const allMaintainers: Maintainer[] = [
       'https://i8qrvymqoy.ufs.sh/f/5bi1XUVQkRmSSCXecObVfEJ4jbILkeMFwiotspxWBCUX32qG',
     github: 'DogPawHat',
     location: {
-      name: 'Dublin, Ireland',
       latitude: 53.35014,
       longitude: -6.266155,
     },

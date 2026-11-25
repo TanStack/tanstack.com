@@ -1061,10 +1061,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
           ) &&
           (event.type !== 'wheel' || event.ctrlKey || event.metaKey),
       )
-      .on('start', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
+      .on('start', () => {
+        // Gestures only hold the rotation until they end, like hovering a profile.
         interacting.current = true
-        // Presses and drags only hold the rotation until release, like hovering a profile.
-        if (event.sourceEvent instanceof WheelEvent) pauseRotation()
       })
       .on('zoom', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         const next = event.transform
@@ -1099,7 +1098,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     return () => {
       selection.on('.zoom', null)
     }
-  }, [host, behavior, invalidate, pauseRotation])
+  }, [host, behavior, invalidate])
 
   function profileTriggerProps(
     groupId: string,

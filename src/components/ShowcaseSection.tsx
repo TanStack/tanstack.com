@@ -1,12 +1,7 @@
 import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import {
-  getFeaturedShowcasesQueryOptions,
-  getShowcasesByLibraryQueryOptions,
-  getMyShowcaseVotesQueryOptions,
-} from '~/queries/showcases'
-import { voteShowcase } from '~/utils/showcase.functions'
+import { showcasesMutations, showcasesQueries } from '~/queries/showcases'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { Button } from '~/ui'
 import { ArrowRightIcon, PlusIcon } from '@phosphor-icons/react'
@@ -69,8 +64,8 @@ export function ShowcaseSection({
   const { openLoginModal } = useLoginModal()
 
   const queryOptions = libraryId
-    ? getShowcasesByLibraryQueryOptions({ libraryId, limit })
-    : getFeaturedShowcasesQueryOptions({ limit })
+    ? showcasesQueries.byLibrary({ libraryId, limit })
+    : showcasesQueries.featured({ limit })
 
   const { data, isLoading } = useQuery(queryOptions)
 
@@ -86,7 +81,7 @@ export function ShowcaseSection({
   )
 
   const { data: votesData } = useQuery({
-    ...getMyShowcaseVotesQueryOptions(showcaseIds),
+    ...showcasesQueries.myVotes(showcaseIds),
     enabled: !!currentUser && showcaseIds.length > 0,
   })
 
@@ -101,19 +96,18 @@ export function ShowcaseSection({
   }, [votesData])
 
   const voteMutation = useMutation({
-    mutationFn: (params: { showcaseId: string; value: 1 | -1 }) =>
-      voteShowcase({ data: params }),
+    ...showcasesMutations.vote(),
     onMutate: async ({ showcaseId, value }) => {
-      await queryClient.cancelQueries({ queryKey: ['showcases'] })
+      await queryClient.cancelQueries({ queryKey: showcasesQueries.all() })
 
       const previousShowcases = queryClient.getQueryData(queryOptions.queryKey)
       const previousVotes = queryClient.getQueryData(
-        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+        showcasesQueries.myVotes(showcaseIds).queryKey,
       )
 
       // Optimistically update votes
       queryClient.setQueryData(
-        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+        showcasesQueries.myVotes(showcaseIds).queryKey,
         (old: typeof votesData) => {
           if (!old) return { votes: [{ showcaseId, value }] }
           const existingVote = old.votes.find(
@@ -173,13 +167,13 @@ export function ShowcaseSection({
       }
       if (context?.previousVotes) {
         queryClient.setQueryData(
-          getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+          showcasesQueries.myVotes(showcaseIds).queryKey,
           context.previousVotes,
         )
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
   })
 

@@ -2,11 +2,7 @@ import * as React from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import { seo } from '~/utils/seo'
-import {
-  intentPackageDetailQueryOptions,
-  intentVersionSkillsQueryOptions,
-  intentSingleSkillHistoryQueryOptions,
-} from '~/queries/intent'
+import { intentQueries } from '~/queries/intent'
 import {
   getIntentSkillPage,
   type SkillVersionEntry,
@@ -54,13 +50,13 @@ export const Route = createFileRoute(
   loader: async ({ params, deps, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
     const detail = await queryClient.ensureQueryData(
-      intentPackageDetailQueryOptions(name),
+      intentQueries.packageDetail(name),
     )
     const latestVersion = detail?.versions[0]?.version ?? ''
     const activeVersion = deps.version ?? latestVersion
     if (activeVersion) {
       await queryClient.ensureQueryData(
-        intentVersionSkillsQueryOptions({
+        intentQueries.versionSkills({
           packageName: name,
           version: activeVersion,
         }),
@@ -112,7 +108,7 @@ function SkillDetailPage() {
   )
 
   const skillsQuery = useSuspenseQuery(
-    intentVersionSkillsQueryOptions({
+    intentQueries.versionSkills({
       packageName: pkgName,
       version: activeVersion,
     }),
@@ -276,7 +272,7 @@ function SkillVersionHistory({
   readonly activeVersion: string
 }) {
   const historyQuery = useQuery(
-    intentSingleSkillHistoryQueryOptions({ packageName, skillName }),
+    intentQueries.singleSkillHistory({ packageName, skillName }),
   )
   const entries = historyQuery.data
 

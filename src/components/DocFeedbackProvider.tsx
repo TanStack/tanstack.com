@@ -4,8 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { DocFeedbackNote } from './DocFeedbackNote'
 import { DocFeedbackFloatingButton } from './DocFeedbackFloatingButton'
-import { getDocFeedbackForPageQueryOptions } from '~/queries/docFeedback'
-import { createDocFeedback } from '~/utils/docFeedback.functions'
+import { docFeedbackMutations, docFeedbackQueries } from '~/queries/docFeedback'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import {
@@ -58,7 +57,7 @@ export function DocFeedbackProvider({
 
   // Fetch feedback for this page
   const { data: feedbackData } = useQuery(
-    getDocFeedbackForPageQueryOptions({
+    docFeedbackQueries.page({
       pagePath,
       libraryVersion,
     }),
@@ -602,14 +601,14 @@ function CreatingFeedbackNote({
       }
 
   const createMutation = useMutation({
-    mutationFn: createDocFeedback,
+    ...docFeedbackMutations.create(),
     onMutate: async (variables) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
+      await queryClient.cancelQueries({ queryKey: docFeedbackQueries.all() })
 
       // Snapshot the previous value
       const previousData = queryClient.getQueriesData({
-        queryKey: ['docFeedback'],
+        queryKey: docFeedbackQueries.all(),
       })
 
       // Create a temporary optimistic note
@@ -640,7 +639,7 @@ function CreatingFeedbackNote({
         userFeedback: DocFeedback[]
         detachedFeedback: any[]
         isModerator: boolean
-      }>({ queryKey: ['docFeedback'] }, (old) => {
+      }>({ queryKey: docFeedbackQueries.all() }, (old) => {
         if (!old) return old
         return {
           ...old,
@@ -664,7 +663,7 @@ function CreatingFeedbackNote({
       setIsSaving(false)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['docFeedback'] })
+      queryClient.invalidateQueries({ queryKey: docFeedbackQueries.all() })
     },
   })
 

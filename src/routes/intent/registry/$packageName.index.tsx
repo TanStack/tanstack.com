@@ -1,11 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
-import {
-  intentPackageDetailQueryOptions,
-  intentVersionSkillsQueryOptions,
-  intentPackageChangelogQueryOptions,
-} from '~/queries/intent'
+import { intentQueries } from '~/queries/intent'
 import type { ChangelogEntry } from '~/utils/intent.functions'
 import { Panel, PanelContent } from '~/components/Panel'
 const LazySkillDiffViewer = React.lazy(() =>
@@ -26,13 +22,13 @@ export const Route = createFileRoute('/intent/registry/$packageName/')({
   loader: async ({ params, deps, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
     const detail = queryClient.getQueryData(
-      intentPackageDetailQueryOptions(name).queryKey,
+      intentQueries.packageDetail(name).queryKey,
     )
     const latestVersion = detail?.versions[0]?.version ?? ''
     const activeVersion = deps.version ?? latestVersion
     if (activeVersion) {
       await queryClient.ensureQueryData(
-        intentVersionSkillsQueryOptions({
+        intentQueries.versionSkills({
           packageName: name,
           version: activeVersion,
         }),
@@ -68,14 +64,14 @@ function PackageIndexPage() {
   )
 
   const skillsQuery = useSuspenseQuery(
-    intentVersionSkillsQueryOptions({
+    intentQueries.versionSkills({
       packageName: pkgName,
       version: activeVersion,
     }),
   )
   const skills = skillsQuery.data?.skills ?? []
 
-  const changelogQuery = useQuery(intentPackageChangelogQueryOptions(pkgName))
+  const changelogQuery = useQuery(intentQueries.packageChangelog(pkgName))
 
   const expandedSkillSet = React.useMemo(
     () => new Set(urlExpandedSkills ?? []),

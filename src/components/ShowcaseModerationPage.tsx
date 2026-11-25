@@ -1,12 +1,7 @@
 import * as React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
-import {
-  setShowcaseFeatured,
-  adminDeleteShowcase,
-  voteShowcase,
-} from '~/utils/showcase.functions'
+import { showcasesMutations, showcasesQueries } from '~/queries/showcases'
 import { ShowcaseModerationTopBar } from './ShowcaseModerationTopBar'
 import { ShowcaseModerationList } from './ShowcaseModerationList'
 import { useToast } from '~/components/ToastProvider'
@@ -19,7 +14,7 @@ export function ShowcaseModerationPage() {
   const { notify } = useToast()
 
   const { data, isLoading, error } = useQuery(
-    listShowcasesForModerationQueryOptions({
+    showcasesQueries.moderation({
       pagination: {
         page: search.page,
         pageSize: search.pageSize,
@@ -34,7 +29,7 @@ export function ShowcaseModerationPage() {
   )
 
   const featuredMutation = useMutation({
-    mutationFn: setShowcaseFeatured,
+    ...showcasesMutations.setFeatured(),
     onSuccess: (_, variables) => {
       notify(
         <div>
@@ -45,7 +40,7 @@ export function ShowcaseModerationPage() {
           </div>
         </div>,
       )
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
     onError: (error: Error) => {
       notify(
@@ -60,14 +55,14 @@ export function ShowcaseModerationPage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: adminDeleteShowcase,
+    ...showcasesMutations.adminDelete(),
     onSuccess: () => {
       notify(
         <div>
           <div className="font-medium">Showcase deleted</div>
         </div>,
       )
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
     onError: (error: Error) => {
       notify(
@@ -82,9 +77,9 @@ export function ShowcaseModerationPage() {
   })
 
   const voteMutation = useMutation({
-    mutationFn: voteShowcase,
+    ...showcasesMutations.vote(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
   })
 
@@ -130,9 +125,7 @@ export function ShowcaseModerationPage() {
   }
 
   const handleVote = (showcaseId: string, value: 1 | -1) => {
-    voteMutation.mutate({
-      data: { showcaseId, value },
-    })
+    voteMutation.mutate({ showcaseId, value })
   }
 
   return (

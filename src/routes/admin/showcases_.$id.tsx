@@ -10,6 +10,7 @@ import {
   voteShowcase,
 } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
+import { showcasesQueries } from '~/queries/showcases'
 import { USE_CASE_LABELS, PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import {
   ArrowLeftIcon,
@@ -77,7 +78,7 @@ function ShowcaseDetailPage() {
       adminUpdateShowcase({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
       setIsEditing(false)
       setFormData(null)
     },
@@ -86,7 +87,7 @@ function ShowcaseDetailPage() {
   const deleteMutation = useMutation({
     mutationFn: () => adminDeleteShowcase({ data: { showcaseId: id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
       navigate({ to: '/admin/showcases' })
     },
   })
@@ -96,7 +97,7 @@ function ShowcaseDetailPage() {
       voteShowcase({ data: { showcaseId: id, value: params.value } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
   })
 

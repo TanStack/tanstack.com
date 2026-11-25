@@ -24,7 +24,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '~/components/ds/ui'
 import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
-import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
+import { statsQueries } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
@@ -33,9 +33,9 @@ import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
-    const npmStatsQuery = homepageNpmStatsSummaryQuery()
+    const npmStatsQuery = statsQueries.homepageNpmSummary()
     const [stats, npmSummary, recentPosts] = await Promise.all([
-      queryClient.ensureQueryData(ossStatsQuery()),
+      queryClient.ensureQueryData(statsQueries.ossSummary()),
       queryClient.ensureQueryData(npmStatsQuery),
       fetchRecentPosts(),
     ])
@@ -683,9 +683,9 @@ function PrincipleProof({
 function AdoptionProof() {
   const { initialStats } = Route.useLoaderData()
   const { data: summary, dataUpdatedAt } = useQuery(
-    homepageNpmStatsSummaryQuery(),
+    statsQueries.homepageNpmSummary(),
   )
-  const { data: stats } = useQuery(ossStatsQuery())
+  const { data: stats } = useQuery(statsQueries.ossSummary())
 
   const totalDownloads =
     summary?.totalDownloads ?? initialStats.totalDownloads ?? 0

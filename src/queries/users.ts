@@ -18,9 +18,11 @@ export interface ListUsersFilters {
   sortDir?: 'asc' | 'desc'
 }
 
-export const listUsersQueryOptions = (filters: ListUsersFilters) =>
-  queryOptions({
-    queryKey: ['admin', 'users', filters],
-    queryFn: () => listUsers({ data: filters }),
-    staleTime: 0,
-  })
+export const usersQueries = {
+  list: (filters: ListUsersFilters) =>
+    queryOptions({
+      queryKey: ['admin', 'users', filters],
+      queryFn: () => listUsers({ data: filters }),
+      staleTime: 0,
+    }),
+}

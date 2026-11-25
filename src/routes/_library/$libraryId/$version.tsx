@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { findLibrary } from '~/libraries'
-import { docsConfigQueryOptions } from '~/queries/docsConfig'
+import { docsConfigQueries } from '~/queries/docsConfig'
 import { validateLibraryVersion } from '../../-library-landing'
 
 export const Route = createFileRoute('/_library/$libraryId/$version')({
@@ -49,7 +49,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version')({
 
     return {
       config: await ctx.context.queryClient.ensureQueryData(
-        docsConfigQueryOptions(library.id, version!),
+        docsConfigQueries.detail(library.id, version!),
       ),
     }
   },

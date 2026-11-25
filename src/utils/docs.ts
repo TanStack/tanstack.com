@@ -1,6 +1,6 @@
 import { isNotFound, notFound } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
-import { docsPathManifestQueryOptions } from '~/queries/docsManifest'
+import { docsManifestQueries } from '~/queries/docsManifest'
 import {
   fetchDocs,
   fetchDocsManifest,
@@ -104,7 +104,7 @@ export async function resolveDocsRoutePath(opts: {
     docsRoot: opts.docsRoot,
   }
   const manifest = opts.queryClient
-    ? await opts.queryClient.fetchQuery(docsPathManifestQueryOptions(request))
+    ? await opts.queryClient.fetchQuery(docsManifestQueries.paths(request))
     : await fetchDocsPathManifest({ data: request })
 
   if (manifest.paths.length === 0) {
@@ -256,7 +256,7 @@ async function findLatestDocsPath(
       docsRoot: opts.docsRoot,
     }
     const manifest = opts.queryClient
-      ? await opts.queryClient.fetchQuery(docsPathManifestQueryOptions(request))
+      ? await opts.queryClient.fetchQuery(docsManifestQueries.paths(request))
       : await fetchDocsPathManifest({ data: request })
 
     return docsManifestHasPath(manifest, docsPath) ? docsPath : null

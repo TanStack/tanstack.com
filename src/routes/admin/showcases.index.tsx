@@ -2,7 +2,7 @@ import { redirect, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseModerationPage } from '~/components/ShowcaseModerationPage'
-import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
+import { showcasesQueries } from '~/queries/showcases'
 import { requireCapability } from '~/utils/auth.functions'
 import {
   libraryIdSchema,
@@ -44,7 +44,7 @@ export const Route = createFileRoute('/admin/showcases/')({
   }),
   loader: async ({ deps, context: { queryClient } }) => {
     await queryClient.ensureQueryData(
-      listShowcasesForModerationQueryOptions({
+      showcasesQueries.moderation({
         pagination: {
           page: deps.page,
           pageSize: deps.pageSize,

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { DownloadIcon, ArrowsClockwiseIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { NpmIcon } from '~/components/icons/NpmIcon'
-import { homepageNpmStatsSummaryQuery } from '~/queries/stats'
+import { statsQueries } from '~/queries/stats'
 import { Button } from '~/ui'
 import { refreshAllNpmStats } from '~/utils/stats-admin.functions'
 import { formatDistanceToNow } from '~/utils/dates'
@@ -15,16 +15,16 @@ export const Route = createFileRoute('/admin/npm-stats')({
 function NpmStatsAdmin() {
   const queryClient = useQueryClient()
   const { data: homepageSummary, isLoading: homepageSummaryLoading } = useQuery(
-    homepageNpmStatsSummaryQuery(),
+    statsQueries.homepageNpmSummary(),
   )
 
   const refreshSummaryMutation = useMutation({
     mutationFn: () => refreshAllNpmStats({ data: { org: 'tanstack' } }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['stats', 'homepage-npm-summary'],
+        queryKey: statsQueries.homepageNpmSummary().queryKey,
       })
-      queryClient.invalidateQueries({ queryKey: ['stats', 'oss'] })
+      queryClient.invalidateQueries({ queryKey: statsQueries.oss() })
     },
   })
 

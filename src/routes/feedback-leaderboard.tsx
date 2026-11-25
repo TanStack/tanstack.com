@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { FeedbackLeaderboard } from '~/components/FeedbackLeaderboard'
-import { getDocFeedbackLeaderboardQueryOptions } from '~/queries/docFeedback'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 
 const searchSchema = v.object({
   page: v.fallback(v.optional(v.number(), 1), 1),
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/feedback-leaderboard')({
   }),
   loader: async ({ deps, context: { queryClient } }) => {
     await queryClient.ensureQueryData(
-      getDocFeedbackLeaderboardQueryOptions({
+      docFeedbackQueries.leaderboard({
         pagination: {
           page: deps.page,
           pageSize: deps.pageSize,

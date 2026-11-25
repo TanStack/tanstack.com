@@ -2,7 +2,7 @@ import { redirect, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { NotesModerationPage } from '~/components/NotesModerationPage'
-import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.functions'
 import {
   isoDateSchema,
@@ -48,7 +48,7 @@ export const Route = createFileRoute('/admin/notes/')({
   }),
   loader: async ({ deps, context: { queryClient } }) => {
     await queryClient.ensureQueryData(
-      listDocFeedbackForModerationQueryOptions({
+      docFeedbackQueries.moderation({
         pagination: {
           page: deps.page,
           pageSize: deps.pageSize,

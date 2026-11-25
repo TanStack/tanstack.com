@@ -1,9 +1,14 @@
-import { queryOptions } from '@tanstack/react-query'
+import { mutationOptions, queryOptions } from '@tanstack/react-query'
 import {
+  createDocFeedback,
+  deleteDocFeedback,
+  getDocFeedbackForPage,
+  getDocFeedbackLeaderboard,
   getUserDocFeedback,
   listDocFeedbackForModeration,
-  getDocFeedbackLeaderboard,
-  getDocFeedbackForPage,
+  moderateDocFeedback,
+  updateDocFeedback,
+  updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
 import type { DocFeedbackStatus, DocFeedbackType } from '~/db/types'
 
@@ -22,42 +27,47 @@ export interface DocFeedbackPagination {
   pageSize: number
 }
 
-export const getUserDocFeedbackQueryOptions = (params: {
-  pagination: DocFeedbackPagination
-  filters?: {
-    status?: DocFeedbackStatus[]
-    libraryId?: string
-    type?: DocFeedbackType[]
-  }
-}) =>
-  queryOptions({
-    queryKey: ['docFeedback', 'user', params],
-    queryFn: () => getUserDocFeedback({ data: params }),
-  })
+export const docFeedbackQueries = {
+  all: () => ['docFeedback'],
+  user: (params: {
+    pagination: DocFeedbackPagination
+    filters?: {
+      status?: DocFeedbackStatus[]
+      libraryId?: string
+      type?: DocFeedbackType[]
+    }
+  }) =>
+    queryOptions({
+      queryKey: [...docFeedbackQueries.all(), 'user', params],
+      queryFn: () => getUserDocFeedback({ data: params }),
+    }),
+  moderations: () => [...docFeedbackQueries.all(), 'moderation'],
+  moderation: (params: {
+    pagination: DocFeedbackPagination
+    filters?: DocFeedbackFilters
+  }) =>
+    queryOptions({
+      queryKey: [...docFeedbackQueries.moderations(), params],
+      queryFn: () => listDocFeedbackForModeration({ data: params }),
+      staleTime: 0,
+    }),
+  leaderboard: (params: { pagination: DocFeedbackPagination }) =>
+    queryOptions({
+      queryKey: [...docFeedbackQueries.all(), 'leaderboard', params],
+      queryFn: () => getDocFeedbackLeaderboard({ data: params }),
+    }),
+  page: (params: { pagePath: string; libraryVersion: string }) =>
+    queryOptions({
+      queryKey: [...docFeedbackQueries.all(), 'page', params],
+      queryFn: () => getDocFeedbackForPage({ data: params }),
+    }),
+}
 
-export const listDocFeedbackForModerationQueryOptions = (params: {
-  pagination: DocFeedbackPagination
-  filters?: DocFeedbackFilters
-}) =>
-  queryOptions({
-    queryKey: ['docFeedback', 'moderation', params],
-    queryFn: () => listDocFeedbackForModeration({ data: params }),
-    staleTime: 0,
-  })
-
-export const getDocFeedbackLeaderboardQueryOptions = (params: {
-  pagination: DocFeedbackPagination
-}) =>
-  queryOptions({
-    queryKey: ['docFeedback', 'leaderboard', params],
-    queryFn: () => getDocFeedbackLeaderboard({ data: params }),
-  })
-
-export const getDocFeedbackForPageQueryOptions = (params: {
-  pagePath: string
-  libraryVersion: string
-}) =>
-  queryOptions({
-    queryKey: ['docFeedback', 'page', params],
-    queryFn: () => getDocFeedbackForPage({ data: params }),
-  })
+export const docFeedbackMutations = {
+  create: () => mutationOptions({ mutationFn: createDocFeedback }),
+  update: () => mutationOptions({ mutationFn: updateDocFeedback }),
+  delete: () => mutationOptions({ mutationFn: deleteDocFeedback }),
+  updateCollapsed: () =>
+    mutationOptions({ mutationFn: updateDocFeedbackCollapsed }),
+  moderate: () => mutationOptions({ mutationFn: moderateDocFeedback }),
+}

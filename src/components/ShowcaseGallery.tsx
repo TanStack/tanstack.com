@@ -1,11 +1,7 @@
 import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import {
-  getApprovedShowcasesQueryOptions,
-  getMyShowcaseVotesQueryOptions,
-} from '~/queries/showcases'
-import { voteShowcase } from '~/utils/showcase.functions'
+import { showcasesMutations, showcasesQueries } from '~/queries/showcases'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { CommunityProjectCard } from './CommunityProjectCard'
 import { SubmitShowcasePlaceholder } from './ShowcaseSection'
@@ -38,7 +34,7 @@ export function ShowcaseGallery({
   const pageSize = search.pageSize ?? 24
 
   const { data, isLoading } = useQuery(
-    getApprovedShowcasesQueryOptions({
+    showcasesQueries.approved({
       pagination: {
         page: search.page,
         pageSize,
@@ -59,7 +55,7 @@ export function ShowcaseGallery({
   )
 
   const { data: votesData } = useQuery({
-    ...getMyShowcaseVotesQueryOptions(showcaseIds),
+    ...showcasesQueries.myVotes(showcaseIds),
     enabled: !community && !!currentUser && showcaseIds.length > 0,
   })
 
@@ -74,15 +70,14 @@ export function ShowcaseGallery({
   }, [votesData])
 
   const voteMutation = useMutation({
-    mutationFn: (params: { showcaseId: string; value: 1 | -1 }) =>
-      voteShowcase({ data: params }),
+    ...showcasesMutations.vote(),
     onMutate: async ({ showcaseId, value }) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['showcases'] })
+      await queryClient.cancelQueries({ queryKey: showcasesQueries.all() })
 
       // Snapshot previous values
       const previousShowcases = queryClient.getQueryData(
-        getApprovedShowcasesQueryOptions({
+        showcasesQueries.approved({
           pagination: { page: search.page, pageSize },
           filters: {
             placement,
@@ -94,12 +89,12 @@ export function ShowcaseGallery({
         }).queryKey,
       )
       const previousVotes = queryClient.getQueryData(
-        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+        showcasesQueries.myVotes(showcaseIds).queryKey,
       )
 
       // Optimistically update votes
       queryClient.setQueryData(
-        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+        showcasesQueries.myVotes(showcaseIds).queryKey,
         (old: typeof votesData) => {
           if (!old) return { votes: [{ showcaseId, value }] }
           const existingVote = old.votes.find(
@@ -128,7 +123,7 @@ export function ShowcaseGallery({
 
       // Optimistically update showcase score
       queryClient.setQueryData(
-        getApprovedShowcasesQueryOptions({
+        showcasesQueries.approved({
           pagination: { page: search.page, pageSize },
           filters: {
             placement,
@@ -171,7 +166,7 @@ export function ShowcaseGallery({
       // Rollback on error
       if (context?.previousShowcases) {
         queryClient.setQueryData(
-          getApprovedShowcasesQueryOptions({
+          showcasesQueries.approved({
             pagination: { page: search.page, pageSize },
             filters: {
               placement,
@@ -186,14 +181,14 @@ export function ShowcaseGallery({
       }
       if (context?.previousVotes) {
         queryClient.setQueryData(
-          getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+          showcasesQueries.myVotes(showcaseIds).queryKey,
           context.previousVotes,
         )
       }
     },
     onSettled: () => {
       // Refetch to sync with server
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
   })
 

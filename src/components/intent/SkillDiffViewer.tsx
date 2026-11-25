@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { diffLines } from 'diff'
-import { intentSkillContentDiffQueryOptions } from '~/queries/intent'
+import { intentQueries } from '~/queries/intent'
 
 export function SkillDiffViewer({
   packageName,
@@ -15,7 +15,7 @@ export function SkillDiffViewer({
   readonly toVersion: string
 }) {
   const diffQuery = useQuery(
-    intentSkillContentDiffQueryOptions({
+    intentQueries.skillContentDiff({
       packageName,
       skillName,
       fromVersion,

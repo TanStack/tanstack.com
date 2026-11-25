@@ -3,10 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseDetail } from '~/components/ShowcaseDetail'
-import {
-  getShowcaseQueryOptions,
-  getRelatedShowcasesQueryOptions,
-} from '~/queries/showcases'
+import { showcasesQueries } from '~/queries/showcases'
 
 export const Route = createFileRoute('/showcase/$id')({
   params: {
@@ -17,12 +14,12 @@ export const Route = createFileRoute('/showcase/$id')({
   },
   loader: async ({ params, context: { queryClient } }) => {
     const showcaseData = await queryClient.ensureQueryData(
-      getShowcaseQueryOptions(params.id),
+      showcasesQueries.detail(params.id),
     )
 
     if (showcaseData?.showcase.libraries.length) {
       await queryClient.ensureQueryData(
-        getRelatedShowcasesQueryOptions({
+        showcasesQueries.related({
           showcaseId: params.id,
           libraries: showcaseData.showcase.libraries,
           limit: 4,

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 import { PaginationControls } from '~/components/PaginationControls'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { DocFeedbackNote } from '~/components/DocFeedbackNote'
@@ -22,7 +22,7 @@ function AccountFeedbackPage() {
     user && typeof user === 'object' && 'userId' in user ? user.userId : null
 
   const { data, isLoading } = useQuery(
-    getUserDocFeedbackQueryOptions({
+    docFeedbackQueries.user({
       pagination: { page, pageSize },
       filters: { type: ['improvement'] },
     }),

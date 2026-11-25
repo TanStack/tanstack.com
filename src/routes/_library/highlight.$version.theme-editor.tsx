@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { docsConfigQueryOptions } from '~/queries/docsConfig'
+import { docsConfigQueries } from '~/queries/docsConfig'
 import { ThemeEditorPage } from '~/components/highlight-theme-editor/ThemeEditorPage'
 import { validateLibraryVersion } from '../-library-landing'
 
@@ -20,7 +20,7 @@ export const Route = createFileRoute(
   loader: async ({ params, context: { queryClient } }) => {
     return {
       config: await queryClient.ensureQueryData(
-        docsConfigQueryOptions('highlight', params.version),
+        docsConfigQueries.detail('highlight', params.version),
       ),
     }
   },

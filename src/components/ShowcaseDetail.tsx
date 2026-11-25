@@ -14,12 +14,7 @@ import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibraryId } from '~/libraries'
 import { USE_CASE_LABELS } from '~/utils/showcase.shared'
-import { voteShowcase } from '~/utils/showcase.functions'
-import {
-  getShowcaseQueryOptions,
-  getRelatedShowcasesQueryOptions,
-  getMyShowcaseVotesQueryOptions,
-} from '~/queries/showcases'
+import { showcasesMutations, showcasesQueries } from '~/queries/showcases'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { ShowcaseCard } from './ShowcaseCard'
@@ -36,10 +31,10 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
   const currentUser = useCurrentUser()
   const { openLoginModal } = useLoginModal()
 
-  const { data, isLoading } = useQuery(getShowcaseQueryOptions(showcaseId))
+  const { data, isLoading } = useQuery(showcasesQueries.detail(showcaseId))
 
   const { data: relatedData } = useQuery({
-    ...getRelatedShowcasesQueryOptions({
+    ...showcasesQueries.related({
       showcaseId,
       libraries: data?.showcase.libraries ?? [],
       limit: 4,
@@ -48,7 +43,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
   })
 
   const { data: votesData } = useQuery({
-    ...getMyShowcaseVotesQueryOptions([showcaseId]),
+    ...showcasesQueries.myVotes([showcaseId]),
     enabled: !!currentUser,
   })
 
@@ -66,7 +61,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
   )
 
   const { data: relatedVotesData } = useQuery({
-    ...getMyShowcaseVotesQueryOptions(relatedShowcaseIds),
+    ...showcasesQueries.myVotes(relatedShowcaseIds),
     enabled: !!currentUser && relatedShowcaseIds.length > 0,
   })
 
@@ -81,21 +76,20 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
   }, [relatedVotesData])
 
   const voteMutation = useMutation({
-    mutationFn: (params: { showcaseId: string; value: 1 | -1 }) =>
-      voteShowcase({ data: params }),
+    ...showcasesMutations.vote(),
     onMutate: async ({ showcaseId: voteShowcaseId, value }) => {
-      await queryClient.cancelQueries({ queryKey: ['showcases'] })
+      await queryClient.cancelQueries({ queryKey: showcasesQueries.all() })
 
       const previousShowcase = queryClient.getQueryData(
-        getShowcaseQueryOptions(showcaseId).queryKey,
+        showcasesQueries.detail(showcaseId).queryKey,
       )
       const previousVotes = queryClient.getQueryData(
-        getMyShowcaseVotesQueryOptions([showcaseId]).queryKey,
+        showcasesQueries.myVotes([showcaseId]).queryKey,
       )
 
       // Optimistically update the vote
       queryClient.setQueryData(
-        getMyShowcaseVotesQueryOptions([showcaseId]).queryKey,
+        showcasesQueries.myVotes([showcaseId]).queryKey,
         (old: typeof votesData) => {
           if (!old) return { votes: [{ showcaseId: voteShowcaseId, value }] }
           const existingVote = old.votes.find(
@@ -122,7 +116,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
       // Optimistically update the showcase score
       if (voteShowcaseId === showcaseId) {
         queryClient.setQueryData(
-          getShowcaseQueryOptions(showcaseId).queryKey,
+          showcasesQueries.detail(showcaseId).queryKey,
           (old: typeof data) => {
             if (!old) return old
             let scoreDelta: number = value
@@ -147,19 +141,19 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
     onError: (_err, _vars, context) => {
       if (context?.previousShowcase) {
         queryClient.setQueryData(
-          getShowcaseQueryOptions(showcaseId).queryKey,
+          showcasesQueries.detail(showcaseId).queryKey,
           context.previousShowcase,
         )
       }
       if (context?.previousVotes) {
         queryClient.setQueryData(
-          getMyShowcaseVotesQueryOptions([showcaseId]).queryKey,
+          showcasesQueries.myVotes([showcaseId]).queryKey,
           context.previousVotes,
         )
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.all() })
     },
   })
 

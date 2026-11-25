@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
-import { moderateDocFeedback } from '~/utils/docFeedback.functions'
+import { docFeedbackMutations, docFeedbackQueries } from '~/queries/docFeedback'
 import { FeedbackModerationTopBar } from './FeedbackModerationTopBar'
 import { FeedbackModerationList } from './FeedbackModerationList'
 import { useToast } from '~/components/ToastProvider'
@@ -15,7 +14,7 @@ export function FeedbackModerationPage() {
   const { notify } = useToast()
 
   const { data, isLoading, error } = useQuery(
-    listDocFeedbackForModerationQueryOptions({
+    docFeedbackQueries.moderation({
       pagination: {
         page: search.page,
         pageSize: search.pageSize,
@@ -32,7 +31,7 @@ export function FeedbackModerationPage() {
   )
 
   const moderateMutation = useMutation({
-    mutationFn: moderateDocFeedback,
+    ...docFeedbackMutations.moderate(),
     onSuccess: (_, variables) => {
       notify(
         <div>
@@ -44,7 +43,9 @@ export function FeedbackModerationPage() {
           </div>
         </div>,
       )
-      queryClient.invalidateQueries({ queryKey: ['docFeedback', 'moderation'] })
+      queryClient.invalidateQueries({
+        queryKey: docFeedbackQueries.moderations(),
+      })
     },
     onError: (error: Error) => {
       notify(

@@ -11,11 +11,7 @@ import * as v from 'valibot'
 import { CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { Panel, PanelContent } from '~/components/Panel'
 import { seo } from '~/utils/seo'
-import {
-  intentPackageDetailQueryOptions,
-  intentVersionSkillsQueryOptions,
-  intentSkillHistoryQueryOptions,
-} from '~/queries/intent'
+import { intentQueries } from '~/queries/intent'
 import type { IntentPackageDetail } from '~/utils/intent.functions'
 import { useToast } from '~/components/ToastProvider'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
@@ -68,7 +64,7 @@ export const Route = createFileRoute('/intent/registry/$packageName')({
   validateSearch: (search) => v.parse(searchSchema, search),
   loader: async ({ params, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
-    await queryClient.ensureQueryData(intentPackageDetailQueryOptions(name))
+    await queryClient.ensureQueryData(intentQueries.packageDetail(name))
   },
   head: ({ params }) => {
     const name = decodePkgName(params.packageName)
@@ -98,7 +94,7 @@ function PackageLayout() {
 function PackageLayoutContent({ name }: { readonly name: string }) {
   const { version: searchVersion } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const detailQuery = useSuspenseQuery(intentPackageDetailQueryOptions(name))
+  const detailQuery = useSuspenseQuery(intentQueries.packageDetail(name))
   const detail = detailQuery.data
 
   const latestVersion = detail?.versions[0]?.version ?? ''
@@ -155,7 +151,7 @@ function PackageLayoutInner({
   }
 
   const skillsQuery = useSuspenseQuery(
-    intentVersionSkillsQueryOptions({
+    intentQueries.versionSkills({
       packageName: name,
       version: activeVersion,
     }),
@@ -163,9 +159,7 @@ function PackageLayoutInner({
   const skills = skillsQuery.data?.skills ?? []
 
   const packageNames = React.useMemo(() => [name], [name])
-  const skillHistoryQuery = useQuery(
-    intentSkillHistoryQueryOptions(packageNames),
-  )
+  const skillHistoryQuery = useQuery(intentQueries.skillHistory(packageNames))
   const skillHistory = skillHistoryQuery.data?.[name]
 
   return (

@@ -3,8 +3,8 @@ import { redirect } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
-import { docsConfigQueryOptions } from '~/queries/docsConfig'
-import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
+import { docsConfigQueries } from '~/queries/docsConfig'
+import { statsQueries } from '~/queries/stats'
 import { ogImageUrl } from '~/utils/og'
 import { seo } from '~/utils/seo'
 import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
@@ -44,14 +44,16 @@ export async function loadLibraryLandingRouteData(
 }> {
   const library = getLibrary(libraryId)
   const configPromise = queryClient.ensureQueryData(
-    docsConfigQueryOptions(libraryId, version),
+    docsConfigQueries.detail(libraryId, version),
   )
   const statsPromise =
     library.statsAvailable === false
       ? Promise.resolve()
       : Promise.all([
-          queryClient.ensureQueryData(ossStatsQuery({ library })),
-          queryClient.ensureQueryData(recentDownloadsQuery({ library })),
+          queryClient.ensureQueryData(statsQueries.ossSummary({ library })),
+          queryClient.ensureQueryData(
+            statsQueries.recentDownloads({ library }),
+          ),
         ]).then(() => undefined)
   const [config] = await Promise.all([configPromise, statsPromise])
 

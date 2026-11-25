@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { getDocFeedbackLeaderboardQueryOptions } from '~/queries/docFeedback'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 import { Spinner } from './Spinner'
 import {
   Table,
@@ -22,7 +22,7 @@ export function FeedbackLeaderboard() {
   const { page, pageSize } = search
 
   const { data, isLoading, error } = useQuery(
-    getDocFeedbackLeaderboardQueryOptions({
+    docFeedbackQueries.leaderboard({
       pagination: { page, pageSize },
     }),
   )

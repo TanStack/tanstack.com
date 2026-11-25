@@ -1225,15 +1225,8 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                     {group.members.map((member) => (
                       <Tooltip
                         key={member.github}
-                        className="max-sm:hidden pointer-coarse:hidden"
-                        content={
-                          <div className="max-w-64 space-y-1">
-                            <div className="font-semibold">{member.name}</div>
-                            <div className="opacity-70">
-                              {member.location?.name}
-                            </div>
-                          </div>
-                        }
+                        className="max-w-64 font-semibold max-sm:hidden pointer-coarse:hidden"
+                        content={member.name}
                       >
                         <button
                           {...profileTriggerProps(
@@ -1251,7 +1244,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                   <button
                     {...profileTriggerProps(group.id, 'count')}
                     data-globe-count
-                    aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'} near ${group.members[0]?.location?.name ?? 'this location'}`}
+                    aria-label={`Show ${group.members.map((member) => member.name).join(', ')}`}
                     className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
                     <span aria-hidden="true" className="flex -space-x-0.5">
@@ -1398,14 +1391,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                           height={36}
                         />
                       </span>
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold">
-                          {member.name}
-                        </div>
-                        <div className="text-xs text-text-muted">
-                          {member.location?.name}
-                        </div>
-                      </div>
+                      <span className="min-w-0 text-sm font-semibold">
+                        {member.name}
+                      </span>
                     </a>
                   ))}
                 </div>

@@ -1047,6 +1047,9 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
     if (!host) return
     const selection = select(host)
     let previous = zoomIdentity
+    // A press that only closes an open profile should not stop the rotation.
+    // Dragging from it still does.
+    let dismissingProfile = false
     behavior
       .extent((): [[number, number], [number, number]] => [
         [0, 0],
@@ -1063,9 +1066,15 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       )
       .on('start', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         interacting.current = true
-        if (event.sourceEvent) pauseRotation()
+        if (!event.sourceEvent) return
+        dismissingProfile = openProfileTrigger.current !== null
+        if (!dismissingProfile) pauseRotation()
       })
       .on('zoom', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
+        if (dismissingProfile && event.sourceEvent) {
+          dismissingProfile = false
+          pauseRotation()
+        }
         const next = event.transform
         if (next.k === previous.k) {
           const radius =

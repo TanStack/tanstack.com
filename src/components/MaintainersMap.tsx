@@ -1063,8 +1063,8 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
       )
       .on('start', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         interacting.current = true
-        // An open profile already holds the rotation, and closing it resumes.
-        if (event.sourceEvent && !openProfileTrigger.current) pauseRotation()
+        // Presses and drags only hold the rotation until release, like hovering a profile.
+        if (event.sourceEvent instanceof WheelEvent) pauseRotation()
       })
       .on('zoom', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         const next = event.transform

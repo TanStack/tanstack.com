@@ -82,7 +82,7 @@ export type PartnerResource = {
 
 type ApplicationStarterPartnerTier = 1 | 2 | 3
 
-const currentPartnerReviewDate = '2026-07-21'
+const currentPartnerReviewDate = '2026-11-18'
 
 export const partnerUniqueConstraints = ['auth-provider', 'hosting'] as const
 export type PartnerUniqueConstraint = (typeof partnerUniqueConstraints)[number]
@@ -858,7 +858,7 @@ const sentry = ((): Partner => {
       dark: sentryWordMarkLightSvg,
     },
     llmDescription:
-      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and an alpha TanStack Start React SDK.',
+      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and a beta TanStack Start React SDK.',
     category: 'monitoring',
     content: (
       <>

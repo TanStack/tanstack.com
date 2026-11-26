@@ -95,7 +95,7 @@ const partnerGuidance: Record<
     whyGreat:
       'Sentry turns production issues into actionable debugging data instead of just error logs, especially once tracing and replay are in the mix.',
     whyTanStack:
-      'That matters for TanStack apps with richer client behavior, and Sentry already documents TanStack Router support plus an alpha TanStack Start React SDK.',
+      'That matters for TanStack apps with richer client behavior, and Sentry already documents TanStack Router support plus a beta TanStack Start React SDK.',
   },
   fireship: {
     whyGreat:

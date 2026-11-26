@@ -9,6 +9,7 @@ import {
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { CopyIcon, CheckIcon } from '@phosphor-icons/react'
+import { Skeleton, SkeletonGroup } from '~/components/ds/ui'
 import { Panel, PanelContent } from '~/components/Panel'
 import { seo } from '~/utils/seo'
 import {
@@ -526,7 +527,7 @@ function MobileSkillsDrawer({
 
 export function PackageDetailSkeleton({ name }: { readonly name: string }) {
   return (
-    <>
+    <SkeletonGroup label={`Loading ${name}`}>
       <div className="border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -549,36 +550,33 @@ export function PackageDetailSkeleton({ name }: { readonly name: string }) {
               {name}
             </span>
           </div>
-          <div className="animate-pulse space-y-3">
-            <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-4 w-72 bg-gray-100 dark:bg-gray-800/60 rounded" />
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-72" />
           </div>
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-0 min-h-[calc(100vh-200px)]">
         <aside className="hidden md:block w-56 shrink-0 border-r border-gray-200 dark:border-gray-800 py-6 pr-4">
-          <div className="animate-pulse space-y-2">
-            <div className="h-3 w-12 bg-gray-200 dark:bg-gray-800 rounded mb-3" />
+          <div className="space-y-2">
+            <Skeleton className="mb-3 h-3 w-12" />
             {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-7 w-full bg-gray-100 dark:bg-gray-800/60 rounded-md"
-              />
+              <Skeleton key={i} className="h-7 w-full rounded-md" />
             ))}
           </div>
         </aside>
         <main className="flex-1 min-w-0 py-6 md:pl-6">
-          <div className="animate-pulse space-y-3">
-            <div className="h-6 w-40 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-4 w-96 bg-gray-100 dark:bg-gray-800/60 rounded" />
-            <div className="mt-6 h-64 w-full bg-gray-100 dark:bg-gray-800/60 rounded-xl" />
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-96 max-w-full" />
+            <Skeleton className="mt-6 h-64 w-full rounded-xl" />
           </div>
           <p className="mt-6 text-xs text-gray-400 dark:text-gray-500">
             Fetching package from npm...
           </p>
         </main>
       </div>
-    </>
+    </SkeletonGroup>
   )
 }
 

@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
 import { formatPublishedDate } from '~/utils/blog-format'
+import { Skeleton, SkeletonGroup } from '~/components/ds/ui'
 
 type RecentPostsWidgetProps = {
   posts?: ReadonlyArray<RecentPost>
@@ -76,14 +77,17 @@ function RecentPostsSkeleton() {
           Latest Posts
         </Link>
       </div>
-      <div className="flex flex-col divide-y divide-gray-500/10">
+      <SkeletonGroup
+        label="Loading latest posts"
+        className="flex flex-col divide-y divide-gray-500/10"
+      >
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={`recent-post-skeleton-${index}`} className="px-3 py-2.5">
-            <div className="h-3.5 w-full rounded bg-gray-200/70 dark:bg-gray-800/70" />
-            <div className="mt-2 h-2.5 w-20 rounded bg-gray-100 dark:bg-gray-900" />
+            <Skeleton className="h-3.5 w-full" />
+            <Skeleton className="mt-2 h-2.5 w-20" />
           </div>
         ))}
-      </div>
+      </SkeletonGroup>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import {
   ThumbsDownIcon,
   CodeIcon,
 } from '@phosphor-icons/react'
+import { Skeleton } from '~/components/ds/ui'
 import { libraries, type LibraryId } from '~/libraries'
 import type { PublicShowcase } from '~/db/types'
 
@@ -193,14 +194,24 @@ export function ShowcaseCard({
 
 export function ShowcaseCardSkeleton() {
   return (
-    <div className="rounded-xl corner-squircle overflow-hidden bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 animate-pulse">
-      <div className="aspect-video bg-gray-200 dark:bg-gray-700" />
-      <div className="p-4">
-        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mt-2" />
-        <div className="flex gap-1.5 mt-3">
-          <div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 rounded-full" />
-          <div className="h-5 w-14 bg-gray-200 dark:bg-gray-700 rounded-full" />
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl corner-squircle border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+      <Skeleton className="aspect-video rounded-none" />
+      <div className="flex-1 p-4">
+        <Skeleton className="h-7 w-3/4" />
+        <Skeleton className="mt-1 h-5 w-full" />
+        <Skeleton className="mt-1 h-5 w-2/3" />
+      </div>
+      <div className="mt-auto px-4 pb-4">
+        <div className="flex items-end justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap gap-1.5">
+            <Skeleton className="h-5 w-16 rounded-full" />
+            <Skeleton className="h-5 w-14 rounded-full" />
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <Skeleton className="h-4 w-6" />
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
         </div>
       </div>
     </div>

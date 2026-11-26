@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { modelLoader } from '../loaders/ModelLoader'
 import { getWaveHeight } from './Ocean'
-import { useGameStore, type OtherPlayer } from '../../hooks/useGameStore'
+import { gameStore, type OtherPlayer } from '../../hooks/useGameStore'
 
 interface AIShipData {
   id: string
@@ -29,7 +29,7 @@ export class AIShips {
   }
 
   spawn(_count: number): void {
-    const _otherPlayers = useGameStore.getState().otherPlayers
+    const _otherPlayers = gameStore.state.otherPlayers
     // Ships will be created in updatePlayers when AI system adds them
   }
 
@@ -99,7 +99,7 @@ export class AIShips {
   }
 
   update(time: number): void {
-    const { boatPosition, otherPlayers, stage } = useGameStore.getState()
+    const { boatPosition, otherPlayers, stage } = gameStore.state
 
     if (stage !== 'battle') {
       this.group.visible = false

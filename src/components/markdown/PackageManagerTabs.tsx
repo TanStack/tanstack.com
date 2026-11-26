@@ -3,6 +3,7 @@ import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
 import * as React from 'react'
 import { Tabs, type TabDefinition } from './Tabs'
+import { useSelector } from '@tanstack/react-store'
 import { createPersistedEnumStore } from './usePersistedEnumStore'
 import type { Framework } from '~/libraries/types'
 import {
@@ -43,8 +44,11 @@ function isPackageManagerPanel(
 export function PackageManagerTabs({ children }: PackageManagerTabsProps) {
   packageManagerStore.useHydrate()
 
-  const storedPackageManager = packageManagerStore((s) => s.value)
-  const setPackageManager = packageManagerStore((s) => s.setValue)
+  const storedPackageManager = useSelector(
+    packageManagerStore.store,
+    (s) => s.value,
+  )
+  const setPackageManager = packageManagerStore.store.actions.setValue
 
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
@@ -53,7 +57,7 @@ export function PackageManagerTabs({ children }: PackageManagerTabsProps) {
 
   const actualFramework = (paramsFramework ||
     userFramework ||
-    localCurrentFramework.currentFramework ||
+    localCurrentFramework ||
     'react') as Framework
 
   const normalizedFramework = actualFramework.toLowerCase()

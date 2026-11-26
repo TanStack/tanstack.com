@@ -1,19 +1,14 @@
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 
 const DISCOVERY_RADIUS = 8
 const DISCOVERY_TIME = 3 // Seconds to fully discover
 
 export class DiscoverySystem {
   update(delta: number): void {
-    const state = useGameStore.getState()
-    const {
-      boatPosition,
-      nearbyIsland,
-      discoveryProgress,
-      discoveredIslands,
-      setDiscoveryProgress,
-      discoverIsland,
-    } = state
+    const state = gameStore.state
+    const { boatPosition, nearbyIsland, discoveryProgress, discoveredIslands } =
+      state
+    const { setDiscoveryProgress, discoverIsland } = gameStore.actions
 
     if (!nearbyIsland || discoveredIslands.has(nearbyIsland.id)) return
 

@@ -1,8 +1,10 @@
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 export function CompassIndicator() {
-  const { phase, compassTarget } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const compassTarget = useSelector(gameStore, (s) => s.compassTarget)
   const [indicator, setIndicator] = useState<{
     screenX: number
     screenY: number
@@ -18,7 +20,7 @@ export function CompassIndicator() {
     }
 
     const interval = setInterval(() => {
-      const { boatPosition, compassTarget } = useGameStore.getState()
+      const { boatPosition, compassTarget } = gameStore.state
       if (!compassTarget) {
         setIndicator(null)
         return

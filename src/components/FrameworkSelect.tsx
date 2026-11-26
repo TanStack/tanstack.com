@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { create } from 'zustand'
+import { createStore, useSelector } from '@tanstack/react-store'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Select } from './Select'
@@ -48,19 +48,22 @@ export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {
   )
 }
 
-// Let's use zustand to wrap the local storage logic. This way
+// Let's use TanStack Store to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
 // components if we need to.
-export const useLocalCurrentFramework = create<{
-  currentFramework?: string
-  setCurrentFramework: (framework: string) => void
-}>((set) => ({
-  currentFramework: getLocalStorageItem('framework') || undefined,
-  setCurrentFramework: (framework: string) => {
-    setLocalStorageItem('framework', framework)
-    set({ currentFramework: framework })
-  },
-}))
+export const localCurrentFrameworkStore = createStore(
+  { currentFramework: getLocalStorageItem('framework') || undefined },
+  ({ setState }) => ({
+    setCurrentFramework: (framework: string) => {
+      setLocalStorageItem('framework', framework)
+      setState(() => ({ currentFramework: framework }))
+    },
+  }),
+)
+
+export function useLocalCurrentFramework() {
+  return useSelector(localCurrentFrameworkStore, (s) => s.currentFramework)
+}
 
 /**
  * Get the stored framework preference from localStorage.
@@ -77,12 +80,11 @@ export function getStoredFrameworkPreference(): string | undefined {
 export function usePersistFrameworkPreference() {
   const userQuery = useCurrentUserQuery()
   const queryClient = useQueryClient()
-  const localCurrentFramework = useLocalCurrentFramework()
 
   return React.useCallback(
     (framework: string) => {
       // Always update localStorage as fallback
-      localCurrentFramework.setCurrentFramework(framework)
+      localCurrentFrameworkStore.actions.setCurrentFramework(framework)
       queryClient.setQueryData(currentUserQueryOptions.queryKey, (user) =>
         user ? { ...user, lastUsedFramework: framework } : user,
       )
@@ -91,7 +93,7 @@ export function usePersistFrameworkPreference() {
         persistFrameworkToServer(framework)
       }
     },
-    [localCurrentFramework, queryClient, userQuery.data],
+    [queryClient, userQuery.data],
   )
 }
 
@@ -130,12 +132,13 @@ export function useCurrentFramework(frameworks: Framework[]) {
   })
 
   const localCurrentFramework = useLocalCurrentFramework()
+  const { setCurrentFramework } = localCurrentFrameworkStore.actions
 
   // Priority: URL params > DB (logged-in) > localStorage > 'react'
   const userFramework = userQuery.data?.lastUsedFramework
   let framework = (paramsFramework ||
     userFramework ||
-    localCurrentFramework.currentFramework ||
+    localCurrentFramework ||
     'react') as Framework
 
   framework = frameworks.includes(framework) ? framework : 'react'
@@ -146,7 +149,7 @@ export function useCurrentFramework(frameworks: Framework[]) {
         params: { framework } as any,
       })
       // Always update localStorage as fallback
-      localCurrentFramework.setCurrentFramework(framework)
+      setCurrentFramework(framework)
       queryClient.setQueryData(currentUserQueryOptions.queryKey, (user) =>
         user ? { ...user, lastUsedFramework: framework } : user,
       )
@@ -156,21 +159,18 @@ export function useCurrentFramework(frameworks: Framework[]) {
         persistFrameworkToServer(framework)
       }
     },
-    [localCurrentFramework, navigate, queryClient, userQuery.data],
+    [navigate, queryClient, userQuery.data, setCurrentFramework],
   )
 
   React.useEffect(() => {
     // Set the framework in localStorage if it doesn't exist
-    if (!localCurrentFramework.currentFramework) {
-      localCurrentFramework.setCurrentFramework(framework)
+    if (!localCurrentFramework) {
+      setCurrentFramework(framework)
     }
 
     // Set the framework in localStorage if it doesn't match the URL
-    if (
-      paramsFramework &&
-      paramsFramework !== localCurrentFramework.currentFramework
-    ) {
-      localCurrentFramework.setCurrentFramework(paramsFramework)
+    if (paramsFramework && paramsFramework !== localCurrentFramework) {
+      setCurrentFramework(paramsFramework)
     }
   })
 

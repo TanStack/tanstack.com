@@ -26,7 +26,7 @@ export function FrameworkContent({ children }: FrameworkContentProps) {
 
   const actualFramework = (paramsFramework ||
     userFramework ||
-    localCurrentFramework.currentFramework ||
+    localCurrentFramework ||
     'react') as Framework
 
   const normalizedFramework = actualFramework.toLowerCase()

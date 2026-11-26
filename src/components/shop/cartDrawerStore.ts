@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { createStore } from '@tanstack/react-store'
 
 /**
  * Tiny store that controls the global cart drawer's open state. Kept in a
@@ -6,14 +6,8 @@ import { create } from 'zustand'
  * the "Add to cart" button on the PDP, etc. — can trigger it without
  * threading props.
  */
-export const useCartDrawerStore = create<{
-  open: boolean
-  setOpen: (open: boolean) => void
-  openDrawer: () => void
-  closeDrawer: () => void
-}>((set) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
-  openDrawer: () => set({ open: true }),
-  closeDrawer: () => set({ open: false }),
+export const cartDrawerStore = createStore({ open: false }, ({ setState }) => ({
+  setOpen: (open: boolean) => setState(() => ({ open })),
+  openDrawer: () => setState(() => ({ open: true })),
+  closeDrawer: () => setState(() => ({ open: false })),
 }))

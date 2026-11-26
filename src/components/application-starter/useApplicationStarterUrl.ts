@@ -4,10 +4,11 @@
  * Bidirectional sync between URL search params and applicationStarter store.
  */
 
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useRef } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useDebouncedCallback } from '@tanstack/react-pacer'
-import { useApplicationStarterStore } from './store'
+import { applicationStarterStore } from './store'
 import type { FeatureId } from '~/application-starter/api'
 import type { FrameworkId } from '~/application-starter/frameworks' // Used in syncToUrl type
 
@@ -27,22 +28,32 @@ export function useApplicationStarterUrl() {
   const search = useSearch({ strict: false }) as ApplicationStarterSearchParams
   const isSyncingFromUrl = useRef(false)
 
-  const projectName = useApplicationStarterStore((s) => s.projectName)
-  const framework = useApplicationStarterStore((s) => s.framework)
-  const features = useApplicationStarterStore((s) => s.features)
-  const featureOptions = useApplicationStarterStore((s) => s.featureOptions)
-  const selectedTemplate = useApplicationStarterStore((s) => s.selectedTemplate)
-  const packageManager = useApplicationStarterStore((s) => s.packageManager)
-  const tailwind = useApplicationStarterStore((s) => s.tailwind)
-  const featuresLoaded = useApplicationStarterStore((s) => s.featuresLoaded)
-  const setProjectName = useApplicationStarterStore((s) => s.setProjectName)
-  const setFeatures = useApplicationStarterStore((s) => s.setFeatures)
-  const setFeatureOption = useApplicationStarterStore((s) => s.setFeatureOption)
-  const setTemplate = useApplicationStarterStore((s) => s.setTemplate)
-  const setPackageManager = useApplicationStarterStore(
-    (s) => s.setPackageManager,
+  const projectName = useSelector(applicationStarterStore, (s) => s.projectName)
+  const framework = useSelector(applicationStarterStore, (s) => s.framework)
+  const features = useSelector(applicationStarterStore, (s) => s.features)
+  const featureOptions = useSelector(
+    applicationStarterStore,
+    (s) => s.featureOptions,
   )
-  const setTailwind = useApplicationStarterStore((s) => s.setTailwind)
+  const selectedTemplate = useSelector(
+    applicationStarterStore,
+    (s) => s.selectedTemplate,
+  )
+  const packageManager = useSelector(
+    applicationStarterStore,
+    (s) => s.packageManager,
+  )
+  const tailwind = useSelector(applicationStarterStore, (s) => s.tailwind)
+  const featuresLoaded = useSelector(
+    applicationStarterStore,
+    (s) => s.featuresLoaded,
+  )
+  const setProjectName = applicationStarterStore.actions.setProjectName
+  const setFeatures = applicationStarterStore.actions.setFeatures
+  const setFeatureOption = applicationStarterStore.actions.setFeatureOption
+  const setTemplate = applicationStarterStore.actions.setTemplate
+  const setPackageManager = applicationStarterStore.actions.setPackageManager
+  const setTailwind = applicationStarterStore.actions.setTailwind
 
   // Initialize from URL on mount (only once when features load)
   const initializedRef = useRef(false)
@@ -80,7 +91,7 @@ export function useApplicationStarterUrl() {
         setFeatures(
           Array.from(
             new Set([
-              ...useApplicationStarterStore.getState().features,
+              ...applicationStarterStore.state.features,
               ...featureList,
             ]),
           ),
@@ -220,18 +231,28 @@ export function useApplicationStarterUrl() {
  * Generate CLI command from current state
  */
 export function useCliCommand(): string {
-  const projectName = useApplicationStarterStore((s) => s.projectName)
-  const framework = useApplicationStarterStore((s) => s.framework)
-  const features = useApplicationStarterStore((s) => s.features)
-  const featureOptions = useApplicationStarterStore((s) => s.featureOptions)
-  const selectedExample = useApplicationStarterStore((s) => s.selectedExample)
-  const availableExamples = useApplicationStarterStore(
+  const projectName = useSelector(applicationStarterStore, (s) => s.projectName)
+  const framework = useSelector(applicationStarterStore, (s) => s.framework)
+  const features = useSelector(applicationStarterStore, (s) => s.features)
+  const featureOptions = useSelector(
+    applicationStarterStore,
+    (s) => s.featureOptions,
+  )
+  const selectedExample = useSelector(
+    applicationStarterStore,
+    (s) => s.selectedExample,
+  )
+  const availableExamples = useSelector(
+    applicationStarterStore,
     (s) => s.availableExamples,
   )
-  const tailwind = useApplicationStarterStore((s) => s.tailwind)
-  const packageManager = useApplicationStarterStore((s) => s.packageManager)
-  const skipInstall = useApplicationStarterStore((s) => s.skipInstall)
-  const skipGit = useApplicationStarterStore((s) => s.skipGit)
+  const tailwind = useSelector(applicationStarterStore, (s) => s.tailwind)
+  const packageManager = useSelector(
+    applicationStarterStore,
+    (s) => s.packageManager,
+  )
+  const skipInstall = useSelector(applicationStarterStore, (s) => s.skipInstall)
+  const skipGit = useSelector(applicationStarterStore, (s) => s.skipGit)
 
   let cmd = `npx @tanstack/cli@latest create ${projectName}`
   cmd += ' --agent'

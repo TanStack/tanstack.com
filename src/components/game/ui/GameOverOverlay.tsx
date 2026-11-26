@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 
 export function GameOverOverlay() {
-  const { phase, restartBattle, addDeath } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const { restartBattle, addDeath } = gameStore.actions
   const [animationStep, setAnimationStep] = useState(0)
   const [deathCounted, setDeathCounted] = useState(false)
 

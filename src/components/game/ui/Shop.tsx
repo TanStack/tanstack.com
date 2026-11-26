@@ -1,15 +1,13 @@
-import { useGameStore } from '../hooks/useGameStore'
+import { useSelector } from '@tanstack/react-store'
+import { gameStore } from '../hooks/useGameStore'
 import { getAvailableItems } from '../utils/shopItems'
 
 export function Shop() {
-  const {
-    isShopOpen,
-    closeShop,
-    purchaseItem,
-    coinsCollected,
-    stage,
-    purchasedBoosts,
-  } = useGameStore()
+  const isShopOpen = useSelector(gameStore, (s) => s.isShopOpen)
+  const coinsCollected = useSelector(gameStore, (s) => s.coinsCollected)
+  const stage = useSelector(gameStore, (s) => s.stage)
+  const purchasedBoosts = useSelector(gameStore, (s) => s.purchasedBoosts)
+  const { closeShop, purchaseItem } = gameStore.actions
 
   if (!isShopOpen) return null
 

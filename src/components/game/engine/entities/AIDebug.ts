@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useGameStore } from '../../hooks/useGameStore'
+import { gameStore } from '../../hooks/useGameStore'
 import type { AISystem } from '../systems/AISystem'
 
 export class AIDebug {
@@ -18,7 +18,7 @@ export class AIDebug {
   }
 
   update(): void {
-    const { showCollisionDebug, stage } = useGameStore.getState()
+    const { showCollisionDebug, stage } = gameStore.state
 
     // Only show in debug mode and battle stage
     this.group.visible = showCollisionDebug && stage === 'battle'

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import {
   MapTrifoldIcon,
   CoinsIcon,
@@ -9,28 +10,26 @@ import {
 } from '@phosphor-icons/react'
 
 export function GameHUD() {
-  const {
-    phase,
-    stage,
-    discoveredIslands,
-    islands,
-    expandedIslands,
-    showcaseIslands,
-    cornerIslands,
-    showcaseUnlocked,
-    cornersUnlocked,
-
-    coinsCollected,
-    boatHealth,
-    shipStats,
-    purchasedBoosts,
-    lastFireTime,
-    lastUnlockedUpgrade,
-    clearLastUnlockedUpgrade,
-    openShop,
-    setPhase,
-    fireCannon,
-  } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const stage = useSelector(gameStore, (s) => s.stage)
+  const discoveredIslands = useSelector(gameStore, (s) => s.discoveredIslands)
+  const islands = useSelector(gameStore, (s) => s.islands)
+  const expandedIslands = useSelector(gameStore, (s) => s.expandedIslands)
+  const showcaseIslands = useSelector(gameStore, (s) => s.showcaseIslands)
+  const cornerIslands = useSelector(gameStore, (s) => s.cornerIslands)
+  const showcaseUnlocked = useSelector(gameStore, (s) => s.showcaseUnlocked)
+  const cornersUnlocked = useSelector(gameStore, (s) => s.cornersUnlocked)
+  const coinsCollected = useSelector(gameStore, (s) => s.coinsCollected)
+  const boatHealth = useSelector(gameStore, (s) => s.boatHealth)
+  const shipStats = useSelector(gameStore, (s) => s.shipStats)
+  const purchasedBoosts = useSelector(gameStore, (s) => s.purchasedBoosts)
+  const lastFireTime = useSelector(gameStore, (s) => s.lastFireTime)
+  const lastUnlockedUpgrade = useSelector(
+    gameStore,
+    (s) => s.lastUnlockedUpgrade,
+  )
+  const { clearLastUnlockedUpgrade, openShop, setPhase, fireCannon } =
+    gameStore.actions
 
   // Calculate total max health including purchased boosts
   const totalMaxHealth = shipStats.maxHealth + purchasedBoosts.permHealth * 25

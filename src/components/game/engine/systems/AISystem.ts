@@ -1,5 +1,5 @@
 import {
-  useGameStore,
+  gameStore,
   type OtherPlayer,
   type Cannonball,
   type AIDifficulty,
@@ -350,11 +350,11 @@ export class AISystem {
 
     if (outerRim) {
       // Add to existing AIs
-      const { otherPlayers } = useGameStore.getState()
-      useGameStore.getState().setOtherPlayers([...otherPlayers, ...opponents])
+      const { otherPlayers } = gameStore.state
+      gameStore.actions.setOtherPlayers([...otherPlayers, ...opponents])
       states.forEach((state, id) => this.aiStates.set(id, state))
     } else {
-      useGameStore.getState().setOtherPlayers(opponents)
+      gameStore.actions.setOtherPlayers(opponents)
       this.aiStates = states
       this.initialized = true
     }
@@ -367,8 +367,8 @@ export class AISystem {
 
     const { opponents, states } = generateCornerBosses(this.spawnCount)
 
-    const { otherPlayers } = useGameStore.getState()
-    useGameStore.getState().setOtherPlayers([...otherPlayers, ...opponents])
+    const { otherPlayers } = gameStore.state
+    gameStore.actions.setOtherPlayers([...otherPlayers, ...opponents])
     states.forEach((state, id) => this.aiStates.set(id, state))
 
     this.spawnCount += opponents.length
@@ -381,7 +381,7 @@ export class AISystem {
     id: string
     leashRadius: number
   }> {
-    const { otherPlayers } = useGameStore.getState()
+    const { otherPlayers } = gameStore.state
     const territories: Array<{
       homePosition: [number, number]
       color: string
@@ -406,7 +406,7 @@ export class AISystem {
   }
 
   update(delta: number): void {
-    const state = useGameStore.getState()
+    const state = gameStore.state
     const {
       otherPlayers,
       boatPosition,
@@ -662,12 +662,16 @@ export class AISystem {
     })
 
     if (newCannonballs.length > 0) {
-      useGameStore.setState({
+      gameStore.setState((state) => ({
+        ...state,
         otherPlayers: updatedPlayers,
         cannonballs: [...cannonballs, ...newCannonballs],
-      })
+      }))
     } else {
-      useGameStore.setState({ otherPlayers: updatedPlayers })
+      gameStore.setState((state) => ({
+        ...state,
+        otherPlayers: updatedPlayers,
+      }))
     }
   }
 

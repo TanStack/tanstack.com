@@ -166,7 +166,7 @@ const serverBundledClientPackages = [
   '@tanstack/react-hotkeys',
   '@tanstack/react-pacer',
   '@tanstack/react-table',
-  'zustand',
+  '@tanstack/react-store',
 ]
 
 const routerSsrPackages = [

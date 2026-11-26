@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
+import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { gameStore } from '../hooks/useGameStore'
 import { Badge } from './BadgeOverlay'
 import { BADGE_INFO } from '../machines/GameMachineProvider'
 
 export function UpgradeOverlay() {
-  const { phase, setPhase, setBoatType } = useGameStore()
+  const phase = useSelector(gameStore, (s) => s.phase)
+  const { setPhase, setBoatType } = gameStore.actions
   const [animationStep, setAnimationStep] = useState(0)
 
   useEffect(() => {

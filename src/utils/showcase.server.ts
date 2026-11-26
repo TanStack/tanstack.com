@@ -1,10 +1,5 @@
 import { db, isDatabaseConfigured } from '~/db/client'
-import {
-  showcases,
-  users,
-  auditLogs,
-  type ShowcaseUseCase,
-} from '~/db/schema'
+import { showcases, users, auditLogs, type ShowcaseUseCase } from '~/db/schema'
 import {
   and,
   eq,

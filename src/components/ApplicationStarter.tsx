@@ -212,7 +212,7 @@ export function ApplicationStarter({
     onDirtyStateChange,
     onResolvedResult,
     revealOptionsImmediately,
-    })
+  })
 
   const palette = toneClasses[tone]
   const compact = mode === 'compact'

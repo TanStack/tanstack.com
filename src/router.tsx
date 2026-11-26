@@ -10,7 +10,10 @@ import {
   installStaleAppReloadHandlers,
   consumeStaleAppRecovery,
 } from './utils/stale-app-reload'
-import { redactByokRequestHeaders } from './utils/sentry-redaction'
+import {
+  isRouterControlFlow,
+  redactByokRequestHeaders,
+} from './utils/sentry-redaction'
 import type { DocsNavTabId } from './utils/docsNavTabs'
 import type { CustomToolTabId } from './libraries/custom-tool-tabs'
 
@@ -29,6 +32,7 @@ if (typeof document !== 'undefined') {
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
     beforeSend(event, hint) {
+      if (isRouterControlFlow(hint.originalException)) return null
       redactByokRequestHeaders(event)
       // Only suppress the exact error that triggered a reload. Errors during
       // the reload cooldown still need reporting.

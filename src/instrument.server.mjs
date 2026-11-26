@@ -1,5 +1,8 @@
 import * as Sentry from '@sentry/tanstackstart-react'
-import { redactByokRequestHeaders } from './utils/sentry-redaction'
+import {
+  filterSentryEvent,
+  redactByokRequestHeaders,
+} from './utils/sentry-redaction'
 
 if (!Sentry.getClient())
   Sentry.init({
@@ -27,6 +30,6 @@ if (!Sentry.getClient())
         return null
       return breadcrumb
     },
-    beforeSend: redactByokRequestHeaders,
+    beforeSend: filterSentryEvent,
     beforeSendTransaction: redactByokRequestHeaders,
   })

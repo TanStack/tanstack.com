@@ -383,7 +383,7 @@ function QueryCachePanel() {
   return (
     <div
       ref={rootRef}
-      className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]"
+      className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[0_24px_70px_rgb(0_0_0/0.18)]"
     >
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">

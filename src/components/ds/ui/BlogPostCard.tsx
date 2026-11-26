@@ -163,7 +163,7 @@ export function BlogPostCard({
           {post.excerpt}
         </p>
         <div
-          className={`mt-0.5 font-ds-mono text-text-muted/70 transition-colors duration-200 group-hover/post:text-text-secondary ${isLarge ? 'text-ds-mono-sm' : 'text-ds-mono-xs'}`}
+          className={`mt-0.5 truncate font-ds-mono text-text-muted/70 transition-colors duration-200 group-hover/post:text-text-secondary ${isLarge ? 'text-ds-mono-sm' : 'text-ds-mono-xs'}`}
         >
           {categoryLabel ? (
             <>

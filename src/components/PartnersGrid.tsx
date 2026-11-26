@@ -45,9 +45,9 @@ export function TierBand({
 }) {
   return (
     <div
-      className={`flex items-center justify-center px-4 py-3.5 ${colorClassName}`}
+      className={`flex items-center justify-center px-4 py-2.5 ${colorClassName}`}
     >
-      <span className="font-ds-display text-xl font-bold uppercase tracking-wide text-ds-neutral-500 sm:text-2xl">
+      <span className="font-ds-display text-ds-heading-5 uppercase tracking-wide text-ds-neutral-500">
         {label}
       </span>
     </div>
@@ -65,25 +65,25 @@ const tierLayout: Record<
   }
 > = {
   gold: {
-    flexBasis: 'basis-full sm:basis-1/2',
-    minHeight: 'min-h-[240px]',
-    logoMaxWidth: 'max-w-[420px]',
-    logoMaxHeight: 'max-h-[130px]',
-    padding: 'p-12',
+    flexBasis: 'basis-1/2 lg:basis-1/3',
+    minHeight: 'min-h-[144px]',
+    logoMaxWidth: 'max-w-[240px]',
+    logoMaxHeight: 'max-h-[72px]',
+    padding: 'p-6 sm:p-8',
   },
   silver: {
-    flexBasis: 'basis-full sm:basis-1/2 lg:basis-1/3',
-    minHeight: 'min-h-[140px]',
-    logoMaxWidth: 'max-w-[200px]',
-    logoMaxHeight: 'max-h-[60px]',
-    padding: 'p-8',
-  },
-  bronze: {
     flexBasis: 'basis-1/2 sm:basis-1/3 lg:basis-1/4',
-    minHeight: 'min-h-[120px]',
-    logoMaxWidth: 'max-w-[130px]',
+    minHeight: 'min-h-[104px]',
+    logoMaxWidth: 'max-w-[150px]',
     logoMaxHeight: 'max-h-[44px]',
     padding: 'p-6',
+  },
+  bronze: {
+    flexBasis: 'basis-1/3 sm:basis-1/4 lg:basis-1/5',
+    minHeight: 'min-h-[88px]',
+    logoMaxWidth: 'max-w-[110px]',
+    logoMaxHeight: 'max-h-[32px]',
+    padding: 'p-4',
   },
 }
 

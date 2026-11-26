@@ -13,7 +13,7 @@ export function HomeSocialProofSection({
   recentPosts,
 }: HomeSocialProofSectionProps) {
   return (
-    <div className="space-y-24">
+    <div className="space-y-24 md:space-y-32 lg:space-y-40">
       <PartnersSponsorsContent
         analyticsPlacement="home_grid"
         previousLinkAlign="end"

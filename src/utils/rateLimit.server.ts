@@ -33,20 +33,33 @@ export async function checkIpRateLimit(
 
   const result = await checkRateLimit(identifier, 'ip', options.limitPerMinute)
 
-  const headers = new Headers()
-  headers.set('X-RateLimit-Limit', options.limitPerMinute.toString())
-  headers.set('X-RateLimit-Remaining', result.remaining.toString())
-  headers.set(
-    'X-RateLimit-Reset',
-    Math.floor(result.resetAt.getTime() / 1000).toString(),
+  return buildRateLimitResult(result, options.limitPerMinute)
+}
+
+/**
+ * Check rate limit keyed by an arbitrary token (e.g. API key id, session id).
+ * Same DB path and headers as checkIpRateLimit; just bypasses IP extraction.
+ */
+export async function checkTokenRateLimit(
+  token: string,
+  options: RateLimitOptions,
+): Promise<RateLimitResult> {
+  const identifier = options.keyPrefix ? `${options.keyPrefix}:${token}` : token
+
+  const result = await checkRateLimit(
+    identifier,
+    'api_key',
+    options.limitPerMinute,
   )
 
-  if (!result.allowed) {
-    headers.set(
-      'Retry-After',
-      Math.ceil((result.resetAt.getTime() - Date.now()) / 1000).toString(),
-    )
-  }
+  return buildRateLimitResult(result, options.limitPerMinute)
+}
+
+function buildRateLimitResult(
+  result: { allowed: boolean; remaining: number; resetAt: Date },
+  limitPerMinute: number,
+): RateLimitResult {
+  const headers = createRateLimitHeaders(limitPerMinute, result)
 
   return {
     allowed: result.allowed,
@@ -232,6 +245,10 @@ export const RATE_LIMITS = {
   },
   // Deploy endpoint: 10 requests/minute (more sensitive)
   deploy: { limitPerMinute: 10, keyPrefix: 'deploy' },
+  // Intent registry public API (anonymous, IP-keyed): 60 req/min
+  intentApi: { limitPerMinute: 60, keyPrefix: 'intent-api' },
+  // Intent registry public API (authenticated, token-keyed): 600 req/min
+  intentApiAuthed: { limitPerMinute: 600, keyPrefix: 'intent-api-authed' },
   // CLI auth ticket creation: public endpoint polled by local tools
   cliAuthTicket: { limitPerMinute: 20, keyPrefix: 'cli-auth-ticket' },
   builderProjectWrite: {

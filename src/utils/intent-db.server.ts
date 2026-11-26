@@ -342,6 +342,7 @@ export interface SkillSearchResult {
   description: string | null
   type: string | null
   framework: string | null
+  skillPath: string | null
   packageName: string
   version: string
   versionId: number
@@ -365,6 +366,7 @@ export async function searchSkills(
       description: intentSkills.description,
       type: intentSkills.type,
       framework: intentSkills.framework,
+      skillPath: intentSkills.skillPath,
       packageName: intentPackageVersions.packageName,
       version: intentPackageVersions.version,
       versionId: intentPackageVersions.id,

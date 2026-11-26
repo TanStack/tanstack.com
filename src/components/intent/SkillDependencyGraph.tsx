@@ -268,8 +268,8 @@ export function SkillDependencyGraph({
             const datum = point?.datum
             if (!datum || datum.kind !== 'node') return
             void navigate({
-              to: '/intent/registry/$packageName/$skillName',
-              params: { packageName, skillName: datum.id },
+              to: '/intent/registry/$packageName/{$}',
+              params: { packageName, _splat: datum.id },
             })
           }}
         />

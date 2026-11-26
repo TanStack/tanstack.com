@@ -168,6 +168,34 @@ describe.skipIf(!fixture.url)('OAuth grants in PostgreSQL', () => {
     ).toEqual({ success: false, error: 'invalid_grant' })
   })
 
+  it.each(['access', 'refresh'])(
+    'revokes a pre-migration %s token without touching unrelated tokens',
+    async (kind) => {
+      const accessToken = 'oa_legacy-access'
+      const refreshToken = 'or_legacy-refresh'
+      const hash = async (token: string) =>
+        Buffer.from(
+          await crypto.subtle.digest(
+            'SHA-256',
+            new TextEncoder().encode(token),
+          ),
+        ).toString('hex')
+      const [access] =
+        await sql`INSERT INTO oauth_mcp_access_tokens (token_hash, user_id, client_id, expires_at) VALUES (${await hash(accessToken)}, ${userId}, ${clientId}, now() + interval '1 hour') RETURNING id`
+      await sql`INSERT INTO oauth_mcp_refresh_tokens (token_hash, user_id, client_id, access_token_id, expires_at) VALUES (${await hash(refreshToken)}, ${userId}, ${clientId}, ${access.id}, now() + interval '1 day')`
+      await sql`INSERT INTO oauth_mcp_access_tokens (token_hash, user_id, client_id, expires_at) VALUES (${await hash('oa_unrelated')}, ${userId}, ${clientId}, now() + interval '1 hour')`
+      const token = kind === 'access' ? accessToken : refreshToken
+      await revokeOAuthGrant(token, 'wrong-client')
+      expect((await validateOAuthToken(accessToken)).success).toBe(true)
+      await revokeOAuthGrant(token, clientId)
+      expect((await validateOAuthToken(accessToken)).success).toBe(false)
+      expect((await validateOAuthToken('oa_unrelated')).success).toBe(true)
+      if (kind === 'refresh')
+        expect((await refreshAccessToken(refreshToken)).success).toBe(false)
+      await revokeOAuthGrant(token, clientId)
+    },
+  )
+
   it('rotates refresh tokens without changing audience, scope or absolute expiry, and revokes on replay', async () => {
     const issued = await issue()
     expect(await listConnectedApps(userId)).toMatchObject([
@@ -262,6 +290,27 @@ describe.skipIf(!fixture.url)('OAuth grants in PostgreSQL', () => {
     expect(await introspectSourceToken(issued.accessToken)).toEqual({
       active: false,
     })
+  })
+
+  it('revokes access tokens created by legacy-scope refresh', async () => {
+    const code = await createAuthorizationCode({
+      userId,
+      clientId,
+      redirectUri,
+      codeChallenge: challenge,
+    })
+    const issued = await exchangeAuthorizationCode({
+      code,
+      codeVerifier: verifier,
+      redirectUri,
+    })
+    if (!issued.success) throw new Error(issued.error)
+    const refreshed = await refreshAccessToken(issued.refreshToken)
+    if (!refreshed.success) throw new Error(refreshed.error)
+    await revokeOAuthGrant(issued.refreshToken, clientId)
+    expect((await validateOAuthToken(refreshed.accessToken)).success).toBe(
+      false,
+    )
   })
 
   it('requires service authentication for introspection and isolates identity grants', async () => {

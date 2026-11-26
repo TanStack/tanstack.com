@@ -19,8 +19,6 @@ interface ShowcaseSectionProps {
   subtitle?: string
   libraryId?: LibraryId
   limit?: number
-  showViewAll?: boolean
-  minItems?: number
 }
 
 export function SubmitShowcasePlaceholder({
@@ -61,8 +59,6 @@ export function ShowcaseSection({
   subtitle = 'See what the community is building',
   libraryId,
   limit = 6,
-  showViewAll = true,
-  minItems = 3,
 }: ShowcaseSectionProps) {
   const queryClient = useQueryClient()
   const currentUser = useCurrentUser()
@@ -78,7 +74,7 @@ export function ShowcaseSection({
     () => data?.showcases || [],
     [data?.showcases],
   )
-  const placeholdersNeeded = Math.max(0, minItems - showcases.length)
+  const placeholdersNeeded = Math.max(0, 3 - showcases.length)
 
   const showcaseIds = React.useMemo(
     () => showcases.map((s) => s.showcase.id),
@@ -206,7 +202,7 @@ export function ShowcaseSection({
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: Math.max(limit, minItems) }).map((_, i) => (
+          {Array.from({ length: Math.max(limit, 3) }).map((_, i) => (
             <ShowcaseCardSkeleton key={i} />
           ))}
         </div>
@@ -234,21 +230,19 @@ export function ShowcaseSection({
         </div>
       )}
 
-      {showViewAll && (
-        <div className="mt-8 flex justify-center">
-          <Link
-            to="/showcase"
-            search={{
-              libraryIds: libraryId ? [libraryId] : undefined,
-            }}
-          >
-            <Button variant="ghost" size="xs">
-              View all projects
-              <ArrowRightIcon className="w-4 h-4" />
-            </Button>
-          </Link>
-        </div>
-      )}
+      <div className="mt-8 flex justify-center">
+        <Link
+          to="/showcase"
+          search={{
+            libraryIds: libraryId ? [libraryId] : undefined,
+          }}
+        >
+          <Button variant="ghost" size="xs">
+            View all projects
+            <ArrowRightIcon className="w-4 h-4" />
+          </Button>
+        </Link>
+      </div>
     </section>
   )
 }

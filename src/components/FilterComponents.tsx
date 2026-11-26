@@ -154,27 +154,16 @@ export function TopBarFilter({
 interface FilterChipProps {
   label: string
   onRemove: () => void
-  onClick?: () => void
   className?: string
 }
 
-export function FilterChip({
-  label,
-  onRemove,
-  onClick,
-  className,
-}: FilterChipProps) {
+export function FilterChip({ label, onRemove, className }: FilterChipProps) {
   return (
     <span
       className={twMerge(
         'inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[11px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-md',
-        onClick && 'cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50',
         className,
       )}
-      onClick={onClick}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
     >
       <span className="truncate max-w-[180px]">{label}</span>
       <button
@@ -194,13 +183,9 @@ export function FilterChip({
 // AddFilterButton - Button that toggles filter dropdown
 interface AddFilterButtonProps {
   children: React.ReactNode
-  label?: string
 }
 
-export function AddFilterButton({
-  children,
-  label = 'Add filter',
-}: AddFilterButtonProps) {
+export function AddFilterButton({ children }: AddFilterButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -232,7 +217,7 @@ export function AddFilterButton({
         )}
       >
         <PlusIcon className="w-3.5 h-3.5" />
-        <span>{label}</span>
+        <span>Add filter</span>
         <CaretDownIcon
           className={twMerge(
             'w-3.5 h-3.5 transition-transform',
@@ -411,11 +396,10 @@ export function FilterDropdownSection({
 export function getFilterChipLabel(
   facetName: string,
   values: string[],
-  maxDisplay = 2,
 ): string {
   if (values.length === 0) return ''
   if (values.length === 1) return `${facetName}: ${values[0]}`
-  if (values.length <= maxDisplay) return `${facetName}: ${values.join(', ')}`
+  if (values.length <= 2) return `${facetName}: ${values.join(', ')}`
   return `${facetName} (${values.length})`
 }
 
@@ -512,16 +496,12 @@ interface FilterCheckboxProps {
   label: string
   checked: boolean
   onChange: () => void
-  count?: number
-  capitalize?: boolean
 }
 
 export function FilterCheckbox({
   label,
   checked,
   onChange,
-  count,
-  capitalize = false,
 }: FilterCheckboxProps) {
   return (
     <label className="flex items-center gap-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-1.5 py-0 rounded">
@@ -531,12 +511,7 @@ export function FilterCheckbox({
         onChange={onChange}
         className="rounded"
       />
-      <span className={capitalize ? 'capitalize' : ''}>{label}</span>
-      {count !== undefined && (
-        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
-          {count}
-        </span>
-      )}
+      <span>{label}</span>
     </label>
   )
 }
@@ -547,7 +522,6 @@ interface FilterSearchProps {
   onChange: (value: string) => void
   placeholder?: string
   className?: string
-  debounceMs?: number
   size?: 'sm' | 'md'
 }
 
@@ -556,7 +530,6 @@ export function FilterSearch({
   onChange,
   placeholder = 'Search...',
   className = '',
-  debounceMs = 300,
   size = 'md',
 }: FilterSearchProps) {
   // Local state for immediate UI updates
@@ -564,7 +537,7 @@ export function FilterSearch({
 
   const { maybeExecute, state: isPending } = useDebouncer(
     onChange,
-    { wait: debounceMs },
+    { wait: 300 },
     (state) => ({
       isPending: state.isPending,
     }),

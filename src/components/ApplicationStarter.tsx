@@ -59,7 +59,6 @@ export interface ApplicationStarterProps {
   secondaryActionLabel?: string
   showCliExportActions?: boolean
   showPromptPreview?: boolean
-  suggestionContext?: ApplicationStarterContext
   submitButton?: React.ReactNode
   title?: React.ReactNode
   tone?: StarterTone
@@ -161,7 +160,6 @@ export function ApplicationStarter({
   secondaryActionLabel = 'Build with Netlify',
   showCliExportActions = true,
   showPromptPreview = true,
-  suggestionContext,
   submitButton,
   title = 'What would you like to build?',
   tone = 'cyan',
@@ -214,7 +212,6 @@ export function ApplicationStarter({
     onDirtyStateChange,
     onResolvedResult,
     revealOptionsImmediately,
-    suggestionContext,
   })
 
   const palette = toneClasses[tone]

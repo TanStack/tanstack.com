@@ -430,7 +430,7 @@ function RouteComponent() {
     })
   }
 
-  const handleAddBaseline = (packageName: string, color?: string) => {
+  const handleAddBaseline = (packageName: string) => {
     navigate({
       to: '.',
       search: (prev) => {
@@ -446,7 +446,6 @@ function RouteComponent() {
             ...groups,
             {
               packages: [{ name: packageName, hidden: true }],
-              color,
               baseline: true,
             },
           ],

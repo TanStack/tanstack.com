@@ -580,10 +580,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     userQuery.data || userQuery.isLoading ? (
       <div
         aria-hidden="true"
-        className={twMerge(
-          'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
-          className,
-        )}
+        className="size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"
       />
     ) : (
       renderAuthLink(className)

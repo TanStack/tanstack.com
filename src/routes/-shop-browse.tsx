@@ -10,7 +10,6 @@ import {
   SORT_OPTIONS,
   resolveSortOption,
   sortOptionId,
-  type ProductDetail,
   type ProductListItem,
   type ProductListPage,
   type SortOptionId,
@@ -53,7 +52,6 @@ type ShopBrowsePageProps = {
   sortId: SortOptionId
   activeType: string | undefined
   productHandle: string | null
-  initialProduct?: ProductDetail | null
   onTypeChange: (type: string | undefined) => void
   onSortChange: (sort: ValidSortId | undefined) => void
   onProductSelect: (handle: string) => void
@@ -66,7 +64,6 @@ export function ShopBrowsePage({
   sortId,
   activeType,
   productHandle,
-  initialProduct,
   onTypeChange,
   onSortChange,
   onProductSelect,
@@ -235,7 +232,6 @@ export function ShopBrowsePage({
 
       <ProductDrawer
         productHandle={productHandle}
-        initialProduct={initialProduct}
         allHandles={products.map((product) => product.handle)}
         onClose={onProductClose}
         onChange={onProductChange}

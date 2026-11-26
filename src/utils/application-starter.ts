@@ -559,13 +559,11 @@ export async function resolveApplicationStarterDeterministically({
 
 export function composeApplicationStarterResult({
   input,
-  prompt,
   rationale,
   recipe,
   resultType,
 }: {
   input: string
-  prompt?: string
   rationale: Array<string>
   recipe: ApplicationStarterRecipe
   resultType: ApplicationStarterResultType
@@ -580,9 +578,7 @@ export function composeApplicationStarterResult({
       resultType === 'migration'
         ? 'Your migration prompt is ready'
         : 'Your prompt is ready',
-    prompt: sanitizeStarterPrompt(
-      prompt || buildPrompt({ input, resultType, recipe }),
-    ),
+    prompt: sanitizeStarterPrompt(buildPrompt({ input, resultType, recipe })),
     rationale,
     recipe,
     resultType,

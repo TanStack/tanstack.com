@@ -39,8 +39,6 @@ type DocProps = {
   // Breadcrumb props (optional)
   config?: ConfigSchema
   breadcrumbItems?: Array<BreadcrumbItem>
-  // Footer content rendered after markdown
-  footer?: React.ReactNode
   // Optional framework to use (overrides URL and local storage)
   framework?: string
 }
@@ -61,7 +59,6 @@ export function Doc({
   pagePath,
   config,
   breadcrumbItems,
-  footer,
   framework: frameworkProp,
 }: DocProps) {
   const { groups: startHostingPartnerGroups } = useStartHostingPartners()
@@ -219,7 +216,7 @@ export function Doc({
               ) : null}
             </div>
           ) : null}
-          {footer ?? <DocNavigation />}
+          <DocNavigation />
           <div className="h-4" />
         </div>
 

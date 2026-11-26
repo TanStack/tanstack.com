@@ -24,7 +24,6 @@ export const intentDirectoryQueryOptions = (params: {
   framework?: string
   sort?: 'downloads' | 'name' | 'skills' | 'newest'
   page?: number
-  pageSize?: number
 }) =>
   queryOptions({
     queryKey: ['intent', 'directory', params],

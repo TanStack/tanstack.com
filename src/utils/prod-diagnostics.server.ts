@@ -55,13 +55,8 @@ function getResourceSummary(): Record<string, number> {
   return summary
 }
 
-function getTopHosts(
-  outboundHosts: HostCounter,
-  limit = 8,
-): Array<[string, number]> {
-  return [...outboundHosts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
+function getTopHosts(outboundHosts: HostCounter): Array<[string, number]> {
+  return [...outboundHosts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
 }
 
 function toUrl(input: RequestInfo | URL): URL | null {
@@ -276,7 +271,6 @@ export function logRequestEnd(
 export function logRequestError(
   context: RequestDiagnostics,
   error: unknown,
-  extra?: Record<string, unknown>,
 ): void {
   if (!isProduction) {
     return
@@ -311,7 +305,6 @@ export function logRequestError(
     topOutboundHosts: getTopHosts(context.outboundHosts),
     resourceSummary: getResourceSummary(),
     ...errorDetails,
-    ...extra,
   })
 }
 

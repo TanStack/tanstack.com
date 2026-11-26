@@ -49,7 +49,6 @@ export async function runBuilderAiStream({
   byokProvider,
   includeReasoningSummaries = false,
   onActivityEvent,
-  onChunk,
   onText,
   onLocalValidate,
   onValidate,
@@ -64,7 +63,6 @@ export async function runBuilderAiStream({
   byokProvider?: BuilderAiRemoteProvider
   includeReasoningSummaries?: boolean
   onActivityEvent?: (event: BuilderAiActivityEvent) => void
-  onChunk?: (chunk: StreamChunk) => void
   onText?: (text: string) => void
   onLocalValidate?: (
     state: BuilderAiValidationState,
@@ -355,7 +353,6 @@ export async function runBuilderAiStream({
       throw new Error('Builder AI returned an invalid execution result')
     }
 
-    onChunk?.(chunk)
     observeTextChunk(chunk)
     observeActivityChunk(chunk)
 

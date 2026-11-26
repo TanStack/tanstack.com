@@ -10,19 +10,11 @@ export type ComparisonGroup = {
 
 type PopularComparisonsProps = {
   comparisons: ComparisonGroup[]
-  // Optional: customize the link target
-  linkTo?: string
-  // Optional: callback when a comparison is clicked
-  onSelect?: (comparison: ComparisonGroup) => void
 }
 
 const PREVIEW_PACKAGE_LIMIT = 8
 
-export function PopularComparisons({
-  comparisons,
-  linkTo = '.',
-  onSelect,
-}: PopularComparisonsProps) {
+export function PopularComparisons({ comparisons }: PopularComparisonsProps) {
   return (
     <div>
       <h2 className="text-lg font-semibold mb-3">Presets</h2>
@@ -87,22 +79,10 @@ export function PopularComparisons({
             </div>
           )
 
-          if (onSelect) {
-            return (
-              <button
-                key={comparison.title}
-                onClick={() => onSelect(comparison)}
-                className="block p-3 bg-gray-500/10 hover:bg-gray-500/20 rounded-md transition-colors text-left w-full"
-              >
-                {content}
-              </button>
-            )
-          }
-
           return (
             <Link
               key={comparison.title}
-              to={linkTo}
+              to="."
               search={(prev: Record<string, unknown>) => ({
                 ...prev,
                 packageGroups: comparison.packageGroups,

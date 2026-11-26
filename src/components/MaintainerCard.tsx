@@ -246,12 +246,6 @@ interface CompactMaintainerCardProps {
 interface MaintainerRowCardProps {
   maintainer: Maintainer
   libraryId?: Library['id']
-  stats?: {
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }
 }
 
 export function CompactMaintainerCard({

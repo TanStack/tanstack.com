@@ -86,7 +86,6 @@ export type Library = LibrarySlim & {
     icon: ReactNode
     description: ReactNode
   }[]
-  testimonials?: Testimonial[]
 }
 
 export type Testimonial = {

@@ -168,12 +168,11 @@ export function formatLatestBucketLabel({
 export function getLatestBucketOffsetOptions({
   binType,
   range,
-  now = getUtcToday(),
 }: {
   binType: BinType
   range?: TimeRange
-  now?: Date
 }) {
+  const now = getUtcToday()
   const bounds = getLatestBucketOffsetBounds({ binType, range, now })
   const options: Array<{ offset: number; label: string }> = []
 

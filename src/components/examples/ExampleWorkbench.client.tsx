@@ -4474,14 +4474,12 @@ function ConsoleOutput({
   ariaLabelledBy,
   className = '',
   entries,
-  hidden = false,
   id,
   label,
 }: {
   ariaLabelledBy?: string
   className?: string
   entries: Array<ConsoleEntry>
-  hidden?: boolean
   id: string
   label: string
 }) {
@@ -4490,8 +4488,6 @@ function ConsoleOutput({
       id={id}
       role={ariaLabelledBy ? 'tabpanel' : undefined}
       aria-labelledby={ariaLabelledBy}
-      hidden={hidden}
-      inert={hidden}
       className={`overflow-auto bg-[var(--th-background)] p-3 font-ds-mono text-xs leading-5 text-[var(--th-token)] ${className}`}
     >
       <div role="log" aria-label={label}>

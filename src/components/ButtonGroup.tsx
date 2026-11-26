@@ -59,8 +59,6 @@ type SegmentedControlProps<TValue extends string> = {
   /** Labels the group for assistive tech (the control has no visible label). */
   'aria-label': string
   size?: SegmentSize
-  /** Stretch to fill the container, splitting width evenly across options. */
-  fullWidth?: boolean
   className?: string
 }
 
@@ -79,18 +77,13 @@ export function SegmentedControl<TValue extends string>({
   onValueChange,
   'aria-label': ariaLabel,
   size = 'md',
-  fullWidth = false,
   className,
 }: SegmentedControlProps<TValue>) {
   return (
     <div
       role="group"
       aria-label={ariaLabel}
-      className={twMerge(
-        segmentTrackClasses(size),
-        fullWidth && 'flex w-full',
-        className,
-      )}
+      className={twMerge(segmentTrackClasses(size), className)}
     >
       {options.map((option) => {
         const selected = value === option.value
@@ -102,11 +95,7 @@ export function SegmentedControl<TValue extends string>({
             aria-label={option['aria-label']}
             disabled={option.disabled}
             onClick={() => onValueChange(option.value)}
-            className={segmentClasses(
-              size,
-              selected,
-              fullWidth ? 'flex-1' : undefined,
-            )}
+            className={segmentClasses(size, selected)}
           >
             {option.label}
           </button>

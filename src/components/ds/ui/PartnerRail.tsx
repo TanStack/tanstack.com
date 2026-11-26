@@ -64,8 +64,6 @@ function TierHeader({ tier }: { tier: PartnerTier }) {
 export function PartnerRail({
   analyticsPlacement,
   partners,
-  title = 'Partners',
-  titleTo = '/partners',
   sizing,
   scaleOverrides,
   rowGaps,
@@ -73,8 +71,6 @@ export function PartnerRail({
 }: {
   analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
-  title?: string
-  titleTo?: '/partners'
   sizing?: PartnerLogoSizing
   scaleOverrides?: Record<string, number>
   /** Vertical gap (px) between logo rows, per tier — workshop hook. */
@@ -99,9 +95,9 @@ export function PartnerRail({
       <div className="flex w-full items-center justify-between gap-2">
         <Link
           className="text-xs font-medium opacity-60 hover:opacity-100"
-          to={titleTo}
+          to="/partners"
         >
-          {title}
+          Partners
         </Link>
         <a
           href={PARTNER_INQUIRY_HREF}

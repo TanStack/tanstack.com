@@ -35,9 +35,8 @@ export async function recordAuditLog(opts: {
   targetType: 'user' | 'role' | 'banner' | 'feed_entry' | 'feedback'
   targetId: string
   details?: Record<string, unknown>
-  request?: Request
 }): Promise<void> {
-  const { actorId, action, targetType, targetId, details, request } = opts
+  const { actorId, action, targetType, targetId, details } = opts
 
   await db.insert(auditLogs).values({
     actorId,
@@ -45,7 +44,7 @@ export async function recordAuditLog(opts: {
     targetType,
     targetId,
     details: details ?? null,
-    ipAddress: request ? getClientIp(request) : undefined,
-    userAgent: request?.headers.get('user-agent') || undefined,
+    ipAddress: undefined,
+    userAgent: undefined,
   })
 }

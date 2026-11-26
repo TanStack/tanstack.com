@@ -25,9 +25,6 @@ export interface NpmPackageStats {
 
 export interface NpmStats {
   totalDownloads: number
-  packages?: string
-  // Per-package stats with rate information
-  packageStats?: Record<string, NpmPackageStats>
   // Aggregate rate and timestamp for animating the total
   ratePerDay?: number // Aggregate downloads per day across all packages (growth rate)
   updatedAt?: number // Most recent update timestamp across all packages (ms since epoch)

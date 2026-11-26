@@ -5,7 +5,6 @@ type Variant = 'primary' | 'outline' | 'ghost'
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant
-  fullWidth?: boolean
 }
 
 const base =
@@ -23,14 +22,7 @@ const variants: Record<Variant, string> = {
 /** Shop button. Three visual weights — primary, outline, ghost. */
 export const ShopButton = React.forwardRef<HTMLButtonElement, Props>(
   function ShopButton(
-    {
-      variant = 'outline',
-      fullWidth,
-      type = 'button',
-      className,
-      children,
-      ...rest
-    },
+    { variant = 'outline', type = 'button', className, children, ...rest },
     ref,
   ) {
     return (
@@ -38,12 +30,7 @@ export const ShopButton = React.forwardRef<HTMLButtonElement, Props>(
         ref={ref}
         type={type}
         {...rest}
-        className={twMerge(
-          base,
-          variants[variant],
-          fullWidth && 'w-full',
-          className,
-        )}
+        className={twMerge(base, variants[variant], className)}
       >
         {children}
       </button>

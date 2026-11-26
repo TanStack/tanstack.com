@@ -21,10 +21,7 @@ type DiscordEmbed = {
 }
 
 type DiscordWebhookPayload = {
-  content?: string
   embeds?: Array<DiscordEmbed>
-  username?: string
-  avatar_url?: string
 }
 
 export async function sendDiscordNotification(

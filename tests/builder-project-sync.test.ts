@@ -806,8 +806,8 @@ test('streams gap-free events, heartbeats, and then reconnects', async () => {
     true,
   )
   assert.match(body, /retry: 500/)
-  assert.match(body, /id: 1/)
-  assert.match(body, /id: 2/)
+  assert.match(body, /^id: 1\r?$/m)
+  assert.match(body, /^id: 2\r?$/m)
   assert.match(body, /: heartbeat/)
   assert.equal(expiredRunChecks, 3)
 })
@@ -823,7 +823,7 @@ test('stops a replay before emitting an event across a sequence gap', async () =
       listEvents: async () => [createEvent(2)],
     })
     const body = await response.text()
-    assert.doesNotMatch(body, /id: 2/)
+    assert.doesNotMatch(body, /^id: 2\r?$/m)
   } finally {
     console.error = originalConsoleError
   }
@@ -838,9 +838,9 @@ test('bounds events buffered by one stream response', async () => {
     listEvents: async () => [createEvent(1), createEvent(2), createEvent(3)],
   })
   const body = await response.text()
-  assert.match(body, /id: 1/)
-  assert.match(body, /id: 2/)
-  assert.doesNotMatch(body, /id: 3/)
+  assert.match(body, /^id: 1\r?$/m)
+  assert.match(body, /^id: 2\r?$/m)
+  assert.doesNotMatch(body, /^id: 3\r?$/m)
 })
 
 function createEvent(sequence: number): BuilderProjectSyncEvent {

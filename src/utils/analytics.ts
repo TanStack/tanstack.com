@@ -24,10 +24,8 @@ export type {
 export { defaultApplicationStarterSessionContext } from './analytics/events'
 
 interface ImpressionOptions<TName extends AnalyticsEventName> {
-  enabled?: boolean
   event: TName
   props: AnalyticsEventProps<TName>
-  threshold?: number
 }
 
 function getPageType(pathname: string) {
@@ -175,7 +173,7 @@ export function trackPageView(pagePath: string) {
 export function useTrackedImpression<
   TName extends AnalyticsEventName,
   TElement extends Element = Element,
->({ enabled = true, event, props, threshold = 0.5 }: ImpressionOptions<TName>) {
+>({ event, props }: ImpressionOptions<TName>) {
   const ref = React.useRef<TElement | null>(null)
   const hasTrackedRef = React.useRef(false)
   const propsRef = React.useRef(props)
@@ -185,7 +183,7 @@ export function useTrackedImpression<
   }, [props])
 
   React.useEffect(() => {
-    if (!enabled || hasTrackedRef.current) {
+    if (hasTrackedRef.current) {
       return
     }
 
@@ -215,7 +213,7 @@ export function useTrackedImpression<
             continue
           }
 
-          if (entry.intersectionRatio < threshold) {
+          if (entry.intersectionRatio < 0.5) {
             continue
           }
 
@@ -224,7 +222,7 @@ export function useTrackedImpression<
           return
         }
       },
-      { threshold: [threshold] },
+      { threshold: [0.5] },
     )
 
     observer.observe(element)
@@ -232,7 +230,7 @@ export function useTrackedImpression<
     return () => {
       observer.disconnect()
     }
-  }, [enabled, event, threshold])
+  }, [event])
 
   return ref
 }

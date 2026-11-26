@@ -4,17 +4,11 @@ import {
   getBulkUserRoles,
   getBulkEffectiveCapabilities,
 } from '~/utils/roles.functions'
-import type { Capability } from '~/db/types'
 
-export interface ListRolesFilters {
-  nameFilter?: string
-  capabilityFilter?: Capability[]
-}
-
-export const listRolesQueryOptions = (filters?: ListRolesFilters) =>
+export const listRolesQueryOptions = () =>
   queryOptions({
-    queryKey: ['admin', 'roles', filters],
-    queryFn: () => listRoles({ data: filters || {} }),
+    queryKey: ['admin', 'roles'],
+    queryFn: () => listRoles({ data: {} }),
   })
 
 export const getBulkUserRolesQueryOptions = (userIds: string[]) =>

@@ -59,16 +59,12 @@ interface TableHeaderCellProps {
   children?: React.ReactNode
   className?: string
   align?: 'left' | 'right' | 'center'
-  width?: string
-  compact?: boolean
 }
 
 export function TableHeaderCell({
   children,
   className = '',
   align = 'left',
-  width,
-  compact = true,
 }: TableHeaderCellProps) {
   const alignClass =
     align === 'right'
@@ -76,12 +72,9 @@ export function TableHeaderCell({
       : align === 'center'
         ? 'text-center'
         : 'text-left'
-  const paddingClass = compact ? 'px-2 py-1.5' : 'px-4 py-2'
-  const textSizeClass = compact ? 'text-[10px]' : 'text-xs'
   return (
     <th
-      className={`${paddingClass} ${alignClass} ${textSizeClass} font-semibold text-gray-600 dark:text-gray-400 uppercase whitespace-nowrap ${className}`}
-      style={width ? { width } : undefined}
+      className={`px-2 py-1.5 ${alignClass} text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase whitespace-nowrap ${className}`}
     >
       {children}
     </th>
@@ -93,8 +86,6 @@ interface SortableTableHeaderCellProps {
   children?: React.ReactNode
   className?: string
   align?: 'left' | 'right' | 'center'
-  width?: string
-  compact?: boolean
   sortable?: boolean
   sortDirection?: 'asc' | 'desc' | false
   onSort?: () => void
@@ -104,8 +95,6 @@ export function SortableTableHeaderCell({
   children,
   className = '',
   align = 'left',
-  width,
-  compact = true,
   sortable = false,
   sortDirection = false,
   onSort,
@@ -116,22 +105,15 @@ export function SortableTableHeaderCell({
       : align === 'center'
         ? 'text-center'
         : 'text-left'
-  const paddingClass = compact ? 'px-2 py-1.5' : 'px-4 py-2'
-  const textSizeClass = compact ? 'text-[10px]' : 'text-xs'
-  const baseClass = `${paddingClass} ${alignClass} ${textSizeClass} font-semibold text-gray-600 dark:text-gray-400 uppercase whitespace-nowrap ${className}`
+  const baseClass = `px-2 py-1.5 ${alignClass} text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase whitespace-nowrap ${className}`
 
   if (!sortable) {
-    return (
-      <th className={baseClass} style={width ? { width } : undefined}>
-        {children}
-      </th>
-    )
+    return <th className={baseClass}>{children}</th>
   }
 
   return (
     <th
       className={`${baseClass} group cursor-pointer hover:text-gray-900 dark:hover:text-gray-200 transition-colors`}
-      style={width ? { width } : undefined}
       onClick={onSort}
     >
       <span
@@ -188,7 +170,6 @@ interface TableCellProps {
   className?: string
   align?: 'left' | 'right' | 'center'
   colSpan?: number
-  compact?: boolean
   onClick?: (e: React.MouseEvent<HTMLTableCellElement>) => void
 }
 
@@ -197,7 +178,6 @@ export function TableCell({
   className = '',
   align = 'left',
   colSpan,
-  compact = true,
   onClick,
 }: TableCellProps) {
   const alignClass =
@@ -206,10 +186,9 @@ export function TableCell({
       : align === 'center'
         ? 'text-center'
         : 'text-left'
-  const paddingClass = compact ? 'px-2 py-2' : 'px-4 py-3'
   return (
     <td
-      className={`${paddingClass} ${alignClass} ${className}`}
+      className={`px-2 py-2 ${alignClass} ${className}`}
       colSpan={colSpan}
       onClick={onClick}
     >

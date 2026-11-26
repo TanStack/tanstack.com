@@ -131,33 +131,19 @@ function useTabsContext(component: string) {
 }
 
 export function Tabs({
-  value: controlledValue,
   defaultValue,
-  onValueChange,
   variant = 'secondary',
   className,
   children,
 }: {
-  value?: string
   defaultValue?: string
-  onValueChange?: (value: string) => void
   /** `primary` = underline; `secondary` = segmented (default). */
   variant?: TabsVariant
   className?: string
   children: React.ReactNode
 }) {
-  const isControlled = controlledValue !== undefined
   const idBase = React.useId()
-  const [internalValue, setInternalValue] = React.useState(defaultValue ?? '')
-  const value = controlledValue ?? internalValue
-
-  const setValue = React.useCallback(
-    (next: string) => {
-      if (!isControlled) setInternalValue(next)
-      onValueChange?.(next)
-    },
-    [isControlled, onValueChange],
-  )
+  const [value, setValue] = React.useState(defaultValue ?? '')
 
   const ctx = React.useMemo<TabsContextValue>(
     () => ({ value, setValue, idBase, variant }),
@@ -234,14 +220,12 @@ export function TabsList({
 export function TabsTrigger({
   value,
   icon,
-  disabled,
   className,
   children,
 }: {
   value: string
   /** Optional leading icon node (sized by the segment). */
   icon?: React.ReactNode
-  disabled?: boolean
   className?: string
   children: React.ReactNode
 }) {
@@ -262,7 +246,6 @@ export function TabsTrigger({
       aria-selected={selected}
       aria-controls={`${idBase}-panel-${value}`}
       tabIndex={selected ? 0 : -1}
-      disabled={disabled}
       onClick={() => setValue(value)}
       className={
         variant === 'primary'

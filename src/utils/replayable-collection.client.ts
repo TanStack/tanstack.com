@@ -43,7 +43,6 @@ export interface ReplayableCollectionOptions<
   openStream: (
     context: ReplayableStreamContext<TItem, TKey>,
   ) => void | (() => void)
-  gcTime?: number
 }
 
 export class ReplayableCollectionStoppedError extends Error {
@@ -152,7 +151,6 @@ export function createReplayableCollectionOptions<
     return {
       id: options.id,
       getKey: options.getKey,
-      gcTime: options.gcTime,
       syncMode: 'eager',
       startSync: false,
       utils,

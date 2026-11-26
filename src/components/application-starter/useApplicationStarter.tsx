@@ -49,7 +49,6 @@ interface UseApplicationStarterOptions {
   onDirtyStateChange?: (dirty: boolean) => void
   onResolvedResult?: (result: ApplicationStarterResult | null) => void
   revealOptionsImmediately?: boolean
-  suggestionContext?: ApplicationStarterContext
 }
 
 type CopyTrigger = 'automatic' | 'user'
@@ -61,10 +60,9 @@ export function useApplicationStarter({
   onDirtyStateChange,
   onResolvedResult,
   revealOptionsImmediately = false,
-  suggestionContext = context,
 }: UseApplicationStarterOptions) {
   const { notify } = useToast()
-  const suggestions = getApplicationStarterSuggestions(suggestionContext)
+  const suggestions = getApplicationStarterSuggestions(context)
   const partnerPlacementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
     surface: 'application_starter_suggestions',
@@ -255,19 +253,15 @@ export function useApplicationStarter({
   )
 
   const buildDebouncedSubmittedInput = React.useCallback(
-    (
-      nextSelectedPartners: Array<string> = explicitlySelectedPartners,
-      nextInferredPartners: Array<string> = [],
-      nextSelectedLibraries: Array<LibraryId> = selectedLibraries,
-    ) =>
+    () =>
       composeStarterInput({
         forceRouterOnly,
-        inferredPartners: nextInferredPartners,
+        inferredPartners: [],
         input: debouncedInput,
         migrationRepositoryUrl: debouncedMigrationRepositoryUrl,
         packageManager: selectedPackageManager,
-        selectedLibraries: nextSelectedLibraries,
-        selectedPartners: nextSelectedPartners,
+        selectedLibraries,
+        selectedPartners: explicitlySelectedPartners,
         toolchain: selectedToolchain,
       }),
     [

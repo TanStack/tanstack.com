@@ -1168,14 +1168,12 @@ function SignupsChartCard({
   defaultTimeRange = '30-days',
   color = '#10b981',
   height = 200,
-  linkTo,
 }: {
   title: string
   variant?: 'bar' | 'area' | 'cumulative'
   defaultTimeRange?: TimeRange
   color?: string
   height?: number
-  linkTo?: string
 }) {
   const [timeRange, setTimeRange] = useState<TimeRange>(defaultTimeRange)
   const [binType, setBinType] = useState<BinType>(
@@ -1202,14 +1200,6 @@ function SignupsChartCard({
             binType={binType}
             onBinTypeChange={setBinType}
           />
-          {linkTo && (
-            <Link
-              to={linkTo}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-            >
-              Details
-            </Link>
-          )}
         </div>
       </div>
       {isLoading ? (
@@ -1234,19 +1224,13 @@ function SignupsChartCard({
 
 function DauChartCard({
   title,
-  defaultTimeRange = '30-days',
   height = 200,
-  linkTo,
 }: {
   title: string
-  defaultTimeRange?: TimeRange
   height?: number
-  linkTo?: string
 }) {
-  const [timeRange, setTimeRange] = useState<TimeRange>(defaultTimeRange)
-  const [binType, setBinType] = useState<BinType>(
-    defaultBinForRange[defaultTimeRange],
-  )
+  const [timeRange, setTimeRange] = useState<TimeRange>('30-days')
+  const [binType, setBinType] = useState<BinType>(defaultBinForRange['30-days'])
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'dau-chart', timeRange],
@@ -1268,14 +1252,6 @@ function DauChartCard({
             binType={binType}
             onBinTypeChange={setBinType}
           />
-          {linkTo && (
-            <Link
-              to={linkTo}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-            >
-              Details
-            </Link>
-          )}
         </div>
       </div>
       {isLoading ? (
@@ -1298,19 +1274,9 @@ function DauChartCard({
   )
 }
 
-function LoginsChartCard({
-  title,
-  defaultTimeRange = '30-days',
-  height = 200,
-}: {
-  title: string
-  defaultTimeRange?: TimeRange
-  height?: number
-}) {
-  const [timeRange, setTimeRange] = useState<TimeRange>(defaultTimeRange)
-  const [binType, setBinType] = useState<BinType>(
-    defaultBinForRange[defaultTimeRange],
-  )
+function LoginsChartCard({ title }: { title: string }) {
+  const [timeRange, setTimeRange] = useState<TimeRange>('30-days')
+  const [binType, setBinType] = useState<BinType>(defaultBinForRange['30-days'])
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'logins-chart', timeRange],
@@ -1337,13 +1303,13 @@ function LoginsChartCard({
           Loading...
         </div>
       ) : (
-        <Suspense fallback={<ChartFallback height={height} />}>
+        <Suspense fallback={<ChartFallback height={200} />}>
           <LazyTimeSeriesChart
             data={data ?? []}
             binType={binType}
             variant="bar"
             color="#06b6d4"
-            height={height}
+            height={200}
             yLabel="Logins"
           />
         </Suspense>

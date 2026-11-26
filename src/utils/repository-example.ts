@@ -7,7 +7,6 @@ import {
 
 export function createRepositoryExampleDefinition({
   binaryFiles,
-  description,
   entry,
   files,
   id,
@@ -16,7 +15,6 @@ export function createRepositoryExampleDefinition({
   title,
 }: {
   binaryFiles?: Record<string, string>
-  description?: string
   entry: string
   files: Record<string, string>
   id: string
@@ -37,7 +35,6 @@ export function createRepositoryExampleDefinition({
   return {
     id,
     title,
-    ...(description ? { description } : {}),
     ...(runtime ? { runtime } : {}),
     initialFile:
       workspace.files[normalizedInitialFile] === undefined

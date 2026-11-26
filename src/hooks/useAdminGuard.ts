@@ -1,6 +1,6 @@
 import { useCurrentUserQuery } from './useCurrentUser'
 import { useCapabilities } from './useCapabilities'
-import { hasCapability, type Capability } from '~/db/types'
+import { hasCapability } from '~/db/types'
 
 type AdminGuardLoading = { status: 'loading' }
 type AdminGuardDenied = { status: 'denied' }
@@ -26,9 +26,7 @@ export type AdminGuardResult =
  * if (guard.status === 'denied') return <AdminAccessDenied />
  * // guard.status === 'authorized', guard.user is available
  */
-export function useAdminGuard(
-  requiredCapability: Capability = 'admin',
-): AdminGuardResult {
+export function useAdminGuard(): AdminGuardResult {
   const userQuery = useCurrentUserQuery()
   const capabilities = useCapabilities()
 
@@ -36,7 +34,7 @@ export function useAdminGuard(
     return { status: 'loading' }
   }
 
-  if (!userQuery.data || !hasCapability(capabilities, requiredCapability)) {
+  if (!userQuery.data || !hasCapability(capabilities, 'admin')) {
     return { status: 'denied' }
   }
 

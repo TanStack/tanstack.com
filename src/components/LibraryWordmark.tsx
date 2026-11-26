@@ -6,8 +6,6 @@ type LibraryWordmarkProps = {
   colorProduct?: boolean
   includeTanStack?: boolean
   library: Pick<LibrarySlim, 'colorFrom' | 'colorTo' | 'name'>
-  productClassName?: string
-  tanStackClassName?: string
 }
 
 export function LibraryWordmark({
@@ -15,8 +13,6 @@ export function LibraryWordmark({
   colorProduct = true,
   includeTanStack = true,
   library,
-  productClassName,
-  tanStackClassName,
 }: LibraryWordmarkProps) {
   const productName = library.name.replace(/^TanStack\s+/i, '')
 
@@ -27,18 +23,13 @@ export function LibraryWordmark({
         className,
       )}
     >
-      {includeTanStack ? (
-        <span className={twMerge('inline-block', tanStackClassName)}>
-          TanStack
-        </span>
-      ) : null}
+      {includeTanStack ? <span className="inline-block">TanStack</span> : null}
       <span
         className={twMerge(
           'inline-block pr-1',
           colorProduct
             ? `bg-linear-to-r bg-clip-text text-transparent ${library.colorFrom} ${library.colorTo}`
             : '',
-          productClassName,
         )}
       >
         {productName}

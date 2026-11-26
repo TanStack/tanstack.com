@@ -316,7 +316,7 @@ function UsersPage() {
   const bulkAssignRolesToUsers = useBulkAssignRolesToUsers()
   const bulkUpdateUserCapabilities = useBulkUpdateUserCapabilities()
   const allRolesQuery = useQuery({
-    ...listRolesQueryOptions({}),
+    ...listRolesQueryOptions(),
     placeholderData: keepPreviousData,
   })
   const allRoles = useMemo(() => allRolesQuery.data || [], [allRolesQuery.data])

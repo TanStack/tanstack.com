@@ -14,11 +14,6 @@ const SHOPIFY_API_VERSION = '2026-01'
 type ShopifyFetchInput<TVariables> = {
   query: string
   variables?: TVariables
-  /**
-   * Optional buyer IP, forwarded to Shopify's bot-protection headers.
-   * Only meaningful with the private token.
-   */
-  buyerIp?: string
 }
 
 type ShopifyResponse<TData> = {
@@ -59,7 +54,6 @@ export async function shopifyServerFetch<
     Accept: 'application/json',
     'Shopify-Storefront-Private-Token': token,
   }
-  if (input.buyerIp) headers['Shopify-Storefront-Buyer-IP'] = input.buyerIp
 
   const response = await fetch(
     `https://${SHOPIFY_STORE_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`,

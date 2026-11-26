@@ -4,8 +4,7 @@ import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
 import { formatPublishedDate } from '~/utils/blog-format'
 
 type RecentPostsWidgetProps = {
-  posts?: ReadonlyArray<RecentPost>
-  /** Set to false to skip the client fetch when the widget is rendered but not visible (e.g. hidden below a CSS breakpoint). Ignored when `posts` is provided. */
+  /** Set to false to skip the client fetch when the widget is rendered but not visible (e.g. hidden below a CSS breakpoint). */
   enabled?: boolean
 }
 
@@ -88,18 +87,15 @@ function RecentPostsSkeleton() {
   )
 }
 
-export function RecentPostsWidget({
-  posts,
-  enabled = true,
-}: RecentPostsWidgetProps) {
+export function RecentPostsWidget({ enabled = true }: RecentPostsWidgetProps) {
   const recentPostsQuery = useQuery({
     queryKey: ['recentPosts'],
     queryFn: () => fetchRecentPosts(),
-    enabled: posts === undefined && enabled,
+    enabled,
     staleTime: 1000 * 60 * 5,
   })
 
-  const visiblePosts = posts ?? recentPostsQuery.data
+  const visiblePosts = recentPostsQuery.data
 
   if (!visiblePosts) {
     return <RecentPostsSkeleton />

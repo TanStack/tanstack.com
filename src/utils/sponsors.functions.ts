@@ -12,7 +12,6 @@ export type SponsorMeta = {
   imageUrl?: string
   linkUrl?: string
   private?: boolean
-  amount?: number
 }
 
 export type Sponsor = {
@@ -86,16 +85,6 @@ async function getSponsors() {
         imageUrl: sponsorMeta.imageUrl ?? matchingSponsor.imageUrl,
         linkUrl: sponsorMeta.linkUrl ?? matchingSponsor.linkUrl,
         private: sponsorMeta.private ?? matchingSponsor.private,
-      })
-    } else if (sponsorMeta.amount) {
-      sponsors.push({
-        login: sponsorMeta.login,
-        name: sponsorMeta.name || '',
-        imageUrl: sponsorMeta.imageUrl || '',
-        linkUrl: sponsorMeta.linkUrl || '',
-        private: sponsorMeta.private || false,
-        createdAt: new Date().toISOString(),
-        amount: sponsorMeta.amount || 0,
       })
     }
   })

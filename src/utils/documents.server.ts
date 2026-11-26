@@ -11,7 +11,6 @@ import {
   getHostRuntimeEnv,
   isIsolateRuntime,
 } from '~/server/runtime/host.server'
-import { fetchCached } from '~/utils/cache.server'
 import {
   getCachedGitHubJsonContent,
   getCachedGitHubTextFile,
@@ -587,6 +586,7 @@ export function applyReferencedDocsFreshness(
   references: Array<Record<string, unknown>>,
 ) {
   const parsed = parseFrontMatter(text)
+  if ('error' in parsed) throw parsed.error
   if (references.length === 0) return text
   const facts = [parsed.data, ...references].map(readDocsFreshness)
   const dates = facts.flatMap(({ updated }) => (updated ? [updated] : []))
@@ -636,14 +636,8 @@ export async function fetchRepoRawFile(
     throw new InvalidCacheKeyError('path', filepath)
   }
 
-  const key = `raw:${repoPair}:${ref}:${filepath}`
-
   if (shouldUseLocalDocsFiles()) {
-    return fetchCached({
-      key,
-      ttl: 1,
-      fn: () => fetchRepoRawFileFromOrigin(repoPair, ref, filepath),
-    })
+    return fetchRepoRawFileFromOrigin(repoPair, ref, filepath)
   }
 
   try {
@@ -691,14 +685,8 @@ export async function fetchRepoFile(
   ref: string,
   filepath: string,
 ) {
-  const key = `${repoPair}:${ref}:${filepath}`
-
   if (shouldUseLocalDocsFiles()) {
-    return fetchCached({
-      key,
-      ttl: 1,
-      fn: () => fetchRepoFileFromOrigin(repoPair, ref, filepath),
-    })
+    return fetchRepoFileFromOrigin(repoPair, ref, filepath)
   }
 
   try {
@@ -905,10 +893,15 @@ export function extractFrontMatter(content: string) {
     data,
     excerpt: createRichExcerpt(parsed.content, excerpt),
     userDescription,
+    isValid: !('error' in parsed),
   }
 }
 
-function parseFrontMatter(content: string) {
+function parseFrontMatter(content: string): {
+  content: string
+  data: Record<string, FrontMatterValue | undefined>
+  error?: unknown
+} {
   const normalizedContent = content.replace(/^\uFEFF/, '')
 
   if (!normalizedContent.startsWith('---')) {
@@ -932,7 +925,7 @@ function parseFrontMatter(content: string) {
     parsed = parseYaml(frontMatterSource)
   } catch (e) {
     console.warn('Failed to parse frontmatter YAML:', e)
-    return { content: body, data: {} }
+    return { content: body, data: {}, error: e }
   }
 
   return {
@@ -1104,29 +1097,17 @@ interface GitHubRecursiveTreeResponse {
 }
 
 function isGitHubFileNode(value: unknown): value is GitHubFileNode {
-  const candidate = value as {
-    _links?: { self?: unknown }
-    children?: unknown
-    depth?: unknown
-    name?: unknown
-    path?: unknown
-    type?: unknown
-  } | null
-
+  if (!isRecord(value)) return false
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof candidate?.name === 'string' &&
-    typeof candidate.path === 'string' &&
-    typeof candidate.type === 'string' &&
-    typeof candidate.depth === 'number' &&
-    typeof candidate._links === 'object' &&
-    candidate._links !== null &&
-    typeof candidate._links.self === 'string' &&
-    (!('children' in value) ||
-      candidate.children === undefined ||
-      (Array.isArray(candidate.children) &&
-        candidate.children.every((child) => isGitHubFileNode(child))))
+    typeof value.name === 'string' &&
+    typeof value.path === 'string' &&
+    typeof value.type === 'string' &&
+    typeof value.depth === 'number' &&
+    isRecord(value._links) &&
+    typeof value._links.self === 'string' &&
+    ((value.type !== 'dir' && value.children === undefined) ||
+      (Array.isArray(value.children) &&
+        value.children.every((child) => isGitHubFileNode(child))))
   )
 }
 
@@ -1430,8 +1411,6 @@ function buildFileTreeFromRecursiveTree(
   return buildChildren(normalizedStart, 0, '')
 }
 
-const API_CONTENTS_MAX_DEPTH = 3
-
 function encodeGitHubContentsPath(path: string) {
   return removeLeadingSlash(path)
     .replace(/\/+$/g, '')
@@ -1447,13 +1426,10 @@ export function fetchApiContents(
   startingPath: string,
 ) {
   if (shouldUseLocalDocsFiles()) {
-    return fetchCached({
-      key: `${repoPair}:${branch}:${startingPath}`,
-      ttl: 1,
-      fn: async () =>
-        (await fetchApiContentsFs(repoPair, startingPath)) ??
-        fetchApiContentsRemote(repoPair, branch, startingPath),
-    })
+    return fetchApiContentsFs(repoPair, startingPath).then(
+      (contents) =>
+        contents ?? fetchApiContentsRemote(repoPair, branch, startingPath),
+    )
   }
 
   return getCachedGitHubJsonContent({
@@ -1519,36 +1495,21 @@ async function fetchApiContentsFs(
   async function getContentsForPath(
     filePath: string,
   ): Promise<Array<GitHubFile>> {
-    try {
-      const list = await fsp.readdir(filePath, { withFileTypes: true })
-      return list
-        .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
-        .map((item) => {
-          return {
-            name: item.name,
-            path: path.join(filePath, item.name),
-            type: item.isDirectory() ? 'dir' : 'file',
-            _links: {
-              self: path.join(filePath, item.name),
-            },
-          }
-        })
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENOENT'
-      ) {
-        return []
-      }
-      throw error
-    }
+    const list = await fsp.readdir(filePath, { withFileTypes: true })
+    return list
+      .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
+      .map((item) => ({
+        name: item.name,
+        path: path.join(filePath, item.name),
+        type: item.isDirectory() ? 'dir' : 'file',
+        _links: { self: path.join(filePath, item.name) },
+      }))
   }
 
   const data = await getContentsForPath(fsStartPath)
 
   if (data.length === 0) {
-    return null
+    return []
   }
 
   async function buildFileTree(
@@ -1567,7 +1528,7 @@ async function fetchApiContentsFs(
         parentPath,
       }
 
-      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+      if (file.type === 'dir') {
         const directoryFiles = await getContentsForPath(file._links.self)
         file.children = await buildFileTree(
           directoryFiles,
@@ -1669,19 +1630,23 @@ async function fetchApiContentsRemoteFromContentsApi(
         parentPath,
       }
 
-      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+      if (file.type === 'dir') {
         const directoryFiles = await fetchGitHubDirectoryContents(
           repo,
           branch,
           file.path,
         )
-        file.children = directoryFiles
-          ? await buildFileTree(
-              directoryFiles,
-              depth + 1,
-              `${parentPath}${file.path}/`,
-            )
-          : []
+        if (directoryFiles === null) {
+          throw new GitHubContentError(
+            'invalid-response',
+            `Listed directory disappeared: ${repo}@${branch}:${file.path}`,
+          )
+        }
+        file.children = await buildFileTree(
+          directoryFiles,
+          depth + 1,
+          `${parentPath}${file.path}/`,
+        )
       }
 
       result.push(file)

@@ -1,5 +1,5 @@
 import type * as React from 'react'
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
 
 interface TooltipProps {
   content: React.ReactNode
@@ -15,17 +15,21 @@ export function Tooltip({
   className = '',
 }: TooltipProps) {
   return (
-    <TooltipPrimitive.Provider delayDuration={0} disableHoverableContent>
-      <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+    <TooltipPrimitive.Provider delay={0}>
+      <TooltipPrimitive.Root disableHoverablePopup>
+        <TooltipPrimitive.Trigger render={children} />
         <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Content
+          <TooltipPrimitive.Positioner
             side={placement}
             sideOffset={5}
-            className={`z-1300 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
+            className="z-1300"
           >
-            {content}
-          </TooltipPrimitive.Content>
+            <TooltipPrimitive.Popup
+              className={`rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
+            >
+              {content}
+            </TooltipPrimitive.Popup>
+          </TooltipPrimitive.Positioner>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>
     </TooltipPrimitive.Provider>

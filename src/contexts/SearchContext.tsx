@@ -18,7 +18,7 @@ interface SearchContextType {
   askAiDock: (question: string) => void
   clearAiDockAskRequest: (id: number) => void
   closeSearch: () => void
-  restoreSearchFocus: () => void
+  getSearchFocusTarget: () => HTMLElement | undefined
   closeAiDock: () => void
   cancelAiDockHoverClose: () => void
   scheduleAiDockHoverClose: () => void
@@ -68,7 +68,7 @@ export function SearchProvider({
     setIsOpen(true)
   }, [isOpen])
 
-  const restoreSearchFocus = React.useCallback(() => {
+  const getSearchFocusTarget = React.useCallback(() => {
     const trigger = searchTriggerRef.current
     searchTriggerRef.current = null
     if (
@@ -76,16 +76,13 @@ export function SearchProvider({
       trigger.getClientRects().length > 0 &&
       !trigger.closest('[aria-hidden="true"], [inert]')
     ) {
-      trigger.focus({ preventScroll: true })
-      return
+      return trigger
     }
 
     const menuTrigger = document.querySelector(
       'button[aria-controls="primary-mobile-menu"]',
     )
-    if (menuTrigger instanceof HTMLElement) {
-      menuTrigger.focus({ preventScroll: true })
-    }
+    return menuTrigger instanceof HTMLElement ? menuTrigger : undefined
   }, [])
 
   const openAiDock = React.useCallback(() => {
@@ -156,7 +153,7 @@ export function SearchProvider({
       askAiDock,
       clearAiDockAskRequest,
       closeSearch,
-      restoreSearchFocus,
+      getSearchFocusTarget,
       closeAiDock,
       cancelAiDockHoverClose,
       scheduleAiDockHoverClose,
@@ -169,7 +166,7 @@ export function SearchProvider({
       clearAiDockAskRequest,
       closeAiDock,
       closeSearch,
-      restoreSearchFocus,
+      getSearchFocusTarget,
       isAiDockDirty,
       isAiDockOpen,
       isOpen,

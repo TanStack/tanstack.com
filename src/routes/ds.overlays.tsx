@@ -109,7 +109,7 @@ function OverlayAuditPage() {
                       {s.name}
                       {s.base === 'hand-rolled' ? (
                         <span
-                          title="Hand-rolled — no Radix"
+                          title="Hand-rolled — no Base UI"
                           className="ml-1.5 rounded bg-status-warning/15 px-1 py-0.5 text-[10px] font-medium text-status-warning"
                         >
                           raw
@@ -126,7 +126,7 @@ function OverlayAuditPage() {
 
       <DsSection
         title="Property matrix"
-        description="Read off the source, not inferred. The four columns on the right are what Radix gives you for free — every ✗ is a hand-rolled dialog missing a behaviour it should never have had to implement."
+        description="Read off the source at the time of the audit, not inferred. The four columns on the right are what Base UI gives you for free — every ✗ is a hand-rolled dialog missing a behaviour it should never have had to implement."
       >
         <div className="overflow-x-auto rounded-xl border border-border-default">
           <table className="w-full min-w-[64rem] text-left text-sm">

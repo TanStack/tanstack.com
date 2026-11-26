@@ -158,7 +158,7 @@ function CardsPage() {
 
       <DsSection
         title="Tooltip"
-        description="Radix-powered tooltip. Hover or focus the trigger. Source: src/ui/Tooltip.tsx."
+        description="Base UI-powered tooltip. Hover or focus the trigger. Source: src/ui/Tooltip.tsx."
       >
         <ComponentPreview
           code={`<Tooltip content="Copied to clipboard">

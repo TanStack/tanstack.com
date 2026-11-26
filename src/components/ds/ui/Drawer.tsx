@@ -1,12 +1,12 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { XIcon } from '@phosphor-icons/react/X'
 import { twMerge } from 'tailwind-merge'
 
 /**
  * Edge-anchored panel — the drawer / side sheet.
  *
- * Same Radix foundation as Dialog (focus trap, focus restoration, Escape,
+ * Same Base UI foundation as Dialog (focus trap, focus restoration, Escape,
  * scroll lock) and the same three-region layout, but anchored to an edge
  * instead of centred. `side` covers right, left and bottom: they are one
  * mechanism — a surface arriving from off-screen — differing only in axis.
@@ -119,7 +119,6 @@ type DrawerContentProps = {
    */
   fit?: boolean
   className?: string
-  onInteractOutside?: DialogPrimitive.DialogContentProps['onInteractOutside']
 }
 
 export const DrawerContent = React.forwardRef<
@@ -133,21 +132,19 @@ export const DrawerContent = React.forwardRef<
     anchor = 'viewport',
     fit = false,
     className,
-    onInteractOutside,
   },
   ref,
 ) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay
+      <DialogPrimitive.Backdrop
         data-ds-drawer-scrim=""
         className="fixed inset-0 z-[var(--z-scrim)] bg-scrim"
       />
-      <DialogPrimitive.Content
+      <DialogPrimitive.Popup
         ref={ref}
         data-ds-drawer-panel=""
         data-side={side}
-        onInteractOutside={onInteractOutside}
         className={twMerge(
           'fixed z-[var(--z-overlay)] flex flex-col overflow-hidden outline-none',
           'border border-border-default bg-background-elevated text-text-primary shadow-2xl',
@@ -167,7 +164,7 @@ export const DrawerContent = React.forwardRef<
         )}
       >
         {children}
-      </DialogPrimitive.Content>
+      </DialogPrimitive.Popup>
     </DialogPrimitive.Portal>
   )
 })

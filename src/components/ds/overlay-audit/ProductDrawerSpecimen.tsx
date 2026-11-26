@@ -7,7 +7,7 @@ import type { SpecimenProps } from './types'
  * AUDIT SPECIMEN — verbatim shell of `src/components/shop/ProductDrawer.tsx`.
  *
  * The only bottom-sheet posture on the site, and hand-rolled rather than
- * Radix: the Escape handler below is copied from the original because there is
+ * Base UI: the Escape handler below is copied from the original because there is
  * no primitive supplying it. Uses three separate z-tiers (`60` scrim, `70`
  * sheet, `71` side arrows) and is the one overlay already wired to the motion
  * tokens (`--motion-duration-fast`, `--motion-ease-standard`).
@@ -60,7 +60,8 @@ export function ProductDrawerSpecimen({ open, onOpenChange }: SpecimenProps) {
               <h2 className="text-xl font-semibold">Classic Tee</h2>
               <p className="text-sm text-shop-text-2">
                 A bottom-anchored sheet. Note there is no focus trap and no
-                focus restoration on close — both would come free from Radix.
+                focus restoration on close — both come free from the DS Drawer
+                it was migrated onto.
               </p>
               <button
                 type="button"

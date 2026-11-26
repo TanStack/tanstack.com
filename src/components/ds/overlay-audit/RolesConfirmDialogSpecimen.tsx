@@ -4,7 +4,8 @@ import type { SpecimenProps } from './types'
  * AUDIT SPECIMEN — verbatim shell of the inline confirm dialog in
  * `src/routes/admin/roles.$roleId.tsx` (~line 326).
  *
- * The worst case in the audit and worth keeping visible: no portal, no Radix,
+ * The worst case in the audit and worth keeping visible: no portal, no
+ * Base UI,
  * no focus trap, no Escape handler, no labelled dialog role, no close button,
  * and no max-height. Rendered inline in the route tree.
  */

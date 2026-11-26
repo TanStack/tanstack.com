@@ -13,12 +13,7 @@ import {
   WavesIcon,
   type Icon,
 } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+import { Menu } from '@base-ui/react/menu'
 import { Tooltip } from '~/components/Tooltip'
 import {
   type TimeRange,
@@ -156,75 +151,87 @@ export function ChartControls({
       </div>
 
       {/* Time Range */}
-      <DropdownMenu>
+      <Menu.Root>
         <Tooltip content="Select time range">
-          <DropdownMenuTrigger asChild>
-            <button className={twMerge(dropdownButtonStyles.base)}>
-              {timeRanges.find((r) => r.value === range)?.label}
-            </button>
-          </DropdownMenuTrigger>
+          <Menu.Trigger
+            render={
+              <button className={twMerge(dropdownButtonStyles.base)}>
+                {timeRanges.find((r) => r.value === range)?.label}
+              </button>
+            }
+          />
         </Tooltip>
-        <DropdownMenuContent className={dropdownContentStyles}>
-          <div className={dropdownHeaderStyles}>
-            <span>Time Range</span>
-          </div>
-          {timeRanges.map(({ value, label }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={() => onRangeChange(value)}
-              className={twMerge(
-                dropdownItemStyles,
-                value === range ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-              )}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Menu.Portal>
+          <Menu.Positioner align="start" sideOffset={4} className="z-50">
+            <Menu.Popup className={dropdownContentStyles}>
+              <div className={dropdownHeaderStyles}>
+                <span>Time Range</span>
+              </div>
+              {timeRanges.map(({ value, label }) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => onRangeChange(value)}
+                  className={twMerge(
+                    dropdownItemStyles,
+                    value === range ? 'text-blue-500 bg-blue-500/10' : '',
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
+                  )}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
 
       {/* Binning Interval */}
-      <DropdownMenu>
+      <Menu.Root>
         <Tooltip content="Select binning interval">
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                binType !== 'weekly' && dropdownButtonStyles.active,
-              )}
-            >
-              {binningOptions.find((b) => b.value === binType)?.label}
-            </button>
-          </DropdownMenuTrigger>
+          <Menu.Trigger
+            render={
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  binType !== 'weekly' && dropdownButtonStyles.active,
+                )}
+              >
+                {binningOptions.find((b) => b.value === binType)?.label}
+              </button>
+            }
+          />
         </Tooltip>
-        <DropdownMenuContent className={dropdownContentStyles}>
-          <div className={dropdownHeaderStyles}>
-            <span>Binning Interval</span>
-          </div>
-          {binningOptions.map(({ label, value }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={() => onBinTypeChange(value)}
-              disabled={
-                viewMode === 'history' &&
-                !isBinningOptionValidForRange(range, value)
-              }
-              className={twMerge(
-                dropdownItemStyles,
-                binType === value ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                viewMode === 'history' &&
-                  !isBinningOptionValidForRange(range, value)
-                  ? 'opacity-50 cursor-not-allowed'
-                  : '',
-              )}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Menu.Portal>
+          <Menu.Positioner align="start" sideOffset={4} className="z-50">
+            <Menu.Popup className={dropdownContentStyles}>
+              <div className={dropdownHeaderStyles}>
+                <span>Binning Interval</span>
+              </div>
+              {binningOptions.map(({ label, value }) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => onBinTypeChange(value)}
+                  disabled={
+                    viewMode === 'history' &&
+                    !isBinningOptionValidForRange(range, value)
+                  }
+                  className={twMerge(
+                    dropdownItemStyles,
+                    binType === value ? 'text-blue-500 bg-blue-500/10' : '',
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
+                    viewMode === 'history' &&
+                      !isBinningOptionValidForRange(range, value)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : '',
+                  )}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
 
       {/* Chart Type */}
       <div aria-label="Chart type" className={segmentedControlStyles}>
@@ -309,7 +316,7 @@ export function ChartControls({
       ) : null}
 
       {/* Y-Axis Transform */}
-      <DropdownMenu>
+      <Menu.Root>
         <Tooltip
           content={
             canUseTransform
@@ -317,43 +324,49 @@ export function ChartControls({
               : 'Relative change is only available for history line charts'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                transform !== 'none' && dropdownButtonStyles.active,
-                !canUseTransform && 'opacity-50 cursor-not-allowed',
-              )}
-              disabled={!canUseTransform}
-            >
-              {transformOptions.find((opt) => opt.value === transform)?.label}
-            </button>
-          </DropdownMenuTrigger>
+          <Menu.Trigger
+            render={
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  transform !== 'none' && dropdownButtonStyles.active,
+                  !canUseTransform && 'opacity-50 cursor-not-allowed',
+                )}
+                disabled={!canUseTransform}
+              >
+                {transformOptions.find((opt) => opt.value === transform)?.label}
+              </button>
+            }
+          />
         </Tooltip>
-        <DropdownMenuContent className={dropdownContentStyles}>
-          <div className={dropdownHeaderStyles}>
-            <span>Y-Axis Transform</span>
-          </div>
-          {transformOptions.map(({ value, label }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={() => onTransformChange(value)}
-              disabled={!canUseTransform}
-              className={twMerge(
-                dropdownItemStyles,
-                transform === value ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                !canUseTransform ? 'opacity-50 cursor-not-allowed' : '',
-              )}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Menu.Portal>
+          <Menu.Positioner align="start" sideOffset={4} className="z-50">
+            <Menu.Popup className={dropdownContentStyles}>
+              <div className={dropdownHeaderStyles}>
+                <span>Y-Axis Transform</span>
+              </div>
+              {transformOptions.map(({ value, label }) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => onTransformChange(value)}
+                  disabled={!canUseTransform}
+                  className={twMerge(
+                    dropdownItemStyles,
+                    transform === value ? 'text-blue-500 bg-blue-500/10' : '',
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
+                    !canUseTransform ? 'opacity-50 cursor-not-allowed' : '',
+                  )}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
 
       {/* Show Data Mode */}
-      <DropdownMenu>
+      <Menu.Root>
         <Tooltip
           content={
             viewMode === 'latest'
@@ -363,43 +376,51 @@ export function ChartControls({
                 : 'Control how data is displayed'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                showDataMode !== 'all' && dropdownButtonStyles.active,
-                showDataModeDisabled && 'opacity-50 cursor-not-allowed',
-              )}
-              disabled={showDataModeDisabled}
-            >
-              {
-                showDataModeOptions.find((opt) => opt.value === showDataMode)
-                  ?.label
-              }
-            </button>
-          </DropdownMenuTrigger>
+          <Menu.Trigger
+            render={
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  showDataMode !== 'all' && dropdownButtonStyles.active,
+                  showDataModeDisabled && 'opacity-50 cursor-not-allowed',
+                )}
+                disabled={showDataModeDisabled}
+              >
+                {
+                  showDataModeOptions.find((opt) => opt.value === showDataMode)
+                    ?.label
+                }
+              </button>
+            }
+          />
         </Tooltip>
-        <DropdownMenuContent className={dropdownContentStyles}>
-          <div className={dropdownHeaderStyles}>
-            <span>Data Display Mode</span>
-          </div>
-          {showDataModeOptions.map(({ value, label }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={() => onShowDataModeChange(value)}
-              disabled={showDataModeDisabled}
-              className={twMerge(
-                dropdownItemStyles,
-                showDataMode === value ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                showDataModeDisabled ? 'opacity-50 cursor-not-allowed' : '',
-              )}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Menu.Portal>
+          <Menu.Positioner align="start" sideOffset={4} className="z-50">
+            <Menu.Popup className={dropdownContentStyles}>
+              <div className={dropdownHeaderStyles}>
+                <span>Data Display Mode</span>
+              </div>
+              {showDataModeOptions.map(({ value, label }) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => onShowDataModeChange(value)}
+                  disabled={showDataModeDisabled}
+                  className={twMerge(
+                    dropdownItemStyles,
+                    showDataMode === value
+                      ? 'text-blue-500 bg-blue-500/10'
+                      : '',
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
+                    showDataModeDisabled ? 'opacity-50 cursor-not-allowed' : '',
+                  )}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
     </>
   )
 }

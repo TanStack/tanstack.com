@@ -27,7 +27,7 @@ export const Route = createFileRoute('/ds/dialog')({
     meta: seo({
       title: 'Dialog | TanStack Design System',
       description:
-        'The centered modal dialog — Radix-backed, on the semantic token layer.',
+        'The centered modal dialog — Base UI-backed, on the semantic token layer.',
     }),
   }),
 })
@@ -116,7 +116,7 @@ function DialogPage() {
   return (
     <DsPage
       title="Dialog"
-      description="The centered modal. Always Radix-backed — focus trapping, focus restoration, Escape-to-dismiss and scroll lock come from the primitive, not from each call site. Composed from Dialog + DialogContent + DialogHeader / DialogBody / DialogFooter. Source: src/components/ds/ui/Dialog.tsx."
+      description="The centered modal. Always Base UI-backed — focus trapping, focus restoration, Escape-to-dismiss and scroll lock come from the primitive, not from each call site. Composed from Dialog + DialogContent + DialogHeader / DialogBody / DialogFooter. Source: src/components/ds/ui/Dialog.tsx."
     >
       <DsSection
         title="Basic"
@@ -131,9 +131,11 @@ function DialogPage() {
     />
     <DialogBody>…</DialogBody>
     <DialogFooter>
-      <DialogClose asChild>
-        <Button variant="secondary" size="sm">Cancel</Button>
-      </DialogClose>
+      <DialogClose
+        render={
+          <Button variant="secondary" size="sm">Cancel</Button>
+        }
+      />
       <Button size="sm">Continue</Button>
     </DialogFooter>
   </DialogContent>
@@ -155,11 +157,13 @@ function DialogPage() {
                 </p>
               </DialogBody>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="secondary" size="sm">
-                    Cancel
-                  </Button>
-                </DialogClose>
+                <DialogClose
+                  render={
+                    <Button variant="secondary" size="sm">
+                      Cancel
+                    </Button>
+                  }
+                />
                 <Button size="sm">Continue</Button>
               </DialogFooter>
             </DialogContent>
@@ -196,9 +200,7 @@ function DialogPage() {
                 </p>
               </DialogBody>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button size="sm">Close</Button>
-                </DialogClose>
+                <DialogClose render={<Button size="sm">Close</Button>} />
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -235,11 +237,13 @@ function DialogPage() {
                 ))}
               </DialogBody>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="secondary" size="sm">
-                    Decline
-                  </Button>
-                </DialogClose>
+                <DialogClose
+                  render={
+                    <Button variant="secondary" size="sm">
+                      Decline
+                    </Button>
+                  }
+                />
                 <Button size="sm">Accept</Button>
               </DialogFooter>
             </DialogContent>
@@ -255,9 +259,11 @@ function DialogPage() {
           code={`<DialogContent size="sm">
   <DialogHeader title="Confirm removal" description="…" />
   <DialogFooter>
-    <DialogClose asChild>
-      <Button variant="secondary" size="sm">Cancel</Button>
-    </DialogClose>
+    <DialogClose
+      render={
+        <Button variant="secondary" size="sm">Cancel</Button>
+      }
+    />
     <Button size="sm" color="red">Remove</Button>
   </DialogFooter>
 </DialogContent>`}
@@ -272,11 +278,13 @@ function DialogPage() {
                 description="Are you sure you want to remove this user from the role? This cannot be undone."
               />
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="secondary" size="sm">
-                    Cancel
-                  </Button>
-                </DialogClose>
+                <DialogClose
+                  render={
+                    <Button variant="secondary" size="sm">
+                      Cancel
+                    </Button>
+                  }
+                />
                 <Button size="sm" color="red">
                   Remove
                 </Button>
@@ -440,7 +448,7 @@ function DialogPage() {
       </DsSection>
 
       <DsSection
-        title="Behaviour from Radix"
+        title="Behaviour from Base UI"
         description="Not configurable, by design. Every accessibility failure in the overlay audit came from a hand-rolled dialog missing one of these."
       >
         <ul className="flex flex-col gap-2 text-sm text-text-secondary">

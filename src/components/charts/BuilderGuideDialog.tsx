@@ -20,11 +20,12 @@ import {
 export function BuilderGuideDialog({
   children,
 }: {
-  children: React.ReactNode
+  /** The trigger element. A single element, because the drawer renders as it. */
+  children: React.ReactElement
 }) {
   return (
     <Drawer>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerTrigger render={children} />
       <DrawerContent side="right" size="2xl">
         <DrawerHeader
           title="Builder guide"

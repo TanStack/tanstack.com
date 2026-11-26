@@ -92,13 +92,15 @@ export function IconographyPage() {
         <div className="mb-6 flex flex-wrap items-center gap-3">
           {/* Style (weight) — dropdown with a live preview per weight */}
           <Dropdown>
-            <DropdownTrigger>
-              <button type="button" className={triggerClass}>
-                <StarIcon weight={weight} size={17} />
-                <span className="capitalize">{weight}</span>
-                <CaretDownIcon size={13} className="text-text-muted" />
-              </button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <button type="button" className={triggerClass}>
+                  <StarIcon weight={weight} size={17} />
+                  <span className="capitalize">{weight}</span>
+                  <CaretDownIcon size={13} className="text-text-muted" />
+                </button>
+              }
+            />
             <DropdownContent align="start" className="min-w-44">
               {WEIGHTS.map((w) => (
                 <DropdownItem key={w} onSelect={() => setWeight(w)}>
@@ -114,13 +116,15 @@ export function IconographyPage() {
 
           {/* Size — dropdown with a scaling size glyph per option */}
           <Dropdown>
-            <DropdownTrigger>
-              <button type="button" className={triggerClass}>
-                <SizeGlyph px={size} />
-                <span className="tabular-nums">{size}px</span>
-                <CaretDownIcon size={13} className="text-text-muted" />
-              </button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <button type="button" className={triggerClass}>
+                  <SizeGlyph px={size} />
+                  <span className="tabular-nums">{size}px</span>
+                  <CaretDownIcon size={13} className="text-text-muted" />
+                </button>
+              }
+            />
             <DropdownContent align="start" className="min-w-40">
               {SIZES.map((s) => (
                 <DropdownItem key={s} onSelect={() => setSize(s)}>

@@ -143,7 +143,7 @@ function TakeoverPage() {
             'No panel and no header bar. TakeoverTitle / TakeoverDescription go wherever the content wants them — visible or sr-only.',
             'The content element is the scroll container, so a takeover never nests a second scrollbar.',
             'Clicking the content’s own empty space dismisses. It routes through the same close button rather than a second dismissal path that could drift from it.',
-            'onInteractOutside is forwarded, for content that portals menus of its own and must not close when they are clicked.',
+            'Dismissal is the caller’s to veto: content that portals menus of its own cancels the outside press from the root’s onOpenChange, so clicking one does not close the takeover.',
             'The surface fades rather than slides: nothing is arriving from an edge, the whole surface is being replaced.',
           ].map((line) => (
             <li key={line} className="flex gap-2">

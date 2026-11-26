@@ -1,16 +1,15 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import type { SpecimenProps } from './types'
 
 /**
- * AUDIT SPECIMEN — verbatim shell of `src/components/SearchModal.tsx`
- * (the outer 40 lines of a 3,766-line file).
+ * AUDIT SPECIMEN — verbatim shell of `src/components/SearchModal.tsx`.
  *
  * The command-palette posture: full-bleed below `sm`, then top-anchored and
  * horizontally centred with a `max-w-4xl` cap — the only overlay that pins to
- * the top rather than the centre. Uses `forceMount` so its own CSS transitions
- * (`.search-modal-panel-transition`) can run instead of Radix data-state
- * animations, and overrides `onInteractOutside` to survive nested portals.
+ * the top rather than the centre. Its own CSS transitions
+ * (`.search-modal-panel-transition`) drive the panel, and the real component
+ * cancels an outside press that lands in one of its nested portals.
  *
  * This one should be the last thing migrated to any new primitive, not the
  * first — but the DS panel must be able to express this posture.
@@ -19,8 +18,8 @@ export function SearchModalSpecimen({ open, onOpenChange }: SpecimenProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30" />
-        <DialogPrimitive.Content className="fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none">
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30" />
+        <DialogPrimitive.Popup className="fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none">
           <DialogPrimitive.Title className="sr-only">
             Search TanStack
           </DialogPrimitive.Title>
@@ -52,7 +51,7 @@ export function SearchModalSpecimen({ open, onOpenChange }: SpecimenProps) {
               )}
             </div>
           </div>
-        </DialogPrimitive.Content>
+        </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

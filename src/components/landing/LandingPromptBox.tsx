@@ -147,21 +147,23 @@ export function LandingPromptBox() {
           </button>
         ))}
         <Dropdown>
-          <DropdownTrigger>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={moreSelected}
-              className={`inline-flex items-center gap-1 ${tabClass} ${
-                moreSelected
-                  ? 'border-(--landing-accent) text-(--landing-accent-bright)'
-                  : 'border-transparent text-text-primary/45 hover:text-text-primary'
-              }`}
-            >
-              More
-              <CaretDownIcon aria-hidden="true" size={12} />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button
+                type="button"
+                role="tab"
+                aria-selected={moreSelected}
+                className={`inline-flex items-center gap-1 ${tabClass} ${
+                  moreSelected
+                    ? 'border-(--landing-accent) text-(--landing-accent-bright)'
+                    : 'border-transparent text-text-primary/45 hover:text-text-primary'
+                }`}
+              >
+                More
+                <CaretDownIcon aria-hidden="true" size={12} />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-40">
             {moreAgents.map((item) => (
               <DropdownItem key={item.id} onSelect={() => setActiveId(item.id)}>

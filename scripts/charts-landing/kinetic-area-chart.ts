@@ -35,14 +35,16 @@ export const kineticAreaChart = defineChart({
       r: 4,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 8]),
-    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain([30, 100]),
-    axis: { ticks: { count: 4 } },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 8]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain([30, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: kineticDarkTheme,
 })

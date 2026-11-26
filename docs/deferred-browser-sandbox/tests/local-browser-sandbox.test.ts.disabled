@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import {
+  classifyLocalBrowserSandboxFile,
+  shouldExcludeLocalBrowserSandboxPath,
+} from '../scripts/local-browser-sandbox'
+
+test('classifies lossless UTF-8 as text and preserves binary bytes', () => {
+  assert.deepEqual(
+    classifyLocalBrowserSandboxFile(Buffer.from('export const value = "世界"\n')),
+    { type: 'text', value: 'export const value = "世界"\n' },
+  )
+  assert.deepEqual(
+    classifyLocalBrowserSandboxFile(Buffer.from([0, 1, 2, 3, 255])),
+    { type: 'binary', value: 'AAECA/8=' },
+  )
+  assert.deepEqual(
+    classifyLocalBrowserSandboxFile(Buffer.from([0xc3, 0x28])),
+    { type: 'binary', value: 'wyg=' },
+  )
+})
+
+test('matches production example exclusions at every depth', () => {
+  for (const path of [
+    '.nitro',
+    '.nitro/dev/index.mjs',
+    '.tanstack-start/build',
+    '.tanstack-start/build/client.js',
+    'playwright-report/index.html',
+    'test-results/result.json',
+  ]) {
+    assert.equal(shouldExcludeLocalBrowserSandboxPath(path), true, path)
+  }
+  assert.equal(shouldExcludeLocalBrowserSandboxPath('src/.nitro-example.ts'), false)
+  assert.equal(shouldExcludeLocalBrowserSandboxPath('src/routes/index.tsx'), false)
+})

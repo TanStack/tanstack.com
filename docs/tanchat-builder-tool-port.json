@@ -1,0 +1,15 @@
+{
+  "source": "src/routes/api/builder/assist.ts",
+  "sourceRevision": "f2f65d1e96ffb9c001af7d050f63f2c562ca4ef5",
+  "sourceSection": "createWorkspaceTools",
+  "destination": "src/utils/builder-workspace-tools.server.ts",
+  "implementationUnchanged": true,
+  "sourceSectionSha256": "3dc0eaa50126d160b8514206e0be9ae5373f22c6fbc7df627b741845c2c3a20a",
+  "remainingIntegration": "Verify live assistant project creation and edits, upgraded runtime execution, OAuth and MCP behavior, then retire the separate Builder assistant loop and deploy the complete consolidation. Native app release and production verification remain pending.",
+  "integrationEvidence": {
+    "projectPanel": "Uses the existing BuilderProjectPage and ExampleWorkbench, live browser preview and retained state verified.",
+    "assistantProjectTools": "Shared project list, inspect, read, create, revision-checked edit, original package inspection/search/read, runtime upgrade, and dependency manifest mutation are registered through existing discovery. Project saves emit a committed event for picker refresh. Focused checks and full application typecheck passed.",
+    "liveAssistant": "Real included Kimi completed a reply and saved-file task. Project creation was interrupted and remains unverified.",
+    "regression": "Current worktree: 2,050 harness tests passed; 507 original site tests passed and two skipped."
+  }
+}

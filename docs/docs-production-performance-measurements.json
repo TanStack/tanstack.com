@@ -1,0 +1,3188 @@
+{
+  "measured_at_utc": "2026-10-15T20:40:09+00:00 through 2026-10-15T20:42:31+00:00",
+  "url": "https://tanstack.com/router/latest/docs/routing/routing-concepts",
+  "region": "DFW",
+  "previous_version": "9440f136-1e14-4cea-9583-830df3dae49c",
+  "deployed_version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+  "deployment_started_at_utc": "2026-10-15T20:41:02Z",
+  "reported_startup_ms": 36,
+  "before": [
+    {
+      "request": 1,
+      "status": 200,
+      "ttfb_ms": 2914.0,
+      "total_ms": 3045.6,
+      "tls_ms": 165.9,
+      "ray": "a4b1a3106836f887-DFW",
+      "server_timing": "cfEdge;dur=1436,cfOrigin;dur=0,cfWorker;dur=1271",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:40:09 GMT",
+      "cpu_ms": 222,
+      "wall_ms": 2017,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 2,
+      "status": 200,
+      "ttfb_ms": 2555.4,
+      "total_ms": 2674.9,
+      "tls_ms": 79.1,
+      "ray": "a4b1a3294cf78c20-DFW",
+      "server_timing": "cfEdge;dur=1985,cfOrigin;dur=0,cfWorker;dur=448",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:40:12 GMT",
+      "cpu_ms": 174,
+      "wall_ms": 451,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 3,
+      "status": 200,
+      "ttfb_ms": 1846.0,
+      "total_ms": 1967.7,
+      "tls_ms": 85.4,
+      "ray": "a4b1a3406f2de7ff-DFW",
+      "server_timing": "cfEdge;dur=1314,cfOrigin;dur=0,cfWorker;dur=405",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:40:15 GMT",
+      "cpu_ms": 153,
+      "wall_ms": 409,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 4,
+      "status": 200,
+      "ttfb_ms": 345.6,
+      "total_ms": 463.5,
+      "tls_ms": 79.1,
+      "ray": "a4b1a3530c225e57-DFW",
+      "server_timing": "cfEdge;dur=30,cfOrigin;dur=0,cfWorker;dur=194",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:40:17 GMT",
+      "cpu_ms": 136,
+      "wall_ms": 196,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 5,
+      "status": 200,
+      "ttfb_ms": 257.5,
+      "total_ms": 386.8,
+      "tls_ms": 80.0,
+      "ray": "a4b1a35c4fb786ee-DFW",
+      "server_timing": "cfEdge;dur=27,cfOrigin;dur=0,cfWorker;dur=106",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:40:18 GMT",
+      "cpu_ms": 76,
+      "wall_ms": 106,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 6,
+      "status": 200,
+      "ttfb_ms": 305.3,
+      "total_ms": 429.5,
+      "tls_ms": 82.8,
+      "ray": "a4b1a3650cbfa927-DFW",
+      "server_timing": "cfEdge;dur=53,cfOrigin;dur=0,cfWorker;dur=120",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:40:20 GMT",
+      "cpu_ms": 93,
+      "wall_ms": 122,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    }
+  ],
+  "during_rollout": [
+    {
+      "request": 1,
+      "status": 200,
+      "ttfb_ms": 2046.1,
+      "total_ms": 2167.8,
+      "tls_ms": 80.0,
+      "ray": "a4b1a4ad6db4a91e-DFW",
+      "server_timing": "cfEdge;dur=1377,cfOrigin;dur=0,cfWorker;dur=546",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:14 GMT",
+      "cpu_ms": 247,
+      "wall_ms": 550,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "13eb6168-600f-44ed-8a81-43632a34383d",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a4ad6db4a91e",
+          "status": 200,
+          "headersReadyMs": 297,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 291
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 291
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 291,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 297
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "13eb6168-600f-44ed-8a81-43632a34383d",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a4ad6db4a91e",
+          "elapsedMs": 297,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 291
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 291
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 291,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 297
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "13eb6168-600f-44ed-8a81-43632a34383d",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a4ad6db4a91e",
+          "elapsedMs": 297,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 291
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 291
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 291,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 297
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 2,
+      "status": 200,
+      "ttfb_ms": 2343.4,
+      "total_ms": 2462.2,
+      "tls_ms": 81.7,
+      "ray": "a4b1a4c15da114ef-DFW",
+      "server_timing": "cfEdge;dur=1794,cfOrigin;dur=0,cfWorker;dur=424",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:17 GMT",
+      "cpu_ms": 159,
+      "wall_ms": 430,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 3,
+      "status": 200,
+      "ttfb_ms": 2640.6,
+      "total_ms": 2761.0,
+      "tls_ms": 105.3,
+      "ray": "a4b1a4d73c384780-DFW",
+      "server_timing": "cfEdge;dur=1691,cfOrigin;dur=0,cfWorker;dur=795",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:21 GMT",
+      "cpu_ms": 428,
+      "wall_ms": 803,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b1da96b-ffe6-4c92-9ceb-572b0aa28c5e",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a4d73c384780",
+          "status": 200,
+          "headersReadyMs": 382,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 370
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 372
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 372,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 382
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b1da96b-ffe6-4c92-9ceb-572b0aa28c5e",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a4d73c384780",
+          "elapsedMs": 382,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 370
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 372
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 372,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 382
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b1da96b-ffe6-4c92-9ceb-572b0aa28c5e",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a4d73c384780",
+          "elapsedMs": 382,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 370
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 372
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 372,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 382
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 4,
+      "status": 200,
+      "ttfb_ms": 1963.5,
+      "total_ms": 2082.4,
+      "tls_ms": 86.8,
+      "ray": "a4b1a4eebd86f070-DFW",
+      "server_timing": "cfEdge;dur=1283,cfOrigin;dur=0,cfWorker;dur=550",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:24 GMT",
+      "cpu_ms": 302,
+      "wall_ms": 556,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 5,
+      "status": 200,
+      "ttfb_ms": 2901.2,
+      "total_ms": 3022.1,
+      "tls_ms": 109.0,
+      "ray": "a4b1a5023b59b1c9-DFW",
+      "server_timing": "cfEdge;dur=2270,cfOrigin;dur=0,cfWorker;dur=478",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:28 GMT",
+      "cpu_ms": 175,
+      "wall_ms": 483,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 6,
+      "status": 200,
+      "ttfb_ms": 1383.1,
+      "total_ms": 1504.1,
+      "tls_ms": 82.4,
+      "ray": "a4b1a51b5d0d9a79-DFW",
+      "server_timing": "cfEdge;dur=926,cfOrigin;dur=0,cfWorker;dur=331",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:31 GMT",
+      "cpu_ms": 147,
+      "wall_ms": 333,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a51b5d0d9a79",
+          "status": 200,
+          "headersReadyMs": 183,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 178
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 179
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 178,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 183
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a51b5d0d9a79",
+          "elapsedMs": 183,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 178
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 179
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 178,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 183
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a51b5d0d9a79",
+          "elapsedMs": 183,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 178
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 179
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 178,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 183
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 7,
+      "status": 200,
+      "ttfb_ms": 238.6,
+      "total_ms": 356.9,
+      "tls_ms": 81.3,
+      "ray": "a4b1a52b0eacee9e-DFW",
+      "server_timing": "cfEdge;dur=39,cfOrigin;dur=0,cfWorker;dur=72",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:32 GMT",
+      "cpu_ms": 57,
+      "wall_ms": 73,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 3,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a52b0eacee9e",
+          "status": 200,
+          "headersReadyMs": 15,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 10
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 10,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 15
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 3,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a52b0eacee9e",
+          "elapsedMs": 15,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 10
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 10,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 15
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 3,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a52b0eacee9e",
+          "elapsedMs": 15,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 10
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 10,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 8,
+      "status": 200,
+      "ttfb_ms": 215.5,
+      "total_ms": 332.7,
+      "tls_ms": 79.0,
+      "ray": "a4b1a5339937863c-DFW",
+      "server_timing": "cfEdge;dur=30,cfOrigin;dur=0,cfWorker;dur=65",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:34 GMT",
+      "cpu_ms": 54,
+      "wall_ms": 66,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 2,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5339937863c",
+          "status": 200,
+          "headersReadyMs": 12,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 6,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 12
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 2,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5339937863c",
+          "elapsedMs": 12,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 6,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 12
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 2,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5339937863c",
+          "elapsedMs": 12,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 6,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 9,
+      "status": 200,
+      "ttfb_ms": 326.9,
+      "total_ms": 449.4,
+      "tls_ms": 83.2,
+      "ray": "a4b1a53c091fc437-DFW",
+      "server_timing": "cfEdge;dur=19,cfOrigin;dur=0,cfWorker;dur=180",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:35 GMT",
+      "cpu_ms": 123,
+      "wall_ms": 181,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b9f0cbd-4094-45fa-88a2-40cb7822ea9d",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a53c091fc437",
+          "status": 200,
+          "headersReadyMs": 43,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 33
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 34
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 33,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 43
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b9f0cbd-4094-45fa-88a2-40cb7822ea9d",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a53c091fc437",
+          "elapsedMs": 43,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 33
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 34
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 33,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 43
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b9f0cbd-4094-45fa-88a2-40cb7822ea9d",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a53c091fc437",
+          "elapsedMs": 43,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 33
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 34
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 33,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 43
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 10,
+      "status": 200,
+      "ttfb_ms": 242.2,
+      "total_ms": 358.2,
+      "tls_ms": 99.6,
+      "ray": "a4b1a5455a6e2ba1-DFW",
+      "server_timing": "cfEdge;dur=37,cfOrigin;dur=0,cfWorker;dur=60",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:36 GMT",
+      "cpu_ms": 48,
+      "wall_ms": 61,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 4,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5455a6e2ba1",
+          "status": 200,
+          "headersReadyMs": 11,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 7,
+              "durationMs": 4
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 11
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 4,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5455a6e2ba1",
+          "elapsedMs": 11,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 7,
+              "durationMs": 4
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 11
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 4,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5455a6e2ba1",
+          "elapsedMs": 11,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 7,
+              "durationMs": 4
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 11,
+      "status": 200,
+      "ttfb_ms": 297.4,
+      "total_ms": 423.3,
+      "tls_ms": 81.5,
+      "ray": "a4b1a54dd863b66c-DFW",
+      "server_timing": "cfEdge;dur=38,cfOrigin;dur=0,cfWorker;dur=134",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:38 GMT",
+      "cpu_ms": 104,
+      "wall_ms": 135,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "d94a23be-f6aa-4d62-9705-df14cc3b59db",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a54dd863b66c",
+          "status": 200,
+          "headersReadyMs": 24,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 15
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 15
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 15,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 24
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "d94a23be-f6aa-4d62-9705-df14cc3b59db",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a54dd863b66c",
+          "elapsedMs": 24,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 15
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 15
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 15,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 24
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "d94a23be-f6aa-4d62-9705-df14cc3b59db",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a54dd863b66c",
+          "elapsedMs": 24,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 15
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 15
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 15,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 24
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 12,
+      "status": 200,
+      "ttfb_ms": 2861.6,
+      "total_ms": 2992.5,
+      "tls_ms": 89.6,
+      "ray": "a4b1a556d8546c6c-DFW",
+      "server_timing": "cfEdge;dur=2015,cfOrigin;dur=0,cfWorker;dur=711",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:42 GMT",
+      "cpu_ms": 307,
+      "wall_ms": 721,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 13,
+      "status": 200,
+      "ttfb_ms": 1586.5,
+      "total_ms": 2141.4,
+      "tls_ms": 81.2,
+      "ray": "a4b1a56fdf42c514-DFW",
+      "server_timing": "cfEdge;dur=909,cfOrigin;dur=0,cfWorker;dur=531",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:45 GMT",
+      "cpu_ms": 206,
+      "wall_ms": 535,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "3f5f2043-2489-4def-9b91-f37cc5fb244c",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a56fdf42c514",
+          "status": 200,
+          "headersReadyMs": 328,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 320
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 320
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 320,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 328
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "3f5f2043-2489-4def-9b91-f37cc5fb244c",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a56fdf42c514",
+          "elapsedMs": 328,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 320
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 320
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 320,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 328
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "3f5f2043-2489-4def-9b91-f37cc5fb244c",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a56fdf42c514",
+          "elapsedMs": 328,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 320
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 320
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 320,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 328
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 14,
+      "status": 200,
+      "ttfb_ms": 2910.9,
+      "total_ms": 3125.2,
+      "tls_ms": 81.6,
+      "ray": "a4b1a5838ef1f088-DFW",
+      "server_timing": "cfEdge;dur=2123,cfOrigin;dur=0,cfWorker;dur=659",
+      "cache_control": "public, max-age=0, must-revalidate",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:49 GMT",
+      "cpu_ms": 310,
+      "wall_ms": 665,
+      "version": "9440f136-1e14-4cea-9583-830df3dae49c",
+      "outcome": "ok"
+    },
+    {
+      "request": 15,
+      "status": 200,
+      "ttfb_ms": 439.8,
+      "total_ms": 563.1,
+      "tls_ms": 93.2,
+      "ray": "a4b1a59d89f70af8-DFW",
+      "server_timing": "cfEdge;dur=221,cfOrigin;dur=0,cfWorker;dur=75",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:51 GMT",
+      "cpu_ms": 55,
+      "wall_ms": 76,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 5,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a59d89f70af8",
+          "status": 200,
+          "headersReadyMs": 17,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 17
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 5,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a59d89f70af8",
+          "elapsedMs": 17,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 17
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 5,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a59d89f70af8",
+          "elapsedMs": 17,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 16,
+      "status": 200,
+      "ttfb_ms": 1353.9,
+      "total_ms": 1472.4,
+      "tls_ms": 82.4,
+      "ray": "a4b1a5a75b4df07d-DFW",
+      "server_timing": "cfEdge;dur=905,cfOrigin;dur=0,cfWorker;dur=319",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:41:53 GMT",
+      "cpu_ms": 159,
+      "wall_ms": 322,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "2cd6c3cf-4089-4604-9783-2cf642580036",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5a75b4df07d",
+          "status": 200,
+          "headersReadyMs": 154,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 151
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 151
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 151,
+              "durationMs": 3
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 154
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "2cd6c3cf-4089-4604-9783-2cf642580036",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5a75b4df07d",
+          "elapsedMs": 154,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 151
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 151
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 151,
+              "durationMs": 3
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 154
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "2cd6c3cf-4089-4604-9783-2cf642580036",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a5a75b4df07d",
+          "elapsedMs": 154,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 151
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 151
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 151,
+              "durationMs": 3
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 154
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "after_rollout": [
+    {
+      "request": 1,
+      "status": 200,
+      "ttfb_ms": 362.0,
+      "total_ms": 478.0,
+      "tls_ms": 81.8,
+      "ray": "a4b1a6206e2f6c38-DFW",
+      "server_timing": "cfEdge;dur=65,cfOrigin;dur=0,cfWorker;dur=165",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:12 GMT",
+      "cpu_ms": 130,
+      "wall_ms": 167,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "491c8962-14e6-4f24-b558-698b6566fbef",
+          "docsRequest": 2,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6206e2f6c38",
+          "status": 200,
+          "headersReadyMs": 22,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 13,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 22
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "491c8962-14e6-4f24-b558-698b6566fbef",
+          "docsRequest": 2,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6206e2f6c38",
+          "elapsedMs": 22,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 13,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 22
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "491c8962-14e6-4f24-b558-698b6566fbef",
+          "docsRequest": 2,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6206e2f6c38",
+          "elapsedMs": 22,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 13,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 22
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 2,
+      "status": 200,
+      "ttfb_ms": 232.1,
+      "total_ms": 348.8,
+      "tls_ms": 85.1,
+      "ray": "a4b1a629c89724e9-DFW",
+      "server_timing": "cfEdge;dur=14,cfOrigin;dur=0,cfWorker;dur=85",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:13 GMT",
+      "cpu_ms": 59,
+      "wall_ms": 86,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 6,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a629c89724e9",
+          "status": 200,
+          "headersReadyMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 10
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 11,
+              "durationMs": 7
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 6,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a629c89724e9",
+          "elapsedMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 10
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 11,
+              "durationMs": 7
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 6,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a629c89724e9",
+          "elapsedMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 10
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 11,
+              "durationMs": 7
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 3,
+      "status": 200,
+      "ttfb_ms": 241.9,
+      "total_ms": 361.0,
+      "tls_ms": 83.7,
+      "ray": "a4b1a6324b3a0dc1-DFW",
+      "server_timing": "cfEdge;dur=43,cfOrigin;dur=0,cfWorker;dur=71",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:14 GMT",
+      "cpu_ms": 49,
+      "wall_ms": 72,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 7,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6324b3a0dc1",
+          "status": 200,
+          "headersReadyMs": 23,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 13,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 23
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 7,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6324b3a0dc1",
+          "elapsedMs": 23,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 13,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 23
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 7,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6324b3a0dc1",
+          "elapsedMs": 23,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 13
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 13,
+              "durationMs": 10
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 23
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 4,
+      "status": 200,
+      "ttfb_ms": 213.9,
+      "total_ms": 331.1,
+      "tls_ms": 88.5,
+      "ray": "a4b1a63b0a03e792-DFW",
+      "server_timing": "cfEdge;dur=13,cfOrigin;dur=0,cfWorker;dur=69",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:16 GMT",
+      "cpu_ms": 49,
+      "wall_ms": 70,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 3,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a63b0a03e792",
+          "status": 200,
+          "headersReadyMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 3,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a63b0a03e792",
+          "elapsedMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 3,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a63b0a03e792",
+          "elapsedMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 9
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 5,
+      "status": 200,
+      "ttfb_ms": 3271.0,
+      "total_ms": 3397.0,
+      "tls_ms": 84.2,
+      "ray": "a4b1a6436fc13ad3-DFW",
+      "server_timing": "cfEdge;dur=2467,cfOrigin;dur=0,cfWorker;dur=673",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:20 GMT",
+      "cpu_ms": 370,
+      "wall_ms": 681,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "c0b6b4e8-1e60-4167-bb47-1f00c605143e",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6436fc13ad3",
+          "status": 200,
+          "headersReadyMs": 317,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 313
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 317
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 313,
+              "durationMs": 4
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 317
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "c0b6b4e8-1e60-4167-bb47-1f00c605143e",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6436fc13ad3",
+          "elapsedMs": 317,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 313
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 317
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 313,
+              "durationMs": 4
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 317
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "c0b6b4e8-1e60-4167-bb47-1f00c605143e",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6436fc13ad3",
+          "elapsedMs": 317,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 313
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 317
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 313,
+              "durationMs": 4
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 317
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 6,
+      "status": 200,
+      "ttfb_ms": 231.8,
+      "total_ms": 355.4,
+      "tls_ms": 85.5,
+      "ray": "a4b1a65f0858f0c2-DFW",
+      "server_timing": "cfEdge;dur=26,cfOrigin;dur=0,cfWorker;dur=77",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:22 GMT",
+      "cpu_ms": 55,
+      "wall_ms": 78,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "2cd6c3cf-4089-4604-9783-2cf642580036",
+          "docsRequest": 2,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a65f0858f0c2",
+          "status": 200,
+          "headersReadyMs": 12,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 7,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 12
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "2cd6c3cf-4089-4604-9783-2cf642580036",
+          "docsRequest": 2,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a65f0858f0c2",
+          "elapsedMs": 12,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 7,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 12
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "2cd6c3cf-4089-4604-9783-2cf642580036",
+          "docsRequest": 2,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a65f0858f0c2",
+          "elapsedMs": 12,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 6
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 7
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 7,
+              "durationMs": 5
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 7,
+      "status": 200,
+      "ttfb_ms": 319.2,
+      "total_ms": 442.7,
+      "tls_ms": 92.6,
+      "ray": "a4b1a667d81d2ca4-DFW",
+      "server_timing": "cfEdge;dur=32,cfOrigin;dur=0,cfWorker;dur=118",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:23 GMT",
+      "cpu_ms": 98,
+      "wall_ms": 119,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 4,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a667d81d2ca4",
+          "status": 200,
+          "headersReadyMs": 16,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 5
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 8,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 16
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 4,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a667d81d2ca4",
+          "elapsedMs": 16,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 5
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 8,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 16
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "ceee50a1-bdee-4077-a79a-4d5707f53e98",
+          "docsRequest": 4,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a667d81d2ca4",
+          "elapsedMs": 16,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 5
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 8,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 8,
+      "status": 200,
+      "ttfb_ms": 278.6,
+      "total_ms": 397.5,
+      "tls_ms": 79.7,
+      "ray": "a4b1a670cdd8533a-DFW",
+      "server_timing": "cfEdge;dur=26,cfOrigin;dur=0,cfWorker;dur=130",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:24 GMT",
+      "cpu_ms": 106,
+      "wall_ms": 133,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "13eb6168-600f-44ed-8a81-43632a34383d",
+          "docsRequest": 5,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a670cdd8533a",
+          "status": 200,
+          "headersReadyMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 12
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 12,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "13eb6168-600f-44ed-8a81-43632a34383d",
+          "docsRequest": 5,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a670cdd8533a",
+          "elapsedMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 12
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 12,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "13eb6168-600f-44ed-8a81-43632a34383d",
+          "docsRequest": 5,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a670cdd8533a",
+          "elapsedMs": 18,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 12
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 12,
+              "durationMs": 6
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 9,
+      "status": 200,
+      "ttfb_ms": 236.8,
+      "total_ms": 367.0,
+      "tls_ms": 83.9,
+      "ray": "a4b1a67998bad7a0-DFW",
+      "server_timing": "cfEdge;dur=23,cfOrigin;dur=0,cfWorker;dur=89",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:26 GMT",
+      "cpu_ms": 70,
+      "wall_ms": 90,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "3f5f2043-2489-4def-9b91-f37cc5fb244c",
+          "docsRequest": 2,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a67998bad7a0",
+          "status": 200,
+          "headersReadyMs": 20,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 11
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 20
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "3f5f2043-2489-4def-9b91-f37cc5fb244c",
+          "docsRequest": 2,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a67998bad7a0",
+          "elapsedMs": 20,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 11
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 20
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "3f5f2043-2489-4def-9b91-f37cc5fb244c",
+          "docsRequest": 2,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a67998bad7a0",
+          "elapsedMs": 20,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 9
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 9,
+              "durationMs": 11
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 10,
+      "status": 200,
+      "ttfb_ms": 231.2,
+      "total_ms": 397.9,
+      "tls_ms": 82.4,
+      "ray": "a4b1a6823d28a270-DFW",
+      "server_timing": "cfEdge;dur=36,cfOrigin;dur=0,cfWorker;dur=67",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:27 GMT",
+      "cpu_ms": 52,
+      "wall_ms": 68,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b9f0cbd-4094-45fa-88a2-40cb7822ea9d",
+          "docsRequest": 2,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6823d28a270",
+          "status": 200,
+          "headersReadyMs": 16,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 8,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 16
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b9f0cbd-4094-45fa-88a2-40cb7822ea9d",
+          "docsRequest": 2,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6823d28a270",
+          "elapsedMs": 16,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 8,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 16
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "4b9f0cbd-4094-45fa-88a2-40cb7822ea9d",
+          "docsRequest": 2,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a6823d28a270",
+          "elapsedMs": 16,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 8
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 8,
+              "durationMs": 8
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 11,
+      "status": 200,
+      "ttfb_ms": 1392.7,
+      "total_ms": 1510.5,
+      "tls_ms": 79.1,
+      "ray": "a4b1a68b1cc769f5-DFW",
+      "server_timing": "cfEdge;dur=905,cfOrigin;dur=0,cfWorker;dur=360",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:30 GMT",
+      "cpu_ms": 165,
+      "wall_ms": 362,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "e3c88c49-0501-4898-b6a5-cf830552fc92",
+          "docsRequest": 1,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a68b1cc769f5",
+          "status": 200,
+          "headersReadyMs": 197,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 190
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 190
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 190,
+              "durationMs": 7
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 197
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "e3c88c49-0501-4898-b6a5-cf830552fc92",
+          "docsRequest": 1,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a68b1cc769f5",
+          "elapsedMs": 197,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 190
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 190
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 190,
+              "durationMs": 7
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 197
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "e3c88c49-0501-4898-b6a5-cf830552fc92",
+          "docsRequest": 1,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a68b1cc769f5",
+          "elapsedMs": 197,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 190
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 190
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 190,
+              "durationMs": 7
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 197
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "request": 12,
+      "status": 200,
+      "ttfb_ms": 271.7,
+      "total_ms": 392.4,
+      "tls_ms": 90.8,
+      "ray": "a4b1a69afceb1974-DFW",
+      "server_timing": "cfEdge;dur=29,cfOrigin;dur=0,cfWorker;dur=99",
+      "cache_control": "private, no-store",
+      "cf_cache_status": null,
+      "date": "Thu, 15 Oct 2026 20:42:31 GMT",
+      "cpu_ms": 71,
+      "wall_ms": 100,
+      "version": "3b554871-c23c-4825-9bb4-f9bc27dc5466",
+      "outcome": "ok",
+      "docs_timings": [
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 8,
+          "phase": "headers_ready",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a69afceb1974",
+          "status": 200,
+          "headersReadyMs": 22,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 11,
+              "durationMs": 11
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 22
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 8,
+          "phase": "first_body_byte",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a69afceb1974",
+          "elapsedMs": 22,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 11,
+              "durationMs": 11
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 22
+            }
+          ]
+        },
+        {
+          "logType": "docs_timing",
+          "workerInstance": "0bc0619a-83d0-473f-a9fb-03e1973224d5",
+          "docsRequest": 8,
+          "phase": "body_complete",
+          "pathname": "/router/latest/docs/routing/routing-concepts",
+          "ray": "a4b1a69afceb1974",
+          "elapsedMs": 22,
+          "databaseUsed": false,
+          "phases": [
+            {
+              "name": "db_config",
+              "startMs": 0,
+              "durationMs": 0
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 0,
+              "durationMs": 11
+            },
+            {
+              "name": "content_edge_read",
+              "startMs": 11,
+              "durationMs": 11
+            },
+            {
+              "name": "start_handler",
+              "startMs": 0,
+              "durationMs": 22
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Separate curl process and TLS connection per request, Accept: text/html, one-second pause between requests.",
+    "First docs request is an observed per-instance counter, not proof of a platform cold start.",
+    "Exclude five previous-version responses from new-version statistics.",
+    "Application timing clocks advance with I/O; use platform CPU/wall counters to complement them.",
+    "This deployment includes the preceding docs fixes and tracing as well as TanChat isolation; results do not isolate any single change."
+  ]
+}

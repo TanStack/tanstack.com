@@ -30,6 +30,10 @@ import {
   chartsActivationSvg,
 } from './chartsActivationSvg'
 import {
+  chartsBundleSizeCompactSvg,
+  chartsBundleSizeSvg,
+} from './chartsBundleSizeSvg'
+import {
   chartsKineticBarSvg,
   chartsKineticDonutSvg,
   chartsKineticHeatmapSvg,
@@ -594,6 +598,27 @@ export function AccountChart() {
         compactSvg={chartsAccountsCompactSvg}
         svg={chartsAccountsSvg}
         tooltip={accountTooltip}
+      />
+    </figure>
+  )
+}
+
+export function BundleSizeChart() {
+  return (
+    <figure className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[#294651] bg-[#07111e] shadow-[0_28px_80px_-38px_rgb(var(--landing-glow)/0.7)]">
+      <figcaption className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase sm:px-6 sm:py-4">
+        <span className="text-white/75">Bundle size snapshot</span>
+        <span className="text-[#61e8ff]">
+          August 2026 · rendered with TanStack Charts
+        </span>
+      </figcaption>
+      <StaticGraphic
+        className="aspect-[520/820] w-full sm:hidden"
+        svg={chartsBundleSizeCompactSvg}
+      />
+      <StaticGraphic
+        className="hidden aspect-[1200/820] w-full sm:block"
+        svg={chartsBundleSizeSvg}
       />
     </figure>
   )

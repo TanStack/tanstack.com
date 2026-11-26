@@ -389,14 +389,49 @@ test('fails closed when the legacy snapshot reference lookup fails', async () =>
   )
 })
 
-test('rejects projects over the per-file byte limit', () => {
+test('accepts a large text dataset within the total snapshot budget', () => {
+  const dataPath = '/packages/charts-demo-data/src/rows.js'
+  const dataSource = 'export const rows = []\n'.padEnd(854_345, ' ')
+  const project = createSharedExampleProject({
+    title: 'Dataset chart',
+    workspace: createExampleWorkspace({
+      entry: '/src/index.tsx',
+      files: {
+        '/src/index.tsx': "import { rows } from '@tanstack/charts-data/rows'",
+        [dataPath]: dataSource,
+      },
+      imports: {
+        '@tanstack/charts-data/': '/packages/charts-demo-data/src/',
+      },
+    }),
+  })
+
+  const parsed = parseStoredBuilderProjectSnapshot(project)
+
+  assert.equal(parsed.workspace.files[dataPath], dataSource)
+  assert.deepEqual(parsed.workspace.imports, project.workspace.imports)
+})
+
+test('rejects projects over the total snapshot budget', () => {
   const project = createProject({
-    '/src/index.tsx': 'a'.repeat(512 * 1024 + 1),
+    '/src/index.tsx': 'a'.repeat(512 * 1024),
+    '/src/data.js': 'a'.repeat(512 * 1024),
   })
 
   assert.throws(
     () => parseStoredBuilderProjectSnapshot(project),
-    /Builder file exceeds 512 KiB/,
+    /Project snapshot exceeds 1 MiB/,
+  )
+})
+
+test('rejects projects over the per-file byte limit', () => {
+  const project = createProject({
+    '/src/index.tsx': 'a'.repeat(1024 * 1024 + 1),
+  })
+
+  assert.throws(
+    () => parseStoredBuilderProjectSnapshot(project),
+    /Builder file exceeds 1 MiB/,
   )
 })
 
@@ -406,7 +441,7 @@ test('applies the per-file byte limit to decoded binary files', () => {
     workspace: createExampleWorkspace({
       binaryFiles: {
         '/public/favicon.ico': encodeExampleBinaryFile(
-          new Uint8Array(512 * 1024 + 1),
+          new Uint8Array(1024 * 1024 + 1),
         ),
       },
       entry: '/src/index.tsx',
@@ -416,7 +451,7 @@ test('applies the per-file byte limit to decoded binary files', () => {
 
   assert.throws(
     () => parseStoredBuilderProjectSnapshot(project),
-    /Builder file exceeds 512 KiB: \/public\/favicon\.ico/,
+    /Builder file exceeds 1 MiB: \/public\/favicon\.ico/,
   )
 })
 

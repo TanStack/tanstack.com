@@ -1,6 +1,12 @@
+import { PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import * as React from 'react'
 import { libraries, type LibraryId } from '~/libraries'
-import { SHOWCASE_STATUSES, type ShowcaseStatus } from '~/db/types'
+import {
+  SHOWCASE_STATUSES,
+  SHOWCASE_PLACEMENTS,
+  type ShowcasePlacement,
+  type ShowcaseStatus,
+} from '~/db/types'
 import {
   TopBarFilter,
   FilterChip,
@@ -12,11 +18,13 @@ import {
 
 interface ShowcaseModerationTopBarProps {
   filters: {
+    placement?: ShowcasePlacement
     status?: ShowcaseStatus[]
     libraryId?: LibraryId[]
     isFeatured?: boolean
   }
   onFilterChange: (filters: {
+    placement?: ShowcasePlacement
     status?: ShowcaseStatus[]
     libraryId?: LibraryId[]
     isFeatured?: boolean
@@ -56,6 +64,7 @@ export function ShowcaseModerationTopBar({
   const handleClearFilters = () => {
     onFilterChange({
       status: undefined,
+      placement: undefined,
       libraryId: undefined,
       isFeatured: undefined,
     })
@@ -63,6 +72,7 @@ export function ShowcaseModerationTopBar({
 
   const hasActiveFilters = Boolean(
     (filters.status && filters.status.length > 0) ||
+    filters.placement ||
     filters.libraryId ||
     filters.isFeatured !== undefined,
   )
@@ -75,6 +85,12 @@ export function ShowcaseModerationTopBar({
       onClearAll={handleClearFilters}
       hasActiveFilters={hasActiveFilters}
     >
+      {filters.placement && (
+        <FilterChip
+          label={PLACEMENT_LABELS[filters.placement]}
+          onRemove={() => onFilterChange({ placement: undefined })}
+        />
+      )}
       {/* Active Filter Chips */}
       {filters.status && filters.status.length > 0 && (
         <FilterChip
@@ -109,6 +125,21 @@ export function ShowcaseModerationTopBar({
 
       {/* Add Filter Dropdown */}
       <AddFilterButton>
+        <FilterDropdownSection title="Placement" defaultExpanded>
+          {SHOWCASE_PLACEMENTS.map((placement) => (
+            <FilterCheckbox
+              key={placement}
+              label={PLACEMENT_LABELS[placement]}
+              checked={filters.placement === placement}
+              onChange={() =>
+                onFilterChange({
+                  placement:
+                    filters.placement === placement ? undefined : placement,
+                })
+              }
+            />
+          ))}
+        </FilterDropdownSection>
         {/* Status Filter */}
         <FilterDropdownSection title="Status" defaultExpanded>
           {SHOWCASE_STATUSES.map((status) => (

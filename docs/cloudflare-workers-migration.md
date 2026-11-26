@@ -47,6 +47,8 @@ Cloudflare Workers Builds is the production deployment owner. Its production tri
 
 The CI deploy command applies every committed migration and verifies the exact Builder schema before `wrangler deploy` can run. Preview builds use `wrangler versions upload` and must not receive the production database secret.
 
+Set `SENTRY_AUTH_TOKEN` under **Settings → Build → Build variables and secrets** for the `tanstack-com` Worker. Builds on `main` use this token to upload browser and Worker source maps to `tanstack/tanstack-com`. Check the build log and the [Sentry Source Maps page](https://tanstack.sentry.io/settings/projects/tanstack-com/source-maps/) after the next production build.
+
 Required environment:
 
 - `DATABASE_URL`: the production Postgres connection used to verify the Builder schema before the Worker is deployed. Run `pnpm run db:prepare-builder` once after a Builder schema change.

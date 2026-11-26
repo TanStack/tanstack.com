@@ -89,6 +89,7 @@ In practice, the React Native setup looks like this:
 import { open } from '@op-engineering/op-sqlite'
 import { createCollection } from '@tanstack/db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { QueryClient } from '@tanstack/query-core'
 import {
   createReactNativeSQLitePersistence,
   persistedCollectionOptions,
@@ -109,11 +110,14 @@ const persistence = createReactNativeSQLitePersistence({
   database,
 })
 
+const queryClient = new QueryClient()
+
 export const shoppingItemsCollection = createCollection(
   persistedCollectionOptions<ShoppingItem, string>({
     persistence,
     schemaVersion: 1,
     ...queryCollectionOptions({
+      queryClient,
       queryKey: ['shopping-items'],
       queryFn: async () => api.shoppingItems.getAll(),
       getKey: (item) => item.id,

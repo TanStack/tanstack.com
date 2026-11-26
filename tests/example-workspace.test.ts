@@ -9,10 +9,43 @@ import {
   decodeExampleBinaryFile,
   encodeExampleBinaryFile,
   parseExampleWorkspace,
+  resolveExampleWorkspaceImport,
   serializeExampleWorkspace,
 } from '../src/utils/example-workspace'
 
 describe('example workspaces', () => {
+  test('resolves local import mappings with exact and longest-prefix priority', () => {
+    const imports = {
+      '@tanstack/charts-data/': '/packages/charts-demo-data/src/',
+      '@tanstack/charts-data/special/': '/special/',
+      '@tanstack/charts-data/exact': '/exact.ts',
+      '@tanstack/charts-data/remote': 'https://example.com/data.js',
+      react: 'https://esm.sh/react@19.2.3',
+    }
+    assert.equal(
+      resolveExampleWorkspaceImport('@tanstack/charts-data/shadcn', imports),
+      '/packages/charts-demo-data/src/shadcn',
+    )
+    assert.equal(
+      resolveExampleWorkspaceImport(
+        '@tanstack/charts-data/special/rows',
+        imports,
+      ),
+      '/special/rows',
+    )
+    assert.equal(
+      resolveExampleWorkspaceImport('@tanstack/charts-data/exact', imports),
+      '/exact.ts',
+    )
+    for (const specifier of [
+      '@tanstack/charts-data/remote',
+      'react',
+      'unknown',
+    ]) {
+      assert.equal(resolveExampleWorkspaceImport(specifier, imports), undefined)
+    }
+  })
+
   test('serialize files and imports canonically', () => {
     const left = createExampleWorkspace({
       entry: '/src/main.tsx',

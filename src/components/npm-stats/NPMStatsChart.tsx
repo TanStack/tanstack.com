@@ -12,13 +12,12 @@ import {
   ruleX,
   ruleY,
   type ChartLinearGradient,
-  type ChartPoint,
-  type ChartTooltipContentContext,
 } from '@tanstack/charts'
 import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/charts/react'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
+import { getSvgDimensions } from './svgDimensions'
 import {
   CheckIcon,
   CodeIcon,
@@ -34,6 +33,7 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
   binningOptionsByType,
   getHistoryStartDate,
@@ -63,6 +63,13 @@ import {
   isPackageGroupHidden,
 } from './shared'
 import { BASELINE_LINE_COLOR } from './BaselineSection'
+
+import {
+  getNpmChartTooltipContent,
+  type NpmHistoryPoint,
+  type NpmStackedHistoryPoint,
+  type NpmBarPoint,
+} from './npmChartTooltip'
 
 const BASELINE_LINE_SERIES = '__baseline__'
 const percentFormatter = new Intl.NumberFormat('en-US', {
@@ -797,31 +804,33 @@ function createLatestBarExportChart({
                 radius: 2,
               }),
         ],
-    x: isHorizontalBar
-      ? {
-          scale: numericScale,
-          axis: {
-            label: { text: 'Downloads', offset: 35 },
-            ticks: { format: formatCompactAxisNumber },
+    scales: {
+      x: isHorizontalBar
+        ? {
+            scale: numericScale,
+            axis: {
+              label: { text: 'Downloads', offset: 35 },
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
+          }
+        : {
+            scale: categoricalScale,
+            axis: {
+              tickLabels: { rotate: verticalXAxisLayout.tickRotate },
+            },
           },
-          grid: true,
-        }
-      : {
-          scale: categoricalScale,
-          axis: {
-            tickLabels: { rotate: verticalXAxisLayout.tickRotate },
+      y: isHorizontalBar
+        ? { scale: categoricalScale }
+        : {
+            scale: numericScale,
+            axis: {
+              label: 'Downloads',
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
           },
-        },
-    y: isHorizontalBar
-      ? { scale: categoricalScale }
-      : {
-          scale: numericScale,
-          axis: {
-            label: 'Downloads',
-            ticks: { format: formatCompactAxisNumber },
-          },
-          grid: true,
-        },
+    },
     gradients: getTanStackGradients(fillGradients),
     margin: {
       top: 20,
@@ -841,18 +850,6 @@ function createLatestBarExportChart({
   container.innerHTML = source
   const svg = container.querySelector<SVGSVGElement>('svg')
   return svg ?? undefined
-}
-
-function getSvgDimensions(svg: SVGSVGElement) {
-  const box = svg.getBoundingClientRect()
-  const viewBox = svg.viewBox.baseVal
-  const width = svg.width.baseVal.value || viewBox.width || box.width || 1
-  const height = svg.height.baseVal.value || viewBox.height || box.height || 1
-
-  return {
-    width: Math.max(1, Math.ceil(width)),
-    height: Math.max(1, Math.ceil(height)),
-  }
 }
 
 function isTransparentColor(color: string) {
@@ -1671,7 +1668,14 @@ function EmbedChartAction({
     embedConfig.hasTimelineRange,
   )
   const [lockWidth, setLockWidth] = React.useState(false)
-  const [iframeHeight, setIframeHeight] = React.useState(420)
+  // Keep the raw text so the field can be cleared and retyped; only the
+  // value used in the iframe code is clamped.
+  const [iframeHeightInput, setIframeHeightInput] = React.useState('420')
+  const parsedIframeHeight = Number(iframeHeightInput)
+  const iframeHeight =
+    iframeHeightInput !== '' && Number.isFinite(parsedIframeHeight)
+      ? Math.max(240, Math.min(1200, parsedIframeHeight))
+      : 420
   const [copiedTarget, setCopiedTarget] = React.useState<
     'iframe' | 'url' | null
   >(null)
@@ -1699,7 +1703,7 @@ function EmbedChartAction({
 
   const copyText = React.useCallback(
     async (target: 'iframe' | 'url', text: string) => {
-      await navigator.clipboard.writeText(text)
+      await copyTextToClipboard(text)
       setCopiedTarget(target)
       window.setTimeout(() => {
         setCopiedTarget((currentTarget) =>
@@ -1738,13 +1742,12 @@ function EmbedChartAction({
                 className="w-16 rounded border border-gray-500/20 bg-gray-50 px-1.5 py-1 text-right font-mono text-[11px] outline-none focus:border-blue-500 dark:bg-gray-900"
                 max={1200}
                 min={240}
-                onChange={(event) => {
-                  const nextHeight = Number(event.currentTarget.value)
-                  if (!Number.isFinite(nextHeight)) return
-                  setIframeHeight(Math.max(240, Math.min(1200, nextHeight)))
-                }}
+                onBlur={() => setIframeHeightInput(String(iframeHeight))}
+                onChange={(event) =>
+                  setIframeHeightInput(event.currentTarget.value)
+                }
                 type="number"
-                value={iframeHeight}
+                value={iframeHeightInput}
               />
             </label>
           </div>
@@ -2155,34 +2158,6 @@ function TimelineRangeScrubber({
   )
 }
 
-type NpmHistoryPoint = {
-  color: string
-  date: Date
-  id: string
-  label: string
-  seriesName: string
-  value: number
-}
-
-type NpmStackedHistoryPoint = NpmHistoryPoint & {
-  fill: string
-  value1: number
-  value2: number
-}
-
-type NpmBarPoint = {
-  category: string
-  color: string
-  fill: string
-  id: string
-  label: string
-  seriesName: string
-  value1: number
-  value2: number
-}
-
-type NpmChartDatum = NpmHistoryPoint | NpmStackedHistoryPoint | NpmBarPoint
-
 type NpmStatsChartInput = {
   barOrientation: BarOrientation
   bars: Array<NpmBarPoint>
@@ -2201,65 +2176,11 @@ type NpmStatsChartInput = {
   yLabel?: string
 }
 
-function getNpmChartTooltipContent(
-  points: ReadonlyArray<ChartPoint<NpmChartDatum>>,
-  context: ChartTooltipContentContext,
-  input: NpmStatsChartInput,
-) {
-  const first = points[0]
-  if (!first) return { rows: [] }
-
-  const formatValue = (point: ChartPoint<NpmChartDatum>) => {
-    const datum = point.datum
-    const value = 'value1' in datum ? datum.value2 - datum.value1 : datum.value
-
-    return input.yFormat?.(value) ?? value.toLocaleString()
-  }
-
-  if (points.length > 1) {
-    const title =
-      input.viewMode === 'history'
-        ? `Date: ${context.formatX(first.xValue)}`
-        : input.barOrientation === 'horizontal'
-          ? context.formatY(first.yValue)
-          : context.formatX(first.xValue)
-
-    return {
-      title,
-      rows: points.map((point) => ({
-        color: point.datum.color,
-        label: point.groupLabel,
-        value: formatValue(point),
-      })),
-    }
-  }
-
-  return {
-    title: first.groupLabel,
-    color: first.datum.color,
-    rows:
-      input.viewMode === 'history'
-        ? [
-            { label: 'Date', value: context.formatX(first.xValue) },
-            {
-              label: input.yLabel ?? 'Downloads',
-              value: formatValue(first),
-            },
-          ]
-        : [
-            {
-              label: input.xLabel ?? input.yLabel ?? 'Downloads',
-              value: formatValue(first),
-            },
-          ],
-  }
-}
-
 function createNpmStatsChart(input: NpmStatsChartInput) {
   const definition = defineChart(() => createNpmStatsChartSpec(input))
 
   return defineChart(definition, {
-    animate: {
+    svgAnimation: {
       duration: chartUpdateTransitionDurationMs,
       easing: 'ease-out',
     },
@@ -2273,7 +2194,6 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
       content: (points, context) =>
         getNpmChartTooltipContent(points, context, input),
       placement: ['top', 'right', 'left', 'bottom'],
-      sort: 'color-domain',
     },
   })
 }
@@ -2322,15 +2242,17 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
             radius: input.chartType === 'stacked-bar' ? undefined : 2,
           }),
         ],
-        x: {
-          scale: numericScale,
-          axis: {
-            label: input.xLabel,
-            ticks: { format: formatCompactAxisNumber },
+        scales: {
+          x: {
+            scale: numericScale,
+            axis: {
+              label: input.xLabel,
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
           },
-          grid: true,
+          y: { scale: categoricalScale },
         },
-        y: { scale: categoricalScale },
       }
     }
 
@@ -2354,14 +2276,16 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
           radius: input.chartType === 'stacked-bar' ? undefined : 2,
         }),
       ],
-      x: { scale: categoricalScale },
-      y: {
-        scale: numericScale,
-        axis: {
-          label: input.yLabel,
-          ticks: { format: input.yFormat },
+      scales: {
+        x: { scale: categoricalScale },
+        y: {
+          scale: numericScale,
+          axis: {
+            label: input.yLabel,
+            ticks: { format: input.yFormat },
+          },
+          grid: true,
         },
-        grid: true,
       },
     }
   }
@@ -2422,17 +2346,19 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
           curve,
         }),
       ],
-      x,
-      y: {
-        scale: d3
-          .scaleLinear()
-          .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
-          .nice(5),
-        axis: {
-          label: input.yLabel,
-          ticks: { format: input.yFormat },
+      scales: {
+        x,
+        y: {
+          scale: d3
+            .scaleLinear()
+            .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
+            .nice(5),
+          axis: {
+            label: input.yLabel,
+            ticks: { format: input.yFormat },
+          },
+          grid: true,
         },
-        grid: true,
       },
       clip: !!input.timelineDomain,
     }
@@ -2474,17 +2400,19 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
         curve,
       }),
     ],
-    x,
-    y: {
-      scale: d3
-        .scaleLinear()
-        .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
-        .nice(5),
-      axis: {
-        label: input.yLabel,
-        ticks: { format: input.yFormat },
+    scales: {
+      x,
+      y: {
+        scale: d3
+          .scaleLinear()
+          .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
+          .nice(5),
+        axis: {
+          label: input.yLabel,
+          ticks: { format: input.yFormat },
+        },
+        grid: true,
       },
-      grid: true,
     },
     clip: !!input.timelineDomain,
   }
@@ -3494,6 +3422,7 @@ export function NPMStatsChart({
         id: `${datum.seriesName}:${datum.date.getTime()}:complete`,
         label: `${datum.name}: ${formatHistoryTooltipValue(value)}`,
         seriesName: datum.seriesName,
+        seriesLabel: datum.name,
         value,
       }
     })
@@ -3512,6 +3441,7 @@ export function NPMStatsChart({
               id: `${datum.seriesName}:${datum.date.getTime()}:partial`,
               label: `${datum.name}: ${formatHistoryTooltipValue(value)}`,
               seriesName: datum.seriesName,
+              seriesLabel: datum.name,
               value,
             }
           })

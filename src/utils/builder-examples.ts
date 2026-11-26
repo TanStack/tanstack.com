@@ -99,8 +99,10 @@ const definition = defineChart(({ width }) => ({
       fill: '#3b7f2a', fontSize: 10,
     }),
   ],
-  x: { scale: scaleLinear().domain([0, 1440]), axis: false },
-  y: { scale: scaleLinear().domain([0, 4]), axis: false },
+  scales: {
+    x: { scale: scaleLinear().domain([0, 1440]), axis: false },
+    y: { scale: scaleLinear().domain([0, 4]), axis: false },
+  },
   margin: 0,
   clip: true,
 }))
@@ -179,11 +181,13 @@ function PopulationRace() {
         dx: 8, anchor: 'start', fill: 'currentColor', fontWeight: 700,
       }),
     ],
-    x: { scale: scaleLinear().domain([0, 1600]), axis: { label: 'Population (millions)' }, grid: false },
-    y: { scale: scaleBand().domain(rows.map((row) => row.country)).padding(0.12) },
+    scales: {
+      x: { scale: scaleLinear().domain([0, 1600]), axis: { label: 'Population (millions)' }, grid: false },
+      y: { scale: scaleBand().domain(rows.map((row) => row.country)).padding(0.12) },
+    },
     margin: { top: 20, right: 72, bottom: 44, left: 116 },
     theme: { background: 'transparent' },
-    animate: true,
+    svgAnimation: true,
   }), [rows])
 
   return React.createElement('section', { className: 'race' },
@@ -246,11 +250,13 @@ function IndicatorChart({ kind, revision }) {
       lineY(rows, { x: 'x', y: 'signal', key: 'id', stroke: '#adbbd7', strokeOpacity: 0.7, strokeWidth: 1.2 }),
       dot(rows.filter((_, index) => index % 13 === 0), { x: 'x', y: 'value', key: 'id', fill: color, r: 3 }),
     ],
-    x: { scale: scaleLinear().domain([0, 63]), axis: false },
-    y: { scale: scaleLinear().domain([0, 100]), axis: false, grid: true },
+    scales: {
+      x: { scale: scaleLinear().domain([0, 63]), axis: false },
+      y: { scale: scaleLinear().domain([0, 100]), axis: false, grid: true },
+    },
     margin: { top: 12, right: 16, bottom: 18, left: 16 },
     theme: { background: 'transparent' },
-    animate: true,
+    svgAnimation: true,
   }), [color, kind, rows])
 
   return React.createElement(Chart, { definition, height: 240, initialWidth: 620, ariaLabel: 'Technical indicator trend' })

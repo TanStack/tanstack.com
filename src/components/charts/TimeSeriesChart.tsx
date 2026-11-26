@@ -78,19 +78,21 @@ function createTimeSeriesChart(input: TimeSeriesChartInput) {
               r: 3,
             }),
           ],
-    x: {
-      scale: d3.scaleUtc().domain([firstDate, lastDate]).nice(),
-      axis: { label: 'Date' },
-      grid: true,
-    },
-    y: {
-      scale: d3.scaleLinear().domain([0, maxValue]).nice(),
-      axis: { label: input.yLabel },
-      grid: true,
+    scales: {
+      x: {
+        scale: d3.scaleUtc().domain([firstDate, lastDate]).nice(),
+        axis: { label: 'Date' },
+        grid: true,
+      },
+      y: {
+        scale: d3.scaleLinear().domain([0, maxValue]).nice(),
+        axis: { label: input.yLabel },
+        grid: true,
+      },
     },
     margin: { top: 20, right: 20, bottom: 40, left: 60 },
     theme: { background: 'transparent' },
-    animate: true,
+    svgAnimation: true,
     tooltip: { use: tooltip, format: formatTooltip },
   })
 }

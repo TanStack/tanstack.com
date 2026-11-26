@@ -24,6 +24,7 @@ export {
   hotkeys,
   markdown,
   highlight,
+  redact,
   db,
   ai,
   intent,

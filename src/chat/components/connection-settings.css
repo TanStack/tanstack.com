@@ -1,0 +1,450 @@
+@scope (:root:has(.tanchat-shell)) {
+  .connection-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+  .connection-kody {
+    padding-bottom: 16px;
+  }
+  .connection-kody-heading,
+  .connection-kody-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .connection-kody-heading {
+    justify-content: space-between;
+  }
+  .connection-kody-heading h3 {
+    margin: 0;
+    font-size: 14px;
+  }
+  .connection-kody-row {
+    padding: 10px 0;
+  }
+  .connection-kody-row strong {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .connection-kody-row span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-kody-section {
+    padding: 10px 0;
+  }
+  .connection-kody-section summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .connection-kody-section .connection-kody-row:last-child {
+  }
+  .connection-kody-add {
+    padding: 12px 0 4px;
+  }
+  .connection-kody-package {
+  }
+  .connection-kody-package:last-child {
+  }
+  .connection-kody-package > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    cursor: pointer;
+    list-style-position: inside;
+  }
+  .connection-kody-package > summary::before {
+    content: '›';
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1;
+    transform: rotate(0);
+  }
+  .connection-kody-package[open] > summary::before {
+    transform: rotate(90deg);
+  }
+  .connection-kody-package > summary strong {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .connection-kody-package > summary span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-kody-package-body {
+    min-width: 0;
+    padding: 0 0 12px 20px;
+  }
+  .connection-kody-package-body p {
+    white-space: pre-wrap;
+  }
+  .connection-kody-package-exports {
+    margin-top: 12px;
+  }
+  .connection-kody-package-exports > strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+  .connection-kody-export {
+    padding: 8px 0;
+  }
+  .connection-kody-export summary {
+    cursor: pointer;
+  }
+  .connection-kody-export > div {
+    padding-left: 20px;
+  }
+  .connection-kody-export pre {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .connection-kody-document {
+    max-height: min(60vh, 480px);
+    overflow: auto;
+    overflow-wrap: anywhere;
+  }
+  .connection-kody-document :is(h1, h2, h3, h4) {
+    margin: 12px 0 6px;
+    line-height: 1.3;
+  }
+  .connection-kody-document h1 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: normal;
+  }
+  .connection-kody-document h2 {
+    font-size: 1.05rem;
+  }
+  .connection-kody-document h3 {
+    font-size: 0.95rem;
+  }
+  .connection-kody-document h4 {
+    font-size: 0.9rem;
+  }
+  .connection-kody-community {
+    padding-top: 10px;
+  }
+  .connection-kody-community form {
+    display: flex;
+    gap: 8px;
+  }
+  .connection-kody-community form input {
+    flex: 1;
+    min-width: 0;
+  }
+  .connection-kody-community select {
+    margin: 8px 0;
+    min-height: 34px;
+    padding: 0 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: inherit;
+    font: inherit;
+  }
+  .connection-kody-community-limit {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-kody-community-detail > details {
+    margin: 8px 0;
+  }
+  .connection-kody-community-detail > details > summary {
+    cursor: pointer;
+  }
+  .connection-kody-community-detail a {
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .connection-kody-usage > p {
+    margin: 10px 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-kody-usage-resource {
+  }
+  .connection-kody-usage-resource > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    list-style-position: inside;
+    font-weight: 400;
+  }
+  .connection-kody-usage-resource > summary strong {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+  }
+  .connection-kody-usage-resource > summary span {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: right;
+  }
+  .connection-kody-usage-resource > div {
+    padding: 0 0 8px 18px;
+  }
+  .connection-kody-usage-resource > div p {
+    margin: 5px 0;
+  }
+  .connection-kody-usage-other {
+    padding: 10px 0;
+  }
+  .connection-kody-run {
+    margin: 0;
+  }
+  .connection-kody-run:last-child {
+  }
+  .connection-kody-run summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    font-weight: 400;
+  }
+  .connection-kody-run summary strong {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .connection-kody-run summary time {
+    margin-left: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .connection-kody-run summary span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-kody-run .kody-run-body {
+    min-width: 0;
+    padding: 0 0 10px 25px;
+  }
+  .connection-kody-run .kody-run-body pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .connection-kody-run-filters,
+  .connection-kody-run-lookup {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }
+  .connection-kody-run-find {
+  }
+  .connection-kody-run-find > summary {
+    padding: 10px 0;
+    font-weight: 400;
+  }
+  .settings-content .connection-kody-run-lookup {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .dialog .connection-kody-run-filters label,
+  .dialog .connection-kody-run-lookup label {
+    margin-bottom: 0;
+  }
+  .connection-kody-run-filters label,
+  .connection-kody-run-lookup label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-kody-run-filters select,
+  .connection-kody-run-lookup input {
+    min-height: 34px;
+  }
+  .connection-kody-run-lookup input {
+    min-width: 200px;
+    flex: 1;
+  }
+  .connection-kody-run-lookup > label {
+    flex-basis: 100%;
+  }
+  .settings-kody-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .connection-heading,
+  .connection-toolbar,
+  .connection-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .connection-heading strong {
+    overflow-wrap: anywhere;
+  }
+  .connection-toolbar {
+    justify-content: flex-end;
+  }
+  .connection-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .connection-list > li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .connection-name {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    text-align: left;
+    padding: 3px 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .connection-name strong {
+    overflow-wrap: anywhere;
+  }
+  .connection-name span,
+  .connection-note,
+  .connection-evidence small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .connection-evidence {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-wrap: anywhere;
+  }
+  .connection-evidence p,
+  .connection-settings p {
+    margin: 0;
+  }
+  .connection-address {
+    overflow-wrap: anywhere;
+  }
+  .connection-enabled {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .connection-settings input[role='switch'] {
+    flex: none;
+    cursor: pointer;
+  }
+  .connection-form fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .connection-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .connection-form input {
+    width: 100%;
+    min-width: 0;
+  }
+  .connection-form details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .connection-form details > label {
+    margin-top: 12px;
+  }
+  .connection-form .connection-note {
+    margin-top: 8px;
+  }
+  .connection-form button {
+    align-self: flex-start;
+  }
+  .connection-error {
+    color: var(--danger);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .connection-error > button {
+    align-self: flex-start;
+  }
+  .connection-confirm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .connection-scopes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .connection-scopes ul {
+    padding-left: 20px;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .connection-menu-positioner {
+    z-index: 90;
+  }
+  .connection-menu {
+    min-width: 180px;
+    max-width: calc(100vw - 40px);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 5px;
+    background: var(--surface);
+    color: inherit;
+    box-shadow: 0 12px 35px var(--shadow-soft);
+  }
+  .connection-menu-item {
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    font-size: 13px;
+  }
+  .connection-menu-item[data-highlighted] {
+    background: var(--soft);
+  }
+  .connection-menu-item[data-disabled] {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .connection-settings :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  @media (pointer: coarse) {
+    .connection-menu-item {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .connection-settings button:not(.icon-button),
+    .connection-form summary {
+      min-height: 44px;
+    }
+  }
+}

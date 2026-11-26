@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { getClientExampleConfig } from '../src/utils/client-example-config'
 import {
-  resolveExampleWorkspaceImports as resolveExampleWorkspaceImportsImpl,
+  resolveExampleWorkspaceImports,
   type ExampleImportMetadataFetch,
 } from '../src/utils/example-imports'
 import { createRepositoryExampleDefinition } from '../src/utils/repository-example'
@@ -203,8 +203,78 @@ test('selects only verified current client examples', () => {
   assert.deepEqual(
     getClientExampleConfig({
       framework: 'react',
+      libraryId: 'ai',
+      slug: 'basic-chat',
+      version: 'latest',
+    }),
+    {
+      autoStart: true,
+      entry: '/src/routes/index.tsx',
+      framework: 'react',
+      libraryId: 'ai',
+      runtime: {
+        type: 'webcontainer',
+        compatibility: 'tanstack-start-async-context',
+        install: { command: 'pnpm', args: ['install'] },
+        start: { command: 'pnpm', args: ['run', 'dev'] },
+      },
+      slug: 'basic-chat',
+    },
+  )
+  assert.equal(
+    getClientExampleConfig({
+      framework: 'react',
+      libraryId: 'ai',
+      slug: 'basic-chat',
+      version: 'v0',
+    }),
+    undefined,
+  )
+  assert.deepEqual(
+    getClientExampleConfig({
+      framework: 'react',
+      libraryId: 'ai',
+      slug: 'tools-chat',
+      version: 'latest',
+    }),
+    {
+      autoStart: true,
+      entry: '/src/routes/index.tsx',
+      framework: 'react',
+      libraryId: 'ai',
+      runtime: {
+        type: 'webcontainer',
+        compatibility: 'tanstack-start-async-context',
+        install: { command: 'pnpm', args: ['install'] },
+        start: { command: 'pnpm', args: ['run', 'dev'] },
+      },
+      slug: 'tools-chat',
+    },
+  )
+  assert.equal(
+    getClientExampleConfig({
+      framework: 'react',
+      libraryId: 'ai',
+      slug: '../secret',
+      version: 'latest',
+    }),
+    undefined,
+  )
+  assert.equal(
+    getClientExampleConfig({
+      framework: 'vue',
+      libraryId: 'ai',
+      slug: 'basic-chat',
+      version: 'latest',
+    }),
+    undefined,
+  )
+  assert.deepEqual(
+    getClientExampleConfig({
+      framework: 'react',
       libraryId: 'start',
       slug: 'start-streaming-data-from-server-functions',
+
       version: 'latest',
     }),
     {
@@ -412,28 +482,6 @@ test('workspace imports remain the final override', async () => {
 
   assert.equal(imports.react, 'https://example.com/react.js')
 })
-
-async function resolveExampleWorkspaceImports(
-  workspace: Parameters<typeof resolveExampleWorkspaceImportsImpl>[0],
-  files: Parameters<typeof resolveExampleWorkspaceImportsImpl>[1],
-  specifiers?: Parameters<typeof resolveExampleWorkspaceImportsImpl>[2],
-  options: { fetch?: ExampleImportMetadataFetch } = {},
-) {
-  const previous = globalThis.fetch
-  if (options.fetch) {
-    globalThis.fetch = options.fetch as typeof globalThis.fetch
-  }
-  try {
-    return await resolveExampleWorkspaceImportsImpl(
-      workspace,
-      files,
-      specifiers,
-      { signal: new AbortController().signal },
-    )
-  } finally {
-    globalThis.fetch = previous
-  }
-}
 
 function createRepositoryMetadataFetch(): ExampleImportMetadataFetch {
   return async (input) => {

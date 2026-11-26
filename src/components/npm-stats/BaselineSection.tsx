@@ -16,6 +16,12 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
+} from '~/components/ds/ui'
 import { PackageSearch } from './PackageSearch'
 import { getBaselineDisplayName, type PackageGroup } from './shared'
 import type { BaselinePreset } from '~/routes/stats/npm/-comparisons'
@@ -250,21 +256,17 @@ export function BaselineSection({
         </div>
       </div>
 
-      {showSearch && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
-            <div className="flex justify-between items-center mb-2 sm:mb-4">
-              <h3 className="text-base sm:text-lg font-medium flex items-center gap-2">
-                <PushPinIcon className="w-4 h-4 text-blue-500" />
+      <Dialog open={showSearch} onOpenChange={setShowSearch}>
+        <DialogContent size="md">
+          <DialogHeader
+            title={
+              <span className="flex items-center gap-2">
+                <PushPinIcon className="w-4 h-4 text-icon-accent" />
                 Add baseline package
-              </h3>
-              <button
-                onClick={() => setShowSearch(false)}
-                className="p-0.5 sm:p-1 hover:text-red-500"
-              >
-                <XIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            </div>
+              </span>
+            }
+          />
+          <DialogBody className="pb-6">
             <PackageSearch
               onSelect={(pkg) => {
                 onAddBaseline(pkg)
@@ -274,9 +276,9 @@ export function BaselineSection({
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={true}
             />
-          </div>
-        </div>
-      )}
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

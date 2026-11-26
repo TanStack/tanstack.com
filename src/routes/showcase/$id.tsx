@@ -1,3 +1,4 @@
+import { isCuratedShowcase } from '~/utils/showcase.shared'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
@@ -31,13 +32,15 @@ export const Route = createFileRoute('/showcase/$id')({
 
     return { showcase: showcaseData?.showcase }
   },
+  headers: () => ({ 'cache-control': 'private, no-store' }),
   component: ShowcaseDetailPage,
   head: ({ loaderData }) => {
     const showcase = loaderData?.showcase
     if (!showcase) {
       return {
         meta: seo({
-          title: 'Showcase Not Found | TanStack',
+          title: 'Project Not Found | TanStack',
+          noindex: true,
           description: 'The project you are looking for could not be found.',
         }),
       }
@@ -45,7 +48,8 @@ export const Route = createFileRoute('/showcase/$id')({
 
     return {
       meta: seo({
-        title: `${showcase.name} | Showcase | TanStack`,
+        title: `${showcase.name} | ${showcase.placement === 'community' ? 'Community' : 'Showcase'} | TanStack`,
+        noindex: !isCuratedShowcase(showcase),
         description: showcase.tagline,
         image: showcase.screenshotUrl,
       }),

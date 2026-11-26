@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query'
+import { getSignInProviders } from '~/utils/auth.functions'
 import * as React from 'react'
 import { authClient } from '~/auth/client'
 // Using public asset URLs for splash images
@@ -64,36 +66,50 @@ function SplashImage() {
 }
 
 export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
+  const providers = useQuery({
+    queryKey: ['sign-in-providers'],
+    queryFn: () => getSignInProviders(),
+    staleTime: Infinity,
+  })
   return (
     <Card className="p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
         Sign into TanStack
       </h2>
-      <button
-        type="button"
-        onClick={() =>
-          authClient.signIn.social({
-            provider: 'github',
-            returnTo,
-          })
-        }
-        className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
-      >
-        <GithubIcon className="inline-block mr-2 -mt-0.5" /> Sign in with GitHub
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          authClient.signIn.social({
-            provider: 'google',
-            returnTo,
-          })
-        }
-        className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
-      >
-        <GoogleIcon className="inline-block mr-2 -mt-0.5" /> Sign in with Google
-      </button>
+      {providers.data && !providers.data.github && !providers.data.google && (
+        <p>Sign-in isn't configured for this server.</p>
+      )}
+      {providers.data?.github && (
+        <button
+          type="button"
+          onClick={() =>
+            authClient.signIn.social({
+              provider: 'github',
+              returnTo,
+            })
+          }
+          className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
+        >
+          <GithubIcon className="inline-block mr-2 -mt-0.5" /> Sign in with
+          GitHub
+        </button>
+      )}
+      {providers.data?.google && (
+        <button
+          type="button"
+          onClick={() =>
+            authClient.signIn.social({
+              provider: 'google',
+              returnTo,
+            })
+          }
+          className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
+        >
+          <GoogleIcon className="inline-block mr-2 -mt-0.5" /> Sign in with
+          Google
+        </button>
+      )}
     </Card>
   )
 }

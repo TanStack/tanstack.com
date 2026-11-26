@@ -754,8 +754,13 @@ function UsersPage() {
   const canGoNext = !usersQuery?.data?.isDone
 
   // Create table instance
+  const tableData = useMemo(
+    () => usersQuery.data?.page ?? [],
+    [usersQuery.data?.page],
+  )
+
   const table = useReactTable({
-    data: (usersQuery?.data?.page || []) as User[],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,

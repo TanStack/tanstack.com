@@ -1,0 +1,20 @@
+import {createServer} from 'node:http'
+import {readFileSync} from 'node:fs'
+import {dirname,resolve} from 'node:path'
+import {fileURLToPath} from 'node:url'
+import {createHash} from 'node:crypto'
+
+const root=dirname(fileURLToPath(import.meta.resolve('@tanstack/browser-sandbox-experimental')))
+const expectedSdkManifestSHA256=process.env.SANDBOX_SDK_MANIFEST_SHA256
+if(!expectedSdkManifestSHA256?.match(/^[a-f0-9]{64}$/))throw Error('Set SANDBOX_SDK_MANIFEST_SHA256 to the exact tested SDK manifest hash')
+if(createHash('sha256').update(readFileSync(resolve(root,'manifest.json'))).digest('hex')!==expectedSdkManifestSHA256)throw Error('Expected the exact tested local SDK package')
+const hosting=JSON.parse(readFileSync(resolve(root,'preview-host/hosting.json'),'utf8'))
+const server=createServer((request,response)=>{
+  const path=new URL(request.url,'http://localhost').pathname
+  const route=hosting.routes.find(route=>route.path===path&&route.method===request.method)
+  if(!route){response.writeHead(hosting.fallbackStatus,hosting.fallbackHeaders);response.end('No workspace attached');return}
+  response.writeHead(200,route.headers)
+  response.end(readFileSync(resolve(root,'preview-host',route.file)))
+})
+server.listen(4199,'127.0.0.1',()=>console.log('Local SDK preview host: http://127.0.0.1:4199'))
+for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>server.close(error=>{if(error){console.error(error);process.exitCode=1}}))

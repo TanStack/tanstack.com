@@ -494,10 +494,10 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       return (
         <div
           className={twMerge(
-            // Search reads as a distinct, fully-rounded pill so it never
-            // reads as just another rounded-corner control (buttons, dropdowns).
-            'flex w-full items-center rounded-full border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-strong focus-within:text-text-primary motion-reduce:transition-none',
-            size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
+            'flex w-full items-center border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
+            size === 'large'
+              ? 'min-h-14 gap-3 rounded-xl px-4'
+              : 'h-10 gap-2.5 rounded-lg px-3',
           )}
         >
           <label
@@ -857,7 +857,7 @@ export function Breadcrumbs({
                   resetScroll={false}
                   hashScrollIntoView={{ behavior: 'smooth' }}
                 >
-                  <span dangerouslySetInnerHTML={{ __html: heading.text }} />
+                  <span>{heading.text}</span>
                 </Link>
               </DropdownItem>
             ))}
@@ -877,6 +877,41 @@ export {
   segmentTrackClasses,
   type SegmentSize,
 } from './Tabs'
+export {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogStatus,
+  DialogTrigger,
+  type DialogSize,
+  type DialogStatusTone,
+} from './Dialog'
+export {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  type DrawerAnchor,
+  type DrawerSide,
+  type DrawerSize,
+} from './Drawer'
+export {
+  Takeover,
+  TakeoverClose,
+  TakeoverContent,
+  TakeoverDescription,
+  TakeoverTitle,
+  TakeoverTrigger,
+  type TakeoverScrim,
+} from './Takeover'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {

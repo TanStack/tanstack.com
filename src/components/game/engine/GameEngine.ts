@@ -62,7 +62,7 @@ export class GameEngine {
   private renderer: THREE.WebGLRenderer
   private scene: THREE.Scene
   private camera: THREE.PerspectiveCamera
-  private clock: THREE.Clock
+  private timer: THREE.Timer
   private animationFrameId: number | null = null
   private unsubscribers: Array<() => void> = []
   private isDisposed = false
@@ -93,7 +93,7 @@ export class GameEngine {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
-    this.clock = new THREE.Clock()
+    this.timer = new THREE.Timer()
 
     // Get dimensions - use clientWidth/Height for aspect ratio, canvas.width/height for resolution
     const displayWidth = canvas.clientWidth || window.innerWidth
@@ -703,7 +703,7 @@ export class GameEngine {
     }
 
     this.isPaused = document.hidden
-    this.clock.start()
+    this.timer.reset()
 
     if (!this.isPaused) {
       this.animationFrameId = requestAnimationFrame(this.loop)
@@ -724,8 +724,9 @@ export class GameEngine {
       return
     }
 
-    const delta = this.clock.getDelta()
-    const time = this.clock.getElapsedTime()
+    this.timer.update()
+    const delta = this.timer.getDelta()
+    const time = this.timer.getElapsed()
 
     this.update(delta, time)
     this.render()
@@ -831,7 +832,7 @@ export class GameEngine {
 
     if (!document.hidden) {
       // Reset clock delta when resuming to avoid large time jumps
-      this.clock.getDelta()
+      this.timer.update()
 
       if (this.animationFrameId === null && !this.isDisposed) {
         this.animationFrameId = requestAnimationFrame(this.loop)

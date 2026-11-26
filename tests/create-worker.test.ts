@@ -17,9 +17,6 @@ assert.deepEqual(workos.partner, {
 assert.deepEqual(workos.packageAdditions?.engines, {
   node: '>=22.11.0',
 })
-assert.deepEqual(sentry.packageAdditions?.pnpm, {
-  onlyBuiltDependencies: ['@sentry/cli'],
-})
 
 const [materializedWorkos] = await create.finalizeAddOns(react, 'file-router', [
   'workos',
@@ -28,5 +25,58 @@ assert.deepEqual(materializedWorkos?.partner, {
   id: 'workos',
   tier: 'silver',
 })
+
+const [materializedSentry] = await create.finalizeAddOns(react, 'file-router', [
+  'sentry',
+])
+assert.match(materializedSentry?.packageTemplate ?? '', /addOnEnabled\.vercel/)
+assert.match(
+  materializedSentry?.packageTemplate ?? '',
+  /"onlyBuiltDependencies"/,
+)
+
+for (const frameworkId of ['react', 'solid']) {
+  const framework = await create.getFrameworkById(frameworkId)
+  if (!framework) throw new Error(`${frameworkId} framework not found`)
+
+  const frameworkAddOns = create.getAllAddOns(framework, 'file-router')
+  const codeRouterAddOnIds = create
+    .getAllAddOns(framework, 'code-router')
+    .map((addOn) => addOn.id)
+
+  for (const deployment of ['render', 'vercel']) {
+    const addOn = frameworkAddOns.find(
+      (candidate) => candidate.id === deployment,
+    )
+
+    if (!addOn) {
+      throw new Error(`${frameworkId} ${deployment} add-on not found`)
+    }
+    assert.deepEqual(addOn.partner, {
+      id: deployment,
+      tier: 'gold',
+    })
+    assert.deepEqual(addOn.modes, ['file-router'])
+    assert.equal(codeRouterAddOnIds.includes(deployment), false)
+
+    const [materializedDeployment] = await create.finalizeAddOns(
+      framework,
+      'file-router',
+      [deployment],
+    )
+
+    if (deployment === 'render') {
+      assert.match(
+        materializedDeployment?.files['render.yaml.ejs'] ?? '',
+        /BUN_VERSION/,
+      )
+    } else {
+      assert.match(
+        materializedDeployment?.files['vercel.json'] ?? '',
+        /"framework": "tanstack-start"/,
+      )
+    }
+  }
+}
 
 console.log('create worker tests passed')

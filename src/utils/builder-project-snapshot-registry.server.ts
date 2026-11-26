@@ -333,6 +333,10 @@ export async function quarantineBuilderProjectSnapshotInRegistry(
 
 type BuilderProjectSnapshotReader = Pick<typeof db, 'select'>
 
+type BuilderProjectSnapshotGcReader = Pick<typeof db, 'select'>
+
+type BuilderProjectSnapshotGcWriter = Pick<typeof db, 'update'>
+
 export async function assertBuilderProjectSnapshotAvailable(
   snapshotHash: string,
   database: BuilderProjectSnapshotReader = db,
@@ -601,11 +605,13 @@ export async function pruneBuilderProjectSnapshotStorage({
 export function deferLegacyReferencedBuilderProjectSnapshotGcCandidate({
   hash,
   occurredAt,
+  database = db,
 }: {
   hash: string
   occurredAt: Date
+  database?: BuilderProjectSnapshotGcWriter
 }) {
-  return db
+  return database
     .update(builderProjectSnapshots)
     .set({ deletingAt: null, updatedAt: occurredAt })
     .where(
@@ -619,11 +625,13 @@ export function deferLegacyReferencedBuilderProjectSnapshotGcCandidate({
 export function getBuilderProjectSnapshotReservationGcCandidates({
   cutoff,
   limit,
+  database = db,
 }: {
   cutoff: Date
   limit: number
+  database?: BuilderProjectSnapshotGcReader
 }) {
-  return db
+  return database
     .select({
       id: builderProjectSnapshotReservations.id,
       ownerId: builderProjectSnapshotReservations.ownerId,
@@ -634,7 +642,7 @@ export function getBuilderProjectSnapshotReservationGcCandidates({
       and(
         lte(builderProjectSnapshotReservations.updatedAt, cutoff),
         notExists(
-          db
+          database
             .select({ id: builderProjects.id })
             .from(builderProjects)
             .leftJoin(
@@ -672,18 +680,20 @@ export function getBuilderProjectSnapshotReservationGcCandidates({
 export function getBuilderProjectSnapshotGcCandidates({
   cutoff,
   limit,
+  database = db,
 }: {
   cutoff: Date
   limit: number
+  database?: BuilderProjectSnapshotGcReader
 }) {
-  return db
+  return database
     .select({ hash: builderProjectSnapshots.hash })
     .from(builderProjectSnapshots)
     .where(
       and(
         isNull(builderProjectSnapshots.quarantinedAt),
         notExists(
-          db
+          database
             .select({ id: builderProjectRevisions.id })
             .from(builderProjectRevisions)
             .where(
@@ -694,7 +704,7 @@ export function getBuilderProjectSnapshotGcCandidates({
             ),
         ),
         notExists(
-          db
+          database
             .select({ id: builderProjects.id })
             .from(builderProjects)
             .where(
@@ -702,7 +712,7 @@ export function getBuilderProjectSnapshotGcCandidates({
             ),
         ),
         notExists(
-          db
+          database
             .select({ id: builderProjectSnapshotReservations.id })
             .from(builderProjectSnapshotReservations)
             .where(

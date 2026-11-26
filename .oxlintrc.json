@@ -199,6 +199,26 @@
         "react/exhaustive-deps": "warn"
       },
       "plugins": ["react", "jsx-a11y"]
+    },
+    {
+      "files": ["desktop/preload.cjs"],
+      "rules": {
+        "typescript/no-require-imports": "off"
+      }
+    },
+    {
+      "files": ["**/SavedFiles.tsx"],
+      "plugins": ["react", "jsx-a11y"],
+      "rules": {
+        "jsx-a11y/no-noninteractive-tabindex": [
+          "error",
+          {
+            "tags": [],
+            "roles": ["tabpanel", "region"],
+            "allowExpressionValues": true
+          }
+        ]
+      }
     }
   ]
 }

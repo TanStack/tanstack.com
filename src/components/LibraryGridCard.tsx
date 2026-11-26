@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { CaretRightIcon } from '@phosphor-icons/react/CaretRight'
 import { twMerge } from 'tailwind-merge'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import type { PublicLibrarySlim } from '~/libraries'
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
@@ -67,20 +68,25 @@ export default function LibraryGridCard({
         categoryHoverBorder[category],
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3 sm:w-full sm:items-start sm:justify-between sm:gap-3">
-        <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3 sm:w-full sm:flex-wrap sm:content-start sm:items-start sm:justify-between sm:gap-3">
+        <div className="flex min-w-0 items-center gap-3 sm:max-w-full sm:shrink-0">
           <IconComponent
             className={twMerge(
               'size-7 shrink-0 sm:size-9',
               categoryIconColor[category],
             )}
           />
-          <span
-            className="truncate font-ds-display text-[20px] font-medium leading-tight text-text-primary/90 group-hover:text-text-primary sm:whitespace-normal sm:text-[28px]"
-            style={{ viewTransitionName: `library-name-${library.id}` }}
-          >
-            {name}
-          </span>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <span
+              className="truncate font-ds-display text-[20px] font-medium leading-tight text-text-primary/90 group-hover:text-text-primary sm:whitespace-normal sm:text-[28px]"
+              style={{ viewTransitionName: `library-name-${library.id}` }}
+            >
+              {name}
+            </span>
+            {library.badge ? (
+              <LibraryStatusBadge badge={library.badge} className="shrink-0" />
+            ) : null}
+          </div>
         </div>
         {/* Persistent affordance that the card is clickable; sm+ only. */}
         <span className="hidden shrink-0 translate-y-0.5 items-center gap-1 rounded-[11px] corner-squircle bg-black/[0.03] px-3 py-1.5 font-ds-display text-sm font-bold text-text-secondary opacity-70 group-hover:text-text-primary group-hover:opacity-100 group-focus-visible:text-text-primary group-focus-visible:opacity-100 dark:bg-white/5 sm:inline-flex">

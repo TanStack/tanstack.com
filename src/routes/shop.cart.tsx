@@ -1,3 +1,4 @@
+import { useIsMutating } from '@tanstack/react-query'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { ShoppingCartIcon, TrashIcon, XIcon } from '@phosphor-icons/react'
@@ -11,6 +12,7 @@ import {
   ShopQty,
 } from '~/components/shop/ui'
 import {
+  CART_ADD_MUTATION_KEY,
   useApplyDiscountCode,
   useCart,
   useRemoveCartLine,
@@ -81,7 +83,8 @@ function CartPage() {
           </dl>
 
           <a
-            href={checkoutUrl}
+            href={checkoutUrl || undefined}
+            aria-disabled={!checkoutUrl}
             className="
               w-full h-11 rounded-md bg-shop-accent text-shop-accent-ink
               font-semibold text-ds-label-md flex items-center justify-center gap-2
@@ -220,7 +223,8 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
     .map((o) => `${o.name}: ${o.value}`)
     .join(' · ')
 
-  const isBusy = update.isPending || remove.isPending
+  const adding = useIsMutating({ mutationKey: CART_ADD_MUTATION_KEY })
+  const isBusy = adding > 0 || update.isPending || remove.isPending
 
   return (
     <li className="flex gap-4 py-5 border-b border-shop-line items-start">

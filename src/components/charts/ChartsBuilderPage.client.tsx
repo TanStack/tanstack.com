@@ -99,19 +99,21 @@ const definition = defineChart({
       inset: 2,
     }),
   ],
-  x: {
-    scale: scaleBand()
-      .domain(letters.map((datum) => datum.letter))
-      .padding(0.2),
-  },
-  y: {
-    scale: scaleLinear().domain([0, 0.14]).nice(),
-    axis: { label: 'Frequency' },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleBand()
+        .domain(letters.map((datum) => datum.letter))
+        .padding(0.2),
+    },
+    y: {
+      scale: scaleLinear().domain([0, 0.14]).nice(),
+      axis: { label: 'Frequency' },
+      grid: true,
+    },
   },
   margin: { top: 24, right: 24, bottom: 48, left: 56 },
   theme: { background: 'transparent' },
-  animate: true,
+  svgAnimation: true,
 })
 
 const host = document.createElement('div')

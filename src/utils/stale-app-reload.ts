@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/tanstackstart-react'
 import {
   getSessionStorageItem,
   setSessionStorageItem,
@@ -16,6 +17,25 @@ const staleAppErrorPatterns = [
   'Unable to preload CSS',
   'Seroval Error',
 ]
+
+const recoveredErrors = new WeakSet<object>()
+
+export function consumeStaleAppRecovery(error: unknown) {
+  if (typeof error !== 'object' || error === null) return false
+  return recoveredErrors.delete(error)
+}
+
+function markReloadedErrors(error: unknown) {
+  if (Array.isArray(error)) {
+    error.forEach(markReloadedErrors)
+  } else if (
+    typeof error === 'object' &&
+    error !== null &&
+    isStaleAppError(error)
+  ) {
+    recoveredErrors.add(error)
+  }
+}
 
 let handlersInstalled = false
 let lastReloadAt = 0
@@ -57,6 +77,11 @@ export function reloadOnStaleAppError(error: unknown) {
   ) {
     writeLastReloadAt(now)
     window.location.reload()
+    markReloadedErrors(error)
+    if (Sentry.isEnabled()) {
+      Sentry.metrics.count('app.stale_reload', 1)
+      void Sentry.flush(2_000)
+    }
     return true
   }
 

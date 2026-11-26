@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  /><meta name="theme-color" content="#f7f7f8" /><title>
+    TanChat · Offline
+  </title>
+  <style>
+    html {
+      color-scheme: light dark;
+      font: 16px system-ui;
+      background: light-dark(#f7f7f8, #202229);
+      color: light-dark(#202229, #f7f7f8);
+    }
+    body {
+      min-height: 90svh;
+      display: grid;
+      place-content: center;
+      padding: 24px;
+      text-align: center;
+      margin: 0;
+    }
+    h1 {
+      font-size: 24px;
+    }
+    p {
+      max-width: 30ch;
+      line-height: 1.5;
+      color: light-dark(#555, #bbb);
+    }
+    button {
+      font: inherit;
+      min-height: 48px;
+      padding: 10px 24px;
+      border: 1px solid #8888;
+      border-radius: 12px;
+      background: transparent;
+      color: inherit;
+    }
+  </style>
+  <h1>You’re offline</h1>
+  <p>
+    Reconnect to open your conversations. Your saved work stays on your account.
+  </p>
+  <button onclick="location.reload()">Try again</button>
+</html>

@@ -1,0 +1,83 @@
+@scope (:root:has(.tanchat-shell)) {
+  .context-indicator {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 5px;
+    border-radius: 6px;
+  }
+  .context-indicator:hover {
+    background: var(--soft);
+    color: inherit;
+  }
+  .context-positioner {
+    z-index: 90;
+  }
+  .context-popup {
+    width: min(360px, calc(100vw - 24px));
+    max-height: min(520px, var(--available-height));
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--background);
+    color: var(--text);
+    box-shadow: 0 8px 28px var(--shadow-soft);
+    font-size: 12px;
+  }
+  .context-popup-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .context-popup-heading h2 {
+    margin: 0;
+    font-size: 14px;
+  }
+  .context-popup-heading button {
+    border: 0;
+    background: transparent;
+    padding: 5px;
+  }
+  .request-context-details {
+    min-width: 0;
+    line-height: 1.5;
+  }
+  .request-context-details p {
+    margin: 8px 0;
+    overflow-wrap: anywhere;
+  }
+  .request-context-model {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .request-context-details dl {
+    display: block;
+    margin: 8px 0;
+  }
+  .request-context-details dl > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 3px 0;
+  }
+  .request-context-details dt {
+    color: var(--muted);
+  }
+  .request-context-details dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .request-context-details summary {
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .request-context-details details p,
+  .request-context-note {
+    color: var(--muted);
+  }
+}

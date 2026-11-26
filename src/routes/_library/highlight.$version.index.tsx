@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/highlight/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('highlight', params.version, queryClient),
-  head: () => getLibraryLandingHead('highlight'),
+  head: ({ match }) =>
+    getLibraryLandingHead('highlight', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('highlight'),
   component: HighlightLandingRoute,
 })

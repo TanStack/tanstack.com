@@ -1,0 +1,84 @@
+{
+  "account_id": "8da95258a9c70b54c3e2b374a0079106",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "limits": {
+    "cpu_ms": 300000,
+  },
+  "name": "tanstack-chat-recovery",
+  "main": "../../src/workers/chat-recovery.ts",
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "APP_MODE": "production",
+    "MCP_EGRESS_MODE": "cloudflare-public",
+    "KODY_ORIGIN": "https://kody.codes",
+    "INCLUDED_MODEL": "@cf/moonshotai/kimi-k2.6",
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "STREAMS",
+        "class_name": "StreamObject",
+        "script_name": "tanstack-chat",
+      },
+      {
+        "name": "WORKSPACE_SYNC",
+        "class_name": "WorkspaceSync",
+        "script_name": "tanstack-chat",
+      },
+      {
+        "name": "CONVERSATIONS",
+        "class_name": "Conversation",
+        "script_name": "tanstack-chat",
+      },
+    ],
+  },
+  "ai": {
+    "binding": "AI",
+  },
+  "r2_buckets": [
+    {
+      "binding": "BUILDER_PROJECTS",
+      "bucket_name": "tanstack-notebook-projects",
+    },
+    {
+      "binding": "FILES",
+      "bucket_name": "tanstack-notebook-projects",
+    },
+  ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "6ec1513b87bb47e9897e5502727b0388",
+    },
+  ],
+  "secrets": {
+    "required": ["SESSION_SECRET", "ENCRYPTION_KEY", "DATABASE_URL"],
+  },
+  "exports": {
+    "StreamObject": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+    "WorkspaceSync": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+    "Conversation": {
+      "type": "durable-object",
+      "storage": "sqlite",
+    },
+  },
+  "workflows": [
+    {
+      "name": "tanstack-chat-workflows",
+      "binding": "WORKFLOW_RUNS",
+      "class_name": "TanChatWorkflow",
+      "script_name": "tanstack-chat",
+    },
+  ],
+}

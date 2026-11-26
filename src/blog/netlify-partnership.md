@@ -6,7 +6,7 @@ authors:
   - Tanner Linsley
 ---
 
-![Netlify Header](/blog-assets/netlify-partnership/header.jpg)
+![TanStack + Netlify](/blog-assets/netlify-partnership/header-logos.png)
 
 **Netlify is an official hosting partner for TanStack Start.** The practical result is a supported deployment path through [`@netlify/vite-plugin-tanstack-start`](https://www.npmjs.com/package/@netlify/vite-plugin-tanstack-start), including SSR, Server Routes, Server Functions, middleware, and local Netlify platform emulation.
 

@@ -1,0 +1,41 @@
+@scope (:root:has(.tanchat-shell)) {
+  .settings-content .response-preferences {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0;
+  }
+  .response-preferences-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .response-preferences-fields label {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 13px;
+  }
+  .settings-row .response-preferences-fields .select-field-trigger {
+    width: 100%;
+    min-width: 0;
+  }
+  .response-preferences-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+  }
+  .response-preferences-feedback[role='alert'] {
+    color: var(--danger);
+  }
+  .response-preferences-loading {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  @media (max-width: 600px) {
+    .response-preferences-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+}

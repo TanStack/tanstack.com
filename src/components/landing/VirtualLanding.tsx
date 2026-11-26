@@ -389,8 +389,8 @@ function SnapshotPanel() {
   const [restored, setRestored] = React.useState(false)
 
   return (
-    <LandingWindow label="navigation snapshot">
-      <div className="flex h-full flex-col p-5 sm:p-6">
+    <LandingWindow className="lg:self-start" label="navigation snapshot">
+      <div className="flex flex-col p-5 sm:p-6">
         <LandingEyebrow icon={<FloppyDiskIcon aria-hidden="true" size={14} />}>
           leave → return
         </LandingEyebrow>
@@ -426,7 +426,7 @@ function SnapshotPanel() {
           index.
         </p>
         <button
-          className="mt-auto flex items-center justify-center gap-2 rounded-md bg-[var(--landing-accent)] px-3 py-2.5 text-ds-label-sm text-[var(--landing-accent-ink)]"
+          className="mt-3 flex items-center justify-center gap-2 rounded-md bg-[var(--landing-accent)] px-3 py-2.5 text-ds-label-sm text-[var(--landing-accent-ink)]"
           onClick={() => setRestored((value) => !value)}
           type="button"
         >

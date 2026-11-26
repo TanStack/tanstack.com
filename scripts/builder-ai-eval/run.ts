@@ -581,8 +581,7 @@ function addUsage(target: Record<string, number>, value: unknown) {
 function isAssistResponse(response: Response) {
   const pathname = new URL(response.url()).pathname
   return (
-    pathname === '/api/builder/assist' ||
-    pathname === '/api/builder/chatgpt/assist'
+    pathname === '/api/chat/assist' || pathname === '/api/chat/chatgpt/assist'
   )
 }
 

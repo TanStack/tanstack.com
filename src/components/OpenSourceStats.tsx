@@ -4,9 +4,30 @@ import {
   DownloadSimpleIcon,
   StarIcon,
 } from '@phosphor-icons/react'
-import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
+import { type Library } from '~/libraries'
+import {
+  homepageNpmStatsSummaryQuery,
+  ossStatsQuery,
+  recentDownloadsQuery,
+} from '~/queries/stats'
+import { HomeStatNumber } from '~/components/home/HomeStatNumber'
+import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { StatsSection, type StatItem, type StatsPage } from '~/components/ds/ui'
+import {
+  StatsSection,
+  type StatItem,
+  type StatsLayout,
+  type StatsPage,
+} from '~/components/ds/ui'
+import { tanStackTotalNpmStatsLibrary } from '~/utils/tanstack-npm-stats'
+
+export type HomepageStatsSnapshot = {
+  totalDownloads?: number
+  weeklyDownloads?: number
+  weeklyRatePerDay?: number
+  npmStatsFetchedAt: number
+  starCount?: number
+}
 
 /** Compact count with a single-letter magnitude, e.g. 2_340_000_000 → "2.3B". */
 function formatCompact(value: number) {
@@ -28,66 +49,131 @@ function isValidMetric(value: number | undefined | null): boolean {
 
 export default function OssStats({
   className,
+  layout = 'landscape',
+  library,
   page = 'home',
+  initialStats,
 }: {
   className?: string
+  layout?: StatsLayout
+  library?: Library
   page?: StatsPage
+  initialStats?: HomepageStatsSnapshot
 }) {
-  const { data: stats, isLoading } = useQuery(ossStatsQuery())
-  const { data: homepageNpmSummary, isLoading: isLoadingHomepageNpmSummary } =
-    useQuery(homepageNpmStatsSummaryQuery())
+  const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
+  const {
+    data: homepageNpmSummary,
+    dataUpdatedAt,
+    isLoading: isLoadingHomepageNpmSummary,
+  } = useQuery({
+    ...homepageNpmStatsSummaryQuery(),
+    enabled: !library,
+  })
+  const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
+    useQuery({
+      ...recentDownloadsQuery({
+        library: library ?? tanStackTotalNpmStatsLibrary,
+      }),
+      enabled: Boolean(library),
+    })
 
-  const npmDownloads = homepageNpmSummary?.totalDownloads ?? 0
-  const starCount = stats?.github?.starCount ?? 0
-  const weeklyDownloads = homepageNpmSummary?.weeklyDownloads ?? 0
-  const weeklyRatePerDay = homepageNpmSummary?.weeklyRatePerDay
+  const totalNpmStats = stats?.npm
+  const npmDownloads = library
+    ? (totalNpmStats?.totalDownloads ?? 0)
+    : (homepageNpmSummary?.totalDownloads ?? initialStats?.totalDownloads ?? 0)
+  const starCount = stats?.github?.starCount ?? initialStats?.starCount ?? 0
+  const weeklyDownloads = library
+    ? (recentDownloads?.weeklyDownloads ?? 0)
+    : (homepageNpmSummary?.weeklyDownloads ??
+      initialStats?.weeklyDownloads ??
+      0)
+  const weeklyRatePerDay = library
+    ? undefined
+    : (homepageNpmSummary?.weeklyRatePerDay ?? initialStats?.weeklyRatePerDay)
+  const animate = page === 'hero' && !library
+  const liveDownloads = {
+    ratePerDay: weeklyRatePerDay ?? 0,
+    fetchedAt: dataUpdatedAt || initialStats?.npmStatsFetchedAt || 0,
+  }
 
-  // Live-ticking weekly counter — writes into the value node after mount.
   const weeklyRef = useNpmDownloadCounter({
     totalDownloads: weeklyDownloads,
     ratePerDay: weeklyRatePerDay ?? 0,
   })
 
-  const hasNpmDownloads =
-    !isLoadingHomepageNpmSummary && isValidMetric(npmDownloads)
-  const hasStarCount = !isLoading && isValidMetric(starCount)
-  const hasWeeklyDownloads =
-    !isLoadingHomepageNpmSummary && isValidMetric(weeklyDownloads)
+  const hasNpmDownloads = isValidMetric(npmDownloads)
+  const hasStarCount = isValidMetric(starCount)
+  const hasWeeklyDownloads = isValidMetric(weeklyDownloads)
 
   const loading = isLoading || !stats
-  const npmLoading = isLoadingHomepageNpmSummary || !homepageNpmSummary
-  const weeklyLoading = isLoadingHomepageNpmSummary || !homepageNpmSummary
+  const npmLoading = library
+    ? isLoading || !totalNpmStats
+    : isLoadingHomepageNpmSummary || !homepageNpmSummary
+  const weeklyLoading = library
+    ? isLoadingRecentDownloads || !recentDownloads
+    : isLoadingHomepageNpmSummary || !homepageNpmSummary
+  const missingValue = animate ? '—' : ''
 
   const items: Array<StatItem> = []
 
-  if (npmLoading || hasNpmDownloads) {
+  if (animate || npmLoading || hasNpmDownloads) {
     items.push({
       key: 'total',
       icon: <DownloadSimpleIcon weight="regular" />,
-      value: hasNpmDownloads ? formatCompact(npmDownloads) : '',
+      value: hasNpmDownloads ? (
+        animate ? (
+          <LiveDownloadCount
+            value={npmDownloads}
+            {...liveDownloads}
+            format={{
+              notation: 'compact',
+              minimumFractionDigits: npmDownloads >= 1_000_000 ? 1 : 0,
+              maximumFractionDigits: npmDownloads >= 1_000_000 ? 1 : 0,
+            }}
+          />
+        ) : (
+          formatCompact(npmDownloads)
+        )
+      ) : (
+        missingValue
+      ),
       placeholder: '00.0B',
       label: 'Total Downloads',
     })
   }
 
-  if (weeklyLoading || hasWeeklyDownloads) {
+  if (animate || weeklyLoading || hasWeeklyDownloads) {
     items.push({
       key: 'weekly',
       icon: <CalendarDotsIcon weight="regular" />,
-      value: hasWeeklyDownloads ? weeklyDownloads.toLocaleString() : '',
+      value: hasWeeklyDownloads ? (
+        animate ? (
+          <LiveDownloadCount value={weeklyDownloads} {...liveDownloads} />
+        ) : (
+          weeklyDownloads.toLocaleString()
+        )
+      ) : (
+        missingValue
+      ),
       placeholder: '00,000,000',
       label: 'Weekly Downloads',
-      // Only hand the ticking counter a node once there's a real base value —
-      // otherwise it would write "0" over the empty placeholder while loading.
-      valueRef: hasWeeklyDownloads ? weeklyRef : undefined,
+      valueRef: hasWeeklyDownloads && !animate ? weeklyRef : undefined,
     })
   }
 
-  if (loading || hasStarCount) {
+  if (animate || loading || hasStarCount) {
     items.push({
       key: 'stars',
       icon: <StarIcon weight="regular" />,
-      value: hasStarCount ? starCount.toLocaleString() : '',
+      value: hasStarCount ? (
+        animate ? (
+          <HomeStatNumber value={starCount} />
+        ) : (
+          starCount.toLocaleString()
+        )
+      ) : (
+        missingValue
+      ),
       placeholder: '000,000',
       label: 'GitHub Stars',
     })
@@ -101,7 +187,7 @@ export default function OssStats({
     <StatsSection
       className={className}
       page={page}
-      layout="landscape"
+      layout={layout}
       stats={items}
     />
   )

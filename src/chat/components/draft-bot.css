@@ -1,0 +1,79 @@
+@scope (:root:has(.tanchat-shell)) {
+  .draft-bot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 32px 24px 24px;
+  }
+  .draft-bot-content {
+    width: min(100%, 680px);
+  }
+  .draft-bot h1 {
+    font-size: clamp(25px, 3vw, 36px);
+    letter-spacing: -0.035em;
+    font-weight: 500;
+    text-align: center;
+    margin: 0 0 30px;
+  }
+  .draft-bot .composer {
+    width: 100%;
+  }
+  .draft-bot .composer textarea {
+    min-height: 90px;
+  }
+  .draft-bot .composer-toolbar {
+    justify-content: flex-end;
+  }
+  @media (max-width: 760px) {
+    .draft-bot {
+      padding: 24px 16px 16px;
+    }
+    .draft-bot h1 {
+      font-size: 26px;
+    }
+  }
+  .conversation-empty {
+    justify-content: flex-end;
+  }
+  .conversation-empty .messages-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .conversation-empty .empty-state {
+    padding: 20px 20px 8px;
+  }
+  .draft-bot-sending {
+    justify-content: flex-start;
+    padding-top: 25px;
+  }
+  .draft-bot-sending .draft-bot-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .draft-bot-sending .composer {
+    margin-top: auto;
+  }
+  .pending-conversation {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface-hover, rgba(127, 127, 127, 0.1));
+  }
+  .pending-conversation > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pending-conversation small {
+    opacity: 0.65;
+  }
+}

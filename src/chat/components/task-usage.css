@@ -1,0 +1,27 @@
+@scope (:root:has(.tanchat-shell)) {
+  .task-usage-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .task-usage-heading h3 {
+    margin: 0;
+  }
+  .task-usage-total {
+    font-variant-numeric: tabular-nums;
+  }
+  .task-usage dl {
+    display: block;
+  }
+  .task-usage dt {
+    overflow-wrap: anywhere;
+  }
+  .task-usage dd {
+    margin: 2px 0 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  .task-usage summary {
+    cursor: pointer;
+  }
+}

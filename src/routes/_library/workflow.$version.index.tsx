@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/workflow/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('workflow', params.version, queryClient),
-  head: () => getLibraryLandingHead('workflow'),
+  head: ({ match }) =>
+    getLibraryLandingHead('workflow', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('workflow'),
   component: WorkflowLandingRoute,
 })

@@ -5,6 +5,7 @@ import {
   useMatches,
 } from '@tanstack/react-router'
 import { LibraryLayout } from '~/components/LibraryLayout'
+import { Scarf } from '~/components/Scarf'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import type { ConfigSchema } from '~/utils/config'
@@ -74,6 +75,9 @@ function LibraryRoute() {
       isLandingPage={layoutData.isLandingPage}
     >
       <Outlet />
+      {library.scarfId ? (
+        <Scarf id={library.scarfId} path={`/${library.id}`} />
+      ) : null}
     </LibraryLayout>
   )
 }

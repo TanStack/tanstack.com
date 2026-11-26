@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { notFound, Outlet } from '@tanstack/react-router'
-import { Scarf } from '~/components/Scarf'
 import { findLibrary, LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
@@ -65,10 +64,5 @@ function RouteForm() {
     return null
   }
 
-  return (
-    <>
-      <Outlet />
-      {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
-    </>
-  )
+  return <Outlet />
 }

@@ -12,6 +12,31 @@ type SmokeCase = {
 const baseUrl = process.env.TANSTACK_DOCS_SMOKE_BASE_URL
 
 test(
+  'missing Start documents return 404 without redirecting to the framework index',
+  {
+    skip: baseUrl
+      ? false
+      : 'Set TANSTACK_DOCS_SMOKE_BASE_URL to run docs route smoke tests',
+  },
+  async () => {
+    assert.ok(baseUrl)
+
+    for (const framework of ['react', 'solid']) {
+      const path = `/start/latest/docs/framework/${framework}/missing-docs-smoke-test`
+      const response: Response = await fetch(new URL(path, baseUrl), {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(30_000),
+      })
+      const html = await response.text()
+
+      assert.equal(response.status, 404, `${path} should return 404 directly`)
+      assert.equal(response.headers.get('location'), null)
+      assert.match(html, /404 Not Found/)
+    }
+  },
+)
+
+test(
   'docs legacy and canonical routes complete for every public library',
   {
     skip: baseUrl

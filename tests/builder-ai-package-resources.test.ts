@@ -24,7 +24,7 @@ test('resolves exact built-in and installed package versions', () => {
     {
       specifier: '@tanstack/charts/scales/band',
       packageName: '@tanstack/charts',
-      packageVersion: '0.13.0',
+      packageVersion: '0.16.1',
       exportKey: './scales/band',
     },
   )
@@ -70,7 +70,7 @@ test('resolves exact built-in and installed package versions', () => {
 
 test('inspects exact module exports and declarations', async () => {
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/package.json': JSON.stringify({
+    'https://unpkg.com/@tanstack/charts@0.16.1/package.json': JSON.stringify({
       exports: {
         './scales/band': {
           types: './dist/scales/band.d.ts',
@@ -78,9 +78,9 @@ test('inspects exact module exports and declarations', async () => {
         },
       },
     }),
-    'https://unpkg.com/@tanstack/charts@0.13.0/dist/scales/band.d.ts':
+    'https://unpkg.com/@tanstack/charts@0.16.1/dist/scales/band.d.ts':
       'export declare function scaleBand(): BandScale;\nexport type { BandScale };',
-    'https://unpkg.com/@tanstack/charts@0.13.0/dist/scales/band.js':
+    'https://unpkg.com/@tanstack/charts@0.16.1/dist/scales/band.js':
       'function scaleBand() {}\nexport { scaleBand };',
   })
   let fetchCount = 0
@@ -145,7 +145,7 @@ test('searches bounded docs, declarations, and trusted TanStack skills', async (
     ],
   })
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/?meta': metadata,
+    'https://unpkg.com/@tanstack/charts@0.16.1/?meta': metadata,
   })
   let fetchCount = 0
   const fetcher: typeof fetch = (input, init) => {
@@ -182,7 +182,7 @@ test('searches bounded docs, declarations, and trusted TanStack skills', async (
 test('reads package resources in chunks and trusts only TanStack skills', async () => {
   const skill = 'Use scaleBand from the exact scale subpath.'
   const fetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/skills/design/SKILL.md': skill,
+    'https://unpkg.com/@tanstack/charts@0.16.1/skills/design/SKILL.md': skill,
   })
   const result = await readBuilderAiPackageResource(
     clientExecution,
@@ -237,7 +237,7 @@ test('reads package resources in chunks and trusts only TanStack skills', async 
 test('reuses one package download across chunked reads', async () => {
   const source = `${'a'.repeat(50_000)}tail`
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/large.md': source,
+    'https://unpkg.com/@tanstack/charts@0.16.1/docs/large.md': source,
   })
   let fetchCount = 0
   const fetcher: typeof fetch = (input, init) => {
@@ -268,7 +268,7 @@ test('reuses one package download across chunked reads', async () => {
 
 test('coalesces concurrent reads of one package resource', async () => {
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/shared.md': 'shared',
+    'https://unpkg.com/@tanstack/charts@0.16.1/docs/shared.md': 'shared',
   })
   let fetchCount = 0
   const fetcher: typeof fetch = async (input, init) => {
@@ -300,12 +300,12 @@ test('coalesces concurrent reads of one package resource', async () => {
   assert.equal(fetchCount, 1)
 })
 
-test('caches UTF-8 package resources across later reads', async () => {
+test('budgets unique package downloads by UTF-8 bytes', async () => {
   const fetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/exact.md': 'é',
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/extra.md': 'x',
+    'https://unpkg.com/@tanstack/charts@0.16.1/docs/exact.md': 'é',
+    'https://unpkg.com/@tanstack/charts@0.16.1/docs/extra.md': 'x',
   })
-  const fetchState = createBuilderAiPackageFetchState()
+  const fetchState = createBuilderAiPackageFetchState({ maxBytes: 2 })
 
   const exact = await readBuilderAiPackageResource(
     clientExecution,
@@ -316,14 +316,16 @@ test('caches UTF-8 package resources across later reads', async () => {
   )
   assert.equal(exact.content, 'é')
 
-  const extra = await readBuilderAiPackageResource(
-    clientExecution,
-    '@tanstack/charts',
-    '/docs/extra.md',
-    0,
-    { fetchState, fetcher },
+  await assert.rejects(
+    readBuilderAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      '/docs/extra.md',
+      0,
+      { fetchState, fetcher },
+    ),
+    /package download budget reached/,
   )
-  assert.equal(extra.content, 'x')
 
   const cached = await readBuilderAiPackageResource(
     clientExecution,
@@ -336,23 +338,17 @@ test('caches UTF-8 package resources across later reads', async () => {
 })
 
 test('retries transient package fetches without bypassing the resource budget', async () => {
-  const responses: Record<string, string> = {
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/retry.md': 'ready',
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/other.md': 'other',
-  }
-  for (let index = 0; index < 31; index++) {
-    responses[
-      `https://unpkg.com/@tanstack/charts@0.13.0/docs/filled-${index}.md`
-    ] = 'ok'
-  }
-  const baseFetcher = createFetcher(responses)
+  const baseFetcher = createFetcher({
+    'https://unpkg.com/@tanstack/charts@0.16.1/docs/retry.md': 'ready',
+    'https://unpkg.com/@tanstack/charts@0.16.1/docs/other.md': 'other',
+  })
   let fetchCount = 0
   const fetcher: typeof fetch = async (input, init) => {
     fetchCount += 1
     if (fetchCount === 1) throw new TypeError('Temporary network failure')
     return baseFetcher(input, init)
   }
-  const fetchState = createBuilderAiPackageFetchState()
+  const fetchState = createBuilderAiPackageFetchState({ maxResources: 1 })
 
   await assert.rejects(
     readBuilderAiPackageResource(
@@ -373,17 +369,6 @@ test('retries transient package fetches without bypassing the resource budget', 
   )
   assert.equal(retried.content, 'ready')
   assert.equal(fetchCount, 2)
-
-  for (let index = 0; index < 31; index++) {
-    const filled = await readBuilderAiPackageResource(
-      clientExecution,
-      '@tanstack/charts',
-      `/docs/filled-${index}.md`,
-      0,
-      { fetchState, fetcher },
-    )
-    assert.equal(filled.content, 'ok')
-  }
 
   await assert.rejects(
     readBuilderAiPackageResource(
@@ -452,30 +437,3 @@ function createFetcher(responses: Record<string, string>): typeof fetch {
     })
   }
 }
-
-test('keeps cached resources readable after the download budget is exhausted', async () => {
-  const state = createBuilderAiPackageFetchState()
-  const budget = 16 * 1024 * 1024
-  let loads = 0
-  const load = async (recordBytes: (size: number) => void) => {
-    loads++
-    recordBytes(budget)
-    return 'cached evidence'
-  }
-  assert.equal(await state.load('exact', load), 'cached evidence')
-  assert.equal(await state.load('exact', load), 'cached evidence')
-  await assert.rejects(state.load('extra', load), /download budget reached/)
-  assert.equal(loads, 1)
-})
-
-test('rejects a resource that crosses the cumulative download budget', async () => {
-  const state = createBuilderAiPackageFetchState()
-  await state.load('first', async (recordBytes) => {
-    recordBytes(16 * 1024 * 1024 - 1)
-    return 'first'
-  })
-  await assert.rejects(state.load('second', async (recordBytes) => {
-    recordBytes(new TextEncoder().encode('é').byteLength)
-    return 'é'
-  }), /download budget reached/)
-})

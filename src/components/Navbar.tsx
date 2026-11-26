@@ -1,7 +1,13 @@
 import * as React from 'react'
+import * as Sentry from '@sentry/tanstackstart-react'
 import { twMerge } from 'tailwind-merge'
+const LazyLibrariesMenuContent = React.lazy(() =>
+  import('./LibrariesMenuContent').then((module) => ({
+    default: module.LibrariesMenuContent,
+  })),
+)
 const LazyAiDock = React.lazy(() =>
-  import('./SearchModal').then((m) => ({ default: m.AiDock })),
+  import('./AiDock').then((m) => ({ default: m.AiDock })),
 )
 const LazyNavbarAuthControls = React.lazy(() =>
   import('./NavbarAuthControls').then((m) => ({
@@ -15,12 +21,19 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
-import { Link, useLocation } from '@tanstack/react-router'
+import {
+  CatchBoundary,
+  Link,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
 import { BriefcaseIcon } from '@phosphor-icons/react/Briefcase'
+import { ChatCircleIcon } from '@phosphor-icons/react/ChatCircle'
 import { CodeIcon } from '@phosphor-icons/react/Code'
+import { GearIcon } from '@phosphor-icons/react/Gear'
 import { GridFourIcon } from '@phosphor-icons/react/GridFour'
 import { HammerIcon } from '@phosphor-icons/react/Hammer'
 import { HeartIcon } from '@phosphor-icons/react/Heart'
@@ -35,6 +48,7 @@ import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
 import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
+import { UsersThreeIcon } from '@phosphor-icons/react/UsersThree'
 import { UsersIcon } from '@phosphor-icons/react/Users'
 import { XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
@@ -42,15 +56,8 @@ import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
-import { publicLibraries, type LibrarySlim } from '~/libraries'
-import {
-  categoryLabels,
-  categoryOrder,
-  categoryTextColor,
-  libraryCategories,
-  type LibraryCategory,
-} from '~/libraries/categories'
-import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
+import { findLibrary } from '~/libraries'
+import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import {
   Dropdown,
@@ -76,8 +83,49 @@ import {
 } from '~/utils/partner-inquiry'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { reloadOnStaleAppError } from '~/utils/stale-app-reload'
 
 const LogoSection = () => {
+  const pathname = useLocation({ select: (location) => location.pathname })
+  const library = findLibrary(pathname.split('/')[1])
+
+  if (library) {
+    return (
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <Link
+          to="/"
+          aria-label="TanStack home"
+          className={twMerge(
+            'flex shrink-0 items-center gap-1.5 sm:gap-2',
+            categoryTextColor[categoryOf(library.id)],
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className="block h-6 w-[19px] shrink-0 bg-current sm:h-8 sm:w-6"
+            style={{
+              mask: 'url(/images/brand/tanstack-emblem-black.svg) center / contain no-repeat',
+            }}
+          />
+          <img
+            src="/images/brand/tanstack-wordmark-black.svg"
+            alt="TanStack"
+            className="h-5 w-auto dark:invert sm:h-7"
+          />
+        </Link>
+        <Link
+          to={library.to ?? `/${library.id}/latest`}
+          className={twMerge(
+            'whitespace-nowrap font-library-name text-[16px] font-normal uppercase leading-none [text-box:trim-both_cap_alphabetic] sm:text-[22px]',
+            categoryTextColor[categoryOf(library.id)],
+          )}
+        >
+          {library.name.replace(/^TanStack /, '')}
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <Link
       to="/"
@@ -114,6 +162,7 @@ type NavMenuItem = {
   label: string
   to: string
   hash?: string
+  preload?: false
   description?: string
   badge?: string
   icon?: IconComponent
@@ -141,8 +190,6 @@ type NavMenuGroup = {
 
 const MERCH_MENU_PRODUCT_COUNT = 3
 
-const DESKTOP_NAV_CLASS = 'hidden min-[900px]:flex'
-const MOBILE_NAV_CLASS = 'min-[900px]:hidden'
 const DESKTOP_SOCIAL_CLASS = 'hidden min-[1120px]:flex'
 
 const NAV_GROUPS = [
@@ -215,8 +262,13 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Teams building with TanStack.',
+            description: 'Projects selected by the TanStack team.',
             icon: SparkleIcon,
+          },
+          {
+            label: 'Community projects',
+            to: '/community-projects',
+            icon: UsersThreeIcon,
           },
         ],
       },
@@ -230,16 +282,15 @@ const NAV_GROUPS = [
         label: 'Tools',
         items: [
           {
+            label: 'TanChat',
+            to: '/chat',
+            preload: false,
+            icon: ChatCircleIcon,
+          },
+          {
             label: 'Application Starter',
             to: '/application-starter',
             description: 'Generate TanStack app starters.',
-            badge: 'Alpha',
-            icon: HammerIcon,
-          },
-          {
-            label: 'Builder',
-            to: '/builder',
-            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
@@ -337,69 +388,6 @@ const NAV_GROUPS = [
   },
 ] as const satisfies readonly NavMenuGroup[]
 
-function getLibraryDisplayName(library: LibrarySlim) {
-  return library.name.replace(/^TanStack\s+/, '')
-}
-
-type LibraryMenuEntry = {
-  id: string
-  name: string
-  to: string
-  icon: IconComponent
-  /** `group-hover/lib:text-category-*` — recolors the icon to its category. */
-  iconHoverColor: string
-}
-
-// Full static class strings (Tailwind can't see composed names) mapping each
-// category to the hover color applied to a library's icon in the mega-menu.
-const categoryIconHoverColor: Record<LibraryCategory, string> = {
-  framework: 'group-hover/lib:text-category-framework',
-  data: 'group-hover/lib:text-category-data',
-  ui: 'group-hover/lib:text-category-ui',
-  performance: 'group-hover/lib:text-category-performance',
-  tooling: 'group-hover/lib:text-category-tooling',
-}
-
-type LibraryMenuColumn = {
-  category: LibraryCategory
-  label: string
-  colorClass: string
-  libraries: LibraryMenuEntry[]
-}
-
-/**
- * The Libraries mega-menu as five category columns (Framework, Data & State,
- * UI & UX, Performance, Tooling), built from the canonical `libraryCategories`
- * taxonomy. Iterating `libraryCategories` preserves the intended per-category
- * order; only public, navigable libraries are shown.
- */
-function getLibraryCategoryColumns(): LibraryMenuColumn[] {
-  const byCategory = new Map<LibraryCategory, LibraryMenuEntry[]>(
-    categoryOrder.map((category) => [category, []]),
-  )
-
-  for (const [id, category] of Object.entries(libraryCategories)) {
-    const library = publicLibraries.find((lib) => lib.id === id)
-    if (!library || !library.to) continue
-    byCategory.get(category)?.push({
-      id: library.id,
-      name: getLibraryDisplayName(library),
-      to: library.to,
-      icon: libraryIcons[library.id] ?? fallbackLibraryIcon,
-      iconHoverColor: categoryIconHoverColor[category],
-    })
-  }
-
-  return categoryOrder
-    .map((category) => ({
-      category,
-      label: categoryLabels[category],
-      colorClass: categoryTextColor[category],
-      libraries: byCategory.get(category) ?? [],
-    }))
-    .filter((column) => column.libraries.length > 0)
-}
-
 function AiDockMount() {
   const { isAiDockOpen } = useSearchContext()
   const [hasActivated, setHasActivated] = React.useState(isAiDockOpen)
@@ -421,8 +409,21 @@ function AiDockMount() {
   )
 }
 
+function handleAuthControlsError(error: unknown) {
+  if (!reloadOnStaleAppError(error)) {
+    Sentry.captureException(error)
+  }
+}
+
 export function Navbar({ children }: { children: React.ReactNode }) {
   const location = useLocation()
+  const isLibrary = Boolean(findLibrary(location.pathname.split('/')[1]))
+  const desktopNavClass = isLibrary
+    ? 'hidden min-[1280px]:flex'
+    : 'hidden min-[900px]:flex'
+  const mobileNavClass = isLibrary
+    ? 'min-[1280px]:hidden'
+    : 'min-[900px]:hidden'
 
   const containerRef = React.useRef<HTMLDivElement>(null)
   const desktopNavRef = React.useRef<HTMLElement>(null)
@@ -553,34 +554,47 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const userQuery = useCurrentUserQuery()
 
-  const getLoginButtonFallback = () => (
-    <Link
-      to="/login"
-      aria-label="Log In"
-      className={twMerge(
-        'flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap',
-        'bg-black dark:bg-white text-white dark:text-black',
-        'hover:bg-gray-800 dark:hover:bg-gray-200',
-        'transition-colors duration-200 text-xs font-medium',
-      )}
-    >
-      <span className="hidden min-[430px]:inline">Log In</span>
-      <SignInIcon className="size-4" weight="bold" />
-    </Link>
-  )
-  const getAuthControlsFallback = () =>
+  const renderAuthLink = (className?: string, reloadDocument = false) => {
+    const signedIn = Boolean(userQuery.data)
+    const label = signedIn ? 'Account' : 'Log In'
+    const Icon = signedIn ? GearIcon : SignInIcon
+    return (
+      <Link
+        to={signedIn ? '/account' : '/login'}
+        reloadDocument={reloadDocument}
+        aria-label={label}
+        className={twMerge(
+          'flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap',
+          'bg-black dark:bg-white text-white dark:text-black',
+          'hover:bg-gray-800 dark:hover:bg-gray-200',
+          'transition-colors duration-200 text-xs font-medium',
+          className,
+        )}
+      >
+        <span className="hidden min-[430px]:inline">{label}</span>
+        <Icon className="size-4" weight="bold" />
+      </Link>
+    )
+  }
+  const getAuthControlsFallback = (className?: string) =>
     userQuery.data || userQuery.isLoading ? (
       <div
         aria-hidden="true"
         className="size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"
       />
     ) : (
-      getLoginButtonFallback()
+      renderAuthLink(className)
     )
-  const renderAuthControls = () => (
-    <React.Suspense fallback={getAuthControlsFallback()}>
-      <LazyNavbarAuthControls />
-    </React.Suspense>
+  const renderAuthControls = (className?: string) => (
+    <CatchBoundary
+      getResetKey={() => 'navbar-auth-controls'}
+      errorComponent={() => renderAuthLink(className, true)}
+      onCatch={handleAuthControlsError}
+    >
+      <React.Suspense fallback={getAuthControlsFallback(className)}>
+        <LazyNavbarAuthControls className={className} />
+      </React.Suspense>
+    </CatchBoundary>
   )
 
   const socialLinks = <SocialStack />
@@ -613,7 +627,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ref={desktopNavRef}
         aria-label="Primary navigation"
         className={twMerge(
-          DESKTOP_NAV_CLASS,
+          desktopNavClass,
           'relative self-stretch shrink-0 items-center justify-center gap-1',
         )}
       >
@@ -632,20 +646,24 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      <div className={DESKTOP_NAV_CLASS}>
+      <div className={desktopNavClass}>
         <SearchButton iconOnly className="h-8 w-8" />
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
-        <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
-        <div className={DESKTOP_NAV_CLASS}>
-          <ThemeToggle />
+        <div
+          className={
+            isLibrary ? 'hidden min-[1440px]:flex' : DESKTOP_SOCIAL_CLASS
+          }
+        >
+          {socialLinks}
         </div>
+        <ThemeToggle />
         <NavbarCartButton />
-        <div className={DESKTOP_NAV_CLASS}>
+        <div className={desktopNavClass}>
           <AiDockButton />
         </div>
-        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
+        <div className={twMerge(desktopNavClass, 'items-center gap-2')}>
           {renderAuthControls()}
         </div>
         <button
@@ -657,7 +675,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             'inline-flex h-9 w-9 items-center justify-center rounded-md',
             'text-gray-700 transition-colors hover:bg-gray-500/10',
             'dark:text-gray-200',
-            MOBILE_NAV_CLASS,
+            mobileNavClass,
           )}
           onClick={() => setMobileMenuOpen((prev) => !prev)}
         >
@@ -675,7 +693,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <Panel
       open={mobileMenuOpen}
       onOpenChange={setMobileMenuOpen}
-      className={MOBILE_NAV_CLASS}
+      className={mobileNavClass}
     >
       <PanelContent
         className={twMerge(
@@ -716,6 +734,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <a
+        href="#site-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-black"
+      >
+        Skip to content
+      </a>
       {navbar}
       {mobileMenu}
       <div
@@ -736,7 +760,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           siteBackdropActive ? 'blur-[4px]' : 'filter-none',
         )}
       >
-        <div className="flex-1 min-w-0 flex flex-col w-full min-h-0">
+        <div
+          id="site-main-content"
+          tabIndex={-1}
+          className="flex-1 min-w-0 flex flex-col w-full min-h-0 focus:outline-none"
+        >
           {children}
         </div>
       </div>
@@ -756,6 +784,7 @@ function DesktopNavTrigger({
   onDismiss: () => void
   onResetDismissed: () => void
 }) {
+  const [hasLoadedLibraries, setHasLoadedLibraries] = React.useState(false)
   const { openLibraries } = useLibrariesOverlay()
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
@@ -771,8 +800,14 @@ function DesktopNavTrigger({
       onAuxClick={(event) => {
         if (event.button === 1) onDismiss()
       }}
+      onPointerEnter={() => {
+        if (group.key === 'libraries') setHasLoadedLibraries(true)
+      }}
       onPointerLeave={onResetDismissed}
-      onFocusCapture={onResetDismissed}
+      onFocusCapture={() => {
+        onResetDismissed()
+        if (group.key === 'libraries') setHasLoadedLibraries(true)
+      }}
     >
       {group.key === 'libraries' ? (
         <button
@@ -808,7 +843,13 @@ function DesktopNavTrigger({
           <span>{group.label}</span>
         </button>
       )}
-      <DesktopNavDropdown group={group} onNavigate={onDismiss} />
+      {(group.sections.length > 0 || group.key === 'libraries') && (
+        <DesktopNavDropdown
+          group={group}
+          onNavigate={onDismiss}
+          loadLibraries={hasLoadedLibraries}
+        />
+      )}
     </div>
   )
 }
@@ -816,9 +857,11 @@ function DesktopNavTrigger({
 function DesktopNavDropdown({
   group,
   onNavigate,
+  loadLibraries,
 }: {
   group: NavMenuGroup
   onNavigate: () => void
+  loadLibraries: boolean
 }) {
   return (
     <div className="ts-mega-dropdown">
@@ -832,11 +875,15 @@ function DesktopNavDropdown({
             'min-[1120px]:px-[43px] min-[1120px]:pt-12 min-[1120px]:pb-[38px]',
         )}
       >
-        <MegaMenuContent
-          group={group}
-          onNavigate={onNavigate}
-          variant="desktop"
-        />
+        {group.key !== 'libraries' || loadLibraries ? (
+          <MegaMenuContent
+            group={group}
+            onNavigate={onNavigate}
+            variant="desktop"
+          />
+        ) : (
+          <LibrariesMenuFallback />
+        )}
       </div>
     </div>
   )
@@ -859,6 +906,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const navigate = useNavigate()
   const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
@@ -870,17 +918,22 @@ function MobileNavigation({
     }
   }
 
-  const signIn = (
-    <Link
-      to="/login"
-      tabIndex={activeGroup ? -1 : 0}
-      onClick={onNavigate}
-      className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
-    >
-      <SignInIcon className="size-8 shrink-0" />
-      Sign In
-    </Link>
-  )
+  const renderAuthLink = (signedIn: boolean, reloadDocument = false) => {
+    const Icon = signedIn ? GearIcon : SignInIcon
+    return (
+      <Link
+        to={signedIn ? '/account' : '/login'}
+        reloadDocument={reloadDocument}
+        tabIndex={activeGroup ? -1 : 0}
+        onClick={onNavigate}
+        className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+      >
+        <Icon className="size-8 shrink-0" />
+        {signedIn ? 'Account' : 'Sign In'}
+      </Link>
+    )
+  }
+  const signIn = renderAuthLink(false)
 
   return (
     <nav aria-label="Mobile navigation" className="overflow-hidden">
@@ -903,6 +956,9 @@ function MobileNavigation({
                 onClick={() => {
                   if (group.key === 'libraries') {
                     onOpenLibraries()
+                  } else if ('to' in group && group.sections.length === 0) {
+                    onNavigate()
+                    void navigate({ to: group.to })
                   } else {
                     onSelect(group.key)
                   }
@@ -936,23 +992,31 @@ function MobileNavigation({
               Ask AI
             </button>
             {loadAuthControls ? (
-              <React.Suspense
-                fallback={
-                  userQuery.data || userQuery.isLoading ? (
-                    <div
-                      aria-hidden="true"
-                      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
-                    />
-                  ) : (
-                    signIn
-                  )
+              <CatchBoundary
+                getResetKey={() => 'navbar-auth-controls'}
+                errorComponent={() =>
+                  renderAuthLink(Boolean(userQuery.data), true)
                 }
+                onCatch={handleAuthControlsError}
               >
-                <LazyMobileNavbarAuthControls
-                  tabIndex={activeGroup ? -1 : 0}
-                  onNavigate={onNavigate}
-                />
-              </React.Suspense>
+                <React.Suspense
+                  fallback={
+                    userQuery.data || userQuery.isLoading ? (
+                      <div
+                        aria-hidden="true"
+                        className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+                      />
+                    ) : (
+                      signIn
+                    )
+                  }
+                >
+                  <LazyMobileNavbarAuthControls
+                    tabIndex={activeGroup ? -1 : 0}
+                    onNavigate={onNavigate}
+                  />
+                </React.Suspense>
+              </CatchBoundary>
             ) : (
               signIn
             )}
@@ -984,6 +1048,25 @@ function MobileNavigation({
   )
 }
 
+function LibrariesMenuFallback() {
+  return (
+    <div
+      role="status"
+      className="flex min-h-40 w-[min(880px,calc(100vw-3rem))] items-center justify-center text-text-secondary"
+    >
+      Loading libraries…
+    </div>
+  )
+}
+
+function LibrariesMenuLoadError() {
+  return (
+    <div role="alert" className="p-4 text-text-secondary">
+      Libraries menu could not load. Reload the page to try again.
+    </div>
+  )
+}
+
 function MegaMenuContent({
   group,
   onNavigate,
@@ -994,7 +1077,16 @@ function MegaMenuContent({
   variant: 'desktop' | 'mobile'
 }) {
   if (group.key === 'libraries') {
-    return <LibrariesMenuContent onNavigate={onNavigate} variant={variant} />
+    return (
+      <CatchBoundary
+        getResetKey={() => 'libraries'}
+        errorComponent={LibrariesMenuLoadError}
+      >
+        <React.Suspense fallback={<LibrariesMenuFallback />}>
+          <LazyLibrariesMenuContent onNavigate={onNavigate} variant={variant} />
+        </React.Suspense>
+      </CatchBoundary>
+    )
   }
 
   if (group.key === 'learn') {
@@ -1073,188 +1165,6 @@ function MegaMenuContent({
         <MenuRail rail={group.rail} onNavigate={onNavigate} variant={variant} />
       ) : null}
     </div>
-  )
-}
-
-function LibrariesMenuContent({
-  onNavigate,
-  variant,
-}: {
-  onNavigate: () => void
-  variant: 'desktop' | 'mobile'
-}) {
-  const { openLibraries } = useLibrariesOverlay()
-  const columns = getLibraryCategoryColumns()
-
-  const allLibraries = (
-    <Button
-      type="button"
-      onClick={() => {
-        openLibraries()
-        onNavigate()
-      }}
-      variant="subtle-link"
-      color="gray"
-      className={twMerge(
-        'group/all gap-1.5 rounded-lg px-[9px] py-2 text-ds-mono-xs focus:text-text-primary focus:outline-none',
-        variant === 'desktop' &&
-          'min-[1120px]:gap-[7px] min-[1120px]:rounded-[10px] min-[1120px]:px-[11px] min-[1120px]:py-2.5 min-[1120px]:text-[14px]',
-      )}
-    >
-      <GridFourIcon
-        className={twMerge(
-          'size-4',
-          variant === 'desktop' && 'min-[1120px]:size-[19px]',
-        )}
-      />
-      Browse all libraries
-      <ArrowRightIcon
-        className={twMerge(
-          'size-3.5 transition-transform group-hover/all:translate-x-0.5',
-          variant === 'desktop' && 'min-[1120px]:size-[17px]',
-        )}
-      />
-    </Button>
-  )
-
-  if (variant === 'mobile') {
-    return (
-      <div className="grid gap-4">
-        {columns.map((column) => (
-          <LibraryCategoryColumn
-            key={column.category}
-            column={column}
-            onNavigate={onNavigate}
-            variant="mobile"
-          />
-        ))}
-        {allLibraries}
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-4 min-[1120px]:gap-5">
-      <div className="flex items-start gap-9 min-[1120px]:gap-12">
-        {columns.map((column) => (
-          <LibraryCategoryColumn
-            key={column.category}
-            column={column}
-            onNavigate={onNavigate}
-            variant="desktop"
-          />
-        ))}
-      </div>
-      <div className="flex justify-center border-t border-border-subtle pt-1.5 min-[1120px]:pt-2">
-        {allLibraries}
-      </div>
-    </div>
-  )
-}
-
-function LibraryCategoryColumn({
-  column,
-  onNavigate,
-  variant,
-}: {
-  column: LibraryMenuColumn
-  onNavigate: () => void
-  variant: 'desktop' | 'mobile'
-}) {
-  return (
-    <div
-      className={twMerge(
-        'flex flex-col',
-        variant === 'desktop'
-          ? 'w-[120px] gap-4 min-[1120px]:w-36 min-[1120px]:gap-5'
-          : 'gap-1',
-      )}
-    >
-      <div
-        className={`pl-[9px] font-ds-mono uppercase ${
-          variant === 'desktop' ? 'text-ds-mono-sm' : 'text-ds-mono-xs'
-        } ${variant === 'desktop' ? 'min-[1120px]:pl-[11px]' : ''} ${column.colorClass}`}
-      >
-        {column.label}
-      </div>
-      <div className="flex flex-col items-start gap-1">
-        {column.libraries.map((library) => (
-          <LibraryMenuRow
-            key={library.id}
-            library={library}
-            onNavigate={onNavigate}
-            variant={variant}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function LibraryMenuRow({
-  library,
-  onNavigate,
-  variant,
-}: {
-  library: LibraryMenuEntry
-  onNavigate: () => void
-  variant: 'desktop' | 'mobile'
-}) {
-  const Icon = library.icon
-  const external = library.to.startsWith('http')
-  const className = twMerge(
-    // Light mode: an "elevated white" hover — a bright-white pill lifted off the
-    // glass with a soft shadow + hairline ring (contrast via depth, not value).
-    // Dark mode keeps the subtle white/4% (pressed 12%) overlay, no shadow/ring.
-    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-4 text-text-secondary transition-[color,background-color,box-shadow] hover:bg-white hover:text-text-primary hover:shadow-sm hover:ring-1 hover:ring-black/5 focus:bg-white focus:text-text-primary focus:shadow-sm focus:ring-1 focus:ring-black/5 focus:outline-none active:bg-white dark:hover:bg-text-primary/[0.04] dark:hover:shadow-none dark:hover:ring-0 dark:focus:bg-text-primary/[0.04] dark:focus:shadow-none dark:focus:ring-0 dark:active:bg-text-primary/[0.12]',
-    variant === 'desktop'
-      ? 'h-[38px] min-[1120px]:h-[46px] min-[1120px]:gap-2.5 min-[1120px]:rounded-[17px] min-[1120px]:pl-[11px] min-[1120px]:pr-[18px]'
-      : 'py-2.5',
-  )
-  const content = (
-    <>
-      {/* Plain template string: the category hover color is a `text-*` utility
-          and twMerge would drop it against a base color. */}
-      <Icon
-        className={`size-5 shrink-0 transition-colors ${
-          variant === 'desktop' ? 'min-[1120px]:size-6' : ''
-        } ${library.iconHoverColor}`}
-      />
-      <span
-        className={twMerge(
-          'whitespace-nowrap font-ds-display text-[16px] tracking-[0.32px]',
-          variant === 'desktop' &&
-            'min-[1120px]:text-[19px] min-[1120px]:tracking-[0.38px]',
-        )}
-      >
-        {library.name}
-      </span>
-    </>
-  )
-
-  if (external) {
-    return (
-      <a
-        href={library.to}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
-        onClick={onNavigate}
-      >
-        {content}
-      </a>
-    )
-  }
-
-  return (
-    <Link
-      to={library.to}
-      onClick={onNavigate}
-      preload="intent"
-      className={className}
-    >
-      {content}
-    </Link>
   )
 }
 
@@ -1663,6 +1573,7 @@ function MenuItemLink({
       description={item.description}
       to={item.to}
       hash={item.hash}
+      preload={item.preload}
       badge={item.badge}
       onSelect={item.onSelect}
       onNavigate={() => {

@@ -336,7 +336,7 @@ export async function pushFiles(
     owner,
     repo,
     files,
-    message = 'Initial commit from TanStack Builder',
+    message = 'Initial commit from TanChat',
   } = options
   const branch = 'main'
 

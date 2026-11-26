@@ -20,6 +20,7 @@ export type LibraryCategory =
 export const libraryCategories: Record<string, LibraryCategory> = {
   start: 'framework',
   router: 'framework',
+  redact: 'framework',
   query: 'data',
   db: 'data',
   store: 'data',
@@ -27,11 +28,11 @@ export const libraryCategories: Record<string, LibraryCategory> = {
   table: 'ui',
   charts: 'ui',
   form: 'ui',
-  hotkeys: 'ui',
   markdown: 'ui',
   highlight: 'ui',
   virtual: 'performance',
   pacer: 'performance',
+  hotkeys: 'performance',
   devtools: 'tooling',
   config: 'tooling',
   cli: 'tooling',
@@ -60,8 +61,8 @@ export const categoryOrder: ReadonlyArray<LibraryCategory> = [
 export const categoryLabels: Record<LibraryCategory, string> = {
   framework: 'Framework',
   data: 'Data & State',
-  ui: 'UI & UX',
-  performance: 'Performance',
+  ui: 'UI',
+  performance: 'UX',
   tooling: 'Tooling',
 }
 

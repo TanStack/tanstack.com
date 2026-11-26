@@ -34,13 +34,15 @@ export const kineticDumbbellChart = defineChart({
       r: 5,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([30, 100]),
-    axis: { ticks: { count: 4 } },
-    grid: true,
-  },
-  y: {
-    scale: scaleBand<string>().domain(productNames).padding(0.28),
+  scales: {
+    x: {
+      scale: scaleLinear().domain([30, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
+    y: {
+      scale: scaleBand<string>().domain(productNames).padding(0.28),
+    },
   },
   theme: kineticDarkTheme,
 })

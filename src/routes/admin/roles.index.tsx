@@ -384,8 +384,10 @@ function RolesPage() {
   )
 
   // Create table instance
+  const tableData = useMemo(() => roles ?? [], [roles])
+
   const table = useReactTable({
-    data: roles || [],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })

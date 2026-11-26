@@ -1,0 +1,31 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-checkbox {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface);
+    color: inherit;
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition:
+      background var(--motion-fast),
+      border-color var(--motion-fast);
+  }
+  .ui-checkbox[data-checked],
+  .ui-checkbox[data-indeterminate] {
+    background: var(--text);
+    color: var(--on-accent);
+    border-color: transparent;
+  }
+  .ui-checkbox:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+  .ui-checkbox > span {
+    display: flex;
+  }
+}

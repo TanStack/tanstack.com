@@ -12,6 +12,7 @@ export type BlogPostHeadData = {
   authors: Array<string>
   description: string
   isUnpublished: boolean
+  unlisted?: boolean
   published: string
   slug: string
   socialImage?: string
@@ -37,6 +38,13 @@ export function getBlogSocialImageUrl(headerImage: string | undefined) {
   })
 }
 
+export function getBlogBreadcrumbItems(post: { title: string; slug: string }) {
+  return [
+    { label: 'Blog', to: '/blog' },
+    { label: post.title, to: `/blog/${post.slug}` },
+  ]
+}
+
 export function getBlogPostingJsonLd(post: BlogPostHeadData) {
   const pageUrl = canonicalUrl(`/blog/${post.slug}`)
 
@@ -44,6 +52,16 @@ export function getBlogPostingJsonLd(post: BlogPostHeadData) {
     '@context': 'https://schema.org',
     '@graph': [
       getTanStackOrganizationJsonLd(),
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${pageUrl}#breadcrumb`,
+        itemListElement: getBlogBreadcrumbItems(post).map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.label,
+          item: canonicalUrl(item.to),
+        })),
+      },
       {
         '@type': 'BlogPosting' as const,
         '@id': `${pageUrl}#blog-post`,
@@ -85,7 +103,7 @@ export function getBlogPostHead(post: BlogPostHeadData | undefined) {
         title: `${post.title} | TanStack Blog`,
         description: post.description,
         image: post.socialImage,
-        noindex: post.isUnpublished,
+        noindex: post.isUnpublished || post.unlisted,
         ogType: 'article',
         articlePublishedTime: post.published,
         articleModifiedTime: post.updated,

@@ -1,22 +1,18 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
-import { libraryIdSchema, showcaseUseCaseSchema } from '~/utils/schemas'
+import {
+  showcaseSearchSchema,
+  defaultShowcaseSearch,
+} from '~/utils/showcase-search'
 
-const searchSchema = v.object({
-  page: v.optional(v.number(), 1),
-  pageSize: v.optional(v.number(), 24),
-  libraryIds: v.optional(v.array(libraryIdSchema)),
-  useCases: v.optional(v.array(showcaseUseCaseSchema)),
-  hasSourceCode: v.optional(v.boolean()),
-  q: v.optional(v.string()),
-})
+export const PAGE_SIZE_OPTIONS = [24, 48, 96] as const
 
-export const PAGE_SIZE_OPTIONS = [24, 48, 96, 192] as const
-
-function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
+function hasNonCanonicalSearch(
+  search: v.InferOutput<typeof showcaseSearchSchema>,
+) {
   return Boolean(
     search.page > 1 ||
     search.pageSize !== PAGE_SIZE_OPTIONS[0] ||
@@ -28,7 +24,8 @@ function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
 }
 
 export const Route = createFileRoute('/showcase/')({
-  validateSearch: searchSchema,
+  validateSearch: showcaseSearchSchema,
+  search: { middlewares: [stripSearchParams(defaultShowcaseSearch)] },
   loaderDeps: ({ search }) => ({
     page: search.page,
     pageSize: search.pageSize,
@@ -45,6 +42,7 @@ export const Route = createFileRoute('/showcase/')({
           pageSize: deps.pageSize,
         },
         filters: {
+          placement: 'showcase',
           libraryIds: deps.libraryIds,
           useCases: deps.useCases,
           hasSourceCode: deps.hasSourceCode,
@@ -62,7 +60,7 @@ export const Route = createFileRoute('/showcase/')({
     meta: seo({
       title: 'Showcase | TanStack',
       description:
-        'Discover projects built with TanStack libraries. See how developers are using TanStack Query, Router, Table, Form, and more in production.',
+        'Projects selected by the TanStack team for their adoption, craft, and technical depth.',
       noindex: loaderData?.hasNonCanonicalSearch,
     }),
   }),

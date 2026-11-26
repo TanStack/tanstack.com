@@ -1,17 +1,27 @@
-import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from '@tanstack/react-router'
+import { useIsMutating } from '@tanstack/react-query'
 import {
   MinusIcon,
   PlusIcon,
   ShoppingCartIcon,
   TrashIcon,
-  XIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
+import {
+  CART_ADD_MUTATION_KEY,
+  useCart,
+  useRemoveCartLine,
+  useUpdateCartLine,
+} from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { CartLineDetail } from '~/utils/shopify-queries'
 import { ShopLabel, ShopMono } from './ui'
+import {
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+} from '~/components/ds/ui'
 
 type CartDrawerProps = {
   open: boolean
@@ -25,41 +35,38 @@ type CartDrawerProps = {
  */
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const { cart, totalQuantity } = useCart()
+  const mutating = useIsMutating({ mutationKey: CART_ADD_MUTATION_KEY })
   const hasLines = !!cart && cart.lines.nodes.length > 0
+  const awaitingCart = !hasLines && mutating > 0
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
-        <Dialog.Content
-          className={twMerge(
-            'shop-scope cart-panel',
-            'fixed right-4 top-[calc(var(--navbar-height,56px)+0.5rem)] z-[100]',
-            'w-[calc(100vw-2rem)] sm:w-[24rem]',
-            'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
-            'flex flex-col rounded-xl',
-            'bg-shop-bg-2 border border-shop-line text-shop-text',
-            'shadow-2xl',
-          )}
-          aria-describedby={undefined}
-        >
-          <header className="flex items-center justify-between px-5 py-3 border-b border-shop-line">
-            <Dialog.Title asChild>
-              <ShopLabel as="h2">
-                Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
-              </ShopLabel>
-            </Dialog.Title>
-            <Dialog.Close
-              aria-label="Close cart"
-              className="p-1 rounded-md text-shop-text-2 hover:text-shop-text"
-            >
-              <XIcon className="w-3.5 h-3.5" />
-            </Dialog.Close>
-          </header>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      {/* The DS panel supplies posture and behaviour; the shop keeps its own
+          surface colours by overriding the semantic defaults. `anchor="navbar"`
+          is what used to be this component's hand-written top offset. */}
+      <DrawerContent
+        side="right"
+        size="sm"
+        anchor="navbar"
+        fit
+        className={twMerge(
+          'shop-scope cart-panel',
+          'bg-shop-bg-2 border-shop-line text-shop-text',
+        )}
+      >
+        <DrawerHeader
+          className="border-shop-line px-5 py-3"
+          title={
+            <ShopLabel as="span">
+              Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+            </ShopLabel>
+          }
+        />
 
-          {hasLines ? (
-            <>
-              <ul className="fade-y fade-size-y-sm min-h-0 flex-1 overflow-y-auto px-5">
+        {hasLines ? (
+          <>
+            <DrawerBody className="fade-y fade-size-y-sm px-5 py-0">
+              <ul>
                 {cart.lines.nodes.map((line) => (
                   <DrawerCartLine
                     key={line.id}
@@ -68,18 +75,29 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                   />
                 ))}
               </ul>
-              <DrawerFooter cart={cart} onClose={() => onOpenChange(false)} />
-            </>
-          ) : (
-            <DrawerEmpty onClose={() => onOpenChange(false)} />
-          )}
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+            </DrawerBody>
+            <CartFooter cart={cart} onClose={() => onOpenChange(false)} />
+          </>
+        ) : awaitingCart ? (
+          <CartPending />
+        ) : (
+          <CartEmpty onClose={() => onOpenChange(false)} />
+        )}
+      </DrawerContent>
+    </Drawer>
   )
 }
 
-function DrawerEmpty({ onClose }: { onClose: () => void }) {
+function CartPending() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
+      <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
+      <p>Adding to cart…</p>
+    </div>
+  )
+}
+
+function CartEmpty({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
       <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
@@ -102,7 +120,7 @@ function DrawerEmpty({ onClose }: { onClose: () => void }) {
   )
 }
 
-function DrawerFooter({
+function CartFooter({
   cart,
   onClose,
 }: {
@@ -121,19 +139,31 @@ function DrawerFooter({
       <p className="font-shop-mono text-xs text-shop-muted tracking-[0.06em]">
         Shipping and taxes calculated at checkout.
       </p>
-      <a
-        href={cart.checkoutUrl}
-        className="
-          w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
-          font-semibold text-shop-ui flex items-center justify-center gap-2
-          transition-[filter] hover:brightness-110 group
-        "
-      >
-        Checkout
-        <span className="transition-transform group-hover:translate-x-[3px]">
-          →
+      {cart.checkoutUrl ? (
+        <a
+          href={cart.checkoutUrl}
+          className="
+            w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
+            font-semibold text-shop-ui flex items-center justify-center gap-2
+            transition-[filter] hover:brightness-110 group
+          "
+        >
+          Checkout
+          <span className="transition-transform group-hover:translate-x-[3px]">
+            →
+          </span>
+        </a>
+      ) : (
+        <span
+          className="
+            w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
+            font-semibold text-shop-ui flex items-center justify-center
+            opacity-50
+          "
+        >
+          Checkout
         </span>
-      </a>
+      )}
       <Link
         to="/shop/cart"
         onClick={onClose}
@@ -160,7 +190,8 @@ function DrawerCartLine({
     .map((o) => `${o.name}: ${o.value}`)
     .join(' · ')
 
-  const isBusy = update.isPending || remove.isPending
+  const adding = useIsMutating({ mutationKey: CART_ADD_MUTATION_KEY })
+  const isBusy = adding > 0 || update.isPending || remove.isPending
 
   return (
     <li className="flex gap-3 py-4 border-b border-shop-line">

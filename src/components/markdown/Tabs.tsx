@@ -85,7 +85,7 @@ export function Tabs({
       <div
         role="tablist"
         onKeyDown={handleTabListKeyDown}
-        className="not-prose fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
+        className="not-prose fade-end fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
       >
         {tabsProp.map((tab) => {
           return (

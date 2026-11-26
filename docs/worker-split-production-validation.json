@@ -1,0 +1,750 @@
+{
+  "date": "2026-10-16",
+  "versions": {
+    "site": "664695d7-25ec-4005-8499-997d98e99c81",
+    "chat": "7a3f2c5a-4feb-452a-afc2-26b68482cbbe",
+    "recovery": "f0d01a49-a857-4f5e-b5f4-ecfc3aef1ab9",
+    "starter": "86b16b90-c387-43cd-9f4e-64090799143c",
+    "og": "9f99d690-a42d-4f80-b728-8a554e0a2861"
+  },
+  "state": {
+    "before": {
+      "namespaces": [
+        {
+          "id": "4747da39bdcb4fd291816ecfdfb6e553",
+          "name": "tanstack-chat_WorkspaceSync",
+          "script": "tanstack-chat",
+          "class": "WorkspaceSync",
+          "use_sqlite": true
+        },
+        {
+          "id": "05995a182725440cbcf3343d11ba39fa",
+          "name": "tanstack-chat_Conversation",
+          "script": "tanstack-chat",
+          "class": "Conversation",
+          "use_sqlite": true
+        },
+        {
+          "id": "e2306989d3e1432c84f6497e83c368c9",
+          "name": "tanstack-chat_StreamObject",
+          "script": "tanstack-chat",
+          "class": "StreamObject",
+          "use_sqlite": true
+        },
+        {
+          "id": "f0b58f44a0804fd7923415e92337b802",
+          "name": "tanstack-com_Conversation",
+          "script": "tanstack-com",
+          "class": "Conversation",
+          "use_sqlite": true
+        },
+        {
+          "id": "f7661657a143474895cbd567f62fac67",
+          "name": "tanstack-com_WorkspaceSync",
+          "script": "tanstack-com",
+          "class": "WorkspaceSync",
+          "use_sqlite": true
+        },
+        {
+          "id": "0f2749d7464b4cee83c2d4ab6aa6755b",
+          "name": "tanstack-com_StreamObject",
+          "script": "tanstack-com",
+          "class": "StreamObject",
+          "use_sqlite": true
+        }
+      ],
+      "workflow": {
+        "id": "5b66083d-acab-4b3d-9543-72bd1ed99db3",
+        "name": "tanstack-chat-workflows",
+        "script_name": "tanstack-com",
+        "class_name": "TanChatWorkflow"
+      }
+    },
+    "after": {
+      "namespaces": [
+        {
+          "id": "05995a182725440cbcf3343d11ba39fa",
+          "name": "tanstack-chat_Conversation",
+          "script": "tanstack-chat",
+          "class": "Conversation",
+          "use_sqlite": true
+        },
+        {
+          "id": "e2306989d3e1432c84f6497e83c368c9",
+          "name": "tanstack-chat_StreamObject",
+          "script": "tanstack-chat",
+          "class": "StreamObject",
+          "use_sqlite": true
+        },
+        {
+          "id": "4747da39bdcb4fd291816ecfdfb6e553",
+          "name": "tanstack-chat_WorkspaceSync",
+          "script": "tanstack-chat",
+          "class": "WorkspaceSync",
+          "use_sqlite": true
+        },
+        {
+          "id": "f0b58f44a0804fd7923415e92337b802",
+          "name": "tanstack-chat-recovery_Conversation",
+          "script": "tanstack-chat-recovery",
+          "class": "Conversation",
+          "use_sqlite": true
+        },
+        {
+          "id": "f7661657a143474895cbd567f62fac67",
+          "name": "tanstack-chat-recovery_WorkspaceSync",
+          "script": "tanstack-chat-recovery",
+          "class": "WorkspaceSync",
+          "use_sqlite": true
+        },
+        {
+          "id": "0f2749d7464b4cee83c2d4ab6aa6755b",
+          "name": "tanstack-chat-recovery_StreamObject",
+          "script": "tanstack-chat-recovery",
+          "class": "StreamObject",
+          "use_sqlite": true
+        }
+      ],
+      "workflow": {
+        "id": "5b66083d-acab-4b3d-9543-72bd1ed99db3",
+        "script_name": "tanstack-chat",
+        "class_name": "TanChatWorkflow"
+      }
+    }
+  },
+  "browser": {
+    "status": 200,
+    "url": "https://tanstack.com/query/latest/docs/framework/react/installation",
+    "title": "Installation | TanStack Query React Docs",
+    "errors": [],
+    "chatRequests": [],
+    "documentNavigations": 1
+  },
+  "apiChecks": [
+    {
+      "path": "/api/chat/bootstrap",
+      "status": 401,
+      "contentType": "application/json",
+      "bytes": 32
+    },
+    {
+      "path": "/auth/mcp/client-metadata",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 320
+    },
+    {
+      "path": "/api/og/query.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 25500,
+      "png": true
+    },
+    {
+      "path": "/api/readme/query.png?framework=react",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 29752,
+      "png": true
+    },
+    {
+      "path": "/api/application-starter/features?framework=react",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 10980
+    },
+    {
+      "path": "/api/application-starter/deploy/check-name?name=worker-split-check",
+      "status": 401,
+      "contentType": "application/json",
+      "bytes": 47
+    },
+    {
+      "path": "/api/application-starter/compile",
+      "status": 200,
+      "fileCount": 16,
+      "hasPackageJson": true
+    }
+  ],
+  "duringRolloutChecks": [
+    {
+      "at": "2026-10-16T23:52:53.832Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 294
+    },
+    {
+      "at": "2026-10-16T23:52:54.913Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 1080
+    },
+    {
+      "at": "2026-10-16T23:52:57.065Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 151
+    },
+    {
+      "at": "2026-10-16T23:52:57.155Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 90
+    },
+    {
+      "at": "2026-10-16T23:52:59.330Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 175
+    },
+    {
+      "at": "2026-10-16T23:52:59.433Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 103
+    },
+    {
+      "at": "2026-10-16T23:53:01.588Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 154
+    },
+    {
+      "at": "2026-10-16T23:53:01.670Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 82
+    },
+    {
+      "at": "2026-10-16T23:53:03.826Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 154
+    },
+    {
+      "at": "2026-10-16T23:53:03.910Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 84
+    },
+    {
+      "at": "2026-10-16T23:53:06.058Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 148
+    },
+    {
+      "at": "2026-10-16T23:53:06.138Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 80
+    },
+    {
+      "at": "2026-10-16T23:53:08.290Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 151
+    },
+    {
+      "at": "2026-10-16T23:53:08.394Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 104
+    },
+    {
+      "at": "2026-10-16T23:53:10.689Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 294
+    },
+    {
+      "at": "2026-10-16T23:53:12.047Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 1358
+    },
+    {
+      "at": "2026-10-16T23:53:14.213Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 165
+    },
+    {
+      "at": "2026-10-16T23:53:14.300Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 87
+    },
+    {
+      "at": "2026-10-16T23:53:16.564Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 263
+    },
+    {
+      "at": "2026-10-16T23:53:16.663Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 99
+    },
+    {
+      "at": "2026-10-16T23:53:18.840Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 176
+    },
+    {
+      "at": "2026-10-16T23:53:18.972Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 132
+    },
+    {
+      "at": "2026-10-16T23:53:21.149Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 176
+    },
+    {
+      "at": "2026-10-16T23:53:21.309Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 160
+    },
+    {
+      "at": "2026-10-16T23:53:23.471Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 161
+    },
+    {
+      "at": "2026-10-16T23:53:23.576Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 105
+    },
+    {
+      "at": "2026-10-16T23:53:25.742Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 165
+    },
+    {
+      "at": "2026-10-16T23:53:25.811Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 69
+    },
+    {
+      "at": "2026-10-16T23:53:27.962Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 150
+    },
+    {
+      "at": "2026-10-16T23:53:28.125Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 163
+    },
+    {
+      "at": "2026-10-16T23:53:30.277Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 151
+    },
+    {
+      "at": "2026-10-16T23:53:30.362Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 85
+    },
+    {
+      "at": "2026-10-16T23:53:32.523Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 159
+    },
+    {
+      "at": "2026-10-16T23:53:32.616Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 93
+    },
+    {
+      "at": "2026-10-16T23:53:34.799Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 181
+    },
+    {
+      "at": "2026-10-16T23:53:35.496Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 697
+    },
+    {
+      "at": "2026-10-16T23:53:37.658Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 161
+    },
+    {
+      "at": "2026-10-16T23:53:37.781Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 123
+    },
+    {
+      "at": "2026-10-16T23:53:39.953Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 172
+    },
+    {
+      "at": "2026-10-16T23:53:40.045Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 92
+    },
+    {
+      "at": "2026-10-16T23:53:42.202Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 157
+    },
+    {
+      "at": "2026-10-16T23:53:42.293Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 91
+    },
+    {
+      "at": "2026-10-16T23:53:45.955Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 1662
+    },
+    {
+      "at": "2026-10-16T23:53:46.034Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 79
+    },
+    {
+      "at": "2026-10-16T23:53:48.186Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 152
+    },
+    {
+      "at": "2026-10-16T23:53:48.272Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 86
+    },
+    {
+      "at": "2026-10-16T23:53:50.433Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 159
+    },
+    {
+      "at": "2026-10-16T23:53:50.504Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 71
+    },
+    {
+      "at": "2026-10-16T23:53:52.658Z",
+      "path": "/",
+      "status": 200,
+      "html": true,
+      "ms": 154
+    },
+    {
+      "at": "2026-10-16T23:53:52.971Z",
+      "path": "/query/latest/docs/framework/react/overview",
+      "status": 200,
+      "html": true,
+      "ms": 313
+    }
+  ],
+  "measurement": {
+    "location": "SLC",
+    "requests": 24,
+    "medianTtfbMs": 96.25,
+    "p95TtfbMs": 685.3,
+    "maxTtfbMs": 875.9,
+    "comparison": "No matched production baseline at this location. This sample does not establish a speedup.",
+    "rows": [
+      {
+        "index": 0,
+        "status": 200,
+        "ttfb_ms": 82.8,
+        "after_connection_ms": 61.7,
+        "server_timing": "cfEdge;dur=7,cfOrigin;dur=0,cfWorker;dur=39",
+        "ray": "a4bafe570fa10a02-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 1,
+        "status": 200,
+        "ttfb_ms": 85.0,
+        "after_connection_ms": 65.5,
+        "server_timing": "cfEdge;dur=6,cfOrigin;dur=0,cfWorker;dur=41",
+        "ray": "a4bafe59498ef58f-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 2,
+        "status": 200,
+        "ttfb_ms": 318.1,
+        "after_connection_ms": 300.4,
+        "server_timing": "cfEdge;dur=35,cfOrigin;dur=0,cfWorker;dur=251",
+        "ray": "a4bafe5b982a4ccd-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 3,
+        "status": 200,
+        "ttfb_ms": 95.2,
+        "after_connection_ms": 74.7,
+        "server_timing": "cfEdge;dur=29,cfOrigin;dur=0,cfWorker;dur=33",
+        "ray": "a4bafe5f5acfa9e9-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 4,
+        "status": 200,
+        "ttfb_ms": 76.3,
+        "after_connection_ms": 58.2,
+        "server_timing": "cfEdge;dur=6,cfOrigin;dur=0,cfWorker;dur=40",
+        "ray": "a4bafe61aadf4cb3-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 5,
+        "status": 200,
+        "ttfb_ms": 174.9,
+        "after_connection_ms": 158.1,
+        "server_timing": "cfEdge;dur=3,cfOrigin;dur=0,cfWorker;dur=144",
+        "ray": "a4bafe63eec2f58f-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 6,
+        "status": 200,
+        "ttfb_ms": 133.6,
+        "after_connection_ms": 112.6,
+        "server_timing": "cfEdge;dur=7,cfOrigin;dur=0,cfWorker;dur=86",
+        "ray": "a4bafe66de8ab859-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 7,
+        "status": 200,
+        "ttfb_ms": 90.6,
+        "after_connection_ms": 69.8,
+        "server_timing": "cfEdge;dur=6,cfOrigin;dur=0,cfWorker;dur=52",
+        "ray": "a4bafe696b8d2269-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 8,
+        "status": 200,
+        "ttfb_ms": 173.3,
+        "after_connection_ms": 149.5,
+        "server_timing": "cfEdge;dur=3,cfOrigin;dur=0,cfWorker;dur=133",
+        "ray": "a4bafe6bcfbfc935-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 9,
+        "status": 200,
+        "ttfb_ms": 64.7,
+        "after_connection_ms": 45.8,
+        "server_timing": "cfEdge;dur=9,cfOrigin;dur=0,cfWorker;dur=25",
+        "ray": "a4bafe6ead33a42a-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 10,
+        "status": 200,
+        "ttfb_ms": 97.3,
+        "after_connection_ms": 81.2,
+        "server_timing": "cfEdge;dur=4,cfOrigin;dur=0,cfWorker;dur=65",
+        "ray": "a4bafe70cd03c935-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 11,
+        "status": 200,
+        "ttfb_ms": 139.5,
+        "after_connection_ms": 121.8,
+        "server_timing": "cfEdge;dur=3,cfOrigin;dur=0,cfWorker;dur=105",
+        "ray": "a4bafe732ca10d15-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 12,
+        "status": 200,
+        "ttfb_ms": 875.9,
+        "after_connection_ms": 857.8,
+        "server_timing": "cfEdge;dur=549,cfOrigin;dur=0,cfWorker;dur=297",
+        "ray": "a4bafe75cd373203-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 13,
+        "status": 200,
+        "ttfb_ms": 65.8,
+        "after_connection_ms": 47.8,
+        "server_timing": "cfEdge;dur=5,cfOrigin;dur=0,cfWorker;dur=29",
+        "ray": "a4bafe7d193b96f5-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 14,
+        "status": 200,
+        "ttfb_ms": 71.4,
+        "after_connection_ms": 47.2,
+        "server_timing": "cfEdge;dur=5,cfOrigin;dur=0,cfWorker;dur=31",
+        "ray": "a4bafe7f4bf907bf-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 15,
+        "status": 200,
+        "ttfb_ms": 65.9,
+        "after_connection_ms": 46.2,
+        "server_timing": "cfEdge;dur=5,cfOrigin;dur=0,cfWorker;dur=27",
+        "ray": "a4bafe817ef90a02-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 16,
+        "status": 200,
+        "ttfb_ms": 132.9,
+        "after_connection_ms": 113.5,
+        "server_timing": "cfEdge;dur=9,cfOrigin;dur=0,cfWorker;dur=92",
+        "ray": "a4bafe83a899c774-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 17,
+        "status": 200,
+        "ttfb_ms": 685.3,
+        "after_connection_ms": 667.8,
+        "server_timing": "cfEdge;dur=408,cfOrigin;dur=0,cfWorker;dur=246",
+        "ray": "a4bafe863d0db859-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 18,
+        "status": 200,
+        "ttfb_ms": 203.7,
+        "after_connection_ms": 183.7,
+        "server_timing": "cfEdge;dur=130,cfOrigin;dur=0,cfWorker;dur=43",
+        "ray": "a4bafe8c4d5738e9-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 19,
+        "status": 200,
+        "ttfb_ms": 63.5,
+        "after_connection_ms": 43.9,
+        "server_timing": "cfEdge;dur=8,cfOrigin;dur=0,cfWorker;dur=26",
+        "ray": "a4bafe8f58187bf5-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 20,
+        "status": 200,
+        "ttfb_ms": 72.1,
+        "after_connection_ms": 55.2,
+        "server_timing": "cfEdge;dur=4,cfOrigin;dur=0,cfWorker;dur=38",
+        "ray": "a4bafe917d21c774-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 21,
+        "status": 200,
+        "ttfb_ms": 192.8,
+        "after_connection_ms": 170.9,
+        "server_timing": "cfEdge;dur=6,cfOrigin;dur=0,cfWorker;dur=153",
+        "ray": "a4bafe93bdb48a29-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 22,
+        "status": 200,
+        "ttfb_ms": 222.5,
+        "after_connection_ms": 204.4,
+        "server_timing": "cfEdge;dur=8,cfOrigin;dur=0,cfWorker;dur=185",
+        "ray": "a4bafe96ac510a02-SLC",
+        "cache_control": "private, no-store"
+      },
+      {
+        "index": 23,
+        "status": 200,
+        "ttfb_ms": 66.7,
+        "after_connection_ms": 48.6,
+        "server_timing": "cfEdge;dur=8,cfOrigin;dur=0,cfWorker;dur=29",
+        "ray": "a4bafe99ddde52c1-SLC",
+        "cache_control": "private, no-store"
+      }
+    ]
+  },
+  "productionAuthentication": "Saved token returned 401 before deployment. Successful signed-in flows were verified only against the isolated staging database.",
+  "schemaMigrationsRun": false,
+  "cdnPurged": false
+}

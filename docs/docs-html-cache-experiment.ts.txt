@@ -1,0 +1,55 @@
+// Archived proof of concept. Not imported by the application.
+
+export async function serveDocsHtml(
+  request: Request,
+  options: {
+    cache: Pick<Cache, 'match' | 'put'> | undefined
+    render: () => Response | Promise<Response>
+    waitUntil: (task: Promise<unknown>) => void
+  },
+) {
+  const eligible = isPublicDocsHtmlRequest(request)
+  // A separate key prevents collisions with negotiated Markdown responses.
+  const key = new URL(request.url)
+  key.searchParams.set('__docs_html_cache', 'v1')
+  if (eligible && options.cache) {
+    const hit = await options.cache.match(key.href).catch((error) => {
+      console.warn('[Docs HTML cache] Read failed', error)
+      return undefined
+    })
+    if (hit) {
+      const headers = new Headers(hit.headers)
+      headers.set('X-Docs-Cache', 'HIT')
+      const [, libraryId, version] = new URL(request.url).pathname.split('/')
+      headers.set(
+        'Cache-Control',
+        getDocsCacheHeaders({ libraryId, version })['Cache-Control'],
+      )
+      return new Response(hit.body, { status: hit.status, headers })
+    }
+  }
+  const response = finalizeDocsHtmlHeaders(request, await options.render())
+  if (
+    eligible &&
+    options.cache &&
+    response.status === 200 &&
+    response.headers.get('content-type')?.includes('text/html') &&
+    response.headers.get('cache-tag')?.split(',').includes('docs:all') &&
+    !response.headers.has('set-cookie') &&
+    !/no-store|private/i.test(response.headers.get('cache-control') ?? '')
+  ) {
+    // Cache API uses Cache-Control, not the CDN header. Keep this spike's
+    // HTML TTL at 60 seconds; content refreshes independently in waitUntil.
+    const headers = new Headers(response.headers)
+    headers.set('Cache-Control', 'public, max-age=60')
+    options.waitUntil(
+      options.cache
+        .put(key.href, new Response(response.clone().body, { headers }))
+        .catch((error) => {
+          console.warn('[Docs HTML cache] Write failed', error)
+        }),
+    )
+    response.headers.set('X-Docs-Cache', 'MISS')
+  }
+  return response
+}

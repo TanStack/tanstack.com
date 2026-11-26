@@ -12,7 +12,7 @@ import {
   type DocsWebhookSource,
 } from '../src/utils/docs-webhook-sources'
 
-test('sitemap exposes catalog pages but not runtime resources', () => {
+test('sitemap emits canonical catalog URLs without trailing slashes or runtime resources', () => {
   const index = parseChartsCatalogIndex({
     schemaVersion: 2,
     source: {
@@ -46,9 +46,9 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
   })
 
   assert.deepEqual(getChartsCatalogSitemapEntries(index), [
-    { path: '/charts/catalog/' },
-    { path: '/charts/catalog/collections/shadcn/' },
-    { path: '/charts/catalog/charts/01-line/' },
+    { path: '/charts/catalog' },
+    { path: '/charts/catalog/collections/shadcn' },
+    { path: '/charts/catalog/charts/01-line' },
   ])
 })
 

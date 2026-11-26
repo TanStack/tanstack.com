@@ -36,9 +36,14 @@ export type BuilderAiPackageFetchState = {
   ) => Promise<string>
 }
 
-export function createBuilderAiPackageFetchState(): BuilderAiPackageFetchState {
-  const byteLimit = maxInspectionBytes
-  const resourceLimit = maxInspectionResources
+export function createBuilderAiPackageFetchState(
+  options: {
+    maxBytes?: number
+    maxResources?: number
+  } = {},
+): BuilderAiPackageFetchState {
+  const byteLimit = options.maxBytes ?? maxInspectionBytes
+  const resourceLimit = options.maxResources ?? maxInspectionResources
   const resources = new Map<string, Promise<string>>()
   const attemptedResources = new Set<string>()
   let downloadedBytes = 0

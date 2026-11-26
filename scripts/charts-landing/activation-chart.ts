@@ -71,21 +71,23 @@ export const activationChart = defineChart({
       dy: -21,
     }),
   ],
-  x: {
-    scale: scaleUtc().domain([weeks[0]!.date, weeks.at(-1)!.date]),
-    axis: {
-      label: 'Week ending',
-      ticks: { format: (value) => monthDay.format(value) },
+  scales: {
+    x: {
+      scale: scaleUtc().domain([weeks[0]!.date, weeks.at(-1)!.date]),
+      axis: {
+        label: 'Week ending',
+        ticks: { format: (value) => monthDay.format(value) },
+      },
+      grid: false,
     },
-    grid: false,
-  },
-  y: {
-    scale: scaleLinear().domain([40, 82]),
-    axis: {
-      label: 'Activation rate (%)',
-      ticks: { count: 5, format: (value) => `${Math.round(value)}%` },
+    y: {
+      scale: scaleLinear().domain([40, 82]),
+      axis: {
+        label: 'Activation rate (%)',
+        ticks: { count: 5, format: (value) => `${Math.round(value)}%` },
+      },
+      grid: true,
     },
-    grid: true,
   },
   theme: activationTheme,
 })

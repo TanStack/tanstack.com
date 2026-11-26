@@ -7,6 +7,7 @@ import {
   type ApplicationStarterAction,
   type ApplicationStarterSessionContext,
 } from '~/utils/analytics'
+import { trackScarfClipboardText } from '~/utils/analytics/scarf'
 import {
   extractMigrationRepositoryUrl,
   getApplicationStarterSuggestions,
@@ -26,7 +27,6 @@ import {
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import type { LibraryId } from '~/libraries'
 import {
-  buildStarterPromptDeployUrl,
   composeStarterInput,
   isNextJsMigrationInput,
   isPinnedStarterLibrary,
@@ -51,34 +51,7 @@ interface UseApplicationStarterOptions {
   revealOptionsImmediately?: boolean
 }
 
-function openPendingDeployWindow(providerName: string) {
-  const deployWindow = window.open('', '_blank')
-
-  if (deployWindow) {
-    deployWindow.opener = null
-    deployWindow.document.title = `Opening ${providerName}`
-    deployWindow.document.body.textContent = `Opening ${providerName}...`
-  }
-
-  return deployWindow
-}
-
-function navigatePendingDeployWindow(
-  deployWindow: Window | null,
-  deployUrl: string,
-) {
-  if (deployWindow) {
-    deployWindow.location.href = deployUrl
-    deployWindow.focus()
-    return
-  }
-
-  window.location.assign(deployUrl)
-}
-
-function closePendingDeployWindow(deployWindow: Window | null) {
-  deployWindow?.close()
-}
+type CopyTrigger = 'automatic' | 'user'
 
 export function useApplicationStarter({
   applicationStarterIntegration,
@@ -379,7 +352,10 @@ export function useApplicationStarter({
   }, [])
 
   const markCopied = React.useCallback(
-    (kind: string, options?: { showPromptNotice?: boolean }) => {
+    (
+      kind: string,
+      options?: { showPromptNotice?: boolean; trigger?: CopyTrigger },
+    ) => {
       setCopiedKind(kind)
       setTimeout(
         () => setCopiedKind((current) => (current === kind ? null : current)),
@@ -390,7 +366,10 @@ export function useApplicationStarter({
         revealPromptCopyNotice()
       }
 
-      if (kind === 'prompt') {
+      // Only treat user-driven copies as activation. Automatic copies that
+      // fire as a side-effect of generation are not activation signals.
+      const trigger = options?.trigger ?? 'user'
+      if (trigger === 'user' && kind === 'prompt') {
         trackEvent('application_starter_activated', {
           ...sessionContextRef.current,
           action: 'copy_prompt',
@@ -409,11 +388,16 @@ export function useApplicationStarter({
       options?: {
         notify?: boolean
         showPromptNotice?: boolean
+        trigger?: CopyTrigger
       },
     ) => {
       await navigator.clipboard.writeText(value)
+      if (options?.trigger !== 'automatic') {
+        trackScarfClipboardText('copy', value)
+      }
       markCopied(kind, {
         showPromptNotice: options?.showPromptNotice,
+        trigger: options?.trigger,
       })
 
       if (options?.notify === false) {
@@ -678,21 +662,6 @@ export function useApplicationStarter({
     [ensureResolvedResult],
   )
 
-  const withResolvedPrompt = React.useCallback(
-    async (
-      run: (nextResult: ApplicationStarterResult) => void | Promise<void>,
-    ) => {
-      return withResolvedResult(async (nextResult) => {
-        if (!nextResult.prompt) {
-          return
-        }
-
-        return run(nextResult)
-      })
-    },
-    [withResolvedResult],
-  )
-
   const navigateToResult = React.useCallback(
     async (kind: 'advanced' | 'download') => {
       await withResolvedResult((nextResult) => {
@@ -734,143 +703,6 @@ export function useApplicationStarter({
     },
     [trackAction, withResolvedResult],
   )
-
-  const openNetlifyStart = React.useCallback(async () => {
-    const deployWindow = openPendingDeployWindow('Netlify')
-    let openedDeployUrl = false
-    const netlifyPartner = partnerSuggestions.find(
-      (partner) => partner.id === 'netlify',
-    )
-    const netlifyConflictIds = netlifyPartner
-      ? getApplicationStarterConflictingPartnerIds(
-          netlifyPartner,
-          partnerSuggestions,
-        )
-      : ['cloudflare']
-    const nextSelectedPartners = explicitlySelectedPartners.filter(
-      (partnerId) => !netlifyConflictIds.includes(partnerId),
-    )
-    const removedConflictingPartner =
-      nextSelectedPartners.length !== explicitlySelectedPartners.length
-
-    if (removedConflictingPartner) {
-      setExplicitPartnerSelections((current) => {
-        const next = { ...current }
-
-        for (const partnerId of netlifyConflictIds) {
-          next[partnerId] = false
-        }
-
-        return next
-      })
-      invalidateResult()
-    }
-
-    const nextSelectedLibraries = selectedLibraries
-    const submittedInput = buildSubmittedInput(
-      nextSelectedPartners,
-      [],
-      nextSelectedLibraries,
-    )
-
-    try {
-      if (!submittedInput.trim()) {
-        return
-      }
-
-      const nextResult =
-        !removedConflictingPartner && result && !isDirtySinceLastResult
-          ? result
-          : await resolveSubmittedInput(submittedInput)
-
-      if (!nextResult?.prompt) {
-        return
-      }
-
-      trackEvent('application_starter_activated', {
-        ...sessionContextRef.current,
-        action: 'netlify_start',
-        surface: 'result_panel',
-        provider: 'netlify',
-        automatic: false,
-      })
-
-      openedDeployUrl = true
-      navigatePendingDeployWindow(
-        deployWindow,
-        buildStarterPromptDeployUrl('netlify', nextResult.prompt),
-      )
-    } finally {
-      if (!openedDeployUrl) {
-        closePendingDeployWindow(deployWindow)
-      }
-    }
-  }, [
-    buildSubmittedInput,
-    explicitlySelectedPartners,
-    invalidateResult,
-    isDirtySinceLastResult,
-    partnerSuggestions,
-    result,
-    resolveSubmittedInput,
-    selectedLibraries,
-  ])
-
-  const openLovableStart = React.useCallback(async () => {
-    const deployWindow = openPendingDeployWindow('Lovable')
-    let openedDeployUrl = false
-
-    try {
-      await withResolvedPrompt((nextResult) => {
-        trackActivation({
-          action: 'deploy',
-          surface: 'result_panel',
-          provider: 'lovable',
-        })
-
-        openedDeployUrl = true
-        navigatePendingDeployWindow(
-          deployWindow,
-          buildStarterPromptDeployUrl('lovable', nextResult.prompt),
-        )
-      })
-    } finally {
-      if (!openedDeployUrl) {
-        closePendingDeployWindow(deployWindow)
-      }
-    }
-  }, [trackActivation, withResolvedPrompt])
-
-  const openCodexStart = React.useCallback(async () => {
-    await withResolvedPrompt((nextResult) => {
-      trackAction('open_codex')
-      window.location.assign(
-        `codex://new?prompt=${encodeURIComponent(nextResult.prompt)}`,
-      )
-    })
-  }, [trackAction, withResolvedPrompt])
-
-  const openClaudeStart = React.useCallback(async () => {
-    await withResolvedPrompt((nextResult) => {
-      trackAction('open_claude')
-      window.open(
-        `https://claude.ai/code?q=${encodeURIComponent(nextResult.prompt)}`,
-        '_blank',
-        'noopener,noreferrer',
-      )
-    })
-  }, [trackAction, withResolvedPrompt])
-
-  const openCursorStart = React.useCallback(async () => {
-    await withResolvedPrompt((nextResult) => {
-      trackAction('open_cursor')
-      window.open(
-        `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(nextResult.prompt)}`,
-        '_blank',
-        'noopener,noreferrer',
-      )
-    })
-  }, [trackAction, withResolvedPrompt])
 
   const generatePrompt = React.useCallback(async () => {
     const submittedInput = buildSubmittedInput()
@@ -923,7 +755,6 @@ export function useApplicationStarter({
   const hasInput = buildSubmittedInput().trim().length > 0
   const hasGeneratedPrompt = !!result?.prompt
   const isGeneratingPrompt = isRebuildingResult
-  const isGeneratingNetlify = false
   const isGenerating = isRebuildingResult
 
   const updateInput = React.useCallback(
@@ -996,19 +827,13 @@ export function useApplicationStarter({
     input,
     isDeployDialogOpen,
     isGenerating,
-    isGeneratingNetlify,
     isGeneratingPrompt,
     isModHeld,
     loadingPhrase,
     migrationRepositoryInputRef,
     migrationRepositoryUrl,
     navigateToResult,
-    openClaudeStart,
-    openCursorStart,
-    openCodexStart,
     openDeployDialog,
-    openLovableStart,
-    openNetlifyStart,
     partnerSuggestions: visiblePartnerSuggestions,
     promptCopyNotice: showPromptCopyNotice,
     result,

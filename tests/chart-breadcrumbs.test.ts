@@ -1,0 +1,84 @@
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+import {
+  getChartBreadcrumbItems,
+  chartCatalogBreadcrumbItems,
+  getChartCatalogBreadcrumbJsonLd,
+  getChartCollectionBreadcrumbItems,
+  getChartCollectionBreadcrumbJsonLd,
+  getChartBreadcrumbJsonLd,
+} from '../src/utils/chart-breadcrumbs'
+Object.assign(globalThis, { __TANSTACK_SITE_URL__: 'https://tanstack.com' })
+
+test('chart hierarchy includes only known collections and keeps navigation options out of canonical URLs', () => {
+  const chart = {
+    id: 'area-simple',
+    title: 'Area <simple>',
+    collection: 'shadcn',
+  }
+  const items = getChartBreadcrumbItems(chart)
+  assert.deepEqual(
+    items.map((item) => item.label),
+    ['Charts', 'Catalog', 'shadcn/ui Charts', 'Area <simple>'],
+  )
+  assert.equal(items[1].search, true)
+  assert.equal(items[1].preload, false)
+  const schema = getChartBreadcrumbJsonLd(chart)
+  assert.deepEqual(
+    schema.itemListElement.map((item) => item.position),
+    [1, 2, 3, 4],
+  )
+  assert.equal(
+    schema.itemListElement[3].item,
+    'https://tanstack.com/charts/catalog/charts/area-simple',
+  )
+  for (const collection of [undefined, 'unknown']) {
+    assert.equal(getChartBreadcrumbItems({ ...chart, collection }).length, 3)
+  }
+})
+
+test('collection trail returns to the complete catalog while schema stays canonical', () => {
+  const collection = { id: 'shadcn', title: 'shadcn/ui Charts' }
+  const items = getChartCollectionBreadcrumbItems(collection)
+  assert.equal(items[0].to, '/charts/latest')
+  assert.equal(items[0].search, true)
+  assert.equal(items[0].preload, false)
+  assert.equal(items[2].label, collection.title)
+  assert.deepEqual(
+    getChartCollectionBreadcrumbJsonLd(collection).itemListElement,
+    [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Charts',
+        item: 'https://tanstack.com/charts/latest',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Catalog',
+        item: 'https://tanstack.com/charts/catalog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'shadcn/ui Charts',
+        item: 'https://tanstack.com/charts/catalog/collections/shadcn',
+      },
+    ],
+  )
+})
+
+test('catalog root exposes the Charts parent without marking it as the catalog', () => {
+  assert.deepEqual(
+    chartCatalogBreadcrumbItems.map((item) => item.label),
+    ['Charts', 'Catalog'],
+  )
+  assert.deepEqual(
+    getChartCatalogBreadcrumbJsonLd().itemListElement.map((item) => item.item),
+    [
+      'https://tanstack.com/charts/latest',
+      'https://tanstack.com/charts/catalog',
+    ],
+  )
+})

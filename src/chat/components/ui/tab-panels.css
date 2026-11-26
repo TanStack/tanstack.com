@@ -1,0 +1,90 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-tabs {
+    display: flex;
+    gap: 3px;
+    padding: 12px 20px 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .ui-tab {
+    flex-shrink: 0;
+    background: none;
+    border: 0;
+    border-radius: 7px;
+    padding: 8px 10px 12px;
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color var(--motion-fast),
+      border-color var(--motion-fast),
+      background var(--motion-fast);
+  }
+  .ui-tab:hover {
+    color: inherit;
+    background: var(--soft);
+  }
+  .ui-tab[data-active] {
+    background: var(--soft);
+    font-weight: 600;
+    color: inherit;
+  }
+  .ui-tab:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+    border-radius: 5px;
+  }
+  .ui-tabs-vertical {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    min-height: 0;
+  }
+  .ui-tabs-list-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    padding: 16px 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .ui-tabs-list-vertical .ui-tab {
+    width: 100%;
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 13px;
+  }
+  .ui-tabs-list-vertical .ui-tab[data-active] {
+    background: var(--soft);
+    font-weight: 600;
+    background: var(--soft);
+    font-weight: 600;
+  }
+  @media (pointer: coarse) {
+    .ui-tab {
+      min-height: 44px;
+    }
+  }
+  @media (max-width: 600px) {
+    .ui-tabs {
+      padding-inline: 10px;
+    }
+    .ui-tabs-vertical {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .ui-tabs-list-vertical {
+      flex-direction: row;
+      padding: 8px 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    .ui-tabs-list-vertical .ui-tab {
+      width: auto;
+    }
+  }
+}

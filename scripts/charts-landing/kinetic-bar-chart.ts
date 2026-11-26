@@ -22,13 +22,15 @@ export const kineticBarChart = defineChart({
       strokeDasharray: '5 7',
     }),
   ],
-  x: {
-    scale: scaleBand<string>().domain(productNames).padding(0.16),
-  },
-  y: {
-    scale: scaleLinear().domain([0, 100]),
-    ticks: 4,
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleBand<string>().domain(productNames).padding(0.16),
+    },
+    y: {
+      scale: scaleLinear().domain([0, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   color: {
     domain: ['Core', 'Data', 'Runtime'],

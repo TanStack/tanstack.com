@@ -5,6 +5,10 @@ export interface Maintainer {
   name: string
   avatar: string
   github: string
+  location?: {
+    latitude: number
+    longitude: number
+  }
   isCoreMaintainer?: boolean
   creatorOf?: Library['id'][]
   maintainerOf?: Library['id'][] // inherits from creatorOf
@@ -53,6 +57,10 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/tannerlinsley.png',
     github: 'tannerlinsley',
+    location: {
+      latitude: 41.045,
+      longitude: -112.094,
+    },
     creatorOf: [
       'start',
       'router',
@@ -85,6 +93,10 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/tkdodo.png',
     github: 'tkdodo',
+    location: {
+      latitude: 48.2082,
+      longitude: 16.3738,
+    },
     maintainerOf: ['query'],
     contributorOf: ['router'],
     frameworkExpertise: ['react'],
@@ -95,24 +107,14 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
-    name: 'Nicolas Beaussart',
-    avatar: 'https://github.com/beaussan.png',
-    github: 'beaussan',
-    maintainerOf: ['router'],
-    frameworkExpertise: ['react'],
-    specialties: ['Monorepo', 'Architecture', 'Typescript'],
-    social: {
-      twitter: 'https://x.com/beaussan',
-      bluesky: 'https://bsky.app/profile/beaussan.io',
-      website: 'https://beaussan.io/',
-    },
-    workshopsAvailable: true,
-  },
-  {
     name: 'Corbin Crutchley',
     isCoreMaintainer: true,
     avatar: 'https://github.com/crutchcorn.png',
     github: 'crutchcorn',
+    location: {
+      latitude: 38.5816,
+      longitude: -121.4944,
+    },
     creatorOf: ['form'],
     maintainerOf: ['store', 'config'],
     frameworkExpertise: ['react', 'solid', 'vue', 'angular', 'lit'],
@@ -128,6 +130,10 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/schiller-manuel.png',
     github: 'schiller-manuel',
+    location: {
+      latitude: 48.137154,
+      longitude: 11.576124,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['Architecture', 'Core API', 'Documentation'],
@@ -137,10 +143,34 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Alem Tuzlak',
+    isCoreMaintainer: true,
+    avatar: 'https://github.com/AlemTuzlak.png',
+    github: 'AlemTuzlak',
+    location: {
+      latitude: 43.84864,
+      longitude: 18.35644,
+    },
+    creatorOf: ['ai', 'devtools'],
+    contributorOf: ['pacer', 'form'],
+    frameworkExpertise: ['react'],
+    specialties: ['DevTools', 'Routers', 'Vite Plugins'],
+    social: {
+      twitter: 'https://x.com/AlemTuzlak',
+      bluesky: 'https://bsky.app/profile/alem.forge42.dev',
+      website: 'https://www.forge42.dev',
+    },
+    workshopsAvailable: true,
+  },
+  {
     name: 'Kevin Van Cott',
     isCoreMaintainer: true,
     avatar: 'https://github.com/kevinvandy.png',
     github: 'kevinvandy',
+    location: {
+      latitude: 40.739,
+      longitude: -96.682,
+    },
     creatorOf: ['pacer', 'hotkeys'],
     maintainerOf: ['table', 'store'],
     contributorOf: ['virtual'],
@@ -160,16 +190,37 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/jherr.png',
     github: 'jherr',
+    location: {
+      latitude: 45.4462,
+      longitude: -122.53,
+    },
     creatorOf: ['ai', 'create-tsrouter-app'],
     frameworkExpertise: ['react'],
     specialties: ['Templates'],
     workshopsAvailable: true,
   },
   {
+    name: 'Kyle Mathews',
+    isCoreMaintainer: true,
+    avatar: 'https://github.com/KyleAMathews.png',
+    github: 'KyleAMathews',
+    location: {
+      latitude: 40.78,
+      longitude: -111.911,
+    },
+    creatorOf: ['db', 'intent'],
+    frameworkExpertise: ['react'],
+    specialties: ['Sync Engines'],
+  },
+  {
     name: 'Sean Cassiere',
     isCoreMaintainer: true,
     avatar: 'https://github.com/seancassiere.png',
     github: 'seancassiere',
+    location: {
+      latitude: -41.2866,
+      longitude: 174.7756,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['Architecture', 'Core API', 'Documentation'],
@@ -183,6 +234,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Birk Skyum',
     avatar: 'https://github.com/birkskyum.png',
     github: 'birkskyum',
+    location: {
+      latitude: 47.3769,
+      longitude: 8.5417,
+    },
     maintainerOf: ['router', 'start'],
     contributorOf: ['pacer'],
     frameworkExpertise: ['solid'],
@@ -196,6 +251,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Florian Pellet',
     avatar: 'https://github.com/sheraff.png',
     github: 'sheraff',
+    location: {
+      latitude: 48.8566,
+      longitude: 2.3522,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['Performance'],
@@ -206,10 +265,32 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Nicolas Beaussart',
+    avatar: 'https://github.com/beaussan.png',
+    github: 'beaussan',
+    location: {
+      latitude: 50.62925,
+      longitude: 3.057256,
+    },
+    maintainerOf: ['router'],
+    frameworkExpertise: ['react'],
+    specialties: ['Monorepo', 'Architecture', 'Typescript'],
+    social: {
+      twitter: 'https://x.com/beaussan',
+      bluesky: 'https://bsky.app/profile/beaussan.io',
+      website: 'https://beaussan.io/',
+    },
+    workshopsAvailable: true,
+  },
+  {
     name: 'Christopher Horobin',
     isCoreMaintainer: true,
     avatar: 'https://github.com/chorobin.png',
     github: 'chorobin',
+    location: {
+      latitude: 50.0755,
+      longitude: 14.4378,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['TypeScript'],
@@ -223,48 +304,52 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/piecyk.png',
     github: 'piecyk',
+    location: {
+      latitude: 50.0412,
+      longitude: 21.9991,
+    },
     maintainerOf: ['virtual'],
     frameworkExpertise: ['react'],
     specialties: ['Virtualization', 'Performance'],
-  },
-  {
-    name: 'Kyle Mathews',
-    isCoreMaintainer: true,
-    avatar: 'https://github.com/KyleAMathews.png',
-    github: 'KyleAMathews',
-    creatorOf: ['db', 'intent'],
-    frameworkExpertise: ['react'],
-    specialties: ['Sync Engines'],
-  },
-  {
-    name: 'Alem Tuzlak',
-    isCoreMaintainer: true,
-    avatar: 'https://github.com/AlemTuzlak.png',
-    github: 'AlemTuzlak',
-    creatorOf: ['ai', 'devtools'],
-    contributorOf: ['pacer', 'form'],
-    frameworkExpertise: ['react'],
-    specialties: ['DevTools', 'Routers', 'Vite Plugins'],
-    social: {
-      twitter: 'https://x.com/AlemTuzlak',
-      bluesky: 'https://bsky.app/profile/alem.forge42.dev',
-      website: 'https://www.forge42.dev',
-    },
-    workshopsAvailable: true,
   },
   {
     name: 'Sam Willis',
     isCoreMaintainer: true,
     avatar: 'https://github.com/samwillis.png',
     github: 'samwillis',
+    location: {
+      latitude: 52.6538,
+      longitude: -0.48,
+    },
     creatorOf: ['db'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
   },
   {
+    name: 'Wonsuk Choi',
+    avatar: 'https://github.com/sukvvon.png',
+    github: 'sukvvon',
+    location: {
+      latitude: 37.5665,
+      longitude: 126.978,
+    },
+    maintainerOf: ['query', 'pacer', 'config'],
+    frameworkExpertise: ['react', 'preact'],
+    specialties: ['TypeScript', 'Test', 'Documentation'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/sukvvon',
+      twitter: 'https://x.com/sukvvon',
+      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
+    },
+  },
+  {
     name: 'Vedanta Somnathe',
     avatar: 'https://github.com/theVedanta.png',
     github: 'theVedanta',
+    location: {
+      latitude: 33.2098,
+      longitude: -87.5692,
+    },
     maintainerOf: ['query', 'pacer'],
     frameworkExpertise: ['preact', 'angular'],
     social: {
@@ -278,6 +363,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Leonardo Montini',
     avatar: 'https://github.com/Balastrong.png',
     github: 'Balastrong',
+    location: {
+      latitude: 41.9028,
+      longitude: 12.4964,
+    },
     maintainerOf: ['form'],
     frameworkExpertise: ['react'],
     social: {
@@ -291,6 +380,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Fredrik Höglund',
     avatar: 'https://github.com/ephem.png',
     github: 'ephem',
+    location: {
+      latitude: 59.3293,
+      longitude: 18.0686,
+    },
     maintainerOf: ['query'],
     frameworkExpertise: ['react'],
     specialties: ['Data Management', 'SSR', 'Hydration'],
@@ -304,6 +397,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Aadit Olkar',
     avatar: 'https://github.com/aadito123.png',
     github: 'aadito123',
+    location: {
+      latitude: 22.3193,
+      longitude: 114.1694,
+    },
     maintainerOf: ['form'],
     frameworkExpertise: ['solid'],
     social: {
@@ -314,6 +411,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Harry Whorlow',
     avatar: 'https://github.com/harry-whorlow.png',
     github: 'harry-whorlow',
+    location: {
+      latitude: 52.52,
+      longitude: 13.4049,
+    },
     maintainerOf: ['form', 'devtools'],
     frameworkExpertise: ['react'],
     social: {
@@ -325,6 +426,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Luca Jakob',
     avatar: 'https://github.com/LeCarbonator.png',
     github: 'LeCarbonator',
+    location: {
+      latitude: 47.047444,
+      longitude: 9.439917,
+    },
     maintainerOf: ['form'],
     frameworkExpertise: ['react'],
   },
@@ -332,32 +437,28 @@ export const allMaintainers: Maintainer[] = [
     name: 'Jonghyeon Ko',
     avatar: 'https://github.com/manudeli.png',
     github: 'manudeli',
+    location: {
+      latitude: 37.5665,
+      longitude: 126.978,
+    },
     maintainerOf: ['query'],
     frameworkExpertise: ['react'],
     specialties: ['TypeScript', 'Backport', 'Test'],
     social: {
       twitter: 'https://x.com/manudeli_',
-      bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
       linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
-    },
-  },
-  {
-    name: 'Wonsuk Choi',
-    avatar: 'https://github.com/sukvvon.png',
-    github: 'sukvvon',
-    maintainerOf: ['query'],
-    frameworkExpertise: ['react'],
-    specialties: ['TypeScript', 'Test'],
-    social: {
-      linkedIn: 'https://www.linkedin.com/in/sukvvon',
-      twitter: 'https://x.com/sukvvon',
-      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
+      website: 'https://manudeli.kr',
     },
   },
   {
     name: 'Sarah Gerrard',
+    isCoreMaintainer: true,
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
+    location: {
+      latitude: 49.2827,
+      longitude: -123.1207,
+    },
     creatorOf: ['intent'],
     contributorOf: [
       'ai',
@@ -376,7 +477,7 @@ export const allMaintainers: Maintainer[] = [
       'virtual',
     ],
     frameworkExpertise: ['react', 'solid'],
-    specialties: ['Documentation', 'Architecture'],
+    specialties: ['Documentation', 'Architecture', 'Performance'],
     social: {
       bluesky: 'https://bsky.app/profile/ladybluenotes.dev',
       twitter: 'https://x.com/ladybluenotes',
@@ -388,6 +489,10 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/lachlancollins.png',
     github: 'lachlancollins',
+    location: {
+      latitude: -35.2809,
+      longitude: 149.13,
+    },
     maintainerOf: ['config', 'query'],
     contributorOf: [
       'start',
@@ -406,6 +511,10 @@ export const allMaintainers: Maintainer[] = [
     avatar:
       'https://cdn.bsky.app/img/avatar/plain/did:plc:gtnigsmgu7jyrc4tnkvn62qw/bafkreiceysbj4o6jrbbniudtwj3tcsns6rvwcxyjsqiaumeojurwbkki5a@jpeg',
     github: 'riccardoperra',
+    location: {
+      latitude: 41.9028,
+      longitude: 12.4964,
+    },
     maintainerOf: ['table'],
     contributorOf: ['devtools', 'hotkeys', 'pacer'],
     frameworkExpertise: ['angular', 'solid'],
@@ -417,8 +526,31 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Benjamín Vicente',
+    avatar: 'https://github.com/benjavicente.png',
+    github: 'benjavicente',
+    location: {
+      latitude: -33.4489,
+      longitude: -70.6693,
+    },
+    maintainerOf: ['query'],
+    contributorOf: ['pacer'],
+    frameworkExpertise: ['angular'],
+    specialties: ['Reactivity', 'SSR', 'Migrations'],
+    social: {
+      twitter: 'https://x.com/benjavicenteg',
+      bluesky: 'https://bsky.app/profile/benjavicente.dev',
+      linkedIn: 'https://www.linkedin.com/in/benjavicente',
+      website: 'https://benjavicente.dev',
+    },
+  },
+  {
     name: 'Tom Beckenham',
     github: 'tombeckenham',
+    location: {
+      latitude: -33.8688,
+      longitude: 151.2093,
+    },
     avatar: 'https://github.com/tombeckenham.png',
     maintainerOf: ['ai'],
     frameworkExpertise: [],
@@ -430,6 +562,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Brenley Dueck',
     avatar: 'https://github.com/brenelz.png',
     github: 'brenelz',
+    location: {
+      latitude: 49.8951,
+      longitude: -97.1384,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react', 'solid'],
     specialties: [],
@@ -443,6 +579,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Brooke Holmes',
     avatar: 'https://github.com/brhx.png',
     github: 'brhx',
+    location: {
+      latitude: 53.8008,
+      longitude: -1.5491,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['TypeScript'],
@@ -456,6 +596,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Arnoud de Vries',
     avatar: 'https://github.com/arnoud-dv.png',
     github: 'arnoud-dv',
+    location: {
+      latitude: 52.0907,
+      longitude: 5.1214,
+    },
     maintainerOf: ['query'],
     frameworkExpertise: ['angular', 'react'],
     specialties: [
@@ -487,6 +631,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Aryan Deora',
     avatar: 'https://github.com/ardeora.png',
     github: 'ardeora',
+    location: {
+      latitude: 39.1653,
+      longitude: -86.5264,
+    },
     maintainerOf: ['query'],
     frameworkExpertise: ['solid'],
     specialties: ['Dev Tools'],
@@ -501,6 +649,10 @@ export const allMaintainers: Maintainer[] = [
     contributorOf: ['table'],
     frameworkExpertise: ['svelte', 'solid', 'vue'],
     github: 'Mokshit06',
+    location: {
+      latitude: 37.7749,
+      longitude: -122.4194,
+    },
     social: {
       twitter: 'https://x.com/mokshit06',
       website: 'https://mokshitjain.co',
@@ -509,6 +661,10 @@ export const allMaintainers: Maintainer[] = [
   {
     name: 'Walker Lockard',
     github: 'walker-tx',
+    location: {
+      latitude: 32.7555,
+      longitude: -97.3308,
+    },
     avatar: 'https://github.com/walker-tx.png',
     contributorOf: ['table'],
     frameworkExpertise: ['svelte', 'react'],
@@ -529,6 +685,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Damian Osipiuk',
     avatar: 'https://github.com/DamianOsipiuk.png',
     github: 'DamianOsipiuk',
+    location: {
+      latitude: 52.2297,
+      longitude: 21.0122,
+    },
     maintainerOf: ['query'],
     frameworkExpertise: ['vue'],
     specialties: [],
@@ -545,6 +705,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Kevin De Porre',
     avatar: 'https://github.com/kevin-dp.png',
     github: 'kevin-dp',
+    location: {
+      latitude: 50.8503,
+      longitude: 4.3517,
+    },
     maintainerOf: ['db'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
@@ -553,6 +717,10 @@ export const allMaintainers: Maintainer[] = [
     name: 'Shruti Kapoor',
     avatar: 'https://github.com/shrutikapoor08.png',
     github: 'shrutikapoor08',
+    location: {
+      latitude: 47.6062,
+      longitude: -122.3321,
+    },
     contributorOf: ['start'],
     frameworkExpertise: ['react'],
     specialties: ['Education', 'Documentation'],
@@ -566,11 +734,31 @@ export const allMaintainers: Maintainer[] = [
     name: 'Nico Lynzaad',
     avatar: 'https://github.com/nlynzaad.png',
     github: 'nlynzaad',
+    location: {
+      latitude: -25.7479,
+      longitude: 28.2293,
+    },
     maintainerOf: ['router'],
     frameworkExpertise: ['react'],
     specialties: [],
     social: {
       twitter: 'https://twitter.com/NLynzaad',
+    },
+    workshopsAvailable: false,
+  },
+  {
+    name: 'Ciarán Curley',
+    avatar:
+      'https://i8qrvymqoy.ufs.sh/f/5bi1XUVQkRmSSCXecObVfEJ4jbILkeMFwiotspxWBCUX32qG',
+    github: 'DogPawHat',
+    location: {
+      latitude: 53.35014,
+      longitude: -6.266155,
+    },
+    maintainerOf: ['query'],
+    social: {
+      bluesky: 'https://bsky.app/profile/dogpawhat.tech',
+      linkedIn: 'https://www.linkedin.com/in/dogpawhat/',
     },
     workshopsAvailable: false,
   },
@@ -641,6 +829,20 @@ export function getLibraryContributors(libraryId: string): Maintainer[] {
   )
 
   return [...new Set([...maintainers, ...contributors])]
+}
+
+export function getMaintainersForLibraries(libraryIds?: Library['id'][]) {
+  if (!libraryIds?.length) return allMaintainers
+
+  return allMaintainers.filter((maintainer) =>
+    libraryIds.some(
+      (id) =>
+        maintainer.creatorOf?.includes(id) ||
+        maintainer.maintainerOf?.includes(id) ||
+        maintainer.contributorOf?.includes(id) ||
+        maintainer.consultantOf?.includes(id),
+    ),
+  )
 }
 
 export function getPersonsCreatorOf(person: Maintainer): LibrarySlim[] {

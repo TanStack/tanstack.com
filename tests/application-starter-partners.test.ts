@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
+import type { PartnerPlacement } from '../src/utils/analytics'
 
 const require = createRequire(import.meta.url)
 const loadAsset: NodeJS.RequireExtensions[string] = (module, filename) => {
@@ -13,10 +14,12 @@ require.extensions['.svg'] = loadAsset
 
 const {
   resolveApplicationStarterDeterministically,
+  getStarterMigrationGuideUrl,
 }: typeof import('../src/utils/application-starter') = require('../src/utils/application-starter')
 const {
   composeApplicationStarterInput,
   getInferredApplicationStarterPartnerIdsFromUserInput,
+  getPartnerHref,
   partners,
 }: typeof import('../src/utils/partners') = require('../src/utils/partners')
 const {
@@ -29,6 +32,13 @@ const {
   createRailwayPartnerPageModel,
   getRailwayPartnerPageModel,
 }: typeof import('../src/utils/railway-partner') = require('../src/utils/railway-partner')
+const {
+  getStartHostingPartners,
+}: typeof import('../src/utils/start-hosting-partners') = require('../src/utils/start-hosting-partners')
+const {
+  getPartnerPlacementContext,
+  getPartnerTierGroupsForPlacement,
+}: typeof import('../src/utils/partner-placement') = require('../src/utils/partner-placement')
 const {
   addOn: reactRailwayAddOn,
 }: typeof import('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway') = require('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway')
@@ -356,4 +366,249 @@ test('OpenRouter guidance prefers the TanStack AI adapter', async () => {
   })
 
   assert.match(result.prompt, /@tanstack\/ai-openrouter/)
+})
+
+test('selected Vercel partner uses the Vercel deployment target', async () => {
+  const input = composeApplicationStarterInput(
+    'Build a full-stack app.',
+    ['vercel'],
+    [],
+  )
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input,
+  })
+
+  assert.equal(result.recipe.deployment, 'vercel')
+  assert.match(result.cliCommand, /--deployment vercel/)
+})
+
+test('selected Render partner uses the Render deployment target', async () => {
+  const input = composeApplicationStarterInput(
+    'Build a full-stack app.',
+    ['render'],
+    [],
+  )
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input,
+  })
+
+  assert.equal(result.recipe.deployment, 'render')
+  assert.match(result.cliCommand, /--deployment render/)
+})
+
+test('hosting names infer their matching partner and deployment target', async () => {
+  for (const hosting of [
+    { id: 'render', name: 'Render' },
+    { id: 'vercel', name: 'Vercel' },
+  ]) {
+    const input = `Build a full-stack app and deploy to ${hosting.name}.`
+    const inferredPartnerIds =
+      getInferredApplicationStarterPartnerIdsFromUserInput(input, [])
+    const result = await resolveApplicationStarterDeterministically({
+      context: 'home',
+      input,
+    })
+
+    assert.ok(inferredPartnerIds.includes(hosting.id))
+    assert.equal(result.recipe.deployment, hosting.id)
+    assert.match(result.cliCommand, new RegExp(`--deployment ${hosting.id}`))
+  }
+})
+
+test('ordinary rendering language does not select Render hosting', async () => {
+  for (const input of [
+    'Render a chart with server data.',
+    'Server render this page before hydration.',
+    'Deploy a canvas app that uses WebGL to render charts.',
+  ]) {
+    const inferredPartnerIds =
+      getInferredApplicationStarterPartnerIdsFromUserInput(input, [])
+    const result = await resolveApplicationStarterDeterministically({
+      context: 'home',
+      input,
+    })
+
+    assert.equal(inferredPartnerIds.includes('render'), false)
+    assert.notEqual(result.recipe.deployment, 'render')
+    assert.doesNotMatch(result.cliCommand, /--deployment render/)
+  }
+})
+
+test('Render uses per-placement UTM content for approved surfaces', () => {
+  const renderPartner = partners.find((p) => p.id === 'render')
+  assert.ok(renderPartner, 'Render partner should exist')
+
+  const placements: PartnerPlacement[] = [
+    'home_grid',
+    'library_grid',
+    'docs_rail',
+    'docs_strip',
+  ]
+  for (const placement of placements) {
+    const href = getPartnerHref(renderPartner, placement)
+    assert.match(
+      href,
+      new RegExp(`utm_content=${placement}`),
+      `Render href for ${placement} should include utm_content=${placement}`,
+    )
+    assert.match(href, /render\.com/, 'Should point to render.com')
+    assert.match(href, /utm_source=tanstack/, 'Should include utm_source')
+    assert.match(
+      href,
+      /utm_campaign=gold-launch/,
+      'Should include utm_campaign',
+    )
+  }
+
+  const defaultHref = getPartnerHref(renderPartner, 'directory')
+  assert.doesNotMatch(
+    defaultHref,
+    /utm_content/,
+    'Render href for other placements should not include utm_content',
+  )
+})
+
+test('other partners use their default href regardless of placement', () => {
+  const vercel = partners.find((p) => p.id === 'vercel')
+  assert.ok(vercel, 'Vercel partner should exist')
+
+  const placements: PartnerPlacement[] = [
+    'home_grid',
+    'library_grid',
+    'docs_rail',
+    'docs_strip',
+    'directory',
+  ]
+  for (const placement of placements) {
+    const href = getPartnerHref(vercel, placement)
+    assert.equal(
+      href,
+      vercel.href,
+      `Vercel href should be unchanged for ${placement}`,
+    )
+  }
+})
+
+test('Cloudflare, Vercel, and Render rotate with the gold Start hosting partners', () => {
+  const hostingPartners = getStartHostingPartners()
+
+  for (const partnerId of ['cloudflare', 'vercel', 'render']) {
+    const partner = hostingPartners.find(
+      (candidate) => candidate.id === partnerId,
+    )
+
+    assert.ok(partner)
+    assert.equal(partner.tier, 'gold')
+  }
+
+  const positions = new Map([
+    ['cloudflare', new Set<number>()],
+    ['vercel', new Set<number>()],
+    ['render', new Set<number>()],
+  ])
+
+  for (let seedIndex = 0; seedIndex < 32; seedIndex++) {
+    const context = getPartnerPlacementContext({
+      category: 'deployment',
+      orderStrategy: 'tier-rotated',
+      seed: `start-hosting-test-${seedIndex}`,
+      surface: 'docs_strip',
+    })
+    const goldPartners = getPartnerTierGroupsForPlacement(
+      hostingPartners,
+      context,
+    ).find((group) => group.tier === 'gold')?.partners
+
+    assert.ok(goldPartners)
+    for (const [partnerId, partnerPositions] of positions) {
+      const position = goldPartners.findIndex(
+        (partner) => partner.id === partnerId,
+      )
+      assert.notEqual(position, -1)
+      partnerPositions.add(position)
+    }
+  }
+
+  for (const partnerPositions of positions.values()) {
+    assert.ok(partnerPositions.size > 1)
+  }
+})
+
+test('migration prompts include the matching migration guide', async () => {
+  for (const [source, guide] of [
+    [
+      'Next.js',
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    ],
+    [
+      'Remix',
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ],
+    [
+      'React Router',
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ],
+  ]) {
+    const result = await resolveApplicationStarterDeterministically({
+      context: 'home',
+      input: `Migrate my ${source} app to TanStack Start.`,
+    })
+    assert.ok(result.prompt.includes(`Fetch ${guide}`))
+    assert.ok(result.prompt.includes('do not apply in-place setup steps'))
+  }
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Build a dashboard.',
+  })
+  assert.equal(result.prompt.includes('Fetch https://tanstack.com/'), false)
+})
+
+test('migration guides distinguish framework names from timing and accept multiline briefs', () => {
+  assert.equal(
+    getStarterMigrationGuideUrl('Migrate my Remix app next week'),
+    'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+  )
+  assert.equal(getStarterMigrationGuideUrl('Migrate my app next week'), null)
+  for (const input of [
+    'Migrate my app\nfrom Next.js to TanStack Start',
+    'Next.js app\nneeds migration',
+    'Migrate my Next app to TanStack Start',
+  ]) {
+    assert.equal(
+      getStarterMigrationGuideUrl(input),
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    )
+  }
+  assert.equal(
+    getStarterMigrationGuideUrl('Migrate my app\nfrom Remix to TanStack Start'),
+    'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+  )
+})
+
+test('migration source ignores next week when the source is Remix', async () => {
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Migrate my Remix app next week to TanStack Start.',
+  })
+  assert.ok(result.prompt.startsWith('Migrate remix into a fresh'))
+  assert.ok(
+    result.prompt.includes(
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ),
+  )
+})
+
+test('migration source recognizes a Next site', async () => {
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Migrate my Next site to TanStack Start.',
+  })
+  assert.ok(result.prompt.startsWith('Migrate next into a fresh'))
+  assert.ok(
+    result.prompt.includes(
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    ),
+  )
 })

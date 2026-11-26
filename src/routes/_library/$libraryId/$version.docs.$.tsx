@@ -10,6 +10,7 @@ import {
 } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
+import { DocsPending } from '~/components/DocsPending'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 import { getDocsEmbedRuntimeHeaders } from '~/utils/docs-embed-headers'
 import {
@@ -156,14 +157,22 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
 })
 
 function Docs() {
-  const { version, libraryId, _splat } = Route.useParams()
-  const { content, filePath, title, freshness, canonicalPathOverride } =
-    Route.useLoaderData()
+  const { version, libraryId } = Route.useParams()
+  const loaderData = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
+  const location = useLocation()
+
+  // The match can render before its loader resolves (e.g. a version switch
+  // that commits while an intent preload is still in flight).
+  if (!loaderData) {
+    return <DocsPending />
+  }
+
+  const { content, filePath, title, freshness, canonicalPathOverride } =
+    loaderData
   const config = versionMatch.loaderData?.config
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
-  const location = useLocation()
 
   return (
     <DocContainer>

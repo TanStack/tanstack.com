@@ -1244,7 +1244,7 @@ export function MaintainersMap({ maintainers }: MaintainersMapProps) {
                   <button
                     {...profileTriggerProps(group.id, 'count')}
                     data-globe-count
-                    aria-label={`Show ${group.members.map((member) => member.name).join(', ')}`}
+                    aria-label={`Show ${group.members.length} ${group.members.length === 1 ? 'maintainer' : 'maintainers'}: ${group.members.map((member) => member.name).join(', ')}`}
                     className="invisible pointer-events-auto absolute left-0 top-0 inline-flex h-7 w-max items-center gap-1 rounded-full border border-border-default dark:border-white/20 bg-background-elevated/95 px-2 text-xs font-semibold tabular-nums shadow-sm group-data-[offscreen]/profile:visible group-data-[offscreen]/profile:static"
                   >
                     <span aria-hidden="true" className="flex -space-x-0.5">

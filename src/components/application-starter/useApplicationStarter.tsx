@@ -158,6 +158,13 @@ export function useApplicationStarter({
     defaultApplicationStarterSessionContext,
   )
 
+  const hasTrackedView = React.useRef(false)
+  React.useEffect(() => {
+    if (hasTrackedView.current) return
+    hasTrackedView.current = true
+    trackEvent('application_starter_viewed', sessionContextRef.current)
+  }, [])
+
   const setSessionIdea = React.useCallback((label: string) => {
     sessionContextRef.current = {
       ...sessionContextRef.current,

@@ -16,6 +16,7 @@ import {
   type Provider,
 } from '../../src/chat/core/types'
 import type { RunModelSelection } from '../../src/chat/core/run-model'
+import { resolveRunModelChoice } from '../../src/chat/components/useRunModel'
 
 const state = vi.hoisted(() => ({
   credentials: null as Credentials | null,
@@ -424,6 +425,149 @@ describe('model catalog and policy', () => {
     configured('compatible', 'custom', { baseUrl: 'https://models.example/v1' })
     expect((await resolveRunModel(env, scope)).connection.baseUrl).toBe(
       'https://models.example/v1',
+    )
+  })
+})
+
+describe('OpenAI December 2026 retirement', () => {
+  const retiringModels = [
+    'gpt-5',
+    'gpt-5-2025-08-07',
+    'gpt-5-mini',
+    'gpt-5-mini-2025-08-07',
+    'gpt-5-nano',
+    'gpt-5-nano-2025-08-07',
+    'gpt-5-pro',
+    'gpt-5-pro-2025-10-06',
+    'o3',
+    'o3-2025-04-16',
+    'o3-pro',
+    'o3-pro-2025-06-10',
+  ]
+  const modelProviders: Provider[] = ['openai', 'openrouter', 'vercel']
+
+  it.each(modelProviders)(
+    'marks retiring %s models without marking other GPT-5 or o-series models',
+    async (provider) => {
+      const prefix = provider === 'openai' ? '' : 'openai/'
+      configured(provider, `${prefix}gpt-5.6-sol`)
+      const catalog = await getRunModelCatalog(env, scope)
+      const choices = catalog.choices
+        .filter(
+          (choice) =>
+            choice.selection.provider === provider && !choice.retiring,
+        )
+        .map((choice) => choice.selection.model)
+      for (const model of retiringModels)
+        expect(choices).not.toContain(`${prefix}${model}`)
+      for (const model of ['gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'])
+        expect(choices).toContain(`${prefix}${model}`)
+      const installed =
+        provider === 'openai'
+          ? OPENAI_CHAT_MODELS
+          : provider === 'openrouter'
+            ? OPENROUTER_CHAT_MODELS
+            : VERCEL_GATEWAY_CHAT_MODELS
+      for (const model of installed)
+        if (
+          !model.startsWith('~') &&
+          !model.endsWith(':batch') &&
+          !retiringModels.includes(model.replace(/^openai\//, ''))
+        )
+          expect(choices).toContain(model)
+    },
+  )
+
+  it.each(modelProviders)(
+    'keeps configured and pinned %s selections without silently migrating them',
+    async (provider) => {
+      const prefix = provider === 'openai' ? '' : 'openai/'
+      for (const model of retiringModels) {
+        const selection = select(provider, `${prefix}${model}`)
+        configured(provider, selection.model)
+        const catalog = await getRunModelCatalog(env, scope)
+        expect(catalog.defaultSelection).toEqual(selection)
+        expect(
+          catalog.choices.find(
+            (choice) => choice.selection.model === selection.model,
+          )?.label,
+        ).toBe(`${selection.model} (retires December 11, 2026)`)
+        if (
+          provider === 'openai' &&
+          !OPENAI_CHAT_MODELS.some((candidate) => candidate === model)
+        )
+          await expect(resolveRunModel(env, scope)).rejects.toMatchObject({
+            status: 409,
+          })
+        else {
+          expect((await resolveRunModel(env, scope)).selection).toEqual(
+            selection,
+          )
+          expect(resolveRunModelChoice(selection, catalog).error).toBe('')
+        }
+      }
+      const pinned = select(provider, `${prefix}gpt-5-mini`)
+      configured(provider, `${prefix}gpt-5.6-terra`)
+      expect(
+        (await resolveRunModel(env, { ...scope, selection: pinned })).selection,
+      ).toEqual(pinned)
+      const catalog = await getRunModelCatalog(env, scope)
+      expect(resolveRunModelChoice(pinned, catalog)).toMatchObject({
+        choice: { selection: pinned, retiring: true },
+        error: '',
+      })
+    },
+  )
+
+  it.each(['gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'])(
+    'exposes reviewed reasoning and attachments for %s',
+    async (model) => {
+      configured('openai', model)
+      const catalog = await getRunModelCatalog(env, scope)
+      const choice = catalog.choices.find(
+        (choice) => choice.selection.model === model,
+      )
+      const efforts = ['none', 'low', 'medium', 'high', 'xhigh', 'max']
+      expect(choice?.reasoning.map((option) => option.value)).toEqual([
+        'default',
+        ...efforts,
+      ])
+      expect(choice?.attachments).toEqual(['image', 'pdf'])
+      expect((await resolveRunModel(env, scope)).modelOptions).toEqual({
+        max_output_tokens: 2048,
+      })
+      for (const effort of efforts)
+        expect(
+          (
+            await resolveRunModel(env, {
+              ...scope,
+              selection: select('openai', model, effort),
+            })
+          ).modelOptions,
+        ).toEqual({
+          max_output_tokens: 2048,
+          reasoning: { effort },
+        })
+      await expect(
+        resolveRunModel(env, {
+          ...scope,
+          selection: select('openai', model, 'minimal'),
+        }),
+      ).rejects.toMatchObject({ status: 400 })
+    },
+  )
+
+  it('does not infer retirement for a custom compatible endpoint', async () => {
+    configured('compatible', 'gpt-5', {
+      baseUrl: 'https://models.example/v1',
+    })
+    const catalog = await getRunModelCatalog(env, scope)
+    const selected = resolveRunModelChoice(catalog.defaultSelection, catalog)
+    expect(selected.error).toBe('')
+    expect(selected.choice?.retiring).toBeUndefined()
+    expect(selected.choice?.label).toBe('gpt-5')
+    expect((await resolveRunModel(env, scope)).selection).toEqual(
+      catalog.defaultSelection,
     )
   })
 })

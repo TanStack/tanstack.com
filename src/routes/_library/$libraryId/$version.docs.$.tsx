@@ -10,6 +10,7 @@ import {
 } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
+import { MissingDocsLoaderData } from '~/components/MissingDocsLoaderData'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 import { getDocsEmbedRuntimeHeaders } from '~/utils/docs-embed-headers'
 import {
@@ -156,14 +157,31 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
 })
 
 function Docs() {
-  const { version, libraryId, _splat } = Route.useParams()
-  const { content, filePath, title, freshness, canonicalPathOverride } =
-    Route.useLoaderData()
+  const params = Route.useParams()
+  const { version, libraryId } = params
+  // The router can briefly render this match before its loader data is
+  // available during client-side navigation; wait for it instead of crashing.
+  const loaderData = Route.useLoaderData() as
+    | ReturnType<typeof Route.useLoaderData>
+    | undefined
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
+  const location = useLocation()
+
+  if (!loaderData) {
+    return (
+      <MissingDocsLoaderData
+        routeId="/_library/$libraryId/$version/docs/$"
+        params={params}
+        pathname={location.pathname}
+      />
+    )
+  }
+
+  const { content, filePath, title, freshness, canonicalPathOverride } =
+    loaderData
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
-  const location = useLocation()
 
   return (
     <DocContainer>

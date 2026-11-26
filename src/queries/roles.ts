@@ -11,22 +11,22 @@ export interface ListRolesFilters {
   capabilityFilter?: Capability[]
 }
 
-export const listRolesQueryOptions = (filters?: ListRolesFilters) =>
-  queryOptions({
-    queryKey: ['admin', 'roles', filters],
-    queryFn: () => listRoles({ data: filters || {} }),
-  })
-
-export const getBulkUserRolesQueryOptions = (userIds: string[]) =>
-  queryOptions({
-    queryKey: ['admin', 'bulkUserRoles', userIds],
-    queryFn: () => getBulkUserRoles({ data: { userIds } }),
-    enabled: userIds.length > 0,
-  })
-
-export const getBulkEffectiveCapabilitiesQueryOptions = (userIds: string[]) =>
-  queryOptions({
-    queryKey: ['admin', 'bulkEffectiveCapabilities', userIds],
-    queryFn: () => getBulkEffectiveCapabilities({ data: { userIds } }),
-    enabled: userIds.length > 0,
-  })
+export const rolesQueries = {
+  list: (filters?: ListRolesFilters) =>
+    queryOptions({
+      queryKey: ['admin', 'roles', filters],
+      queryFn: () => listRoles({ data: filters || {} }),
+    }),
+  bulkUserRoles: (userIds: string[]) =>
+    queryOptions({
+      queryKey: ['admin', 'bulkUserRoles', userIds],
+      queryFn: () => getBulkUserRoles({ data: { userIds } }),
+      enabled: userIds.length > 0,
+    }),
+  bulkEffectiveCapabilities: (userIds: string[]) =>
+    queryOptions({
+      queryKey: ['admin', 'bulkEffectiveCapabilities', userIds],
+      queryFn: () => getBulkEffectiveCapabilities({ data: { userIds } }),
+      enabled: userIds.length > 0,
+    }),
+}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query'
-import { docsPathManifestQueryOptions } from '../src/queries/docsManifest'
+import { docsManifestQueries } from '../src/queries/docsManifest'
 import { resolveDocsRoutePath } from '../src/utils/docs'
 
 const request = {
@@ -12,7 +12,7 @@ const request = {
 
 test('docs navigation reuses the manifest hydrated by the server', async () => {
   const serverClient = new QueryClient()
-  serverClient.setQueryData(docsPathManifestQueryOptions(request).queryKey, {
+  serverClient.setQueryData(docsManifestQueries.paths(request).queryKey, {
     paths: ['routing/routing-concepts', 'routing/route-trees'],
     redirects: {},
   })
@@ -64,7 +64,7 @@ test('cached manifests stay separate for each repository, branch, and docs root'
 
   try {
     for (const [index, data] of requests.entries()) {
-      queryClient.setQueryData(docsPathManifestQueryOptions(data).queryKey, {
+      queryClient.setQueryData(docsManifestQueries.paths(data).queryKey, {
         paths: [`page-${index}`],
         redirects: {},
       })

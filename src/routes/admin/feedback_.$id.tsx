@@ -5,6 +5,7 @@ import {
   moderateDocFeedback,
 } from '~/utils/docFeedback.functions'
 import { libraries } from '~/libraries'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 import {
   ArrowLeftIcon,
   ChatCenteredIcon,
@@ -47,7 +48,9 @@ function FeedbackDetailPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'feedback', id] })
-      queryClient.invalidateQueries({ queryKey: ['docFeedback', 'moderation'] })
+      queryClient.invalidateQueries({
+        queryKey: docFeedbackQueries.moderations(),
+      })
     },
   })
 

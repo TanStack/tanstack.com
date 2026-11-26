@@ -1,11 +1,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  deleteDocFeedback,
-  updateDocFeedback,
-  updateDocFeedbackCollapsed,
-} from '~/utils/docFeedback.functions'
+import { docFeedbackMutations, docFeedbackQueries } from '~/queries/docFeedback'
 import type { DocFeedback } from '~/db/types'
 import {
   CaretDownIcon,
@@ -87,19 +83,19 @@ export function DocFeedbackNote({
     firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine
 
   const deleteMutation = useMutation({
-    mutationFn: deleteDocFeedback,
+    ...docFeedbackMutations.delete(),
     onMutate: async () => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
+      await queryClient.cancelQueries({ queryKey: docFeedbackQueries.all() })
 
       // Snapshot the previous value
       const previousData = queryClient.getQueriesData({
-        queryKey: ['docFeedback'],
+        queryKey: docFeedbackQueries.all(),
       })
 
       // Optimistically remove the note from all matching queries
       queryClient.setQueriesData(
-        { queryKey: ['docFeedback'] },
+        { queryKey: docFeedbackQueries.all() },
         (old: DocFeedbackCacheData) => {
           if (!old || typeof old !== 'object') return old
 
@@ -140,24 +136,24 @@ export function DocFeedbackNote({
       setIsDeleting(false)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['docFeedback'] })
+      queryClient.invalidateQueries({ queryKey: docFeedbackQueries.all() })
     },
   })
 
   const updateMutation = useMutation({
-    mutationFn: updateDocFeedback,
+    ...docFeedbackMutations.update(),
     onMutate: async (variables) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
+      await queryClient.cancelQueries({ queryKey: docFeedbackQueries.all() })
 
       // Snapshot the previous value
       const previousData = queryClient.getQueriesData({
-        queryKey: ['docFeedback'],
+        queryKey: docFeedbackQueries.all(),
       })
 
       // Optimistically update the note content
       queryClient.setQueriesData(
-        { queryKey: ['docFeedback'] },
+        { queryKey: docFeedbackQueries.all() },
         (old: DocFeedbackCacheData) => {
           if (!old || typeof old !== 'object') return old
 
@@ -214,24 +210,24 @@ export function DocFeedbackNote({
       setIsSaving(false)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['docFeedback'] })
+      queryClient.invalidateQueries({ queryKey: docFeedbackQueries.all() })
     },
   })
 
   const collapsedMutation = useMutation({
-    mutationFn: updateDocFeedbackCollapsed,
+    ...docFeedbackMutations.updateCollapsed(),
     onMutate: async (variables) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
+      await queryClient.cancelQueries({ queryKey: docFeedbackQueries.all() })
 
       // Snapshot the previous value
       const previousData = queryClient.getQueriesData({
-        queryKey: ['docFeedback'],
+        queryKey: docFeedbackQueries.all(),
       })
 
       // Optimistically toggle collapsed state
       queryClient.setQueriesData(
-        { queryKey: ['docFeedback'] },
+        { queryKey: docFeedbackQueries.all() },
         (old: DocFeedbackCacheData) => {
           if (!old || typeof old !== 'object') return old
 
@@ -274,7 +270,7 @@ export function DocFeedbackNote({
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['docFeedback'] })
+      queryClient.invalidateQueries({ queryKey: docFeedbackQueries.all() })
     },
   })
 

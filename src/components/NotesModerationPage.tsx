@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 import { NotesModerationTopBar } from './NotesModerationTopBar'
 import { NotesModerationList } from './NotesModerationList'
 import { Spinner } from '~/components/Spinner'
@@ -11,7 +11,7 @@ export function NotesModerationPage() {
   const search = useSearch({ from: '/admin/notes/' })
 
   const { data, isLoading, error } = useQuery(
-    listDocFeedbackForModerationQueryOptions({
+    docFeedbackQueries.moderation({
       pagination: {
         page: search.page,
         pageSize: search.pageSize,

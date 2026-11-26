@@ -5,11 +5,7 @@ import {
   StarIcon,
 } from '@phosphor-icons/react'
 import { type Library } from '~/libraries'
-import {
-  homepageNpmStatsSummaryQuery,
-  ossStatsQuery,
-  recentDownloadsQuery,
-} from '~/queries/stats'
+import { statsQueries } from '~/queries/stats'
 import { HomeStatNumber } from '~/components/home/HomeStatNumber'
 import { LiveDownloadCount } from '~/components/home/LiveDownloadCount'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
@@ -60,18 +56,20 @@ export default function OssStats({
   page?: StatsPage
   initialStats?: HomepageStatsSnapshot
 }) {
-  const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
+  const { data: stats, isLoading } = useQuery(
+    statsQueries.ossSummary({ library }),
+  )
   const {
     data: homepageNpmSummary,
     dataUpdatedAt,
     isLoading: isLoadingHomepageNpmSummary,
   } = useQuery({
-    ...homepageNpmStatsSummaryQuery(),
+    ...statsQueries.homepageNpmSummary(),
     enabled: !library,
   })
   const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
     useQuery({
-      ...recentDownloadsQuery({
+      ...statsQueries.recentDownloads({
         library: library ?? tanStackTotalNpmStatsLibrary,
       }),
       enabled: Boolean(library),

@@ -14,12 +14,14 @@ function getDocsConfigRequest(libraryId: LibraryId, version: string) {
   }
 }
 
-export function docsConfigQueryOptions(libraryId: LibraryId, version: string) {
-  const request = getDocsConfigRequest(libraryId, version)
+export const docsConfigQueries = {
+  detail: (libraryId: LibraryId, version: string) => {
+    const request = getDocsConfigRequest(libraryId, version)
 
-  return queryOptions({
-    queryKey: ['docs-config', request.repo, request.branch, request.docsRoot],
-    queryFn: () => getTanstackDocsConfig({ data: request }),
-    staleTime: 1000 * 60 * 5,
-  })
+    return queryOptions({
+      queryKey: ['docs-config', request.repo, request.branch, request.docsRoot],
+      queryFn: () => getTanstackDocsConfig({ data: request }),
+      staleTime: 1000 * 60 * 5,
+    })
+  },
 }

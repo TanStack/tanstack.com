@@ -34,12 +34,8 @@ import {
   type SignupSource,
 } from '~/db/types'
 import * as v from 'valibot'
-import { listUsersQueryOptions } from '~/queries/users'
-import {
-  listRolesQueryOptions,
-  getBulkUserRolesQueryOptions,
-  getBulkEffectiveCapabilitiesQueryOptions,
-} from '~/queries/roles'
+import { usersQueries } from '~/queries/users'
+import { rolesQueries } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
 import {
   FloppyDiskIcon,
@@ -287,7 +283,7 @@ function UsersPage() {
   const pageSize = search.pageSize ?? 10
 
   const usersQuery = useQuery({
-    ...listUsersQueryOptions({
+    ...usersQueries.list({
       pagination: {
         limit: pageSize,
         page: currentPageIndex,
@@ -316,7 +312,7 @@ function UsersPage() {
   const bulkAssignRolesToUsers = useBulkAssignRolesToUsers()
   const bulkUpdateUserCapabilities = useBulkUpdateUserCapabilities()
   const allRolesQuery = useQuery({
-    ...listRolesQueryOptions({}),
+    ...rolesQueries.list({}),
     placeholderData: keepPreviousData,
   })
   const allRoles = useMemo(() => allRolesQuery.data || [], [allRolesQuery.data])
@@ -327,12 +323,12 @@ function UsersPage() {
     [usersQuery?.data?.page],
   )
   const bulkUserRolesQuery = useQuery({
-    ...getBulkUserRolesQueryOptions(userIds),
+    ...rolesQueries.bulkUserRoles(userIds),
     placeholderData: keepPreviousData,
   })
   const bulkUserRoles = bulkUserRolesQuery.data
   const bulkEffectiveCapabilitiesQuery = useQuery({
-    ...getBulkEffectiveCapabilitiesQueryOptions(userIds),
+    ...rolesQueries.bulkEffectiveCapabilities(userIds),
     placeholderData: keepPreviousData,
   })
   const bulkEffectiveCapabilities = bulkEffectiveCapabilitiesQuery.data

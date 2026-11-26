@@ -2,8 +2,7 @@ import { PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getMyShowcasesQueryOptions } from '~/queries/showcases'
-import { deleteShowcase } from '~/utils/showcase.functions'
+import { showcasesMutations, showcasesQueries } from '~/queries/showcases'
 import { libraries } from '~/libraries'
 import { useToast } from '~/components/ToastProvider'
 import { seo } from '~/utils/seo'
@@ -22,7 +21,7 @@ import { Badge, Button } from '~/ui'
 export const Route = createFileRoute('/account/submissions')({
   loader: async ({ context: { queryClient } }) => {
     await queryClient.ensureQueryData(
-      getMyShowcasesQueryOptions({
+      showcasesQueries.mineList({
         pagination: { page: 1, pageSize: 20 },
       }),
     )
@@ -43,20 +42,20 @@ function AccountSubmissionsPage() {
   const { notify } = useToast()
 
   const { data, isLoading } = useQuery(
-    getMyShowcasesQueryOptions({
+    showcasesQueries.mineList({
       pagination: { page: 1, pageSize: 20 },
     }),
   )
 
   const deleteMutation = useMutation({
-    mutationFn: deleteShowcase,
+    ...showcasesMutations.delete(),
     onSuccess: () => {
       notify(
         <div>
           <div className="font-medium">Showcase deleted</div>
         </div>,
       )
-      queryClient.invalidateQueries({ queryKey: ['showcases', 'mine'] })
+      queryClient.invalidateQueries({ queryKey: showcasesQueries.mine() })
     },
     onError: (error: Error) => {
       notify(

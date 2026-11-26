@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
-import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
+import { showcasesQueries } from '~/queries/showcases'
 import {
   libraryIdSchema,
   showcaseUseCaseSchema,
@@ -44,7 +44,7 @@ export const Route = createFileRoute('/community-projects')({
   }),
   loader: async ({ deps, context: { queryClient } }) => {
     await queryClient.ensureQueryData(
-      getApprovedShowcasesQueryOptions({
+      showcasesQueries.approved({
         pagination: {
           page: deps.page,
           pageSize: deps.pageSize,

@@ -2,7 +2,7 @@ import { redirect, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { FeedbackModerationPage } from '~/components/FeedbackModerationPage'
-import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
+import { docFeedbackQueries } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.functions'
 import {
   libraryIdSchema,
@@ -46,7 +46,7 @@ export const Route = createFileRoute('/admin/feedback/')({
   }),
   loader: async ({ deps, context: { queryClient } }) => {
     await queryClient.ensureQueryData(
-      listDocFeedbackForModerationQueryOptions({
+      docFeedbackQueries.moderation({
         pagination: {
           page: deps.page,
           pageSize: deps.pageSize,

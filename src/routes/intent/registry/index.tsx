@@ -3,12 +3,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
-import {
-  intentStatsQueryOptions,
-  intentDirectoryQueryOptions,
-  intentSkillSearchQueryOptions,
-  intentSkillHistoryQueryOptions,
-} from '~/queries/intent'
+import { intentQueries } from '~/queries/intent'
 import type {
   EnrichedIntentPackage,
   SkillHistoryEntry,
@@ -47,9 +42,9 @@ export const Route = createFileRoute('/intent/registry/')({
   }),
   loader: ({ deps, context: { queryClient } }) =>
     Promise.all([
-      queryClient.ensureQueryData(intentStatsQueryOptions()),
+      queryClient.ensureQueryData(intentQueries.stats()),
       queryClient.ensureQueryData(
-        intentDirectoryQueryOptions({
+        intentQueries.directory({
           search: deps.q,
           framework: deps.framework,
           sort: deps.sort,
@@ -74,12 +69,12 @@ function IntentRegistryPage() {
   const { q, tab, framework, sort, page, view } = Route.useSearch()
   const navigate = Route.useNavigate()
 
-  const statsQuery = useSuspenseQuery(intentStatsQueryOptions())
+  const statsQuery = useSuspenseQuery(intentQueries.stats())
   const directoryQuery = useSuspenseQuery(
-    intentDirectoryQueryOptions({ search: q, framework, sort, page }),
+    intentQueries.directory({ search: q, framework, sort, page }),
   )
   const skillSearchQuery = useQuery({
-    ...intentSkillSearchQueryOptions(q ?? ''),
+    ...intentQueries.skillSearch(q ?? ''),
     enabled: tab === 'skills' && (q?.trim().length ?? 0) > 0,
   })
 
@@ -95,7 +90,7 @@ function IntentRegistryPage() {
     [packageNames],
   )
   const skillHistoryQuery = useQuery(
-    intentSkillHistoryQueryOptions(skillHistoryPackageNames),
+    intentQueries.skillHistory(skillHistoryPackageNames),
   )
   const skillHistory = React.useMemo(
     () => skillHistoryQuery.data ?? {},

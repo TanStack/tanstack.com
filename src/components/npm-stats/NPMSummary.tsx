@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Suspense } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { BlankErrorBoundary } from '~/components/BlankErrorBoundary'
-import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
+import { statsQueries } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import type { Library } from '~/libraries'
 
@@ -85,11 +85,13 @@ function StatCard({
  */
 function NPMSummaryContent({ library }: { library: Library }) {
   // Fetch all-time stats (includes ratePerDay for animation)
-  const { data: ossStats } = useSuspenseQuery(ossStatsQuery({ library }))
+  const { data: ossStats } = useSuspenseQuery(
+    statsQueries.ossSummary({ library }),
+  )
 
   // Fetch recent download stats (daily, weekly, monthly)
   const { data: recentStats } = useSuspenseQuery(
-    recentDownloadsQuery({ library }),
+    statsQueries.recentDownloads({ library }),
   )
 
   return (

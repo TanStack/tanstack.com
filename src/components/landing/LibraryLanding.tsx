@@ -15,7 +15,7 @@ import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
-import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
+import { statsQueries } from '~/queries/stats'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 import { ChartsTextBackdrop } from './ChartsTextBackdrop'
 
@@ -619,8 +619,10 @@ function LandingWorkbench({
 
 function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
   const library = getLibrary(libraryId)
-  const { data: stats } = useQuery(ossStatsQuery({ library }))
-  const { data: downloads } = useQuery(recentDownloadsQuery({ library }))
+  const { data: stats } = useQuery(statsQueries.ossSummary({ library }))
+  const { data: downloads } = useQuery(
+    statsQueries.recentDownloads({ library }),
+  )
   const metrics = [
     {
       href: 'https://www.npmjs.com/org/tanstack',
